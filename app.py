@@ -238,12 +238,14 @@ if acceso_bloqueado:
     st.error(f"🚫 **Acceso Denegado:** {motivo_bloqueo}")
     st.info("Por favor, vuelve a escanear el código QR dinámico que el ponente está proyectando en vivo en la pantalla.")
     st.stop()
-# Captura de datos básicos del empleado
+    
+# Captura de datos básicos del empleado (Campos Obligatorios)
 st.header("📋 Datos de Control")
-nombre = st.text_input("Nombre Completo:", placeholder="Ej. Juan Pérez")
-whatsapp = st.text_input("Número de Contacto de WhatsApp:", placeholder="Ej. +52 633 123 4567")
+nombre = st.text_input("Nombre Completo *:", placeholder="Ej. Juan Pérez")
+whatsapp = st.text_input("Número de Contacto de WhatsApp *:", placeholder="Ej. +52 633 123 4567")
 
 st.divider()
+
 
 # Despliegue de los 7 gajos de autoevaluación del Modelo Mandarina
 st.header("📊 Evaluación de las 7 Dimensiones")
@@ -289,34 +291,42 @@ resultados_totales["Salud Temporal (ST)"] = st_sel
 st.subheader("🙏 Salud Espiritual (SPI)")
 spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
 resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
+
 st.divider()
 
 col_btn1, col_btn2 = st.columns(2)
 
+# Validación de campos obligatorios
+campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
+
 with col_btn1:
-    if st.button("💾 Guardar y Procesar Diagnóstico", type="primary"):
-        with st.spinner("Registrando tus gajos de salud de forma segura..."):
-            # Encriptamos el token usado directamente en la fila de Google Sheets
-            exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
-            if exito:
-                st.session_state.guardado_exitoso = True
-                st.success("¡Datos guardados con éxito en la nube!")
-            else:
-                st.session_state.guardado_exitoso = True
-                st.warning("Diagnóstico procesado de forma local (Sin conexión de red temporal).")
+    # El botón se mantiene normal pero el flujo valida la existencia de datos
+    if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
+        if not campos_completos:
+            st.error("⚠️ **Faltan datos obligatorios.** Por favor ingresa tu Nombre y WhatsApp antes de continuar.")
+        else:
+            with st.spinner("Registrando tus gajos de salud de forma segura..."):
+                exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
+                if exito:
+                    st.session_state.guardado_exitoso = True
+                    st.success("¡Datos guardados con éxito en la nube!")
+                else:
+                    st.session_state.guardado_exitoso = True
+                    st.warning("Diagnóstico procesado de forma local (Sin conexión de red temporal).")
 
 with col_btn2:
-    if st.session_state.guardado_exitoso:
+    if st.session_state.guardado_exitoso and campos_completos:
         bytes_reporte = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
         nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
         
-        # Eliminado use_container_width de aquí para evitar el StreamlitAPIException
         st.download_button(
             label="DESCARGAR RESULTADOS EN PDF 📥",
             data=bytes_reporte,
             file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
             mime="application/pdf"
         )
+    elif not campos_completos:
+        st.warning("⚠️ Escribe tu Nombre y WhatsApp arriba para liberar las opciones de procesamiento.")
     else:
         st.info("💡 Haz clic en 'Guardar y Procesar' para activar tu descarga.")
 
