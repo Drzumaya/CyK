@@ -245,6 +245,8 @@ whatsapp = st.text_input("Número de Contacto de WhatsApp:", placeholder="Ej. +5
 
 st.divider()
 
+col_btn1, col_btn2 = st.columns()
+
 # Despliegue de los 7 gajos de autoevaluación del Modelo Mandarina
 st.header("📊 Evaluación de las 7 Dimensiones")
 st.write("Selecciona los elementos específicos en los que requieres intervención:")
@@ -258,7 +260,7 @@ resultados_totales["Salud Física (SF)"] = [i for i in sf_items if st.checkbox(i
 
 # 2. SM
 st.subheader("🧠 Salud Mental (SM)")
-sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distraciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distractions)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
 resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
 
 # 3. SE
