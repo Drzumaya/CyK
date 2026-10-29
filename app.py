@@ -8,7 +8,10 @@ import datetime
 import hashlib
 import time
 
-# Enlace web de producción de tu ponencia en Streamlit Cloud
+# =================================================================
+# CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
+# =================================================================
+# IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
 URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
@@ -77,7 +80,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(10)
     
-    # Datos de usuario
+    # Datos de usuario - Con parámetros implícitos modernos XPos y YPos
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, "Participante:", new_x="RIGHT", new_y="TOP")
@@ -161,14 +164,13 @@ url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
 modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 
-# Inicializar almacenamiento de links de Google Forms en memoria de sesión
+# Inicializar almacenamiento persistente de enlaces externos en la memoria de sesión
 if "link_primario" not in st.session_state: st.session_state.link_primario = ""
 if "link_secundario" not in st.session_state: st.session_state.link_secundario = ""
 if "link_terciario" not in st.session_state: st.session_state.link_terciario = ""
 if "link_educativo" not in st.session_state: st.session_state.link_educativo = ""
 if "link_religioso" not in st.session_state: st.session_state.link_religioso = ""
 
-# El código QR nativo de salud integral solo se muestra en la pantalla grande del ponente
 if not es_celular_del_publico:
     with st.expander("📱 Código QR Diagnóstico Original (Salud Integral)", expanded=False):
         col1, col2 = st.columns([1, 1.5])
@@ -209,7 +211,6 @@ if not es_celular_del_publico:
         else:
             st.success("💻 Modo Ponente Activo - Configuración de Audiencia en Vivo")
             
-            # Espacios dedicados para pegar y persistir los enlaces de Google Forms
             st.session_state.link_primario = st.text_input("🔗 URL Google Form - Sector Primario:", st.session_state.link_primario)
             st.session_state.link_secundario = st.text_input("🔗 URL Google Form - Sector Secundario:", st.session_state.link_secundario)
             st.session_state.link_terciario = st.text_input("🔗 URL Google Form - Sector Terciario:", st.session_state.link_terciario)
@@ -223,13 +224,28 @@ if not es_celular_del_publico:
                     records = sheet.get_all_records()
                     if records:
                         df = pd.DataFrame(records)
-                        columnas_dimensiones = {"Salud Física (SF)": df.columns, "Salud Mental (SM)": df.columns, "Salud Emocional (SE)": df.columns, "Salud Social (SS)": df.columns, "Salud Económica (SECO)": df.columns, "Salud Temporal (ST)": df.columns, "Salud Espiritual (SPI)": df.columns}
-                        promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
-                        df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
-                        st.write(f"**Total de participantes evaluados:** {len(df)}")
-                        st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100")
+                        
+                        if len(df.columns) >= 11:
+                            # CORRECCIÓN DE SERIE: Mapeo posicional seguro vinculando a celdas escalares
+                            columnas_dimensiones = {
+                                "Salud Física (SF)": df.columns[3],
+                                "Salud Mental (SM)": df.columns[4],
+                                "Salud Emocional (SE)": df.columns[5],
+                                "Salud Social (SS)": df.columns[6],
+                                "Salud Económica (SECO)": df.columns[7],
+                                "Salud Temporal (ST)": df.columns[8],
+                                "Salud Espiritual (SPI)": df.columns[9]
+                            }
+                            promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
+                            df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
+                            st.write(f"**Total de participantes evaluados:** {len(df)}")
+                            st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100")
+                        else:
+                            st.error("Estructura de la hoja incorrecta.")
+                    else:
+                        st.warning("Aún no se registran respuestas en la base de datos de Google Sheets.")
 
-# Interceptor de caducidad por Token de Tiempo (Aplica solo para el formulario Mandarina Nativo)
+# Interceptor de caducidad por Token de Tiempo
 token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
 if token_actual and not st.session_state.admin_autenticado:
@@ -253,12 +269,12 @@ if acceso_bloqueado:
     st.stop()
 
 
-# Creación formal de la matriz de pestañas del Ecosistema
+# Creación formal de la matriz matricial de pestañas del Ecosistema
 tab_mandarina, tab_primario, tab_secundario, tab_terciario, tab_educativo, tab_religioso = st.tabs([
     "🍊 Salud Integral", "🚜 Sector Primario", "🏭 Sector Secundario", "💼 Sector Terciario", "🏛️ Sector Educativo", "⛪ Sector Religioso"
 ])
 
-# CONTENEDOR PESTAÑA 1: CUESTIONARIO MANDARINA ORIGINAL COMPLETO
+# CONTENEDOR PESTAÑA 1: RECOPILACIÓN NATIVA MANDARINA ORIGINAL
 with tab_mandarina:
     if not st.session_state.flujo_finalizado:
         st.header("📋 Datos de Control")
@@ -275,7 +291,7 @@ with tab_mandarina:
         resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
 
         st.subheader("🧠 Salud Mental (SM)")
-        sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+        sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distractions)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
         resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
 
         st.subheader("❤️ Salud Emocional (SE)")
@@ -333,9 +349,9 @@ with tab_mandarina:
             st.markdown("Has mapeado de forma honesta cada uno de tus gajos de bienestar. Te invitamos a agendar una sesión de consulta personalizada con el ponente.")
             st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento directamente en el escenario.")
 
-# FUNCIÓN AUXILIAR PARA GENERAR QR DE GOOGLE FORMS SOBRE LAS PESTAÑAS RESTANTES
+
 def renderizar_lanzador_forms(titulo_sector, url_destino):
-    st.header(f"📊 Diagnóstico: {titulo_sector}")
+    st.header(f"📊 Diagnóstico de Modelos Temporales: {titulo_sector}")
     if url_destino.strip():
         col_x, col_y = st.columns([1, 1.5])
         with col_x:
@@ -345,18 +361,18 @@ def renderizar_lanzador_forms(titulo_sector, url_destino):
             img_f = qr_f.make_image(fill_color="#e65100", back_color="white")
             buf_f = BytesIO()
             img_f.save(buf_f, format="PNG")
-            st.image(buf_f.getvalue(), caption=f"QR {titulo_sector}", width="stretch")
+            st.image(buf_f.getvalue(), caption=f"QR de Enlace {titulo_sector}", width="stretch")
         with col_y:
             st.write(f"### ¡Escanea para responder el cuestionario del {titulo_sector}!")
-            st.write("1. Enfoca el código QR con la cámara de tu móvil.")
-            st.write("2. Completa los reactivos en la plataforma de Google Forms.")
-            st.markdown(f'[🔗 Enlace Alterno de Acceso Directo]({url_destino})')
+            st.write("1. Enfoca el código QR con la cámara de tu smartphone.")
+            st.write("2. Responde la batería de reactivos Likert en la plataforma segura de Google Forms.")
+            st.markdown(f'[🔗 Acceso Directo Alterno si falla tu Cámara]({url_destino})')
     else:
-        st.warning("⚠️ El ponente aún no ha configurado el enlace de Google Form para este sector en la Consola de Control superior.")
+        st.warning("⚠️ El ponente aún no ha configurado el enlace de Google Form para este sector en la Consola superior.")
 
-# INYECCIÓN DINÁMICA DE LANZADORES EN SUS RESPECTIVAS PESTAÑAS (TABS)
+# INYECCIÓN DINÁMICA DE LA MATRIZ DE PESTAÑAS RESTANTES
 with tab_primario: renderizar_lanzador_forms("Sector Primario", st.session_state.link_primario)
-with tab_secundario: renderizar_lanzador_forms("Sector Secundario", st.session_state.link_secundario)
+with tab_secundario: renderizar_lanzador_forms("Sector Secundario (Industrial)", st.session_state.link_secundario)
 with tab_terciario: renderizar_lanzador_forms("Sector Terciario", st.session_state.link_terciario)
-with tab_educativo: renderizar_lanzador_forms("Sector Educativo (Docentes)", st.session_state.link_educativo)
+with tab_educativo: renderizar_lanzador_forms("Sector Educativo (Docentes/ITAP)", st.session_state.link_educativo)
 with tab_religioso: renderizar_lanzador_forms("Sector Religioso", st.session_state.link_religioso)
