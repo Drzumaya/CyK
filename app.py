@@ -378,11 +378,10 @@ st.divider()
 
 col_btn1, col_btn2 = st.columns(2)
 
-# Validación de campos obligatorios
+# Validación estricta de campos obligatorios
 campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
 
 with col_btn1:
-    # El botón se mantiene normal pero el flujo valida la existencia de datos
     if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
         if not campos_completos:
             st.error("⚠️ **Faltan datos obligatorios.** Por favor ingresa tu Nombre y WhatsApp antes de continuar.")
@@ -398,15 +397,20 @@ with col_btn1:
 
 with col_btn2:
     if st.session_state.guardado_exitoso and campos_completos:
-        bytes_reporte = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
-        nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
-        
-        st.download_button(
-            label="DESCARGAR RESULTADOS EN PDF 📥",
-            data=bytes_reporte,
-            file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
-            mime="application/pdf"
-        )
+        # PUNTAL: Generamos y guardamos el flujo de bytes en una variable aislada ANTES del widget
+        try:
+            reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
+            nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
+            
+            st.download_button(
+                label="DESCARGAR RESULTADOS EN PDF 📥",
+                data=reporte_procesado,
+                file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
+                mime="application/pdf"
+            )
+        except Exception as e:
+            st.error("Ocurrió un problema técnico al estructurar tu documento PDF. Intenta procesar de nuevo.")
+            
     elif not campos_completos:
         st.warning("⚠️ Escribe tu Nombre y WhatsApp arriba para liberar las opciones de procesamiento.")
     else:
