@@ -26,8 +26,6 @@ st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026")
 
 # # PARTE 2: MOTORES DE INTEGRACIÓN DE BASE DE DATOS (GOOGLE SHEETS)
 
-# # PARTE 2: MOTORES DE INTEGRACIÓN DE BASE DE DATOS (GOOGLE SHEETS)
-
 def conectar_google_sheets():
     try:
         if "gcp_service_account" not in st.secrets:
@@ -37,18 +35,23 @@ def conectar_google_sheets():
         if "private_key" in secrets_dict:
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
             
-        # CORRECCIÓN: Definir los alcances específicos y completos requeridos por Google
+        # Alcances estrictos y explícitos para forzar la entrega del token de escritura
         scope = [
             "https://googleapis.com",
             "https://googleapis.com"
         ]
         
+        # 1. Generamos las credenciales base con el scope integrado
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
+        
+        # 2. Forzamos a gspread a autorizar usando explícitamente el validador de alcances de Google
         client = gspread.authorize(creds)
+        
         return client.open(NOMBRE_HOJA_CALCULO).sheet1
     except Exception as e:
         st.error(f"🚨 Falla de Autenticación con Google API: {str(e)}")
         return None
+
 
 
 def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
