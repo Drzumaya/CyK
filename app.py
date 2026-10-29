@@ -157,6 +157,8 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     return bytes(pdf.output())
 
 
+# # PARTE 4: GENERACIÓN DE QR DINÁMICO E INTERCEPTOR DEL PARTICIPANTE
+
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
@@ -164,12 +166,25 @@ url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
 modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 
-# Inicializar almacenamiento persistente de enlaces externos en la memoria de sesión
+# Inicializar almacenamiento de enlaces externos en la memoria de sesión
 if "link_primario" not in st.session_state: st.session_state.link_primario = ""
 if "link_secundario" not in st.session_state: st.session_state.link_secundario = ""
 if "link_terciario" not in st.session_state: st.session_state.link_terciario = ""
-if "link_educativo" not in st.session_state: st.session_state.link_educativo = ""
-if "link_religioso" not in st.session_state: st.session_state.link_religioso = ""
+if "link_religioso_general" not in st.session_state: st.session_state.link_religioso_general = ""
+if "link_religioso_iasd" not in st.session_state: st.session_state.link_religioso_iasd = ""
+
+# Subniveles Educativos: Docentes y Padres
+if "link_edu_docentes" not in st.session_state: st.session_state.link_edu_docentes = ""
+if "link_edu_padres_primaria" not in st.session_state: st.session_state.link_edu_padres_primaria = ""
+if "link_edu_padres_secundaria" not in st.session_state: st.session_state.link_edu_padres_secundaria = ""
+if "link_edu_padres_prepa" not in st.session_state: st.session_state.link_edu_padres_prepa = ""
+if "link_edu_padres_uni" not in st.session_state: st.session_state.link_edu_padres_uni = ""
+
+# Subniveles Educativos: Estudiantes (Nuevos)
+if "link_edu_est_primaria" not in st.session_state: st.session_state.link_edu_est_primaria = ""
+if "link_edu_est_secundaria" not in st.session_state: st.session_state.link_edu_est_secundaria = ""
+if "link_edu_est_prepa" not in st.session_state: st.session_state.link_edu_est_prepa = ""
+if "link_edu_est_uni" not in st.session_state: st.session_state.link_edu_est_uni = ""
 
 if not es_celular_del_publico:
     with st.expander("📱 Código QR Diagnóstico Original (Salud Integral)", expanded=False):
@@ -186,6 +201,9 @@ if not es_celular_del_publico:
             st.write("### ¡Lleva el Diagnóstico Original en tu Bolsillo!")
             st.write("Carga de forma directa el software nativo en los smartphones del auditorio sin usar formatos externos.")
 
+
+
+# # PARTE 5: CONSOLA DE ENLACES PARA EL PONENTE Y CORRECCIÓN DE PANEL ANALÍTICO
 
 st.divider()
 
@@ -211,11 +229,27 @@ if not es_celular_del_publico:
         else:
             st.success("💻 Modo Ponente Activo - Configuración de Audiencia en Vivo")
             
+            st.markdown("### 📋 Sectores Básicos")
             st.session_state.link_primario = st.text_input("🔗 URL Google Form - Sector Primario:", st.session_state.link_primario)
             st.session_state.link_secundario = st.text_input("🔗 URL Google Form - Sector Secundario:", st.session_state.link_secundario)
             st.session_state.link_terciario = st.text_input("🔗 URL Google Form - Sector Terciario:", st.session_state.link_terciario)
-            st.session_state.link_educativo = st.text_input("🔗 URL Google Form - Sector Educativo (Docentes/ITAP):", st.session_state.link_educativo)
-            st.session_state.link_religioso = st.text_input("🔗 URL Google Form - Sector Religioso:", st.session_state.link_religioso)
+            
+            st.markdown("### 🏛️ Subniveles Sector Educativo (Personal y Padres)")
+            st.session_state.link_edu_docentes = st.text_input("🔗 URL - Docentes / Profesores:", st.session_state.link_edu_docentes)
+            st.session_state.link_edu_padres_primaria = st.text_input("🔗 URL - Padres de Familia (Primaria):", st.session_state.link_edu_padres_primaria)
+            st.session_state.link_edu_padres_secundaria = st.text_input("🔗 URL - Padres de Familia (Secundaria):", st.session_state.link_edu_padres_secundaria)
+            st.session_state.link_edu_padres_prepa = st.text_input("🔗 URL - Padres de Familia (Preparatoria):", st.session_state.link_edu_padres_prepa)
+            st.session_state.link_edu_padres_uni = st.text_input("🔗 URL - Padres de Familia (Universitario):", st.session_state.link_edu_padres_uni)
+            
+            st.markdown("### 🎓 Subniveles Sector Educativo (Estudiantes)")
+            st.session_state.link_edu_est_primaria = st.text_input("🔗 URL - Estudiantes (Primaria):", st.session_state.link_edu_est_primaria)
+            st.session_state.link_edu_est_secundaria = st.text_input("🔗 URL - Estudiantes (Secundaria):", st.session_state.link_edu_est_secundaria)
+            st.session_state.link_edu_est_prepa = st.text_input("🔗 URL - Estudiantes (Preparatoria):", st.session_state.link_edu_est_prepa)
+            st.session_state.link_edu_est_uni = st.text_input("🔗 URL - Estudiantes (Universitario):", st.session_state.link_edu_est_uni)
+            
+            st.markdown("### ⛪ Subniveles Sector Religioso")
+            st.session_state.link_religioso_general = st.text_input("🔗 URL - Sector Religioso (General):", st.session_state.link_religioso_general)
+            st.session_state.link_religioso_iasd = st.text_input("🔗 URL - Sector Religioso (IASD):", st.session_state.link_religioso_iasd)
             
             st.write("---")
             if st.button("🔄 Actualizar Estadísticas (Salud Integral - Nube)"):
@@ -224,17 +258,12 @@ if not es_celular_del_publico:
                     records = sheet.get_all_records()
                     if records:
                         df = pd.DataFrame(records)
-                        
                         if len(df.columns) >= 11:
-                            # CORRECCIÓN DE SERIE: Mapeo posicional seguro vinculando a celdas escalares
                             columnas_dimensiones = {
-                                "Salud Física (SF)": df.columns[3],
-                                "Salud Mental (SM)": df.columns[4],
-                                "Salud Emocional (SE)": df.columns[5],
-                                "Salud Social (SS)": df.columns[6],
-                                "Salud Económica (SECO)": df.columns[7],
-                                "Salud Temporal (ST)": df.columns[8],
-                                "Salud Espiritual (SPI)": df.columns[9]
+                                "Salud Física (SF)": df.columns, "Salud Mental (SM)": df.columns,
+                                "Salud Emocional (SE)": df.columns, "Salud Social (SS)": df.columns,
+                                "Salud Económica (SECO)": df.columns, "Salud Temporal (ST)": df.columns,
+                                "Salud Espiritual (SPI)": df.columns
                             }
                             promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
                             df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
@@ -267,6 +296,7 @@ if token_actual and not st.session_state.admin_autenticado:
 if acceso_bloqueado:
     st.error("🚫 El código QR escaneado ha expirado o ya fue utilizado.")
     st.stop()
+
 
 
 # Creación formal de la matriz matricial de pestañas del Ecosistema
@@ -350,8 +380,10 @@ with tab_mandarina:
             st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento directamente en el escenario.")
 
 
+# # PARTE 8: FUNCIÓN MAESTRA LANZADORA DE FORMULARIOS EXTERNOS POR QR
+
 def renderizar_lanzador_forms(titulo_sector, url_destino):
-    st.header(f"📊 Diagnóstico de Modelos Temporales: {titulo_sector}")
+    st.markdown(f"#### Formulario Destino: *{titulo_sector}*")
     if url_destino.strip():
         col_x, col_y = st.columns([1, 1.5])
         with col_x:
@@ -361,18 +393,68 @@ def renderizar_lanzador_forms(titulo_sector, url_destino):
             img_f = qr_f.make_image(fill_color="#e65100", back_color="white")
             buf_f = BytesIO()
             img_f.save(buf_f, format="PNG")
-            st.image(buf_f.getvalue(), caption=f"QR de Enlace {titulo_sector}", width="stretch")
+            st.image(buf_f.getvalue(), caption=f"QR {titulo_sector}", width="stretch")
         with col_y:
-            st.write(f"### ¡Escanea para responder el cuestionario del {titulo_sector}!")
+            st.write(f"### ¡Escanea el código para responder!")
             st.write("1. Enfoca el código QR con la cámara de tu smartphone.")
-            st.write("2. Responde la batería de reactivos Likert en la plataforma segura de Google Forms.")
-            st.markdown(f'[🔗 Acceso Directo Alterno si falla tu Cámara]({url_destino})')
+            st.write("2. Responde el formulario psicométrico Likert correspondiente.")
+            st.markdown(f'[🔗 Enlace Directo Alternativo]({url_destino})')
     else:
-        st.warning("⚠️ El ponente aún no ha configurado el enlace de Google Form para este sector en la Consola superior.")
+        st.warning(f"⚠️ El ponente aún no ha configurado el enlace de Google Form para: {titulo_sector}")
 
-# INYECCIÓN DINÁMICA DE LA MATRIZ DE PESTAÑAS RESTANTES
-with tab_primario: renderizar_lanzador_forms("Sector Primario", st.session_state.link_primario)
-with tab_secundario: renderizar_lanzador_forms("Sector Secundario (Industrial)", st.session_state.link_secundario)
-with tab_terciario: renderizar_lanzador_forms("Sector Terciario", st.session_state.link_terciario)
-with tab_educativo: renderizar_lanzador_forms("Sector Educativo (Docentes/ITAP)", st.session_state.link_educativo)
-with tab_religioso: renderizar_lanzador_forms("Sector Religioso", st.session_state.link_religioso)
+# INYECCIÓN EN PESTAÑAS PRINCIPALES RESTANTES
+with tab_primario: 
+    renderizar_lanzador_forms("Sector Primario", st.session_state.link_primario)
+
+with tab_secundario: 
+    renderizar_lanzador_forms("Sector Secundario (Industrial)", st.session_state.link_secundario)
+
+with tab_terciario: 
+    renderizar_lanzador_forms("Sector Terciario", st.session_state.link_terciario)
+
+with tab_educativo:
+    st.header("🏛️ Modelos Temporales: Sector Educativo")
+    sub_edu = st.selectbox(
+        "Selecciona el subnivel de la audiencia educativa actual:",
+        [
+            "Docentes", 
+            "Padres de familia Primaria", "Padres de familia Secundaria", "Padres de familia Preparatoria", "Padres de familia Universitario",
+            "Estudiantes Primaria", "Estudiantes Secundaria", "Estudiantes Preparatoria", "Estudiantes Universitario"
+        ],
+        key="sub_edu_selector"
+    )
+    st.write("---")
+    
+    if sub_edu == "Docentes":
+        renderizar_lanzador_forms("Docentes / Profesores", st.session_state.link_edu_docentes)
+    elif sub_edu == "Padres de familia Primaria":
+        renderizar_lanzador_forms("Padres de Familia - Primaria", st.session_state.link_edu_padres_primaria)
+    elif sub_edu == "Padres de familia Secundaria":
+        renderizar_lanzador_forms("Padres de Familia - Secundaria", st.session_state.link_edu_padres_secundaria)
+    elif sub_edu == "Padres de familia Preparatoria":
+        renderizar_lanzador_forms("Padres de Familia - Preparatoria", st.session_state.link_edu_padres_prepa)
+    elif sub_edu == "Padres de familia Universitario":
+        renderizar_lanzador_forms("Padres de Familia - Universitario", st.session_state.link_edu_padres_uni)
+    elif sub_edu == "Estudiantes Primaria":
+        renderizar_lanzador_forms("Estudiantes - Primaria", st.session_state.link_edu_est_primaria)
+    elif sub_edu == "Estudiantes Secundaria":
+        renderizar_lanzador_forms("Estudiantes - Secundaria", st.session_state.link_edu_est_secundaria)
+    elif sub_edu == "Estudiantes Preparatoria":
+        renderizar_lanzador_forms("Estudiantes - Preparatoria", st.session_state.link_edu_est_prepa)
+    elif sub_edu == "Estudiantes Universitario":
+        renderizar_lanzador_forms("Estudiantes - Universitario", st.session_state.link_edu_est_uni)
+
+with tab_religioso:
+    st.header("⛪ Modelos Temporales: Sector Religioso")
+    sub_rel = st.radio(
+        "Selecciona el subnivel de la audiencia religiosa actual:",
+        ["General", "IASD"],
+        horizontal=True,
+        key="sub_rel_selector"
+    )
+    st.write("---")
+    
+    if sub_rel == "General":
+        renderizar_lanzador_forms("Sector Religioso General", st.session_state.link_religioso_general)
+    elif sub_rel == "IASD":
+        renderizar_lanzador_forms("Iglesia Adventista del Séptimo Día (IASD)", st.session_state.link_religioso_iasd)
