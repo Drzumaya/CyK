@@ -150,11 +150,12 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     pdf.cell(0, 5, "Diseno de Metricas y Propiedad Intelectual: Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     
     return pdf.output()
+    
 # Generación de Token dinámico por tiempo (Expira cada 60 segundos)
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
-# Construimos la URL pública para la audiencia (Agrega modo_admin=false por seguridad)
+# Construimos la URL pública para la audiencia (Asegúrate de usar la URL completa de share de tu app)
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
 
 # Renderizado automático del módulo de Código QR
@@ -170,7 +171,7 @@ with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Vá
         st.image(buf.getvalue(), caption="Código dinámico de seguridad temporal", use_container_width=True)
     with col2:
         st.write("### ¡Lleva la encuesta en tu bolsillo!")
-        st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** Este código cambia cada minuto en el escenario para evitar reuso externo.")
+        st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** No necesitas registrarte ni iniciar sesión. El acceso es directo e inmediato.")
 
 
 st.divider()
