@@ -258,7 +258,7 @@ resultados_totales["Salud Física (SF)"] = [i for i in sf_items if st.checkbox(i
 
 # 2. SM
 st.subheader("🧠 Salud Mental (SM)")
-sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distraciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
 resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
 
 # 3. SE
