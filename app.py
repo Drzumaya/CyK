@@ -294,7 +294,7 @@ st.divider()
 col_btn1, col_btn2 = st.columns(2)
 
 with col_btn1:
-    if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
+    if st.button("💾 Guardar y Procesar Diagnóstico", type="primary"):
         with st.spinner("Registrando tus gajos de salud de forma segura..."):
             # Encriptamos el token usado directamente en la fila de Google Sheets
             exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
@@ -310,12 +310,12 @@ with col_btn2:
         bytes_reporte = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
         nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
         
+        # Eliminado use_container_width de aquí para evitar el StreamlitAPIException
         st.download_button(
             label="DESCARGAR RESULTADOS EN PDF 📥",
             data=bytes_reporte,
             file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
-            mime="application/pdf",
-            use_container_width=True
+            mime="application/pdf"
         )
     else:
         st.info("💡 Haz clic en 'Guardar y Procesar' para activar tu descarga.")
