@@ -4,3 +4,4 @@ qrcode==7.4.2
 gspread>=6.0.0
 google-auth>=2.25.0
 pandas>=2.0.0
+qrcode
