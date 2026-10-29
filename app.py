@@ -11,7 +11,7 @@ import hashlib
 import time
 
 # Enlace web de producción de tu ponencia en Streamlit Cloud
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 # Configuración móvil-first de la interfaz táctil
