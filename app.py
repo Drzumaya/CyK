@@ -24,13 +24,20 @@ st.subheader("Modelo Mandarina")
 st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026")
 
 
+# # PARTE 2: MOTORES DE INTEGRACIÓN DE BASE DE DATOS (GOOGLE SHEETS)
+
 def conectar_google_sheets():
     try:
+        # 1. Validar si los secretos existen en la nube
         if "gcp_service_account" not in st.secrets:
+            st.error("🚨 Error: No se encontró la etiqueta [gcp_service_account] en los Secrets de Streamlit.")
             return None
             
         secrets_dict = dict(st.secrets["gcp_service_account"])
+        
+        # 2. Corregir formato de escapes de cadena para la llave privada de Google
         if "private_key" in secrets_dict:
+            # Reemplaza tanto escapes dobles como simples para asegurar limpieza total en Linux
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
             
         scope = [
@@ -41,7 +48,9 @@ def conectar_google_sheets():
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         return client.open(NOMBRE_HOJA_CALCULO).sheet1
-    except Exception:
+    except Exception as e:
+        # Imprime el motivo real del rechazo de Google en la pantalla para solucionarlo
+        st.error(f"🚨 Falla de Autenticación con Google API: {str(e)}")
         return None
 
 def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
@@ -64,9 +73,11 @@ def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
             ]
             sheet.append_row(fila)
             return True
-        except Exception:
+        except Exception as e:
+            st.error(f"🚨 Error al escribir la fila en la hoja: {str(e)}")
             return False
     return False
+
 
 
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales, st_cronos_kairos):
