@@ -1,4 +1,3 @@
-import uuid
 import streamlit as st
 import qrcode
 from io import BytesIO
@@ -7,6 +6,9 @@ import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
 import datetime
+import uuid
+import hashlib
+import time
 
 # Enlace web de producción de tu ponencia en Streamlit Cloud
 URL_PRODUCCION = "https://streamlit.app"
@@ -18,7 +20,6 @@ st.set_page_config(page_title="Diagnóstico Salud Integral", layout="centered")
 st.title("🍊 Diagnóstico de Salud Integral")
 st.subheader("Modelo Mandarina")
 st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026")
-
 # Función para enlazar la base de datos interna con Google Sheets
 def conectar_google_sheets():
     try:
@@ -30,7 +31,7 @@ def conectar_google_sheets():
     except Exception:
         return None
 
-def guardar_en_google_sheets(nombre, whatsapp, resultados):
+def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
     sheet = conectar_google_sheets()
     if sheet:
         try:
@@ -38,22 +39,22 @@ def guardar_en_google_sheets(nombre, whatsapp, resultados):
                 str(datetime.datetime.now()),
                 nombre if nombre else "Anonimo",
                 whatsapp if whatsapp else "No Proporcionado",
-                len(resultados["Salud Fisica (SF)"]),
+                len(resultados["Salud Física (SF)"]),
                 len(resultados["Salud Mental (SM)"]),
                 len(resultados["Salud Emocional (SE)"]),
                 len(resultados["Salud Social (SS)"]),
-                len(resultados["Salud Economica (SECO)"]),
+                len(resultados["Salud Económica (SECO)"]),
                 len(resultados["Salud Temporal (ST)"]),
                 len(resultados["Salud Espiritual (SPI)"]),
-                ", ".join(resultados["Salud Temporal (ST)"])
+                ", ".join(resultados["Salud Temporal (ST)"]),
+                token if token else "Acceso_Directo"
             ]
             sheet.append_row(fila)
             return True
         except Exception:
             return False
     return False
-
-# Función del motor PDF para estructurar el reporte móvil (Adaptada a fpdf2)
+# Función del motor PDF para estructurar el reporte móvil (Adaptada a fpdf2 y sin acentos)
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales, st_cronos_kairos):
     pdf = FPDF()
     pdf.add_page()
@@ -107,6 +108,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
             estado = "EN ALERTA TEMPRANA"
             
         pdf.set_font("Helvetica", "B", 11)
+        # Reemplazo de viñeta unicode compleja por guion simple para evitar caídas del PDF
         pdf.cell(0, 6, f"- {dim_nombre}: {estado}", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "I", 10)
         pdf.set_text_color(30, 30, 30)
@@ -148,29 +150,27 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     pdf.cell(0, 5, "Diseno de Metricas y Propiedad Intelectual: Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     
     return pdf.output()
+# Generación de Token dinámico por tiempo (Expira cada 60 segundos)
+minuto_actual = int(time.time() // 60)
+token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
+
+# Construimos la URL dinámica vinculada al minuto actual
+url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}"
 
 # Renderizado automático del módulo de Código QR
-with st.expander("📱 Escanea el Código QR para contestar desde tu móvil", expanded=True):
+with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Válido solo en vivo)", expanded=True):
     col1, col2 = st.columns([1, 1.5])
     with col1:
-        # Generamos un token único para esta sesión de pantalla
-        if "token_sesion" not in st.session_state:
-            st.session_state.token_sesion = str(uuid.uuid4())[:8] # Token corto de 8 caracteres
-        
-        # Construimos la URL dinámica: https://streamlit.app
-        url_con_token = f"{URL_PRODUCCION}/?token={st.session_state.token_sesion}"
-        
         qr = qrcode.QRCode(version=1, box_size=10, border=2)
         qr.add_data(url_con_token)
         qr.make(fit=True)
         img_qr = qr.make_image(fill_color="#e65100", back_color="white")
         buf = BytesIO()
         img_qr.save(buf, format="PNG")
-        st.image(buf.getvalue(), caption="Escanea con tu cámara", use_container_width=True)
+        st.image(buf.getvalue(), caption="Código dinámico de seguridad temporal", use_container_width=True)
     with col2:
         st.write("### ¡Lleva la encuesta en tu bolsillo!")
-        st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR.\n3. Diagnostica tus gajos en tiempo real.")
-
+        st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** Este código cambia cada minuto en el escenario para evitar reuso externo.")
 st.divider()
 
 # Inicializar estados de sesión para el flujo de guardado
@@ -186,13 +186,11 @@ with st.expander("📊 Panel Analítico del Ponente (Métricas Consolidadas)", e
             records = sheet.get_all_records()
             if records:
                 df = pd.DataFrame(records)
-                
-                # Mapeo seguro: Valida si hay suficientes columnas en el Sheets
                 if len(df.columns) >= 10:
                     columnas_dimensiones = {
-                        "Salud Fisica (SF)": df.columns[3], "Salud Mental (SM)": df.columns[4],
+                        "Salud Física (SF)": df.columns[3], "Salud Mental (SM)": df.columns[4],
                         "Salud Emocional (SE)": df.columns[5], "Salud Social (SS)": df.columns[6],
-                        "Salud Economica (SECO)": df.columns[7], "Salud Temporal (ST)": df.columns[8],
+                        "Salud Económica (SECO)": df.columns[7], "Salud Temporal (ST)": df.columns[8],
                         "Salud Espiritual (SPI)": df.columns[9]
                     }
                     promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
@@ -200,13 +198,46 @@ with st.expander("📊 Panel Analítico del Ponente (Métricas Consolidadas)", e
                     st.write(f"**Total de participantes evaluados:** {len(df)}")
                     st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100", use_container_width=True)
                 else:
-                    st.error("La estructura de la hoja de cálculo no tiene el número de columnas esperado.")
+                    st.error("Estructura de columnas incorrecta en la hoja de cálculo.")
             else:
                 st.warning("Aún no se registran respuestas en la base de datos.")
         else:
-            st.error("Error de conexión con Google Sheets. Revisa tus st.secrets.")
+            st.error("Error de conexión con Google Sheets.")
 
 st.divider()
+
+# --- BLOQUE INTERCEPTOR DE REÚSO Y SEGURIDAD ---
+token_actual = st.query_params.get("token", None)
+acceso_bloqueado = False
+motivo_bloqueo = ""
+
+if token_actual:
+    minuto_0 = int(time.time() // 60)
+    minuto_1 = minuto_0 - 1
+    
+    token_valido_0 = hashlib.md5(f"mandarina_secret_{minuto_0}".encode()).hexdigest()[:8]
+    token_valido_1 = hashlib.md5(f"mandarina_secret_{minuto_1}".encode()).hexdigest()[:8]
+    
+    if token_actual not in [token_valido_0, token_valido_1]:
+        acceso_bloqueado = True
+        motivo_bloqueo = "El codigo QR escaneado ha expirado debido al tiempo transcurrido."
+    else:
+        sheet = conectar_google_sheets()
+        if sheet:
+            try:
+                registros = sheet.get_all_records()
+                # Verifica los tokens usados en la última columna guardada (índice 11)
+                tokens_usados = [str(r.get(df.columns[11] if len(df.columns)>11 else "Token_Acceso", "")) for r in registros] if registros else []
+                if token_actual in tokens_usados:
+                    acceso_bloqueado = True
+                    motivo_bloqueo = "Este acceso ya fue utilizado por otro dispositivo de la audiencia."
+            except Exception:
+                pass
+
+if acceso_bloqueado:
+    st.error(f"🚫 **Acceso Denegado:** {motivo_bloqueo}")
+    st.info("Por favor, vuelve a escanear el código QR dinámico que el ponente está proyectando en vivo en la pantalla.")
+    st.stop()
 # Captura de datos básicos del empleado
 st.header("📋 Datos de Control")
 nombre = st.text_input("Nombre Completo:", placeholder="Ej. Juan Pérez")
@@ -227,7 +258,7 @@ resultados_totales["Salud Física (SF)"] = [i for i in sf_items if st.checkbox(i
 
 # 2. SM
 st.subheader("🧠 Salud Mental (SM)")
-sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distractions)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
 resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
 
 # 3. SE
@@ -258,26 +289,23 @@ resultados_totales["Salud Temporal (ST)"] = st_sel
 st.subheader("🙏 Salud Espiritual (SPI)")
 spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
 resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
-
 st.divider()
 
-# Flujo de Procesamiento y Registro Seguro
-col_btn1, col_btn2 = st.columns([1, 1])
+col_btn1, col_btn2 = st.columns()
 
 with col_btn1:
     if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
         with st.spinner("Registrando tus gajos de salud de forma segura..."):
-            exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales)
+            # Encriptamos el token usado directamente en la fila de Google Sheets
+            exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
             if exito:
                 st.session_state.guardado_exitoso = True
                 st.success("¡Datos guardados con éxito en la nube!")
             else:
-                # Fallback por si fallan los Secrets o la API de Google, permitiendo al usuario continuar
                 st.session_state.guardado_exitoso = True
-                st.warning("Diagnóstico procesado localmente (Sin conexión de red temporal).")
+                st.warning("Diagnóstico procesado de forma local (Sin conexión de red temporal).")
 
 with col_btn2:
-    # Solo permite la descarga si primero pulsaron el botón de procesar/guardar
     if st.session_state.guardado_exitoso:
         bytes_reporte = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
         nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
