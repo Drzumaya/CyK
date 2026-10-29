@@ -11,7 +11,6 @@ import time
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
-# IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
 URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
@@ -22,7 +21,7 @@ st.subheader("Modelo Mandarina & Modelos Temporales Sectores")
 st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026 | JACOB ZUMAYA PRIANTI, A.C.")
 
 
-def conectar_google_sheets():
+def conectar_google_sheets(nombre_pestana):
     try:
         if "gcp_service_account" not in st.secrets:
             return None
@@ -32,28 +31,37 @@ def conectar_google_sheets():
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
             
         client = gspread.service_account_from_dict(secrets_dict)
-        return client.open(NOMBRE_HOJA_CALCULO).sheet1
+        workbook = client.open(NOMBRE_HOJA_CALCULO)
+        
+        # Intenta abrir la pestaña específica de la audiencia, si no existe la crea automáticamente
+        try:
+            return workbook.worksheet(nombre_pestana)
+        except gspread.exceptions.WorksheetNotFound:
+            # Crea una pestaña limpia con espacio suficiente
+            return workbook.add_worksheet(title=nombre_pestana, rows="1000", cols="20")
     except Exception:
         return None
 
-def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
-    sheet = conectar_google_sheets()
+def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token, es_likert=False):
+    sheet = conectar_google_sheets(nombre_pestana)
     if sheet:
         try:
-            fila = [
-                str(datetime.datetime.now()),
-                nombre if nombre else "Anonimo",
-                whatsapp if whatsapp else "No Proporcionado",
-                len(resultados.get("Salud Fisica (SF)", [])),
-                len(resultados.get("Salud Mental (SM)", [])),
-                len(resultados.get("Salud Emocional (SE)", [])),
-                len(resultados.get("Salud Social (SS)", [])),
-                len(resultados.get("Salud Economica (SECO)", [])),
-                len(resultados.get("Salud Temporal (ST)", [])),
-                len(resultados.get("Salud Espiritual (SPI)", [])),
-                ", ".join(resultados.get("Salud Temporal (ST)", [])),
-                token if token else "Acceso_Directo"
-            ]
+            if es_likert:
+                # Fila estructurada para respuestas Likert de 14 reactivos
+                fila = [str(datetime.datetime.now()), nombre, whatsapp]
+                for i in range(1, 15):
+                    fila.append(resultados.get(f"R{i}", 3))
+                fila.append(token if token else "Acceso_Directo")
+            else:
+                # Fila tradicional cuantitativa para Salud Integral
+                fila = [
+                    str(datetime.datetime.now()), nombre, whatsapp,
+                    len(resultados.get("Salud Fisica (SF)", [])), len(resultados.get("Salud Mental (SM)", [])),
+                    len(resultados.get("Salud Emocional (SE)", [])), len(resultados.get("Salud Social (SS)", [])),
+                    len(resultados.get("Salud Economica (SECO)", [])), len(resultados.get("Salud Temporal (ST)", [])),
+                    len(resultados.get("Salud Espiritual (SPI)", [])), ", ".join(resultados.get("Salud Temporal (ST)", [])),
+                    token if token else "Acceso_Directo"
+                ]
             sheet.append_row(fila)
             return True
         except Exception:
@@ -61,133 +69,108 @@ def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
     return False
 
 
-def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales, st_cronos_kairos):
+
+def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # Encabezado principal
     pdf.set_font("Helvetica", "B", 16)
     pdf.set_text_color(230, 81, 0) 
-    pdf.cell(0, 10, "REPORTE DE DIAGNOSTICO DE SALUD INTEGRAL", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(0, 10, f"REPORTE DIAGNOSTICO: {titulo_diagnostico.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 6, "Modelo Mandarina | Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(0, 6, "Metricas de Organizacion Temporal | Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(5)
     
     pdf.set_draw_color(255, 152, 0)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(10)
     
-    # Datos de usuario - Con parámetros implícitos modernos XPos y YPos
+    # Datos de control
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, "Participante:", new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, nombre_usuario if nombre_usuario else "Participante Anonimo", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, nombre_usuario if nombre_usuario else "Anonimo", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, "WhatsApp de Contacto:", new_x="RIGHT", new_y="TOP")
+    pdf.cell(45, 6, "WhatsApp/Contacto:", new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, whatsapp_usuario if whatsapp_usuario else "No Proporcionado", new_x="LMARGIN", new_y="NEXT")
-    
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, "Fecha de Emision:", new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
     
-    # Sección Resultados
-    pdf.set_font("Helvetica", "B", 13)
-    pdf.set_text_color(255, 152, 0)
-    pdf.cell(0, 8, "Resultados y Puntos Criticos Detectados", new_x="LMARGIN", new_y="NEXT")
-    pdf.line(10, pdf.get_y(), 100, pdf.get_y())
-    pdf.ln(4)
-    
-    for dim_nombre, items in resultados_totales.items():
-        conteo = len(items)
-        estado = "Sano y Pleno (0 alertas)"
-        if conteo >= 3:
-            estado = "CRITICO / URGENCIA INMEDIATA"
-        elif conteo > 0:
-            estado = "EN ALERTA TEMPRANA"
-            
-        pdf.set_font("Helvetica", "B", 11)
-        pdf.cell(0, 6, f"- {dim_nombre}: {estado}", new_x="LMARGIN", new_y="NEXT")
-        pdf.set_font("Helvetica", "I", 10)
-        pdf.set_text_color(30, 30, 30)
-        puntos_str = ", ".join(items) if conteo > 0 else "Ninguno. Area equilibrada."
-        pdf.multi_cell(0, 5, f"Puntos especificos a solucionar: {puntos_str}")
-        pdf.ln(3)
+    if es_likert:
+        # Cálculo analítico de vectores Cronos vs Kairos
+        cronos_items = [resultados.get(f"R{i}", 3) for i in]
+        kairos_items = [resultados.get(f"R{i}", 3) for i in]
         
-    pdf.ln(2)
-    pdf.set_font("Helvetica", "B", 13)
-    pdf.set_text_color(255, 152, 0)
-    pdf.cell(0, 8, "Mensaje de Confirmacion e Interpretacion", new_x="LMARGIN", new_y="NEXT")
-    pdf.line(10, pdf.get_y(), 100, pdf.get_y())
-    pdf.ln(4)
-    
-    pdf.set_font("Helvetica", "", 10)
-    pdf.set_text_color(50, 50, 50)
-    pdf.multi_cell(0, 5, "Cada casilla que seleccionaste representa un 'punto de fuga' activo de tu bienestar integral.")
-    pdf.ln(2)
-    
-    pdf.set_font("Helvetica", "B", 10)
-    pdf.cell(0, 5, "Criterio de Evaluacion de Gajos:", new_x="LMARGIN", new_y="NEXT")
-    pdf.set_font("Helvetica", "", 10)
-    pdf.multi_cell(0, 5, "- 0 Puntos Seleccionados: Gajo Sano y Pleno.\n"
-                         "- 1 a 2 Puntos Seleccionados: Gajo en Alerta. Requiere micro-acciones de correccion.\n"
-                         "- 3 o mas Puntos Seleccionados: Gajo Critico / Urgencia Inmediata. Debe ser tu prioridad absoluta.")
-    pdf.ln(4)
-    
-    if st_cronos_kairos:
-        pdf.set_font("Helvetica", "B", 10)
-        pdf.set_text_color(230, 81, 0)
-        pdf.cell(0, 5, "Alerta Especial sobre la Salud Temporal (ST):", new_x="LMARGIN", new_y="NEXT")
-        pdf.set_font("Helvetica", "", 10)
+        avg_cronos = sum(cronos_items) / 7
+        avg_kairos = sum(kairos_items) / 7
+        
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.set_text_color(255, 152, 0)
+        pdf.cell(0, 8, "Vectores de Tension Temporal Calculados", new_x="LMARGIN", new_y="NEXT")
+        pdf.line(10, pdf.get_y(), 100, pdf.get_y())
+        pdf.ln(4)
+        
+        pdf.set_font("Helvetica", "", 11)
         pdf.set_text_color(50, 50, 50)
-        pdf.multi_cell(0, 5, "Has marcado el elemento de 'Cronos & Kairos'. Te encuentras bajo la tirania del rendimiento constante o en desconexion pragmatica. Equilibrar de manera urgente el tiempo cuantitativo con el cualitativo aliviara la carga sistemica de tus dimensiones de inmediato.")
-    
-    pdf.ln(10)
-    pdf.set_font("Helvetica", "I", 9)
-    pdf.set_text_color(120, 120, 120)
-    pdf.cell(0, 5, "Diseno de Metricas y Propiedad Intelectual: Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
-    
+        pdf.cell(0, 6, f"Indice de Orientacion Estructurada (CRONOS): {avg_cronos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 6, f"Indice de Orientacion Relacional (KAIROS): {avg_kairos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(5)
+        
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.cell(0, 6, "Conclusion del Analisis de Perfil Organizacional:", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_font("Helvetica", "I", 10)
+        
+        if avg_cronos > avg_kairos:
+            msg = "Tu perfil muestra una tendencia Cronocentrica estructurada. Valoras la planificacion estricta, la puntualidad operativa y el respeto riguroso a los manuales, horarios y cronogramas institucionales. Recomendacion: Desarrolla margen de maniobra heuristica ante contingencias de red o imprevistos de fuerza mayor."
+        else:
+            msg = "Tu perfil muestra una orientacion Kairologica relacional. Priorizas el valor humano, la adaptabilidad conceptual y la atencion inmediata a crisis emocionales o de salud mental por encima de las rigideces del reloj. Recomendacion: Cuida que la adaptabilidad flexible no diluya el cumplimiento cuantitativo de metas metricas y plazos estandares."
+        pdf.multi_cell(0, 5, msg)
+    else:
+        # Formato Tradicional Mandarina
+        for dim_nombre, items in resultados.items():
+            conteo = len(items)
+            estado = "Sano y Pleno (0 alertas)"
+            if conteo >= 3: estado = "CRITICO / URGENCIA INMEDIATA"
+            elif conteo > 0: estado = "EN ALERTA TEMPRANA"
+                
+            pdf.set_font("Helvetica", "B", 11)
+            pdf.cell(0, 6, f"- {dim_nombre}: {estado}", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "I", 10)
+            puntos_str = ", ".join(items) if conteo > 0 else "Ninguno. Area equilibrada."
+            pdf.multi_cell(0, 5, f"Puntos especificos a solucionar: {puntos_str}")
+            pdf.ln(3)
+            
     return bytes(pdf.output())
 
 
-# # PARTE 4: GENERACIÓN DE QR DINÁMICO E INTERCEPTOR DEL PARTICIPANTE
-
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
-url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
+
+if "audiencia_activa" not in st.session_state:
+    st.session_state.audiencia_activa = "🍊 Salud Integral"
 
 modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+diag_tipo_url = st.query_params.get("diag_tipo", None)
 
-# Inicializar almacenamiento de enlaces externos en la memoria de sesión
-if "link_primario" not in st.session_state: st.session_state.link_primario = ""
-if "link_secundario" not in st.session_state: st.session_state.link_secundario = ""
-if "link_terciario" not in st.session_state: st.session_state.link_terciario = ""
-if "link_religioso_general" not in st.session_state: st.session_state.link_religioso_general = ""
-if "link_religioso_iasd" not in st.session_state: st.session_state.link_religioso_iasd = ""
+# Sincronización automática: El celular adopta estrictamente el formulario dictado por el QR del proyector
+if es_celular_del_publico and diag_tipo_url:
+    st.session_state.audiencia_activa = diag_tipo_url
 
-# Subniveles Educativos: Docentes y Padres
-if "link_edu_docentes" not in st.session_state: st.session_state.link_edu_docentes = ""
-if "link_edu_padres_primaria" not in st.session_state: st.session_state.link_edu_padres_primaria = ""
-if "link_edu_padres_secundaria" not in st.session_state: st.session_state.link_edu_padres_secundaria = ""
-if "link_edu_padres_prepa" not in st.session_state: st.session_state.link_edu_padres_prepa = ""
-if "link_edu_padres_uni" not in st.session_state: st.session_state.link_edu_padres_uni = ""
-
-# Subniveles Educativos: Estudiantes (Nuevos)
-if "link_edu_est_primaria" not in st.session_state: st.session_state.link_edu_est_primaria = ""
-if "link_edu_est_secundaria" not in st.session_state: st.session_state.link_edu_est_secundaria = ""
-if "link_edu_est_prepa" not in st.session_state: st.session_state.link_edu_est_prepa = ""
-if "link_edu_est_uni" not in st.session_state: st.session_state.link_edu_est_uni = ""
+# Inyectamos el tipo de audiencia exacto en la URL codificada del QR
+url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
 if not es_celular_del_publico:
-    with st.expander("📱 Código QR Diagnóstico Original (Salud Integral)", expanded=False):
+    with st.expander("📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", expanded=True):
         col1, col2 = st.columns([1, 1.5])
         with col1:
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
@@ -196,14 +179,12 @@ if not es_celular_del_publico:
             img_qr = qr.make_image(fill_color="#e65100", back_color="white")
             buf = BytesIO()
             img_qr.save(buf, format="PNG")
-            st.image(buf.getvalue(), caption="QR Salud Integral Dinámico", width="stretch")
+            st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", width="stretch")
         with col2:
-            st.write("### ¡Lleva el Diagnóstico Original en tu Bolsillo!")
-            st.write("Carga de forma directa el software nativo en los smartphones del auditorio sin usar formatos externos.")
+            st.write(f"### Audiencia Proyectada: **{st.session_state.audiencia_activa}**")
+            st.write("1. Abre la cámara de tu smartphone y escanea el código.")
+            st.write("2. Responderás directamente el software nativo adaptado a tu organización.")
 
-
-
-# # PARTE 5: CONSOLA DE ENLACES PARA EL PONENTE Y CORRECCIÓN DE PANEL ANALÍTICO
 
 st.divider()
 
@@ -217,64 +198,35 @@ if "flujo_finalizado" not in st.session_state:
 PASSWORD_CORRECTO = "mandarina2026"  
 
 if not es_celular_del_publico:
-    with st.expander("🔐 Consola de Enlaces y Métricas del Ponente", expanded=not st.session_state.admin_autenticado):
+    with st.sidebar:
+        st.markdown("## 🔐 Control del Ponente")
         if not st.session_state.admin_autenticado:
-            input_password = st.text_input("Contraseña de Ponente:", type="password", key="admin_pwd_input")
-            if st.button("🔑 Desbloquear Consola Organizacional", width="stretch"):
+            input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd")
+            if st.button("Desbloquear Tableros", width="stretch"):
                 if input_password == PASSWORD_CORRECTO:
                     st.session_state.admin_autenticado = True
                     st.rerun()
                 else:
-                    st.error("Acceso denegado.")
+                    st.error("Invalido")
         else:
-            st.success("💻 Modo Ponente Activo - Configuración de Audiencia en Vivo")
-            
-            st.markdown("### 📋 Sectores Básicos")
-            st.session_state.link_primario = st.text_input("🔗 URL Google Form - Sector Primario:", st.session_state.link_primario)
-            st.session_state.link_secundario = st.text_input("🔗 URL Google Form - Sector Secundario:", st.session_state.link_secundario)
-            st.session_state.link_terciario = st.text_input("🔗 URL Google Form - Sector Terciario:", st.session_state.link_terciario)
-            
-            st.markdown("### 🏛️ Subniveles Sector Educativo (Personal y Padres)")
-            st.session_state.link_edu_docentes = st.text_input("🔗 URL - Docentes / Profesores:", st.session_state.link_edu_docentes)
-            st.session_state.link_edu_padres_primaria = st.text_input("🔗 URL - Padres de Familia (Primaria):", st.session_state.link_edu_padres_primaria)
-            st.session_state.link_edu_padres_secundaria = st.text_input("🔗 URL - Padres de Familia (Secundaria):", st.session_state.link_edu_padres_secundaria)
-            st.session_state.link_edu_padres_prepa = st.text_input("🔗 URL - Padres de Familia (Preparatoria):", st.session_state.link_edu_padres_prepa)
-            st.session_state.link_edu_padres_uni = st.text_input("🔗 URL - Padres de Familia (Universitario):", st.session_state.link_edu_padres_uni)
-            
-            st.markdown("### 🎓 Subniveles Sector Educativo (Estudiantes)")
-            st.session_state.link_edu_est_primaria = st.text_input("🔗 URL - Estudiantes (Primaria):", st.session_state.link_edu_est_primaria)
-            st.session_state.link_edu_est_secundaria = st.text_input("🔗 URL - Estudiantes (Secundaria):", st.session_state.link_edu_est_secundaria)
-            st.session_state.link_edu_est_prepa = st.text_input("🔗 URL - Estudiantes (Preparatoria):", st.session_state.link_edu_est_prepa)
-            st.session_state.link_edu_est_uni = st.text_input("🔗 URL - Estudiantes (Universitario):", st.session_state.link_edu_est_uni)
-            
-            st.markdown("### ⛪ Subniveles Sector Religioso")
-            st.session_state.link_religioso_general = st.text_input("🔗 URL - Sector Religioso (General):", st.session_state.link_religioso_general)
-            st.session_state.link_religioso_iasd = st.text_input("🔗 URL - Sector Religioso (IASD):", st.session_state.link_religioso_iasd)
-            
-            st.write("---")
-            if st.button("🔄 Actualizar Estadísticas (Salud Integral - Nube)"):
-                sheet = conectar_google_sheets()
-                if sheet:
-                    records = sheet.get_all_records()
-                    if records:
-                        df = pd.DataFrame(records)
-                        if len(df.columns) >= 11:
-                            columnas_dimensiones = {
-                                "Salud Física (SF)": df.columns, "Salud Mental (SM)": df.columns,
-                                "Salud Emocional (SE)": df.columns, "Salud Social (SS)": df.columns,
-                                "Salud Económica (SECO)": df.columns, "Salud Temporal (ST)": df.columns,
-                                "Salud Espiritual (SPI)": df.columns
-                            }
-                            promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
-                            df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
-                            st.write(f"**Total de participantes evaluados:** {len(df)}")
-                            st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100")
-                        else:
-                            st.error("Estructura de la hoja incorrecta.")
-                    else:
-                        st.warning("Aún no se registran respuestas en la base de datos de Google Sheets.")
+            st.success("Modo Ponente Activo")
+            # El ponente define qué formulario responderá TODO el auditorio en ese instante
+            lista_audiencias = [
+                "🍊 Salud Integral", "🚜 Sector Primario", "🏭 Sector Secundario", "💼 Sector Terciario",
+                "Docentes", "Padres Primaria", "Padres Secundaria", "Padres Preparatoria", "Padres Universitario",
+                "Estudiantes Primaria", "Estudiantes Secundaria", "Estudiantes Preparatoria", "Estudiantes Universitario",
+                "Religioso General", "Religioso IASD"
+            ]
+            seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias)
+            if seleccion != st.session_state.audiencia_activa:
+                st.session_state.audiencia_activa = seleccion
+                st.rerun()
+                
+            if st.button("Cerrar Sesion", width="stretch"):
+                st.session_state.admin_autenticado = False
+                st.rerun()
 
-# Interceptor de caducidad por Token de Tiempo
+# Interceptor de caducidad por Token de Tiempo (Rango de 5 minutos)
 token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
 if token_actual and not st.session_state.admin_autenticado:
@@ -283,7 +235,8 @@ if token_actual and not st.session_state.admin_autenticado:
     if token_actual not in tokens_validos:
         acceso_bloqueado = True
     else:
-        sheet = conectar_google_sheets()
+        # Revisa en la pestaña correspondiente de Google Sheets si ya se quemó el token
+        sheet = conectar_google_sheets(st.session_state.audiencia_activa)
         if sheet:
             try:
                 registros = sheet.get_all_records()
@@ -294,167 +247,155 @@ if token_actual and not st.session_state.admin_autenticado:
             except Exception: pass
 
 if acceso_bloqueado:
-    st.error("🚫 El código QR escaneado ha expirado o ya fue utilizado.")
+    st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
     st.stop()
 
 
+# Mapeador de Baterías de Reactivos Isomorfas en formato de diseño intercalado ciego (Impares=Cronos / Pares=Kairos)
+BANCO_PREGUNTAS = {
+    "Docentes": {
+        1: "Planifico mis actividades académicas, proyectos de ingeniería o labores administrativas en el ITAP siguiendo estrictamente los horarios institucionales y el calendario oficial del semestre.",
+        2: "Considero que la flexibilidad para adaptar el plan de una clase o junta ante una necesidad de aprendizaje o idea innovadora de los estudiantes es más importante que cumplir rígidamente con el orden del día.",
+        3: "Establezco y respeto límites fijos de tiempo para el desarrollo de las prácticas de laboratorio, entregas en plataforma o reuniones departamentales para asegurar el cumplimiento total de los objetivos programados.",
+        4: "Tengo plena disposición para modificar mi agenda de trabajo o de estudio en la institución si surge un momento emergente de asesoría relacional, orientación profesional o apoyo emocional para un compañero o alumno.",
+        5: "Considero que la puntualidad extrema en el ingreso a las aulas y el respeto a la duración exacta de los módulos horarios son reflejos directos de una buena mayordomía de los recursos del instituto.",
+        6: "Creo que la calidad conceptual y el valor humano de una tutoría, revisión de proyecto o vinculación con el sector productivo tienen prioridad absoluta sobre cualquier límite de tiempo fijado en el reloj.",
+        7: "Me genera una profunda incomodidad o frustración cuando incidentes técnicos menores, fallas en la red o dinámicas imprevistas alteran la estructura planeada de mis horas de jornada en el plantel.",
+        8: "Confío en que el proceso creativo y el desarrollo de soluciones tecnológicas e ingenieriles surgen en ventanas providenciales de oportunidad (momentos de inspiración) que no siempre coinciden con los cronogramas rígidos.",
+        9: "Prefiero que los ponentes en los congresos, los directores de carrera y los equipos de trabajo concluyan sus participaciones ciñéndose estrictamente al tiempo asignado en las convocatorias oficiales.",
+        10: "Cuando me encuentro inmerso en el desarrollo de software, diseño de prototipos, investigación de campo o dinámicas colaborativas complejas, pierdo con frecuencia la noción del tiempo terrenal.",
+        11: "Mido el éxito de un proyecto de residencias profesionales, servicio social o evento institucional principalmente a través del cumplimiento exacto de las metas métricas y los tiempos de entrega programados.",
+        12: "Prefiero que la gobernanza, las academias y los ministerios de apoyo en la comunidad universitaria se adapten con sensibilidad a las necesidades emocionales y de salud mental urgentes de la comunidad estudiantil.",
+        13: "Considero que el apego riguroso a los manuales de procesos organizacionales, las minutas y los flujogramas del ITAP es la clave fundamental para mantener el orden, la eficiencia y la excelencia institucional.",
+        14: "Valoro los resultados del impacto educativo del ITAP por la transformación integral del pensamiento, la ética profesional y el bienestar de los graduados, más que por las métricas de egreso o los blancos numéricos alcanzados."
+    },
+    "🏭 Sector Secundario": {
+        1: "Planifico y ejecuto mis actividades operativas en la planta siguiendo estrictamente los tiempos ciclo (takt time) y las metas por hora fijadas en el tablero de control de la línea.",
+        2: "Considero que detener temporalmente o flexibilizar la velocidad de la línea ante una falla imprevista o para capacitar en sitio a un compañero es más importante que cumplir rígidamente con la cuota diaria en ese instante.",
+        3: "Establezco y/o respeto límites de tiempo rígidos para cada fase del proceso de manufactura o cambio de modelo (setup) para asegurar el cumplimiento total de los embarques programados.",
+        4: "Tengo plena disposición para ajustar temporalmente la distribución de actividades en la celda de trabajo si surge una situación emergente de fatiga, molestia ergonómica o necesidad de apoyo relacional entre el personal.",
+        5: "Considero que la puntualidad exacta en los relevos de turno y el reinicio inmediato de labores tras los timbres de descanso son reflejos directos de una buena mayordomía de los recursos de la planta.",
+        6: "Creo que la calidad del ensamble, la seguridad en el manejo de maquinaria y el valor del trabajo en equipo tienen prioridad absoluta sobre cualquier límite de tiempo medido por el cronómetro.",
+        7: "Me genera una profunda incomodidad, frustración o estrés cuando incidentes en la cadena de suministros, retrasos de material o juntas improvisadas alteran la estructura planeada de mi jornada laboral.",
+        8: "Confío en que las ideas innovadoras de mejora continua (Kaizen) y las soluciones eficientes a problemas de ingeniería surgen en momentos de oportunidad que no siempre coinciden con los cronogramas rígidos.",
+        9: "Prefiero que los supervisores, los ingenieros de procesos y los gerentes concluyan sus juntas y auditorías ciñéndose estrictamente al tiempo asignado en la agenda oficial de operaciones.",
+        10: "When me encuentro inmerso en la resolución de una falla crítica de producción, el mantenimiento correctivo de una máquina o la optimización de un diseño, pierdo con frecuencia la noción del reloj.",
+        11: "Mido el éxito de una línea de ensamble, un proyecto de manufactura o un departamento operativo principalmente a través del cumplimiento exacto de los indicadores métricos (blancos numéricos de eficiencia).",
+        12: "Prefiero que la gerencia, el departamento de Recursos Humanos y el área de seguridad ocupacional se adapten con sensibilidad a las necesidades de salud mental y el bienestar físico urgente de los operadores.",
+        13: "Considero que el apego riguroso a los manuales de procedimientos estandarizados (SOP), las auditorías de calidad (como 5S o ISO) y las minutas es la clave fundamental para mantener la excelencia operativa.",
+        14: "Valoro el impacto de la maquiladora por el desarrollo integral y profesional del personal, la disminución sostenible de la rotación y la preservación de la salud mental de los empleados, más que por los números de volumen manufacturado."
+    }
+}
 
-# Creación formal de la matriz matricial de pestañas del Ecosistema
-tab_mandarina, tab_primario, tab_secundario, tab_terciario, tab_educativo, tab_religioso = st.tabs([
-    "🍊 Salud Integral", "🚜 Sector Primario", "🏭 Sector Secundario", "💼 Sector Terciario", "🏛️ Sector Educativo", "⛪ Sector Religioso"
-])
 
-# CONTENEDOR PESTAÑA 1: RECOPILACIÓN NATIVA MANDARINA ORIGINAL
-with tab_mandarina:
-    if not st.session_state.flujo_finalizado:
-        st.header("📋 Datos de Control")
-        nombre = st.text_input("Nombre Completo *:", placeholder="Ej. Juan Pérez", key="input_nombre_unico")
-        whatsapp = st.text_input("Número de Contacto de WhatsApp *:", placeholder="Ej. +52 633 123 4567", key="input_whatsapp_unico")
-        st.divider()
+if not st.session_state.flujo_finalizado:
+    st.header(f"📋 Formulario de Evaluación: {st.session_state.audiencia_activa}")
+    nombre = st.text_input("Nombre Completo o Matrícula *:", placeholder="Ej. Juan Pérez", key="main_name_in")
+    whatsapp = st.text_input("Número Telefónico de Enlace *:", placeholder="Ej. +52 633 123 4567", key="main_wha_in")
+    st.divider()
 
-        st.header("📊 Evaluación de las 7 Dimensiones")
-        st.write("Selecciona los elementos específicos en los que requieres intervención:")
-        resultados_totales = {}
+    resultados_totales = {}
+    es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
-        st.subheader("💪 Salud Física (SF)")
+    # MODO A: DIAGNÓSTICO NATIVO MANDARINA (CHECKBOXES)
+    if not es_modo_likert:
+        st.write("Selecciona las casillas en las que requieres intervención:")
         sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
         resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
-
-        st.subheader("🧠 Salud Mental (SM)")
-        sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distractions)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+        sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
         resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
-
-        st.subheader("❤️ Salud Emocional (SE)")
         se_items = ["Gestión de emociones", "Autocontrol (Dominio propio)", "Regulación psicológica", "Comprensión del estado de ánimo"]
         resultados_totales["Salud Emocional (SE)"] = [i for i in se_items if st.checkbox(i, key=f"se_{i}")]
-
-        st.subheader("👥 Salud Social (SS)")
         ss_items = ["Relaciones positivas (Vínculos sanos)", "Comunicación asertiva", "Empatía activa", "Red de apoyo ante crisis"]
         resultados_totales["Salud Social (SS)"] = [i for i in ss_items if st.checkbox(i, key=f"ss_{i}")]
-
-        st.subheader("💰 Salud Económica (SECO)")
         seco_items = ["Presupuesto (Control de gastos)", "Ahorro sistemático", "Inversión de capital", "Administración Financiera", "Creación / Generación del dinero"]
         resultados_totales["Salud Economica (SECO)"] = [i for i in seco_items if st.checkbox(i, key=f"seco_{i}")]
-
-        st.subheader("⏳ Salud Temporal (ST)")
         ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck")
         st_items = ["Gestión del tiempo (Agenda)", "Equilibrio (Deber/Descanso)", "Prioridades (Identificar lo importante)"]
         st_sel = [i for i in st_items if st.checkbox(i, key=f"st_{i}")]
         if ck_marcado: st_sel.append("Cronos & Kairos (Tiempo del reloj vs. valor real)")
         resultados_totales["Salud Temporal (ST)"] = st_sel
-
-        st.subheader("🙏 Salud Espiritual (SPI)")
         spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
         resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
 
-
-        st.divider()
-        col_btn1, col_btn2 = st.columns(2)
-        campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
-
-        with col_btn1:
-            if st.button("💾 Guardar y Procesar Diagnóstico", width="stretch", type="primary"):
-                if not campos_completos: st.error("⚠️ Datos obligatorios incompletos.")
-                else:
-                    with st.spinner("Registrando..."):
-                        exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
-                        if exito: st.session_state.guardado_exitoso = True; st.success("¡Guardado en la nube!")
-                        else: st.session_state.guardado_exitoso = True; st.warning("Procesado localmente.")
-
-        with col_btn2:
-            if st.session_state.guardado_exitoso and campos_completos:
-                reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
-                nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
-                def callback_cierre():
-                    st.session_state.flujo_finalizado = True
-                    for k in list(st.session_state.keys()):
-                        if k.startswith(("sf_", "sm_", "se_", "ss_", "seco_", "st_", "spi_")): del st.session_state[k]
-                st.download_button(label="DESCARGAR RESULTADOS EN PDF 📥", data=reporte_procesado, file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf", mime="application/pdf", on_click=callback_cierre)
-            else: st.info("💡 Procesa para activar descarga.")
+    # MODO B: CUESTIONARIOS LIKERT DINÁMICOS POR AUDIENCIA
     else:
-        st.balloons()
-        st.success("### ¡Tu reporte PDF ha sido generado y descargado con éxito! 🎉")
-        with st.container(border=True):
-            st.write("## 🍊 ¡Muchas gracias por tu participación!")
-            st.markdown("Has mapeado de forma honesta cada uno de tus gajos de bienestar. Te invitamos a agendar una sesión de consulta personalizada con el ponente.")
-            st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento directamente en el escenario.")
+        st.write("Selecciona tu grado de acuerdo frente a cada enunciado de jornada:")
+        # Si la audiencia no tiene banco específico de preguntas, adopta el de Docentes/ITAP o Industrial como matriz base
+        banco_activo = BANCO_PREGUNTAS.get(st.session_state.audiencia_activa, BANCO_PREGUNTAS["Docentes"])
+        
+        for r_id, enunciado in banco_activo.items():
+            # Inyección limpia parametrizada para el sector religioso o sub-educativos del switch
+            texto_final = enunciado.replace("el ITAP", f"mi organizacion ({st.session_state.audiencia_activa})").replace("el instituto", "la institucion").replace("maquiladora", "empresa")
+            st.write(f"**Reactivo {r_id}:** {texto_final}")
+            resultados_totales[f"R{r_id}"] = st.radio(
+                "Grado de alineacion:", 
+                options=,
+                format_func=lambda x: {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}[x],
+                key=f"dyn_r_{r_id}"
+            )
+            st.write("")
+        ck_marcado = False
 
 
-# # PARTE 8: FUNCIÓN MAESTRA LANZADORA DE FORMULARIOS EXTERNOS POR QR
+    st.divider()
+    col_btn1, col_btn2 = st.columns(2)
+    campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
 
-def renderizar_lanzador_forms(titulo_sector, url_destino):
-    st.markdown(f"#### Formulario Destino: *{titulo_sector}*")
-    if url_destino.strip():
-        col_x, col_y = st.columns([1, 1.5])
-        with col_x:
-            qr_f = qrcode.QRCode(version=1, box_size=10, border=2)
-            qr_f.add_data(url_destino)
-            qr_f.make(fit=True)
-            img_f = qr_f.make_image(fill_color="#e65100", back_color="white")
-            buf_f = BytesIO()
-            img_f.save(buf_f, format="PNG")
-            st.image(buf_f.getvalue(), caption=f"QR {titulo_sector}", width="stretch")
-        with col_y:
-            st.write(f"### ¡Escanea el código para responder!")
-            st.write("1. Enfoca el código QR con la cámara de tu smartphone.")
-            st.write("2. Responde el formulario psicométrico Likert correspondiente.")
-            st.markdown(f'[🔗 Enlace Directo Alternativo]({url_destino})')
-    else:
-        st.warning(f"⚠️ El ponente aún no ha configurado el enlace de Google Form para: {titulo_sector}")
+    with col_btn1:
+        if st.button("💾 Guardar y Procesar Diagnóstico", width="stretch", type="primary"):
+            if not campos_completos: 
+                st.error("⚠️ Datos obligatorios incompletos.")
+            else:
+                with st.spinner("Registrando vectores temporales en la nube..."):
+                    # El sistema guarda dinámicamente segregando por el nombre de la pestaña de la audiencia activa
+                    exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
+                    if exito: 
+                        st.session_state.guardado_exitoso = True
+                        st.success("¡Datos sincronizados con éxito en la nube!")
+                    else: 
+                        st.session_state.guardado_exitoso = True
+                        st.warning("Diagnóstico procesado de forma local.")
 
-# INYECCIÓN EN PESTAÑAS PRINCIPALES RESTANTES
-with tab_primario: 
-    renderizar_lanzador_forms("Sector Primario", st.session_state.link_primario)
+    with col_btn2:
+        if st.session_state.guardado_exitoso and campos_completos:
+            reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert)
+            nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
+            
+            def callback_finalizar():
+                st.session_state.flujo_finalizado = True
+                for k in list(st.session_state.keys()):
+                    if k.startswith(("sf_", "sm_", "se_", "ss_", "seco_", "st_", "spi_", "dyn_r_")): 
+                        del st.session_state[k]
+                        
+            st.download_button(
+                label="DESCARGAR RESULTADOS EN PDF 📥", 
+                data=reporte_procesado, 
+                file_name=f"Diagnostico_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf", 
+                mime="application/pdf", 
+                on_click=callback_finalizar
+            )
+        else: 
+            st.info("💡 Procesa para activar descarga.")
+            
+    st.caption("🔒 Tus datos están protegidos. El registro en Google Sheets se realiza de forma interna mediante tokens de seguridad validados.")
 
-with tab_secundario: 
-    renderizar_lanzador_forms("Sector Secundario (Industrial)", st.session_state.link_secundario)
-
-with tab_terciario: 
-    renderizar_lanzador_forms("Sector Terciario", st.session_state.link_terciario)
-
-with tab_educativo:
-    st.header("🏛️ Modelos Temporales: Sector Educativo")
-    sub_edu = st.selectbox(
-        "Selecciona el subnivel de la audiencia educativa actual:",
-        [
-            "Docentes", 
-            "Padres de familia Primaria", "Padres de familia Secundaria", "Padres de familia Preparatoria", "Padres de familia Universitario",
-            "Estudiantes Primaria", "Estudiantes Secundaria", "Estudiantes Preparatoria", "Estudiantes Universitario"
-        ],
-        key="sub_edu_selector"
-    )
-    st.write("---")
+else:
+    st.balloons()
+    st.success("### ¡Tu reporte PDF ha sido generado y descargado con éxito! 🎉")
+    with st.container(border=True):
+        st.write("## 🍊 ¡Muchas gracias por tu participación!")
+        st.markdown(f"Has completado de forma honesta el diagnóstico para la audiencia: **{st.session_state.audiencia_activa}**. Reconocer nuestros vectores temporales es el inicio de una alta madurez y bienestar integral.")
+        st.write("---")
+        st.write("### 📅 ¿Te gustaría llevar tu diagnóstico al siguiente nivel?")
+        st.write("Te invitamos cordialmente a agendar una sesión de consulta directa y personalizada con el ponente. En esta asesoría individualizada estructuraremos un plan de acción a la medida.")
+        st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento directamente en el escenario.")
+        
+    st.markdown("### ✨ ¡Te deseamos el mayor de los éxitos en los nuevos cambios que inicias a partir de esta experiencia! ✨")
     
-    if sub_edu == "Docentes":
-        renderizar_lanzador_forms("Docentes / Profesores", st.session_state.link_edu_docentes)
-    elif sub_edu == "Padres de familia Primaria":
-        renderizar_lanzador_forms("Padres de Familia - Primaria", st.session_state.link_edu_padres_primaria)
-    elif sub_edu == "Padres de familia Secundaria":
-        renderizar_lanzador_forms("Padres de Familia - Secundaria", st.session_state.link_edu_padres_secundaria)
-    elif sub_edu == "Padres de familia Preparatoria":
-        renderizar_lanzador_forms("Padres de Familia - Preparatoria", st.session_state.link_edu_padres_prepa)
-    elif sub_edu == "Padres de familia Universitario":
-        renderizar_lanzador_forms("Padres de Familia - Universitario", st.session_state.link_edu_padres_uni)
-    elif sub_edu == "Estudiantes Primaria":
-        renderizar_lanzador_forms("Estudiantes - Primaria", st.session_state.link_edu_est_primaria)
-    elif sub_edu == "Estudiantes Secundaria":
-        renderizar_lanzador_forms("Estudiantes - Secundaria", st.session_state.link_edu_est_secundaria)
-    elif sub_edu == "Estudiantes Preparatoria":
-        renderizar_lanzador_forms("Estudiantes - Preparatoria", st.session_state.link_edu_est_prepa)
-    elif sub_edu == "Estudiantes Universitario":
-        renderizar_lanzador_forms("Estudiantes - Universitario", st.session_state.link_edu_est_uni)
+    if not es_celular_del_publico:
+        if st.button("🔄 Reiniciar Ecosistema (Modo Ponente)", width="stretch"):
+            st.session_state.flujo_finalizado = False
+            st.session_state.guardado_exitoso = False
+            st.rerun()
 
-with tab_religioso:
-    st.header("⛪ Modelos Temporales: Sector Religioso")
-    sub_rel = st.radio(
-        "Selecciona el subnivel de la audiencia religiosa actual:",
-        ["General", "IASD"],
-        horizontal=True,
-        key="sub_rel_selector"
-    )
-    st.write("---")
-    
-    if sub_rel == "General":
-        renderizar_lanzador_forms("Sector Religioso General", st.session_state.link_religioso_general)
-    elif sub_rel == "IASD":
-        renderizar_lanzador_forms("Iglesia Adventista del Séptimo Día (IASD)", st.session_state.link_religioso_iasd)
