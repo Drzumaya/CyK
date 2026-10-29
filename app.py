@@ -154,8 +154,8 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
-# Construimos la URL dinámica vinculada al minuto actual
-url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}"
+# Construimos la URL pública para la audiencia (Agrega modo_admin=false por seguridad)
+url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
 
 # Renderizado automático del módulo de Código QR
 with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Válido solo en vivo)", expanded=True):
@@ -171,47 +171,87 @@ with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Vá
     with col2:
         st.write("### ¡Lleva la encuesta en tu bolsillo!")
         st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** Este código cambia cada minuto en el escenario para evitar reuso externo.")
+
+
 st.divider()
 
 # Inicializar estados de sesión para el flujo de guardado
 if "guardado_exitoso" not in st.session_state:
     st.session_state.guardado_exitoso = False
 
-# Panel Analítico privado para consulta del Ponente en el escenario
-with st.expander("📊 Panel Analítico del Ponente (Métricas Consolidadas)", expanded=False):
-    st.write("Análisis agregado del estado de salud de los participantes de la ponencia en tiempo real.")
-    if st.button("🔄 Actualizar Estadísticas del Auditorio"):
-        sheet = conectar_google_sheets()
-        if sheet:
-            records = sheet.get_all_records()
-            if records:
-                df = pd.DataFrame(records)
-                if len(df.columns) >= 10:
-                    columnas_dimensiones = {
-                        "Salud Física (SF)": df.columns[3], "Salud Mental (SM)": df.columns[4],
-                        "Salud Emocional (SE)": df.columns[5], "Salud Social (SS)": df.columns[6],
-                        "Salud Económica (SECO)": df.columns[7], "Salud Temporal (ST)": df.columns[8],
-                        "Salud Espiritual (SPI)": df.columns[9]
-                    }
-                    promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
-                    df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
-                    st.write(f"**Total de participantes evaluados:** {len(df)}")
-                    st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100", use_container_width=True)
+# --- VALIDACIÓN DE PASSWORD PARA EL PONENTE VÍA URL ---
+# Para entrar como ponente usa: https://streamlit.app
+password_url = st.query_params.get("admin", None)
+modo_admin_forzado = st.query_params.get("modo_admin", None)
+PASSWORD_CORRECTO = "mandarina2026"  # <--- Cambia aquí tu contraseña de acceso
+
+es_ponente = (password_url == PASSWORD_CORRECTO) and (modo_admin_forzado != "false")
+
+# El panel analítico SOLO se procesa y renderiza si eres el Ponente
+if es_ponente:
+    with st.expander("📊 Panel Analítico del Ponente (Métricas Consolidadas)", expanded=True):
+        st.write("### 💻 Modo Administrador Activo")
+        st.write("Análisis agregado del estado de salud de los participantes en tiempo real.")
+        
+        if st.button("🔄 Actualizar Estadísticas del Auditorio"):
+            sheet = conectar_google_sheets()
+            if sheet:
+                records = sheet.get_all_records()
+                if records:
+                    df = pd.DataFrame(records)
+                    
+                    if len(df.columns) >= 11:
+                        # 1. Gráfica de Promedios por Dimensión
+                        columnas_dimensiones = {
+                            "Salud Física (SF)": df.columns[3], "Salud Mental (SM)": df.columns[4],
+                            "Salud Emocional (SE)": df.columns[5], "Salud Social (SS)": df.columns[6],
+                            "Salud Económica (SECO)": df.columns[7], "Salud Temporal (ST)": df.columns[8],
+                            "Salud Espiritual (SPI)": df.columns[9]
+                        }
+                        promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
+                        df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
+                        
+                        st.write(f"**Total de participantes evaluados en vivo:** {len(df)}")
+                        st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100", use_container_width=True)
+                        
+                        # 2. Análisis Top 3 Puntos Críticos del Auditorio
+                        st.write("---")
+                        st.write("#### 🚨 Top 3 Problemas Más Comunes en el Auditorio")
+                        
+                        # Columna 10 contiene los textos separados por comas de la Salud Temporal / Alertas
+                        if len(df.columns) >= 11:
+                            todas_alertas = []
+                            for lista_str in df[df.columns[10]].dropna().astype(str):
+                                if lista_str and lista_str != "Ninguno. Area equilibrada.":
+                                    elementos = [e.strip() for e in lista_str.split(",") if e.strip()]
+                                    todas_alertas.extend(elementos)
+                            
+                            if todas_alertas:
+                                s_alertas = pd.Series(todas_alertas)
+                                top_alertas = s_alertas.value_counts().head(3)
+                                
+                                for i, (alerta, conteo) in enumerate(top_alertas.items(), 1):
+                                    st.warning(f"**{i}. {alerta}** — Detectado en {conteo} participantes")
+                            else:
+                                st.success("No hay alertas críticas recurrentes acumuladas.")
+                    else:
+                        st.error("Estructura de columnas incorrecta en la hoja de cálculo.")
                 else:
-                    st.error("Estructura de columnas incorrecta en la hoja de cálculo.")
+                    st.warning("Aún no se registran respuestas en la base de datos.")
             else:
-                st.warning("Aún no se registran respuestas en la base de datos.")
-        else:
-            st.error("Error de conexión con Google Sheets.")
+                st.error("Error de conexión con Google Sheets.")
+else:
+    # Si es un participante escaneando el QR, el bloque no existe en la interfaz, es invisible e inactivo
+    pass
 
 st.divider()
 
-# --- BLOQUE INTERCEPTOR DE REÚSO Y SEGURIDAD ---
+# --- BLOQUE INTERCEPTOR DE REÚSO Y SEGURIDAD PARA PARTICIPANTES ---
 token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
 motivo_bloqueo = ""
 
-if token_actual:
+if token_actual and not es_ponente:
     minuto_0 = int(time.time() // 60)
     minuto_1 = minuto_0 - 1
     
@@ -226,11 +266,12 @@ if token_actual:
         if sheet:
             try:
                 registros = sheet.get_all_records()
-                # Verifica los tokens usados en la última columna guardada (índice 11)
-                tokens_usados = [str(r.get(df.columns[11] if len(df.columns)>11 else "Token_Acceso", "")) for r in registros] if registros else []
-                if token_actual in tokens_usados:
-                    acceso_bloqueado = True
-                    motivo_bloqueo = "Este acceso ya fue utilizado por otro dispositivo de la audiencia."
+                if registros:
+                    df_check = pd.DataFrame(records)
+                    tokens_usados = [str(r.get(df_check.columns[-1], "")) for r in registros]
+                    if token_actual in tokens_usados:
+                        acceso_bloqueado = True
+                        motivo_bloqueo = "Este acceso ya fue utilizado por otro dispositivo de la audiencia."
             except Exception:
                 pass
 
@@ -238,6 +279,7 @@ if acceso_bloqueado:
     st.error(f"🚫 **Acceso Denegado:** {motivo_bloqueo}")
     st.info("Por favor, vuelve a escanear el código QR dinámico que el ponente está proyectando en vivo en la pantalla.")
     st.stop()
+
     
 # Captura de datos básicos del empleado (Campos Obligatorios)
 st.header("📋 Datos de Control")
