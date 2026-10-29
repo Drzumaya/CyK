@@ -25,13 +25,30 @@ st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026")
 
 def conectar_google_sheets():
     try:
-        secrets_dict = st.secrets["gcp_service_account"]
-        scope = ["https://googleapis.com"]
+        # Validar si existen los secretos
+        if "gcp_service_account" not in st.secrets:
+            st.error("🚨 Error: No se encontró la sección [gcp_service_account] en st.secrets.")
+            return None
+            
+        secrets_dict = dict(st.secrets["gcp_service_account"])
+        
+        # Google requiere los saltos de línea correctos en la llave privada
+        if "private_key" in secrets_dict:
+            secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+            
+        scope = [
+            "https://googleapis.com",
+            "https://googleapis.com"
+        ]
+        
         creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
         client = gspread.authorize(creds)
         return client.open(NOMBRE_HOJA_CALCULO).sheet1
-    except Exception:
+    except Exception as e:
+        # Te muestra el error real en pantalla para saber qué pasa
+        st.error(f"🚨 Error de conexión Sheets: {str(e)}")
         return None
+
 
 def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
     sheet = conectar_google_sheets()
@@ -176,10 +193,16 @@ if not es_celular_del_publico:
 
 st.divider()
 
+st.divider()
+
+# Inicializar estados de sesión para el flujo de la aplicación
 if "guardado_exitoso" not in st.session_state:
     st.session_state.guardado_exitoso = False
 if "admin_autenticado" not in st.session_state:
     st.session_state.admin_autenticado = False
+if "flujo_finalizado" not in st.session_state:
+    st.session_state.flujo_finalizado = False
+
 
 PASSWORD_CORRECTO = "mandarina2026"  
 
@@ -293,86 +316,133 @@ st.header("📋 Datos de Control")
 nombre = st.text_input("Nombre Completo *:", placeholder="Ej. Juan Pérez")
 whatsapp = st.text_input("Número de Contacto de WhatsApp *:", placeholder="Ej. +52 633 123 4567")
 
-st.divider()
+# SÓLO DESPLEGAMOS EL CUESTIONARIO SI EL USUARIO NO HA TERMINADO SU DESCARGA
+if not st.session_state.flujo_finalizado:
+    st.header("📋 Datos de Control")
+    nombre = st.text_input("Nombre Completo *:", placeholder="Ej. Juan Pérez")
+    whatsapp = st.text_input("Número de Contacto de WhatsApp *:", placeholder="Ej. +52 633 123 4567")
 
-st.header("📊 Evaluación de las 7 Dimensiones")
-st.write("Selecciona los elementos específicos en los que requieres intervención:")
+    st.divider()
 
-resultados_totales = {}
+    st.header("📊 Evaluación de las 7 Dimensiones")
+    st.write("Selecciona los elementos específicos en los que requieres intervención:")
 
-# 1. SF
-st.subheader("💪 Salud Física (SF)")
-sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
-resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
+    resultados_totales = {}
 
-# 2. SM
-st.subheader("🧠 Salud Mental (SM)")
-sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distractions)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
-resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
+    # 1. SF
+    st.subheader("💪 Salud Física (SF)")
+    sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
+    resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
 
-# 3. SE
-st.subheader("❤️ Salud Emocional (SE)")
-se_items = ["Gestión de emociones", "Autocontrol (Dominio propio)", "Regulación psicológica", "Comprensión del estado de ánimo"]
-resultados_totales["Salud Emocional (SE)"] = [i for i in se_items if st.checkbox(i, key=f"se_{i}")]
+    # 2. SM
+    st.subheader("🧠 Salud Mental (SM)")
+    sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+    resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
 
-# 4. SS
-st.subheader("👥 Salud Social (SS)")
-ss_items = ["Relaciones positivas (Vínculos sanos)", "Comunicación asertiva", "Empatía activa", "Red de apoyo ante crisis"]
-resultados_totales["Salud Social (SS)"] = [i for i in ss_items if st.checkbox(i, key=f"ss_{i}")]
+    # 3. SE
+    st.subheader("❤️ Salud Emocional (SE)")
+    se_items = ["Gestión de emociones", "Autocontrol (Dominio propio)", "Regulación psicológica", "Comprensión del estado de ánimo"]
+    resultados_totales["Salud Emocional (SE)"] = [i for i in se_items if st.checkbox(i, key=f"se_{i}")]
 
-# 5. SECO
-st.subheader("💰 Salud Económica (SECO)")
-seco_items = ["Presupuesto (Control de gastos)", "Ahorro sistemático", "Inversión de capital", "Administración Financiera", "Creación / Generación del dinero"]
-resultados_totales["Salud Economica (SECO)"] = [i for i in seco_items if st.checkbox(i, key=f"seco_{i}")]
+    # 4. SS
+    st.subheader("👥 Salud Social (SS)")
+    ss_items = ["Relaciones positivas (Vínculos sanos)", "Comunicación asertiva", "Empatía activa", "Red de apoyo ante crisis"]
+    resultados_totales["Salud Social (SS)"] = [i for i in ss_items if st.checkbox(i, key=f"ss_{i}")]
 
-# 6. ST
-st.subheader("⏳ Salud Temporal (ST)")
-ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck")
-st_items = ["Gestión del tiempo (Agenda)", "Equilibrio (Deber/Descanso)", "Prioridades (Identificar lo importante)"]
-st_sel = [i for i in st_items if st.checkbox(i, key=f"st_{i}")]
-if ck_marcado:
-    st_sel.append("Cronos & Kairos (Tiempo del reloj vs. valor real)")
-resultados_totales["Salud Temporal (ST)"] = st_sel
+    # 5. SECO
+    st.subheader("💰 Salud Económica (SECO)")
+    seco_items = ["Presupuesto (Control de gastos)", "Ahorro sistemático", "Inversión de capital", "Administración Financiera", "Creación / Generación del dinero"]
+    resultados_totales["Salud Economica (SECO)"] = [i for i in seco_items if st.checkbox(i, key=f"seco_{i}")]
 
-# 7. SPI
-st.subheader("🙏 Salud Espiritual (SPI)")
-spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
-resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
+    # 6. ST
+    st.subheader("⏳ Salud Temporal (ST)")
+    ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck")
+    st_items = ["Gestión del tiempo (Agenda)", "Equilibrio (Deber/Descanso)", "Prioridades (Identificar lo importante)"]
+    st_sel = [i for i in st_items if st.checkbox(i, key=f"st_{i}")]
+    if ck_marcado:
+        st_sel.append("Cronos & Kairos (Tiempo del reloj vs. valor real)")
+    resultados_totales["Salud Temporal (ST)"] = st_sel
+
+    # 7. SPI
+    st.subheader("🙏 Salud Espiritual (SPI)")
+    spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
+    resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
 
 
-st.divider()
+    st.divider()
 
-col_btn1, col_btn2 = st.columns(2)
-campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
+    col_btn1, col_btn2 = st.columns(2)
+    campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
 
-with col_btn1:
-    if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
-        if not campos_completos:
-            st.error("⚠️ **Faltan datos obligatorios.** Por favor ingresa tu Nombre y WhatsApp antes de continuar.")
+    with col_btn1:
+        if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
+            if not campos_completos:
+                st.error("⚠️ **Faltan datos obligatorios.** Por favor ingresa tu Nombre y WhatsApp antes de continuar.")
+            else:
+                with st.spinner("Registrando tus gajos de salud de forma segura..."):
+                    exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
+                    if exito:
+                        st.session_state.guardado_exitoso = True
+                        st.success("¡Datos guardados con éxito en la nube!")
+                    else:
+                        st.session_state.guardado_exitoso = True
+                        st.warning("Diagnóstico procesado de forma local (Sin conexión de red temporal).")
+
+    with col_btn2:
+        if st.session_state.guardado_exitoso and campos_completos:
+            reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
+            nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
+            
+            def finalizar_experiencia_callback():
+                # Activamos la bandera de cierre de la app
+                st.session_state.flujo_finalizado = True
+                # Limpiamos las variables del cuestionario por privacidad
+                for clave in list(st.session_state.keys()):
+                    if clave.startswith(("sf_", "sm_", "se_", "ss_", "seco_", "st_", "spi_")):
+                        del st.session_state[clave]
+
+            st.download_button(
+                label="DESCARGAR RESULTADOS EN PDF 📥",
+                data=reporte_procesado,
+                file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
+                mime="application/pdf",
+                on_click=finalizar_experiencia_callback
+            )
+        elif not campos_completos:
+            st.warning("⚠️ Escribe tu Nombre y WhatsApp arriba para liberar las opciones de procesamiento.")
         else:
-            with st.spinner("Registrando tus gajos de salud de forma segura..."):
-                exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
-                if exito:
-                    st.session_state.guardado_exitoso = True
-                    st.success("¡Datos guardados con éxito en la nube!")
-                else:
-                    st.session_state.guardado_exitoso = True
-                    st.warning("Diagnóstico procesado de forma local (Sin conexión de red temporal).")
+            st.info("💡 Haz clic en 'Guardar y Procesar' para activar tu descarga.")
 
-with col_btn2:
-    if st.session_state.guardado_exitoso and campos_completos:
-        reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
-        nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
-        
-        st.download_button(
-            label="DESCARGAR RESULTADOS EN PDF 📥",
-            data=reporte_procesado,
-            file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
-            mime="application/pdf"
+    st.caption("🔒 Tus datos están protegidos. El registro en Google Sheets se realiza de forma interna mediante tokens de seguridad validados.")
+
+# --- VENTANA DE AGRADECIMIENTO Y CIERRE EXCLUSIVO (PANTALLA NUEVA) ---
+else:
+    st.balloons() # Lluvia de globos celebrando el éxito de su diagnóstico
+    st.success("### ¡Tu reporte PDF ha sido generado y descargado con éxito! 🎉")
+    
+    # Caja de diseño para el mensaje de cierre
+    with st.container(border=True):
+        st.write("## 🍊 ¡Muchas gracias por tu participación!")
+        st.markdown(
+            "Has tomado un paso fundamental al mapear de forma honesta cada uno de tus gajos de bienestar. "
+            "Reconocer nuestros puntos de fuga es el verdadero inicio de una transformación integral."
         )
-    elif not campos_completos:
-        st.warning("⚠️ Escribe tu Nombre y WhatsApp arriba para liberar las opciones de procesamiento.")
-    else:
-        st.info("💡 Haz clic en 'Guardar y Procesar' para activar tu descarga.")
-
-st.caption("🔒 Tus datos están protegidos. El registro en Google Sheets se realiza de forma interna mediante tokens de seguridad validados.")
+        st.write("---")
+        st.write("### 📅 ¿Te gustaría llevar tu diagnóstico al siguiente nivel?")
+        st.write(
+            "Te invitamos cordialmente a **agendar una sesión de consulta directa y personalizada con el ponente**. "
+            "En esta asesoría individualizada analizaremos a profundidad tus resultados estratégicos y estructuraremos "
+            "un plan de acción a la medida para sanar tus dimensiones críticas."
+        )
+        
+        # Opcional: Si tienes un enlace de Calendly o WhatsApp corporativo, puedes añadir el botón directo aquí
+        st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento personalizado directamente en el escenario.")
+        
+    st.markdown("### ✨ ¡Te deseamos el mayor de los éxitos en los nuevos cambios que inicias a partir de esta experiencia! ✨")
+    
+    # Botón por si el ponente necesita resetear la app manualmente en el escenario sin recargar la URL
+    if es_celular_del_publico == False: 
+        if st.button("🔄 Reiniciar Aplicación (Modo Ponente)"):
+            st.session_state.flujo_finalizado = False
+            st.session_state.guardado_exitoso = False
+            st.rerun()
