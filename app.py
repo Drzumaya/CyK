@@ -175,25 +175,47 @@ with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Vá
 
 st.divider()
 
-# Inicializar estados de sesión para el flujo de guardado
+# Inicializar estados de sesión para el flujo de la aplicación
 if "guardado_exitoso" not in st.session_state:
     st.session_state.guardado_exitoso = False
+if "admin_autenticado" not in st.session_state:
+    st.session_state.admin_autenticado = False
 
-# --- VALIDACIÓN DE PASSWORD PARA EL PONENTE VÍA URL ---
-# Para entrar como ponente usa: https://streamlit.app
-password_url = st.query_params.get("admin", None)
-modo_admin_forzado = st.query_params.get("modo_admin", None)
+# --- CONFIGURACIÓN DE CREDENCIALES ---
 PASSWORD_CORRECTO = "mandarina2026"  # <--- Cambia aquí tu contraseña de acceso
 
-es_ponente = (password_url == PASSWORD_CORRECTO) and (modo_admin_forzado != "false")
+# Leer parámetros de la URL para identificar si viene del QR del público
+modo_admin_url = st.query_params.get("modo_admin", None)
+forzar_bloqueo_publico = (modo_admin_url == "false")
 
-# El panel analítico SOLO se procesa y renderiza si eres el Ponente
-if es_ponente:
-    with st.expander("📊 Panel Analítico del Ponente (Métricas Consolidadas)", expanded=True):
-        st.write("### 💻 Modo Administrador Activo")
+# --- LA PUERTA DE ENTRADA AL PANEL (SOLO SI NO ES EL PÚBLICO DEL QR) ---
+if not forzar_bloqueo_publico:
+    # Desplegamos una sección discreta para la autenticación del Ponente
+    with st.expander("🔐 Acceso Exclusivo para el Ponente", expanded=not st.session_state.admin_autenticado):
+        if not st.session_state.admin_autenticado:
+            st.write("Introduce la clave de acceso para activar las métricas consolidadas del auditorio:")
+            input_password = st.text_input("Contraseña de Administrador:", type="password", key="admin_pwd_input")
+            
+            if st.button("🔑 Verificar Identidad", use_container_width=True):
+                if input_password == PASSWORD_CORRECTO:
+                    st.session_state.admin_autenticado = True
+                    st.success("¡Identidad verificada con éxito!")
+                    st.rerun()
+                else:
+                    st.error("Contraseña incorrecta. Acceso denegado.")
+        else:
+            st.success("💻 Modo Administrador Activo")
+            if st.button("🚪 Cerrar Sesión de Administrador"):
+                st.session_state.admin_autenticado = False
+                st.rerun()
+
+# --- RENDERIZADO DEL PANEL ANALÍTICO (SÓLO SI PASÓ LA PUERTA DE ENTRADA) ---
+if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
+    with st.container():
+        st.markdown("### 📊 Panel Analítico del Ponente (Métricas Consolidadas)")
         st.write("Análisis agregado del estado de salud de los participantes en tiempo real.")
         
-        if st.button("🔄 Actualizar Estadísticas del Auditorio"):
+        if st.button("🔄 Actualizar Estadísticas del Auditorio", type="primary"):
             sheet = conectar_google_sheets()
             if sheet:
                 records = sheet.get_all_records()
@@ -218,30 +240,30 @@ if es_ponente:
                         st.write("---")
                         st.write("#### 🚨 Top 3 Problemas Más Comunes en el Auditorio")
                         
-                        # Columna 10 contiene los textos separados por comas de la Salud Temporal / Alertas
-                        if len(df.columns) >= 11:
-                            todas_alertas = []
-                            for lista_str in df[df.columns[10]].dropna().astype(str):
-                                if lista_str and lista_str != "Ninguno. Area equilibrada.":
-                                    elementos = [e.strip() for e in lista_str.split(",") if e.strip()]
-                                    todas_alertas.extend(elementos)
+                        # Columna 10 contiene las alertas de texto separadas por comas (Salud Temporal)
+                        columna_alertas = df.columns[10]
+                        todas_alertas = []
+                        for lista_str in df[columna_alertas].dropna().astype(str):
+                            if lista_str and lista_str != "Ninguno. Area equilibrada.":
+                                elementos = [e.strip() for e in lista_str.split(",") if e.strip()]
+                                todas_alertas.extend(elementos)
+                        
+                        if todas_alertas:
+                            s_alertas = pd.Series(todas_alertas)
+                            top_alertas = s_alertas.value_counts().head(3)
                             
-                            if todas_alertas:
-                                s_alertas = pd.Series(todas_alertas)
-                                top_alertas = s_alertas.value_counts().head(3)
-                                
-                                for i, (alerta, conteo) in enumerate(top_alertas.items(), 1):
-                                    st.warning(f"**{i}. {alerta}** — Detectado en {conteo} participantes")
-                            else:
-                                st.success("No hay alertas críticas recurrentes acumuladas.")
+                            for i, (alerta, conteo) in enumerate(top_alertas.items(), 1):
+                                st.warning(f"**{i}. {alerta}** — Detectado en {conteo} participantes")
+                        else:
+                            st.success("No hay alertas críticas recurrentes acumuladas en el auditorio.")
                     else:
                         st.error("Estructura de columnas incorrecta en la hoja de cálculo.")
                 else:
-                    st.warning("Aún no se registran respuestas en la base de datos.")
+                    st.warning("Aún no se registran respuestas en la base de datos de Google Sheets.")
             else:
-                st.error("Error de conexión con Google Sheets.")
+                st.error("Error de conexión con Google Sheets. Verifica tus secretos.")
 else:
-    # Si es un participante escaneando el QR, el bloque no existe en la interfaz, es invisible e inactivo
+    # Para la audiencia y escaneos de QR, este bloque permanece completamente inexistente
     pass
 
 st.divider()
@@ -251,7 +273,8 @@ token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
 motivo_bloqueo = ""
 
-if token_actual and not es_ponente:
+# Los administradores autenticados están exentos de la caducidad por token de tiempo
+if token_actual and not st.session_state.admin_autenticado:
     minuto_0 = int(time.time() // 60)
     minuto_1 = minuto_0 - 1
     
@@ -260,14 +283,15 @@ if token_actual and not es_ponente:
     
     if token_actual not in [token_valido_0, token_valido_1]:
         acceso_bloqueado = True
-        motivo_bloqueo = "El codigo QR escaneado ha expirado debido al tiempo transcurrido."
+        motivo_bloqueo = "El código QR escaneado ha expirado debido al tiempo transcurrido."
     else:
         sheet = conectar_google_sheets()
         if sheet:
             try:
                 registros = sheet.get_all_records()
                 if registros:
-                    df_check = pd.DataFrame(records)
+                    df_check = pd.DataFrame(registros)
+                    # El token se valida contra la última columna de la hoja
                     tokens_usados = [str(r.get(df_check.columns[-1], "")) for r in registros]
                     if token_actual in tokens_usados:
                         acceso_bloqueado = True
@@ -279,6 +303,7 @@ if acceso_bloqueado:
     st.error(f"🚫 **Acceso Denegado:** {motivo_bloqueo}")
     st.info("Por favor, vuelve a escanear el código QR dinámico que el ponente está proyectando en vivo en la pantalla.")
     st.stop()
+
 
     
 # Captura de datos básicos del empleado (Campos Obligatorios)
