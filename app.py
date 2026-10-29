@@ -115,7 +115,8 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     pdf.set_text_color(120, 120, 120)
     pdf.cell(0, 5, "Diseno de Metricas y Propiedad Intelectual: Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     
-    return pdf.output()
+    return bytes(pdf.output())
+
 
     
 # Generación de Token dinámico por tiempo (Expira cada 60 segundos)
