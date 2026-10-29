@@ -1,3 +1,4 @@
+import uuid
 import streamlit as st
 import qrcode
 from io import BytesIO
@@ -152,8 +153,15 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
 with st.expander("📱 Escanea el Código QR para contestar desde tu móvil", expanded=True):
     col1, col2 = st.columns([1, 1.5])
     with col1:
+        # Generamos un token único para esta sesión de pantalla
+        if "token_sesion" not in st.session_state:
+            st.session_state.token_sesion = str(uuid.uuid4())[:8] # Token corto de 8 caracteres
+        
+        # Construimos la URL dinámica: https://streamlit.app
+        url_con_token = f"{URL_PRODUCCION}/?token={st.session_state.token_sesion}"
+        
         qr = qrcode.QRCode(version=1, box_size=10, border=2)
-        qr.add_data(URL_PRODUCCION)
+        qr.add_data(url_con_token)
         qr.make(fit=True)
         img_qr = qr.make_image(fill_color="#e65100", back_color="white")
         buf = BytesIO()
@@ -162,6 +170,7 @@ with st.expander("📱 Escanea el Código QR para contestar desde tu móvil", ex
     with col2:
         st.write("### ¡Lleva la encuesta en tu bolsillo!")
         st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR.\n3. Diagnostica tus gajos en tiempo real.")
+
 st.divider()
 
 # Inicializar estados de sesión para el flujo de guardado
