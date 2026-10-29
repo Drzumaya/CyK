@@ -155,23 +155,32 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
-# Construimos la URL pública para la audiencia (Asegúrate de usar la URL completa de share de tu app)
+# Construimos la URL pública para la audiencia (Agrega modo_admin=false)
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
 
-# Renderizado automático del módulo de Código QR
-with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Válido solo en vivo)", expanded=True):
-    col1, col2 = st.columns([1, 1.5])
-    with col1:
-        qr = qrcode.QRCode(version=1, box_size=10, border=2)
-        qr.add_data(url_con_token)
-        qr.make(fit=True)
-        img_qr = qr.make_image(fill_color="#e65100", back_color="white")
-        buf = BytesIO()
-        img_qr.save(buf, format="PNG")
-        st.image(buf.getvalue(), caption="Código dinámico de seguridad temporal", use_container_width=True)
-    with col2:
-        st.write("### ¡Lleva la encuesta en tu bolsillo!")
-        st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** No necesitas registrarte ni iniciar sesión. El acceso es directo e inmediato.")
+# Extracción estricta y limpia del parámetro de la URL para evitar fallas de lectura
+modo_admin_url = st.query_params.get("modo_admin", "true")
+# Nos aseguramos de convertirlo a texto y pasarlo a minúsculas
+es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+
+# EL CÓDIGO QR SÓLO SE RENDERIZA SI NO ES EL CELULAR DEL PÚBLICO
+if not es_celular_del_publico:
+    with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Válido solo en vivo)", expanded=True):
+        col1, col2 = st.columns([1, 1.5])
+        with col1:
+            qr = qrcode.QRCode(version=1, box_size=10, border=2)
+            qr.add_data(url_con_token)
+            qr.make(fit=True)
+            img_qr = qr.make_image(fill_color="#e65100", back_color="white")
+            buf = BytesIO()
+            img_qr.save(buf, format="PNG")
+            st.image(buf.getvalue(), caption="Código dinámico de seguridad temporal", use_container_width=True)
+        with col2:
+            st.write("### ¡Lleva la encuesta en tu bolsillo!")
+            st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** Este código cambia cada minuto en el escenario para evitar reuso externo.")
+else:
+    # Si detecta de forma estricta que es el celular de un asistente, el bloque del QR se destruye
+    pass
 
 
 st.divider()
