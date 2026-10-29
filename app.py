@@ -10,18 +10,53 @@ import uuid
 import hashlib
 import time
 
-# Enlace web de producción de tu ponencia en Streamlit Cloud
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+# =================================================================
+# CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
+# =================================================================
+# IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-# Configuración móvil-first de la interfaz táctil
 st.set_page_config(page_title="Diagnóstico Salud Integral", layout="centered")
 
 st.title("🍊 Diagnóstico de Salud Integral")
 st.subheader("Modelo Mandarina")
 st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026")
 
-# Función del motor PDF para estructurar el reporte móvil (Adaptada a fpdf2 y sin acentos)
+def conectar_google_sheets():
+    try:
+        secrets_dict = st.secrets["gcp_service_account"]
+        scope = ["https://googleapis.com"]
+        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
+        client = gspread.authorize(creds)
+        return client.open(NOMBRE_HOJA_CALCULO).sheet1
+    except Exception:
+        return None
+
+def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
+    sheet = conectar_google_sheets()
+    if sheet:
+        try:
+            fila = [
+                str(datetime.datetime.now()),
+                nombre if nombre else "Anonimo",
+                whatsapp if whatsapp else "No Proporcionado",
+                len(resultados.get("Salud Fisica (SF)", [])),
+                len(resultados.get("Salud Mental (SM)", [])),
+                len(resultados.get("Salud Emocional (SE)", [])),
+                len(resultados.get("Salud Social (SS)", [])),
+                len(resultados.get("Salud Economica (SECO)", [])),
+                len(resultados.get("Salud Temporal (ST)", [])),
+                len(resultados.get("Salud Espiritual (SPI)", [])),
+                ", ".join(resultados.get("Salud Temporal (ST)", [])),
+                token if token else "Acceso_Directo"
+            ]
+            sheet.append_row(fila)
+            return True
+        except Exception:
+            return False
+    return False
+
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales, st_cronos_kairos):
     pdf = FPDF()
     pdf.add_page()
@@ -117,21 +152,13 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     
     return bytes(pdf.output())
 
-
-    
-# Generación de Token dinámico por tiempo (Expira cada 60 segundos)
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
-
-# Construimos la URL pública para la audiencia (Agrega modo_admin=false)
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
 
-# Extracción estricta y limpia del parámetro de la URL para evitar fallas de lectura
 modo_admin_url = st.query_params.get("modo_admin", "true")
-# Nos aseguramos de convertirlo a texto y pasarlo a minúsculas
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 
-# EL CÓDIGO QR SÓLO SE RENDERIZA SI NO ES EL CELULAR DEL PÚBLICO
 if not es_celular_del_publico:
     with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Válido solo en vivo)", expanded=True):
         col1, col2 = st.columns([1, 1.5])
@@ -145,30 +172,18 @@ if not es_celular_del_publico:
             st.image(buf.getvalue(), caption="Código dinámico de seguridad temporal", use_container_width=True)
         with col2:
             st.write("### ¡Lleva la encuesta en tu bolsillo!")
-            st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** Este código cambia cada minuto en el escenario para evitar reuso externo.")
-else:
-    # Si detecta de forma estricta que es el celular de un asistente, el bloque del QR se destruye
-    pass
-
+            st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** No necesitas registrarte ni iniciar sesión. El acceso es directo e inmediato.")
 
 st.divider()
 
-# Inicializar estados de sesión para el flujo de la aplicación
 if "guardado_exitoso" not in st.session_state:
     st.session_state.guardado_exitoso = False
 if "admin_autenticado" not in st.session_state:
     st.session_state.admin_autenticado = False
 
-# --- CONFIGURACIÓN DE CREDENCIALES ---
-PASSWORD_CORRECTO = "mandarina2026"  # <--- Cambia aquí tu contraseña de acceso
+PASSWORD_CORRECTO = "mandarina2026"  
 
-# Leer parámetros de la URL para identificar si viene del QR del público
-modo_admin_url = st.query_params.get("modo_admin", None)
-forzar_bloqueo_publico = (modo_admin_url == "false")
-
-# --- LA PUERTA DE ENTRADA AL PANEL (COMPLETAMENTE OCULTA PARA EL PÚBLICO) ---
-if not forzar_bloqueo_publico:
-    # Desplegamos una sección discreta para la autenticación del Ponente
+if not es_celular_del_publico:
     with st.expander("🔐 Acceso Exclusivo para el Ponente", expanded=not st.session_state.admin_autenticado):
         if not st.session_state.admin_autenticado:
             st.write("Introduce la clave de acceso para activar las métricas consolidadas del auditorio:")
@@ -187,8 +202,7 @@ if not forzar_bloqueo_publico:
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-# --- RENDERIZADO DEL PANEL ANALÍTICO (SÓLO SI PASÓ LA PUERTA Y NO ES PÚBLICO) ---
-if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
+if st.session_state.admin_autenticado and not es_celular_del_publico:
     with st.container():
         st.markdown("### 📊 Panel Analítico del Ponente (Métricas Consolidadas)")
         st.write("Análisis agregado del estado de salud de los participantes en tiempo real.")
@@ -201,7 +215,6 @@ if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
                     df = pd.DataFrame(records)
                     
                     if len(df.columns) >= 11:
-                        # 1. Gráfica de Promedios por Dimensión
                         columnas_dimensiones = {
                             "Salud Física (SF)": df.columns, "Salud Mental (SM)": df.columns,
                             "Salud Emocional (SE)": df.columns, "Salud Social (SS)": df.columns,
@@ -214,7 +227,6 @@ if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
                         st.write(f"**Total de participantes evaluados en vivo:** {len(df)}")
                         st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100", use_container_width=True)
                         
-                        # 2. Análisis Top 3 Puntos Críticos del Auditorio
                         st.write("---")
                         st.write("#### 🚨 Top 3 Problemas Más Comunes en el Auditorio")
                         
@@ -239,41 +251,32 @@ if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
                     st.warning("Aún no se registran respuestas en la base de datos de Google Sheets.")
             else:
                 st.error("Error de conexión con Google Sheets. Verifica tus secretos.")
-else:
-    # Para los asistentes, este bloque se descarta completamente de la memoria de la interfaz
-    pass
 
 st.divider()
 
-# --- BLOQUE INTERCEPTOR DE REÚSO Y SEGURIDAD PARA PARTICIPANTES (CORREGIDO) ---
+# INTERCEPTOR DE REÚSO Y SEGURIDAD CON 5 MINUTOS DE GRACIA
 token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
 motivo_bloqueo = ""
 
 if token_actual and not st.session_state.admin_autenticado:
     minuto_base = int(time.time() // 60)
-    
-    # Creamos una lista de tokens válidos para los últimos 5 minutos
-    # Esto da margen total a redes móviles lentas o desfases de reloj entre dispositivos
     tokens_validos = []
     for i in range(5):
         minuto_test = minuto_base - i
         token_test = hashlib.md5(f"mandarina_secret_{minuto_test}".encode()).hexdigest()[:8]
         tokens_validos.append(token_test)
     
-    # Capa 1: Validación de tiempo de expiración (Con rango de 5 minutos)
     if token_actual not in tokens_validos:
         acceso_bloqueado = True
-        motivo_bloqueo = "El codigo QR escaneado ha expirado debido al tiempo transcurrido."
+        motivo_bloqueo = "El código QR escaneado ha expirado debido al tiempo transcurrido."
     else:
-        # Capa 2: Validación de duplicados en la base de datos
         sheet = conectar_google_sheets()
         if sheet:
             try:
                 registros = sheet.get_all_records()
                 if registros:
                     df_check = pd.DataFrame(registros)
-                    # El token se valida contra la última columna de la hoja
                     tokens_usados = [str(r.get(df_check.columns[-1], "")) for r in registros]
                     if token_actual in tokens_usados:
                         acceso_bloqueado = True
@@ -283,19 +286,15 @@ if token_actual and not st.session_state.admin_autenticado:
 
 if acceso_bloqueado:
     st.error(f"🚫 **Acceso Denegado:** {motivo_bloqueo}")
-    st.info("Por favor, vuelve a escanear el codigo QR dinamico que el ponente esta proyectando en vivo en la pantalla.")
+    st.info("Por favor, vuelve a escanear el código QR dinámico que el ponente está proyectando en vivo.")
     st.stop()
 
-
-# Captura de datos básicos del empleado (Campos Obligatorios)
-# Captura de datos básicos del empleado
 st.header("📋 Datos de Control")
 nombre = st.text_input("Nombre Completo *:", placeholder="Ej. Juan Pérez")
 whatsapp = st.text_input("Número de Contacto de WhatsApp *:", placeholder="Ej. +52 633 123 4567")
 
 st.divider()
 
-# Despliegue de los 7 gajos de autoevaluación del Modelo Mandarina
 st.header("📊 Evaluación de las 7 Dimensiones")
 st.write("Selecciona los elementos específicos en los que requieres intervención:")
 
@@ -308,7 +307,7 @@ resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i,
 
 # 2. SM
 st.subheader("🧠 Salud Mental (SM)")
-sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distractions)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
 resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
 
 # 3. SE
@@ -344,8 +343,6 @@ resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.check
 st.divider()
 
 col_btn1, col_btn2 = st.columns(2)
-
-# Validación estricta de campos obligatorios
 campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
 
 with col_btn1:
@@ -364,7 +361,6 @@ with col_btn1:
 
 with col_btn2:
     if st.session_state.guardado_exitoso and campos_completos:
-        # Generamos el reporte asegurando formato bytes puro
         reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
         nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
         
@@ -374,8 +370,9 @@ with col_btn2:
             file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
             mime="application/pdf"
         )
-            
     elif not campos_completos:
         st.warning("⚠️ Escribe tu Nombre y WhatsApp arriba para liberar las opciones de procesamiento.")
     else:
         st.info("💡 Haz clic en 'Guardar y Procesar' para activar tu descarga.")
+
+st.caption("🔒 Tus datos están protegidos. El registro en Google Sheets se realiza de forma interna mediante tokens de seguridad validados.")
