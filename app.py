@@ -14,7 +14,7 @@ import time
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
 # IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 st.set_page_config(page_title="Diagnóstico Salud Integral", layout="centered")
