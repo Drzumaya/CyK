@@ -364,25 +364,18 @@ with col_btn1:
 
 with col_btn2:
     if st.session_state.guardado_exitoso and campos_completos:
-        # PUNTAL: Generamos y guardamos el flujo de bytes en una variable aislada ANTES del widget
-        try:
-            reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
-            nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
-            
-            st.download_button(
-                label="DESCARGAR RESULTADOS EN PDF 📥",
-                data=reporte_procesado,
-                file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
-                mime="application/pdf"
-            )
-        # Reemplaza el bloque 'except Exception' en tu Parte 7 por esto:
-        except Exception as e:
-            st.error(f"Ocurrió un problema técnico al estructurar tu documento PDF: {str(e)}")
-
+        # Generamos el reporte asegurando formato bytes puro
+        reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
+        nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
+        
+        st.download_button(
+            label="DESCARGAR RESULTADOS EN PDF 📥",
+            data=reporte_procesado,
+            file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
+            mime="application/pdf"
+        )
             
     elif not campos_completos:
         st.warning("⚠️ Escribe tu Nombre y WhatsApp arriba para liberar las opciones de procesamiento.")
     else:
         st.info("💡 Haz clic en 'Guardar y Procesar' para activar tu descarga.")
-
-st.caption("🔒 Tus datos están protegidos. El registro en Google Sheets se realiza de forma interna mediante tokens de seguridad validados.")
