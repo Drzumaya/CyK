@@ -35,24 +35,12 @@ def conectar_google_sheets():
         if "private_key" in secrets_dict:
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
             
-        # Alcances estrictos y explícitos para forzar la entrega del token de escritura
-        scope = [
-            "https://googleapis.com",
-            "https://googleapis.com"
-        ]
-        
-        # 1. Generamos las credenciales base con el scope integrado
-        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
-        
-        # 2. Forzamos a gspread a autorizar usando explícitamente el validador de alcances de Google
-        client = gspread.authorize(creds)
-        
+        # SOLUCIÓN MAESTRA: Usamos el conector nativo de gspread que inyecta los tokens automáticamente
+        client = gspread.service_account_from_dict(secrets_dict)
         return client.open(NOMBRE_HOJA_CALCULO).sheet1
     except Exception as e:
         st.error(f"🚨 Falla de Autenticación con Google API: {str(e)}")
         return None
-
-
 
 def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
     sheet = conectar_google_sheets()
@@ -78,9 +66,6 @@ def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
             st.error(f"🚨 Error al escribir la fila en la hoja: {str(e)}")
             return False
     return False
-
-
-
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales, st_cronos_kairos):
     pdf = FPDF()
     pdf.add_page()
