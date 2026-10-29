@@ -17,6 +17,7 @@ st.set_page_config(page_title="Diagnóstico Salud Integral", layout="centered")
 st.title("🍊 Diagnóstico de Salud Integral")
 st.subheader("Modelo Mandarina")
 st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026")
+
 # Función para enlazar la base de datos interna con Google Sheets
 def conectar_google_sheets():
     try:
@@ -34,13 +35,13 @@ def guardar_en_google_sheets(nombre, whatsapp, resultados):
         try:
             fila = [
                 str(datetime.datetime.now()),
-                nombre if nombre else "Anónimo",
+                nombre if nombre else "Anonimo",
                 whatsapp if whatsapp else "No Proporcionado",
-                len(resultados["Salud Física (SF)"]),
+                len(resultados["Salud Fisica (SF)"]),
                 len(resultados["Salud Mental (SM)"]),
                 len(resultados["Salud Emocional (SE)"]),
                 len(resultados["Salud Social (SS)"]),
-                len(resultados["Salud Económica (SECO)"]),
+                len(resultados["Salud Economica (SECO)"]),
                 len(resultados["Salud Temporal (ST)"]),
                 len(resultados["Salud Espiritual (SPI)"]),
                 ", ".join(resultados["Salud Temporal (ST)"])
@@ -51,44 +52,48 @@ def guardar_en_google_sheets(nombre, whatsapp, resultados):
             return False
     return False
 
-# Función del motor PDF para estructurar el reporte móvil
+# Función del motor PDF para estructurar el reporte móvil (Adaptada a fpdf2)
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales, st_cronos_kairos):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
+    # Encabezado principal
     pdf.set_font("Helvetica", "B", 16)
     pdf.set_text_color(230, 81, 0) 
-    pdf.cell(0, 10, "REPORTE DE DIAGNÓSTICO DE SALUD INTEGRAL", ln=True, align="C")
+    pdf.cell(0, 10, "REPORTE DE DIAGNOSTICO DE SALUD INTEGRAL", new_x="LMARGIN", new_y="NEXT", align="C")
+    
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 6, "Modelo Mandarina | Jacob Zumaya Prianti (c) 2026", ln=True, align="C")
+    pdf.cell(0, 6, "Modelo Mandarina | Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(5)
     
     pdf.set_draw_color(255, 152, 0)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(10)
     
+    # Datos de usuario
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, "Participante:", 0, 0)
     pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, nombre_usuario if nombre_usuario else "Participante Anónimo", 0, 1)
+    pdf.cell(0, 6, nombre_usuario if nombre_usuario else "Participante Anonimo", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, "WhatsApp de Contacto:", 0, 0)
     pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, whatsapp_usuario if whatsapp_usuario else "No Proporcionado", 0, 1)
+    pdf.cell(0, 6, whatsapp_usuario if whatsapp_usuario else "No Proporcionado", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, "Fecha de Emisión:", 0, 0)
+    pdf.cell(45, 6, "Fecha de Emision:", 0, 0)
     pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), 0, 1)
+    pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
     
+    # Sección Resultados
     pdf.set_font("Helvetica", "B", 13)
     pdf.set_text_color(255, 152, 0)
-    pdf.cell(0, 8, "Resultados y Puntos Críticos Detectados", ln=True)
+    pdf.cell(0, 8, "Resultados y Puntos Criticos Detectados", new_x="LMARGIN", new_y="NEXT")
     pdf.line(10, pdf.get_y(), 100, pdf.get_y())
     pdf.ln(4)
     
@@ -101,17 +106,17 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
             estado = "EN ALERTA TEMPRANA"
             
         pdf.set_font("Helvetica", "B", 11)
-        pdf.cell(0, 6, f"• {dim_nombre}: {estado}", ln=True)
+        pdf.cell(0, 6, f"- {dim_nombre}: {estado}", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "I", 10)
         pdf.set_text_color(30, 30, 30)
-        puntos_str = ", ".join(items) if conteo > 0 else "Ninguno. Área equilibrada."
-        pdf.multi_cell(0, 5, f"Puntos específicos a solucionar: {puntos_str}")
+        puntos_str = ", ".join(items) if conteo > 0 else "Ninguno. Area equilibrada."
+        pdf.multi_cell(0, 5, f"Puntos especificos a solucionar: {puntos_str}")
         pdf.ln(3)
         
     pdf.ln(2)
     pdf.set_font("Helvetica", "B", 13)
     pdf.set_text_color(255, 152, 0)
-    pdf.cell(0, 8, "Mensaje de Confirmación e Interpretación", ln=True)
+    pdf.cell(0, 8, "Mensaje de Confirmacion e Interpretacion", new_x="LMARGIN", new_y="NEXT")
     pdf.line(10, pdf.get_y(), 100, pdf.get_y())
     pdf.ln(4)
     
@@ -121,27 +126,28 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     pdf.ln(2)
     
     pdf.set_font("Helvetica", "B", 10)
-    pdf.cell(0, 5, "Criterio de Evaluación de Gajos:", ln=True)
+    pdf.cell(0, 5, "Criterio de Evaluacion de Gajos:", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font("Helvetica", "", 10)
-    pdf.multi_cell(0, 5, "• 0 Puntos Seleccionados: Gajo Sano y Pleno.\n"
-                         "• 1 a 2 Puntos Seleccionados: Gajo en Alerta. Requiere micro-acciones de corrección.\n"
-                         "• 3 o más Puntos Seleccionados: Gajo Crítico / Urgencia Inmediata. Debe ser tu prioridad absoluta.")
+    pdf.multi_cell(0, 5, "- 0 Puntos Seleccionados: Gajo Sano y Pleno.\n"
+                         "- 1 a 2 Puntos Seleccionados: Gajo en Alerta. Requiere micro-acciones de correccion.\n"
+                         "- 3 o mas Puntos Seleccionados: Gajo Critico / Urgencia Inmediata. Debe ser tu prioridad absoluta.")
     pdf.ln(4)
     
     if st_cronos_kairos:
         pdf.set_font("Helvetica", "B", 10)
         pdf.set_text_color(230, 81, 0)
-        pdf.cell(0, 5, "Alerta Especial sobre la Salud Temporal (ST):", ln=True)
+        pdf.cell(0, 5, "Alerta Especial sobre la Salud Temporal (ST):", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(50, 50, 50)
-        pdf.multi_cell(0, 5, "Has marcado el elemento de 'Cronos & Kairos'. Te encuentras bajo la tiranía del rendimiento constante o en desconexión pragmática. Equilibrar de manera urgente el tiempo cuantitativo con el cualitativo aliviará la carga sistémica de tus dimensiones de inmediato.")
+        pdf.multi_cell(0, 5, "Has marcado el elemento de 'Cronos & Kairos'. Te encuentras bajo la tirania del rendimiento constante o en desconexion pragmatica. Equilibrar de manera urgente el tiempo cuantitativo con el cualitativo aliviara la carga sistemica de tus dimensiones de inmediato.")
     
     pdf.ln(10)
     pdf.set_font("Helvetica", "I", 9)
     pdf.set_text_color(120, 120, 120)
-    pdf.cell(0, 5, "Diseño de Métricas y Propiedad Intelectual: Jacob Zumaya Prianti (c) 2026", ln=True, align="C")
+    pdf.cell(0, 5, "Diseno de Metricas y Propiedad Intelectual: Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     
     return pdf.output()
+
 # Renderizado automático del módulo de Código QR
 with st.expander("📱 Escanea el Código QR para contestar desde tu móvil", expanded=True):
     col1, col2 = st.columns([1, 1.5])
@@ -156,8 +162,11 @@ with st.expander("📱 Escanea el Código QR para contestar desde tu móvil", ex
     with col2:
         st.write("### ¡Lleva la encuesta en tu bolsillo!")
         st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR.\n3. Diagnostica tus gajos en tiempo real.")
-
 st.divider()
+
+# Inicializar estados de sesión para el flujo de guardado
+if "guardado_exitoso" not in st.session_state:
+    st.session_state.guardado_exitoso = False
 
 # Panel Analítico privado para consulta del Ponente en el escenario
 with st.expander("📊 Panel Analítico del Ponente (Métricas Consolidadas)", expanded=False):
@@ -168,20 +177,25 @@ with st.expander("📊 Panel Analítico del Ponente (Métricas Consolidadas)", e
             records = sheet.get_all_records()
             if records:
                 df = pd.DataFrame(records)
-                columnas_dimensiones = {
-                    "Salud Física (SF)": df.columns[3], "Salud Mental (SM)": df.columns[4],
-                    "Salud Emocional (SE)": df.columns[5], "Salud Social (SS)": df.columns[6],
-                    "Salud Económica (SECO)": df.columns[7], "Salud Temporal (ST)": df.columns[8],
-                    "Salud Espiritual (SPI)": df.columns[9]
-                }
-                promedios = {gajo: pd.to_numeric(df[col]).mean() for gajo, col in columnas_dimensiones.items()}
-                df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimensión", "Promedio de Puntos de Fuga"])
-                st.write(f"**Total de participantes evaluados:** {len(df)}")
-                st.bar_chart(data=df_grafica, x="Dimensión", y="Promedio de Puntos de Fuga", color="#e65100", use_container_width=True)
+                
+                # Mapeo seguro: Valida si hay suficientes columnas en el Sheets
+                if len(df.columns) >= 10:
+                    columnas_dimensiones = {
+                        "Salud Fisica (SF)": df.columns[3], "Salud Mental (SM)": df.columns[4],
+                        "Salud Emocional (SE)": df.columns[5], "Salud Social (SS)": df.columns[6],
+                        "Salud Economica (SECO)": df.columns[7], "Salud Temporal (ST)": df.columns[8],
+                        "Salud Espiritual (SPI)": df.columns[9]
+                    }
+                    promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
+                    df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
+                    st.write(f"**Total de participantes evaluados:** {len(df)}")
+                    st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100", use_container_width=True)
+                else:
+                    st.error("La estructura de la hoja de cálculo no tiene el número de columnas esperado.")
             else:
                 st.warning("Aún no se registran respuestas en la base de datos.")
         else:
-            st.error("Error de conexión con Google Secrets.")
+            st.error("Error de conexión con Google Sheets. Revisa tus st.secrets.")
 
 st.divider()
 # Captura de datos básicos del empleado
@@ -237,18 +251,36 @@ spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "
 resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
 
 st.divider()
-# Generación en caché y memoria del flujo binario del PDF
-bytes_reporte = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
 
-# Despliegue de gatillo de descarga móvil y guardado analítico simultáneo
-if st.download_button(
-    label="DESCARGAR RESULTADOS EN PDF 📥",
-    data=bytes_reporte,
-    file_name=f"Diagnostico_Mandarina_{nombre.replace(' ', '_') if nombre else 'Participante'}.pdf",
-    mime="application/pdf",
-    use_container_width=True
-):
-    # Inserta la fila de forma asíncrona en la base de datos de Google Sheets
-    guardar_en_google_sheets(nombre, whatsapp, resultados_totales)
+# Flujo de Procesamiento y Registro Seguro
+col_btn1, col_btn2 = st.columns([1, 1])
+
+with col_btn1:
+    if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
+        with st.spinner("Registrando tus gajos de salud de forma segura..."):
+            exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales)
+            if exito:
+                st.session_state.guardado_exitoso = True
+                st.success("¡Datos guardados con éxito en la nube!")
+            else:
+                # Fallback por si fallan los Secrets o la API de Google, permitiendo al usuario continuar
+                st.session_state.guardado_exitoso = True
+                st.warning("Diagnóstico procesado localmente (Sin conexión de red temporal).")
+
+with col_btn2:
+    # Solo permite la descarga si primero pulsaron el botón de procesar/guardar
+    if st.session_state.guardado_exitoso:
+        bytes_reporte = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
+        nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
+        
+        st.download_button(
+            label="DESCARGAR RESULTADOS EN PDF 📥",
+            data=bytes_reporte,
+            file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
+            mime="application/pdf",
+            use_container_width=True
+        )
+    else:
+        st.info("💡 Haz clic en 'Guardar y Procesar' para activar tu descarga.")
 
 st.caption("🔒 Tus datos están protegidos. El registro en Google Sheets se realiza de forma interna mediante tokens de seguridad validados.")
