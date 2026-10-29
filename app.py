@@ -268,28 +268,35 @@ else:
 
 st.divider()
 
-# --- BLOQUE INTERCEPTOR DE REÚSO Y SEGURIDAD PARA PARTICIPANTES ---
+# --- BLOQUE INTERCEPTOR DE REÚSO Y SEGURIDAD PARA PARTICIPANTES (CORREGIDO) ---
 token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
 motivo_bloqueo = ""
 
 if token_actual and not st.session_state.admin_autenticado:
-    minuto_0 = int(time.time() // 60)
-    minuto_1 = minuto_0 - 1
+    minuto_base = int(time.time() // 60)
     
-    token_valido_0 = hashlib.md5(f"mandarina_secret_{minuto_0}".encode()).hexdigest()[:8]
-    token_valido_1 = hashlib.md5(f"mandarina_secret_{minuto_1}".encode()).hexdigest()[:8]
+    # Creamos una lista de tokens válidos para los últimos 5 minutos
+    # Esto da margen total a redes móviles lentas o desfases de reloj entre dispositivos
+    tokens_validos = []
+    for i in range(5):
+        minuto_test = minuto_base - i
+        token_test = hashlib.md5(f"mandarina_secret_{minuto_test}".encode()).hexdigest()[:8]
+        tokens_validos.append(token_test)
     
-    if token_actual not in [token_valido_0, token_valido_1]:
+    # Capa 1: Validación de tiempo de expiración (Con rango de 5 minutos)
+    if token_actual not in tokens_validos:
         acceso_bloqueado = True
-        motivo_bloqueo = "El código QR escaneado ha expirado debido al tiempo transcurrido."
+        motivo_bloqueo = "El codigo QR escaneado ha expirado debido al tiempo transcurrido."
     else:
+        # Capa 2: Validación de duplicados en la base de datos
         sheet = conectar_google_sheets()
         if sheet:
             try:
                 registros = sheet.get_all_records()
                 if registros:
                     df_check = pd.DataFrame(registros)
+                    # El token se valida contra la última columna de la hoja
                     tokens_usados = [str(r.get(df_check.columns[-1], "")) for r in registros]
                     if token_actual in tokens_usados:
                         acceso_bloqueado = True
@@ -299,8 +306,9 @@ if token_actual and not st.session_state.admin_autenticado:
 
 if acceso_bloqueado:
     st.error(f"🚫 **Acceso Denegado:** {motivo_bloqueo}")
-    st.info("Por favor, vuelve a escanear el código QR dinámico que el ponente está proyectando en vivo en la pantalla.")
+    st.info("Por favor, vuelve a escanear el codigo QR dinamico que el ponente esta proyectando en vivo en la pantalla.")
     st.stop()
+
 
 
     
