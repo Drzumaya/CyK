@@ -245,8 +245,6 @@ whatsapp = st.text_input("Número de Contacto de WhatsApp:", placeholder="Ej. +5
 
 st.divider()
 
-col_btn1, col_btn2 = st.columns()
-
 # Despliegue de los 7 gajos de autoevaluación del Modelo Mandarina
 st.header("📊 Evaluación de las 7 Dimensiones")
 st.write("Selecciona los elementos específicos en los que requieres intervención:")
@@ -293,7 +291,7 @@ spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "
 resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
 st.divider()
 
-col_btn1, col_btn2 = st.columns()
+col_btn1, col_btn2 = st.columns(2)
 
 with col_btn1:
     if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
