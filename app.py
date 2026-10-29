@@ -3,28 +3,21 @@ import qrcode
 from io import BytesIO
 from fpdf import FPDF
 import gspread
-from google.oauth2.service_account import Credentials
 import pandas as pd
 import datetime
-import uuid
 import hashlib
 import time
 
-# =================================================================
-# CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
-# =================================================================
-# IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+# Enlace web de producción de tu ponencia en Streamlit Cloud
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-st.set_page_config(page_title="Diagnóstico Salud Integral", layout="centered")
+st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
-st.title("🍊 Diagnóstico de Salud Integral")
-st.subheader("Modelo Mandarina")
-st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026")
+st.title("🍊 Ecosistema de Diagnóstico de Salud Integral")
+st.subheader("Modelo Mandarina & Modelos Temporales Sectores")
+st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026 | JACOB ZUMAYA PRIANTI, A.C.")
 
-
-# # PARTE 2: MOTORES DE INTEGRACIÓN DE BASE DE DATOS (GOOGLE SHEETS)
 
 def conectar_google_sheets():
     try:
@@ -35,11 +28,9 @@ def conectar_google_sheets():
         if "private_key" in secrets_dict:
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
             
-        # SOLUCIÓN MAESTRA: Usamos el conector nativo de gspread que inyecta los tokens automáticamente
         client = gspread.service_account_from_dict(secrets_dict)
         return client.open(NOMBRE_HOJA_CALCULO).sheet1
-    except Exception as e:
-        st.error(f"🚨 Falla de Autenticación con Google API: {str(e)}")
+    except Exception:
         return None
 
 def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
@@ -62,10 +53,11 @@ def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
             ]
             sheet.append_row(fila)
             return True
-        except Exception as e:
-            st.error(f"🚨 Error al escribir la fila en la hoja: {str(e)}")
+        except Exception:
             return False
     return False
+
+
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales, st_cronos_kairos):
     pdf = FPDF()
     pdf.add_page()
@@ -85,7 +77,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(10)
     
-    # Datos de usuario - Corregido con XPos y YPos implícitos sin lanzar Warnings de posición
+    # Datos de usuario
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, "Participante:", new_x="RIGHT", new_y="TOP")
@@ -169,8 +161,16 @@ url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false"
 modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 
+# Inicializar almacenamiento de links de Google Forms en memoria de sesión
+if "link_primario" not in st.session_state: st.session_state.link_primario = ""
+if "link_secundario" not in st.session_state: st.session_state.link_secundario = ""
+if "link_terciario" not in st.session_state: st.session_state.link_terciario = ""
+if "link_educativo" not in st.session_state: st.session_state.link_educativo = ""
+if "link_religioso" not in st.session_state: st.session_state.link_religioso = ""
+
+# El código QR nativo de salud integral solo se muestra en la pantalla grande del ponente
 if not es_celular_del_publico:
-    with st.expander("📱 Escanea el Código QR para contestar desde tu móvil (Válido solo en vivo)", expanded=True):
+    with st.expander("📱 Código QR Diagnóstico Original (Salud Integral)", expanded=False):
         col1, col2 = st.columns([1, 1.5])
         with col1:
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
@@ -179,11 +179,10 @@ if not es_celular_del_publico:
             img_qr = qr.make_image(fill_color="#e65100", back_color="white")
             buf = BytesIO()
             img_qr.save(buf, format="PNG")
-            # Actualizado con la directiva estándar moderna de ancho responsivo de 2026
-            st.image(buf.getvalue(), caption="Código dinámico de seguridad temporal", width="stretch")
+            st.image(buf.getvalue(), caption="QR Salud Integral Dinámico", width="stretch")
         with col2:
-            st.write("### ¡Lleva la encuesta en tu bolsillo!")
-            st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** No necesitas registrarte ni iniciar sesión. El acceso es directo e inmediato.")
+            st.write("### ¡Lleva el Diagnóstico Original en tu Bolsillo!")
+            st.write("Carga de forma directa el software nativo en los smartphones del auditorio sin usar formatos externos.")
 
 
 st.divider()
@@ -198,93 +197,46 @@ if "flujo_finalizado" not in st.session_state:
 PASSWORD_CORRECTO = "mandarina2026"  
 
 if not es_celular_del_publico:
-    with st.expander("🔐 Acceso Exclusivo para el Ponente", expanded=not st.session_state.admin_autenticado):
+    with st.expander("🔐 Consola de Enlaces y Métricas del Ponente", expanded=not st.session_state.admin_autenticado):
         if not st.session_state.admin_autenticado:
-            st.write("Introduce la clave de acceso para activar las métricas consolidadas del auditorio:")
-            input_password = st.text_input("Contraseña de Administrador:", type="password", key="admin_pwd_input")
-            
-            # Botones responsivos actualizados a la sintaxis moderna
-            if st.button("🔑 Verificar Identidad", width="stretch"):
+            input_password = st.text_input("Contraseña de Ponente:", type="password", key="admin_pwd_input")
+            if st.button("🔑 Desbloquear Consola Organizacional", width="stretch"):
                 if input_password == PASSWORD_CORRECTO:
                     st.session_state.admin_autenticado = True
-                    st.success("¡Identidad verificada con éxito!")
                     st.rerun()
                 else:
-                    st.error("Contraseña incorrecta. Acceso denegado.")
+                    st.error("Acceso denegado.")
         else:
-            st.success("💻 Modo Administrador Activo")
-            if st.button("🚪 Cerrar Sesión de Administrador"):
-                st.session_state.admin_autenticado = False
-                st.rerun()
-
-if st.session_state.admin_autenticado and not es_celular_del_publico:
-    with st.container():
-        st.markdown("### 📊 Panel Analítico del Ponente (Métricas Consolidadas)")
-        st.write("Análisis agregado del estado de salud de los participantes en tiempo real.")
-        
-        if st.button("🔄 Actualizar Estadísticas del Auditorio", type="primary"):
-            sheet = conectar_google_sheets()
-            if sheet:
-                records = sheet.get_all_records()
-                if records:
-                    df = pd.DataFrame(records)
-                    
-                    if len(df.columns) >= 11:
-                        columnas_dimensiones = {
-                            "Salud Física (SF)": df.columns, "Salud Mental (SM)": df.columns,
-                            "Salud Emocional (SE)": df.columns, "Salud Social (SS)": df.columns,
-                            "Salud Económica (SECO)": df.columns, "Salud Temporal (ST)": df.columns,
-                            "Salud Espiritual (SPI)": df.columns
-                        }
+            st.success("💻 Modo Ponente Activo - Configuración de Audiencia en Vivo")
+            
+            # Espacios dedicados para pegar y persistir los enlaces de Google Forms
+            st.session_state.link_primario = st.text_input("🔗 URL Google Form - Sector Primario:", st.session_state.link_primario)
+            st.session_state.link_secundario = st.text_input("🔗 URL Google Form - Sector Secundario:", st.session_state.link_secundario)
+            st.session_state.link_terciario = st.text_input("🔗 URL Google Form - Sector Terciario:", st.session_state.link_terciario)
+            st.session_state.link_educativo = st.text_input("🔗 URL Google Form - Sector Educativo (Docentes/ITAP):", st.session_state.link_educativo)
+            st.session_state.link_religioso = st.text_input("🔗 URL Google Form - Sector Religioso:", st.session_state.link_religioso)
+            
+            st.write("---")
+            if st.button("🔄 Actualizar Estadísticas (Salud Integral - Nube)"):
+                sheet = conectar_google_sheets()
+                if sheet:
+                    records = sheet.get_all_records()
+                    if records:
+                        df = pd.DataFrame(records)
+                        columnas_dimensiones = {"Salud Física (SF)": df.columns, "Salud Mental (SM)": df.columns, "Salud Emocional (SE)": df.columns, "Salud Social (SS)": df.columns, "Salud Económica (SECO)": df.columns, "Salud Temporal (ST)": df.columns, "Salud Espiritual (SPI)": df.columns}
                         promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
                         df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
-                        
-                        st.write(f"**Total de participantes evaluados en vivo:** {len(df)}")
+                        st.write(f"**Total de participantes evaluados:** {len(df)}")
                         st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100")
-                        
-                        st.write("---")
-                        st.write("#### 🚨 Top 3 Problemas Más Comunes en el Auditorio")
-                        
-                        columna_alertas = df.columns
-                        todas_alertas = []
-                        for lista_str in df[columna_alertas].dropna().astype(str):
-                            if lista_str and lista_str != "Ninguno. Area equilibrada.":
-                                elementos = [e.strip() for e in lista_str.split(",") if e.strip()]
-                                todas_alertas.extend(elementos)
-                        
-                        if todas_alertas:
-                            s_alertas = pd.Series(todas_alertas)
-                            top_alertas = s_alertas.value_counts().head(3)
-                            
-                            for i, (alerta, conteo) in enumerate(top_alertas.items(), 1):
-                                st.warning(f"**{i}. {alerta}** — Detectado en {conteo} participantes")
-                        else:
-                            st.success("No hay alertas críticas recurrentes acumuladas en el auditorio.")
-                    else:
-                        st.error("Estructura de columnas incorrecta en la hoja de cálculo.")
-                else:
-                    st.warning("Aún no se registran respuestas en la base de datos de Google Sheets.")
-            else:
-                st.error("Error de conexión con Google Sheets. Verifica tus secretos.")
 
-st.divider()
-
-# INTERCEPTOR DE REÚSO Y SEGURIDAD CON 5 MINUTOS DE GRACIA
+# Interceptor de caducidad por Token de Tiempo (Aplica solo para el formulario Mandarina Nativo)
 token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
-motivo_bloqueo = ""
-
 if token_actual and not st.session_state.admin_autenticado:
     minuto_base = int(time.time() // 60)
-    tokens_validos = []
-    for i in range(5):
-        minuto_test = minuto_base - i
-        token_test = hashlib.md5(f"mandarina_secret_{minuto_test}".encode()).hexdigest()[:8]
-        tokens_validos.append(token_test)
-    
+    tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(5)]
     if token_actual not in tokens_validos:
         acceso_bloqueado = True
-        motivo_bloqueo = "El código QR escaneado ha expirado debido al tiempo transcurrido."
     else:
         sheet = conectar_google_sheets()
         if sheet:
@@ -292,133 +244,119 @@ if token_actual and not st.session_state.admin_autenticado:
                 registros = sheet.get_all_records()
                 if registros:
                     df_check = pd.DataFrame(registros)
-                    tokens_usados = [str(r.get(df_check.columns[-1], "")) for r in registros]
-                    if token_actual in tokens_usados:
+                    if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]:
                         acceso_bloqueado = True
-                        motivo_bloqueo = "Este acceso ya fue utilizado por otro dispositivo de la audiencia."
-            except Exception:
-                pass
+            except Exception: pass
 
 if acceso_bloqueado:
-    st.error(f"🚫 **Acceso Denegado:** {motivo_bloqueo}")
-    st.info("Por favor, vuelve a escanear el código QR dinámico que el ponente está proyectando en vivo.")
+    st.error("🚫 El código QR escaneado ha expirado o ya fue utilizado.")
     st.stop()
 
 
-if not st.session_state.flujo_finalizado:
-    
-    st.header("📋 Datos de Control")
-    nombre = st.text_input("Nombre Completo *:", placeholder="Ej. Juan Pérez", key="input_nombre_unico")
-    whatsapp = st.text_input("Número de Contacto de WhatsApp *:", placeholder="Ej. +52 633 123 4567", key="input_whatsapp_unico")
+# Creación formal de la matriz de pestañas del Ecosistema
+tab_mandarina, tab_primario, tab_secundario, tab_terciario, tab_educativo, tab_religioso = st.tabs([
+    "🍊 Salud Integral", "🚜 Sector Primario", "🏭 Sector Secundario", "💼 Sector Terciario", "🏛️ Sector Educativo", "⛪ Sector Religioso"
+])
 
-    st.divider()
+# CONTENEDOR PESTAÑA 1: CUESTIONARIO MANDARINA ORIGINAL COMPLETO
+with tab_mandarina:
+    if not st.session_state.flujo_finalizado:
+        st.header("📋 Datos de Control")
+        nombre = st.text_input("Nombre Completo *:", placeholder="Ej. Juan Pérez", key="input_nombre_unico")
+        whatsapp = st.text_input("Número de Contacto de WhatsApp *:", placeholder="Ej. +52 633 123 4567", key="input_whatsapp_unico")
+        st.divider()
 
-    st.header("📊 Evaluación de las 7 Dimensiones")
-    st.write("Selecciona los elementos específicos en los que requieres intervención:")
+        st.header("📊 Evaluación de las 7 Dimensiones")
+        st.write("Selecciona los elementos específicos en los que requieres intervención:")
+        resultados_totales = {}
 
-    resultados_totales = {}
+        st.subheader("💪 Salud Física (SF)")
+        sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
+        resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
 
-    st.subheader("💪 Salud Física (SF)")
-    sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
-    resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
+        st.subheader("🧠 Salud Mental (SM)")
+        sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+        resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
 
-    st.subheader("🧠 Salud Mental (SM)")
-    sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
-    resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
+        st.subheader("❤️ Salud Emocional (SE)")
+        se_items = ["Gestión de emociones", "Autocontrol (Dominio propio)", "Regulación psicológica", "Comprensión del estado de ánimo"]
+        resultados_totales["Salud Emocional (SE)"] = [i for i in se_items if st.checkbox(i, key=f"se_{i}")]
 
-    st.subheader("❤️ Salud Emocional (SE)")
-    se_items = ["Gestión de emociones", "Autocontrol (Dominio propio)", "Regulación psicológica", "Comprensión del estado de ánimo"]
-    resultados_totales["Salud Emocional (SE)"] = [i for i in se_items if st.checkbox(i, key=f"se_{i}")]
+        st.subheader("👥 Salud Social (SS)")
+        ss_items = ["Relaciones positivas (Vínculos sanos)", "Comunicación asertiva", "Empatía activa", "Red de apoyo ante crisis"]
+        resultados_totales["Salud Social (SS)"] = [i for i in ss_items if st.checkbox(i, key=f"ss_{i}")]
 
-    st.subheader("👥 Salud Social (SS)")
-    ss_items = ["Relaciones positivas (Vínculos sanos)", "Comunicación asertiva", "Empatía activa", "Red de apoyo ante crisis"]
-    resultados_totales["Salud Social (SS)"] = [i for i in ss_items if st.checkbox(i, key=f"ss_{i}")]
+        st.subheader("💰 Salud Económica (SECO)")
+        seco_items = ["Presupuesto (Control de gastos)", "Ahorro sistemático", "Inversión de capital", "Administración Financiera", "Creación / Generación del dinero"]
+        resultados_totales["Salud Economica (SECO)"] = [i for i in seco_items if st.checkbox(i, key=f"seco_{i}")]
 
-    st.subheader("💰 Salud Económica (SECO)")
-    seco_items = ["Presupuesto (Control de gastos)", "Ahorro sistemático", "Inversión de capital", "Administración Financiera", "Creación / Generación del dinero"]
-    resultados_totales["Salud Economica (SECO)"] = [i for i in seco_items if st.checkbox(i, key=f"seco_{i}")]
+        st.subheader("⏳ Salud Temporal (ST)")
+        ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck")
+        st_items = ["Gestión del tiempo (Agenda)", "Equilibrio (Deber/Descanso)", "Prioridades (Identificar lo importante)"]
+        st_sel = [i for i in st_items if st.checkbox(i, key=f"st_{i}")]
+        if ck_marcado: st_sel.append("Cronos & Kairos (Tiempo del reloj vs. valor real)")
+        resultados_totales["Salud Temporal (ST)"] = st_sel
 
-    st.subheader("⏳ Salud Temporal (ST)")
-    ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck")
-    st_items = ["Gestión del tiempo (Agenda)", "Equilibrio (Deber/Descanso)", "Prioridades (Identificar lo importante)"]
-    st_sel = [i for i in st_items if st.checkbox(i, key=f"st_{i}")]
-    if ck_marcado:
-        st_sel.append("Cronos & Kairos (Tiempo del reloj vs. valor real)")
-    resultados_totales["Salud Temporal (ST)"] = st_sel
-
-    st.subheader("🙏 Salud Espiritual (SPI)")
-    spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
-    resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
+        st.subheader("🙏 Salud Espiritual (SPI)")
+        spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
+        resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
 
 
+        st.divider()
+        col_btn1, col_btn2 = st.columns(2)
+        campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
 
-    st.divider()
+        with col_btn1:
+            if st.button("💾 Guardar y Procesar Diagnóstico", width="stretch", type="primary"):
+                if not campos_completos: st.error("⚠️ Datos obligatorios incompletos.")
+                else:
+                    with st.spinner("Registrando..."):
+                        exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
+                        if exito: st.session_state.guardado_exitoso = True; st.success("¡Guardado en la nube!")
+                        else: st.session_state.guardado_exitoso = True; st.warning("Procesado localmente.")
 
-    col_btn1, col_btn2 = st.columns(2)
-    campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
+        with col_btn2:
+            if st.session_state.guardado_exitoso and campos_completos:
+                reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
+                nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
+                def callback_cierre():
+                    st.session_state.flujo_finalizado = True
+                    for k in list(st.session_state.keys()):
+                        if k.startswith(("sf_", "sm_", "se_", "ss_", "seco_", "st_", "spi_")): del st.session_state[k]
+                st.download_button(label="DESCARGAR RESULTADOS EN PDF 📥", data=reporte_procesado, file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf", mime="application/pdf", on_click=callback_cierre)
+            else: st.info("💡 Procesa para activar descarga.")
+    else:
+        st.balloons()
+        st.success("### ¡Tu reporte PDF ha sido generado y descargado con éxito! 🎉")
+        with st.container(border=True):
+            st.write("## 🍊 ¡Muchas gracias por tu participación!")
+            st.markdown("Has mapeado de forma honesta cada uno de tus gajos de bienestar. Te invitamos a agendar una sesión de consulta personalizada con el ponente.")
+            st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento directamente en el escenario.")
 
-    with col_btn1:
-        if st.button("💾 Guardar y Procesar Diagnóstico", width="stretch", type="primary"):
-            if not campos_completos:
-                st.error("⚠️ **Faltan datos obligatorios.** Por favor ingresa tu Nombre y WhatsApp antes de continuar.")
-            else:
-                with st.spinner("Registrando tus gajos de salud de forma segura..."):
-                    exito = guardar_en_google_sheets(nombre, whatsapp, resultados_totales, token_actual)
-                    if exito:
-                        st.session_state.guardado_exitoso = True
-                        st.success("¡Datos guardados con éxito en la nube!")
-                    else:
-                        st.session_state.guardado_exitoso = True
-                        st.warning("Diagnóstico procesado de forma local (Sin conexión de red temporal).")
+# FUNCIÓN AUXILIAR PARA GENERAR QR DE GOOGLE FORMS SOBRE LAS PESTAÑAS RESTANTES
+def renderizar_lanzador_forms(titulo_sector, url_destino):
+    st.header(f"📊 Diagnóstico: {titulo_sector}")
+    if url_destino.strip():
+        col_x, col_y = st.columns([1, 1.5])
+        with col_x:
+            qr_f = qrcode.QRCode(version=1, box_size=10, border=2)
+            qr_f.add_data(url_destino)
+            qr_f.make(fit=True)
+            img_f = qr_f.make_image(fill_color="#e65100", back_color="white")
+            buf_f = BytesIO()
+            img_f.save(buf_f, format="PNG")
+            st.image(buf_f.getvalue(), caption=f"QR {titulo_sector}", width="stretch")
+        with col_y:
+            st.write(f"### ¡Escanea para responder el cuestionario del {titulo_sector}!")
+            st.write("1. Enfoca el código QR con la cámara de tu móvil.")
+            st.write("2. Completa los reactivos en la plataforma de Google Forms.")
+            st.markdown(f'[🔗 Enlace Alterno de Acceso Directo]({url_destino})')
+    else:
+        st.warning("⚠️ El ponente aún no ha configurado el enlace de Google Form para este sector en la Consola de Control superior.")
 
-    with col_btn2:
-        if st.session_state.guardado_exitoso and campos_completos:
-            reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, ck_marcado)
-            nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
-            
-            def finalizar_experiencia_callback():
-                st.session_state.flujo_finalizado = True
-                for clave in list(st.session_state.keys()):
-                    if clave.startswith(("sf_", "sm_", "se_", "ss_", "seco_", "st_", "spi_")):
-                        del st.session_state[clave]
-
-            st.download_button(
-                label="DESCARGAR RESULTADOS EN PDF 📥",
-                data=reporte_procesado,
-                file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
-                mime="application/pdf",
-                on_click=finalizar_experiencia_callback
-            )
-        elif not campos_completos:
-            st.warning("⚠️ Escribe tu Nombre y WhatsApp arriba para liberar las opciones de procesamiento.")
-        else:
-            st.info("💡 Haz clic en 'Guardar y Procesar' para activar tu descarga.")
-
-    st.caption("🔒 Tus datos están protegidos. El registro en Google Sheets se realiza de forma interna mediante tokens de seguridad validados.")
-
-else:
-    st.balloons() 
-    st.success("### ¡Tu reporte PDF ha sido generado y descargado con éxito! 🎉")
-    
-    with st.container(border=True):
-        st.write("## 🍊 ¡Muchas gracias por tu participación!")
-        st.markdown(
-            "Has tomado un paso fundamental al mapear de forma honesta cada uno de tus gajos de bienestar. "
-            "Reconocer nuestros puntos de fuga es el verdadero inicio de una transformación integral."
-        )
-        st.write("---")
-        st.write("### 📅 ¿Te gustaría llevar tu diagnóstico al siguiente nivel?")
-        st.write(
-            "Te invitamos cordialmente a **agendar una sesión de consulta directa y personalizada con el ponente**. "
-            "En esta asesoría individualizada analizaremos a profundidad tus resultados estratégicos y estructuraremos "
-            "un plan de acción a la medida para sanar tus dimensiones críticas."
-        )
-        st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento personalizado directamente en el escenario.")
-        
-    st.markdown("### ✨ ¡Te deseamos el mayor de los éxitos en los nuevos cambios que inicias a partir de esta experiencia! ✨")
-    
-    if not es_celular_del_publico: 
-        if st.button("🔄 Reiniciar Aplicación (Modo Ponente)", width="stretch"):
-            st.session_state.flujo_finalizado = False
-            st.session_state.guardado_exitoso = False
-            st.rerun()
+# INYECCIÓN DINÁMICA DE LANZADORES EN SUS RESPECTIVAS PESTAÑAS (TABS)
+with tab_primario: renderizar_lanzador_forms("Sector Primario", st.session_state.link_primario)
+with tab_secundario: renderizar_lanzador_forms("Sector Secundario", st.session_state.link_secundario)
+with tab_terciario: renderizar_lanzador_forms("Sector Terciario", st.session_state.link_terciario)
+with tab_educativo: renderizar_lanzador_forms("Sector Educativo (Docentes)", st.session_state.link_educativo)
+with tab_religioso: renderizar_lanzador_forms("Sector Religioso", st.session_state.link_religioso)
