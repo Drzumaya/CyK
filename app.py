@@ -20,40 +20,7 @@ st.set_page_config(page_title="Diagnóstico Salud Integral", layout="centered")
 st.title("🍊 Diagnóstico de Salud Integral")
 st.subheader("Modelo Mandarina")
 st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026")
-# Función para enlazar la base de datos interna con Google Sheets
-def conectar_google_sheets():
-    try:
-        secrets_dict = st.secrets["gcp_service_account"]
-        scope = ["https://googleapis.com"]
-        creds = Credentials.from_service_account_info(secrets_dict, scopes=scope)
-        client = gspread.authorize(creds)
-        return client.open(NOMBRE_HOJA_CALCULO).sheet1
-    except Exception:
-        return None
 
-def guardar_en_google_sheets(nombre, whatsapp, resultados, token):
-    sheet = conectar_google_sheets()
-    if sheet:
-        try:
-            fila = [
-                str(datetime.datetime.now()),
-                nombre if nombre else "Anonimo",
-                whatsapp if whatsapp else "No Proporcionado",
-                len(resultados["Salud Física (SF)"]),
-                len(resultados["Salud Mental (SM)"]),
-                len(resultados["Salud Emocional (SE)"]),
-                len(resultados["Salud Social (SS)"]),
-                len(resultados["Salud Económica (SECO)"]),
-                len(resultados["Salud Temporal (ST)"]),
-                len(resultados["Salud Espiritual (SPI)"]),
-                ", ".join(resultados["Salud Temporal (ST)"]),
-                token if token else "Acceso_Directo"
-            ]
-            sheet.append_row(fila)
-            return True
-        except Exception:
-            return False
-    return False
 # Función del motor PDF para estructurar el reporte móvil (Adaptada a fpdf2 y sin acentos)
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales, st_cronos_kairos):
     pdf = FPDF()
@@ -108,7 +75,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
             estado = "EN ALERTA TEMPRANA"
             
         pdf.set_font("Helvetica", "B", 11)
-        # Reemplazo de viñeta unicode compleja por guion simple para evitar caídas del PDF
         pdf.cell(0, 6, f"- {dim_nombre}: {estado}", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "I", 10)
         pdf.set_text_color(30, 30, 30)
@@ -150,6 +116,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     pdf.cell(0, 5, "Diseno de Metricas y Propiedad Intelectual: Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     
     return pdf.output()
+
     
 # Generación de Token dinámico por tiempo (Expira cada 60 segundos)
 minuto_actual = int(time.time() // 60)
@@ -319,15 +286,13 @@ if acceso_bloqueado:
     st.stop()
 
 
-
-    
 # Captura de datos básicos del empleado (Campos Obligatorios)
+# Captura de datos básicos del empleado
 st.header("📋 Datos de Control")
 nombre = st.text_input("Nombre Completo *:", placeholder="Ej. Juan Pérez")
 whatsapp = st.text_input("Número de Contacto de WhatsApp *:", placeholder="Ej. +52 633 123 4567")
 
 st.divider()
-
 
 # Despliegue de los 7 gajos de autoevaluación del Modelo Mandarina
 st.header("📊 Evaluación de las 7 Dimensiones")
@@ -338,7 +303,7 @@ resultados_totales = {}
 # 1. SF
 st.subheader("💪 Salud Física (SF)")
 sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
-resultados_totales["Salud Física (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
+resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
 
 # 2. SM
 st.subheader("🧠 Salud Mental (SM)")
@@ -358,7 +323,7 @@ resultados_totales["Salud Social (SS)"] = [i for i in ss_items if st.checkbox(i,
 # 5. SECO
 st.subheader("💰 Salud Económica (SECO)")
 seco_items = ["Presupuesto (Control de gastos)", "Ahorro sistemático", "Inversión de capital", "Administración Financiera", "Creación / Generación del dinero"]
-resultados_totales["Salud Económica (SECO)"] = [i for i in seco_items if st.checkbox(i, key=f"seco_{i}")]
+resultados_totales["Salud Economica (SECO)"] = [i for i in seco_items if st.checkbox(i, key=f"seco_{i}")]
 
 # 6. ST
 st.subheader("⏳ Salud Temporal (ST)")
@@ -373,6 +338,7 @@ resultados_totales["Salud Temporal (ST)"] = st_sel
 st.subheader("🙏 Salud Espiritual (SPI)")
 spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
 resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
+
 
 st.divider()
 
@@ -408,8 +374,10 @@ with col_btn2:
                 file_name=f"Diagnostico_Mandarina_{nombre_archivo}.pdf",
                 mime="application/pdf"
             )
+        # Reemplaza el bloque 'except Exception' en tu Parte 7 por esto:
         except Exception as e:
-            st.error("Ocurrió un problema técnico al estructurar tu documento PDF. Intenta procesar de nuevo.")
+            st.error(f"Ocurrió un problema técnico al estructurar tu documento PDF: {str(e)}")
+
             
     elif not campos_completos:
         st.warning("⚠️ Escribe tu Nombre y WhatsApp arriba para liberar las opciones de procesamiento.")
