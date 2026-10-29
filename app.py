@@ -189,7 +189,7 @@ PASSWORD_CORRECTO = "mandarina2026"  # <--- Cambia aquí tu contraseña de acces
 modo_admin_url = st.query_params.get("modo_admin", None)
 forzar_bloqueo_publico = (modo_admin_url == "false")
 
-# --- LA PUERTA DE ENTRADA AL PANEL (SOLO SI NO ES EL PÚBLICO DEL QR) ---
+# --- LA PUERTA DE ENTRADA AL PANEL (COMPLETAMENTE OCULTA PARA EL PÚBLICO) ---
 if not forzar_bloqueo_publico:
     # Desplegamos una sección discreta para la autenticación del Ponente
     with st.expander("🔐 Acceso Exclusivo para el Ponente", expanded=not st.session_state.admin_autenticado):
@@ -210,7 +210,7 @@ if not forzar_bloqueo_publico:
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-# --- RENDERIZADO DEL PANEL ANALÍTICO (SÓLO SI PASÓ LA PUERTA DE ENTRADA) ---
+# --- RENDERIZADO DEL PANEL ANALÍTICO (SÓLO SI PASÓ LA PUERTA Y NO ES PÚBLICO) ---
 if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
     with st.container():
         st.markdown("### 📊 Panel Analítico del Ponente (Métricas Consolidadas)")
@@ -226,10 +226,10 @@ if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
                     if len(df.columns) >= 11:
                         # 1. Gráfica de Promedios por Dimensión
                         columnas_dimensiones = {
-                            "Salud Física (SF)": df.columns[3], "Salud Mental (SM)": df.columns[4],
-                            "Salud Emocional (SE)": df.columns[5], "Salud Social (SS)": df.columns[6],
-                            "Salud Económica (SECO)": df.columns[7], "Salud Temporal (ST)": df.columns[8],
-                            "Salud Espiritual (SPI)": df.columns[9]
+                            "Salud Física (SF)": df.columns, "Salud Mental (SM)": df.columns,
+                            "Salud Emocional (SE)": df.columns, "Salud Social (SS)": df.columns,
+                            "Salud Económica (SECO)": df.columns, "Salud Temporal (ST)": df.columns,
+                            "Salud Espiritual (SPI)": df.columns
                         }
                         promedios = {gajo: pd.to_numeric(df[col], errors='coerce').fillna(0).mean() for gajo, col in columnas_dimensiones.items()}
                         df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
@@ -241,8 +241,7 @@ if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
                         st.write("---")
                         st.write("#### 🚨 Top 3 Problemas Más Comunes en el Auditorio")
                         
-                        # Columna 10 contiene las alertas de texto separadas por comas (Salud Temporal)
-                        columna_alertas = df.columns[10]
+                        columna_alertas = df.columns
                         todas_alertas = []
                         for lista_str in df[columna_alertas].dropna().astype(str):
                             if lista_str and lista_str != "Ninguno. Area equilibrada.":
@@ -264,7 +263,7 @@ if st.session_state.admin_autenticado and not forzar_bloqueo_publico:
             else:
                 st.error("Error de conexión con Google Sheets. Verifica tus secretos.")
 else:
-    # Para la audiencia y escaneos de QR, este bloque permanece completamente inexistente
+    # Para los asistentes, este bloque se descarta completamente de la memoria de la interfaz
     pass
 
 st.divider()
@@ -274,7 +273,6 @@ token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
 motivo_bloqueo = ""
 
-# Los administradores autenticados están exentos de la caducidad por token de tiempo
 if token_actual and not st.session_state.admin_autenticado:
     minuto_0 = int(time.time() // 60)
     minuto_1 = minuto_0 - 1
@@ -292,7 +290,6 @@ if token_actual and not st.session_state.admin_autenticado:
                 registros = sheet.get_all_records()
                 if registros:
                     df_check = pd.DataFrame(registros)
-                    # El token se valida contra la última columna de la hoja
                     tokens_usados = [str(r.get(df_check.columns[-1], "")) for r in registros]
                     if token_actual in tokens_usados:
                         acceso_bloqueado = True
