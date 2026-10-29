@@ -14,7 +14,7 @@ import time
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
 # IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 st.set_page_config(page_title="Diagnóstico Salud Integral", layout="centered")
@@ -88,20 +88,20 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados_totales
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(10)
     
-    # Datos de usuario
+    # Datos de usuario - Corregido con XPos y YPos implícitos sin lanzar Warnings de posición
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, "Participante:", 0, 0)
+    pdf.cell(45, 6, "Participante:", new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, nombre_usuario if nombre_usuario else "Participante Anonimo", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, "WhatsApp de Contacto:", 0, 0)
+    pdf.cell(45, 6, "WhatsApp de Contacto:", new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, whatsapp_usuario if whatsapp_usuario else "No Proporcionado", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, "Fecha de Emision:", 0, 0)
+    pdf.cell(45, 6, "Fecha de Emision:", new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(10)
@@ -182,7 +182,8 @@ if not es_celular_del_publico:
             img_qr = qr.make_image(fill_color="#e65100", back_color="white")
             buf = BytesIO()
             img_qr.save(buf, format="PNG")
-            st.image(buf.getvalue(), caption="Código dinámico de seguridad temporal", use_container_width=True)
+            # Actualizado con la directiva estándar moderna de ancho responsivo de 2026
+            st.image(buf.getvalue(), caption="Código dinámico de seguridad temporal", width="stretch")
         with col2:
             st.write("### ¡Lleva la encuesta en tu bolsillo!")
             st.write("1. Abre la cámara nativa de tu smartphone.\n2. Enfoca el código QR en la pantalla.\n3. **Contesta rápido:** No necesitas registrarte ni iniciar sesión. El acceso es directo e inmediato.")
@@ -205,7 +206,8 @@ if not es_celular_del_publico:
             st.write("Introduce la clave de acceso para activar las métricas consolidadas del auditorio:")
             input_password = st.text_input("Contraseña de Administrador:", type="password", key="admin_pwd_input")
             
-            if st.button("🔑 Verificar Identidad", use_container_width=True):
+            # Botones responsivos actualizados a la sintaxis moderna
+            if st.button("🔑 Verificar Identidad", width="stretch"):
                 if input_password == PASSWORD_CORRECTO:
                     st.session_state.admin_autenticado = True
                     st.success("¡Identidad verificada con éxito!")
@@ -241,7 +243,7 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                         df_grafica = pd.DataFrame(list(promedios.items()), columns=["Dimension", "Promedio de Puntos de Fuga"])
                         
                         st.write(f"**Total de participantes evaluados en vivo:** {len(df)}")
-                        st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100", use_container_width=True)
+                        st.bar_chart(data=df_grafica, x="Dimension", y="Promedio de Puntos de Fuga", color="#e65100")
                         
                         st.write("---")
                         st.write("#### 🚨 Top 3 Problemas Más Comunes en el Auditorio")
@@ -324,7 +326,7 @@ if not st.session_state.flujo_finalizado:
     resultados_totales["Salud Fisica (SF)"] = [i for i in sf_items if st.checkbox(i, key=f"sf_{i}")]
 
     st.subheader("🧠 Salud Mental (SM)")
-    sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distractions)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
+    sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
     resultados_totales["Salud Mental (SM)"] = [i for i in sm_items if st.checkbox(i, key=f"sm_{i}")]
 
     st.subheader("❤️ Salud Emocional (SE)")
@@ -352,13 +354,14 @@ if not st.session_state.flujo_finalizado:
     resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
 
 
+
     st.divider()
 
     col_btn1, col_btn2 = st.columns(2)
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
 
     with col_btn1:
-        if st.button("💾 Guardar y Procesar Diagnóstico", use_container_width=True, type="primary"):
+        if st.button("💾 Guardar y Procesar Diagnóstico", width="stretch", type="primary"):
             if not campos_completos:
                 st.error("⚠️ **Faltan datos obligatorios.** Por favor ingresa tu Nombre y WhatsApp antes de continuar.")
             else:
@@ -418,7 +421,7 @@ else:
     st.markdown("### ✨ ¡Te deseamos el mayor de los éxitos en los nuevos cambios que inicias a partir de esta experiencia! ✨")
     
     if not es_celular_del_publico: 
-        if st.button("🔄 Reiniciar Aplicación (Modo Ponente)"):
+        if st.button("🔄 Reiniciar Aplicación (Modo Ponente)", width="stretch"):
             st.session_state.flujo_finalizado = False
             st.session_state.guardado_exitoso = False
             st.rerun()
