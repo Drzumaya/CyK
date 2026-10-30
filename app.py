@@ -435,10 +435,11 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                         c_mean = np.mean(matriz_r[:, 0::2]) if len(r_cols) >= 14 else 3.0
                         k_mean = np.mean(matriz_r[:, 1::2]) if len(r_cols) >= 14 else 3.0
                         st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
-with col_graph2:
-st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
-res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-st.json(res_sem)
+                with col_graph2:
+                    st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
+                    res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
+                    st.json(res_sem)
+
 
 # =================================================================
 # PARTE 15: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA
