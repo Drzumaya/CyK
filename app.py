@@ -54,6 +54,15 @@ CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
 # =================================================================
 # PARTE 4: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (ESPAÑOL)
 # =================================================================
+# =================================================================
+# PARTE 2: CONSTANTES DE RED Y MATRICES DE TRADUCCIÓN (I18N)
+# =================================================================
+URL_PRODUCCION = "https://streamlit.app"
+NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
+
+ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
+CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
+
 DICCIONARIO_IDIOMAS = {
     "Español": {
         "ctrl": "Datos de Control", "nombre": "Nombre Completo o Matrícula *:", "wha": "Número Telefónico de Enlace *:",
@@ -78,7 +87,7 @@ DICCIONARIO_IDIOMAS = {
             "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Impuntualidad Perpetua", "Falta de Descanso/Margen"],
             "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
         }
-    },
+    }, 
     "Inglés": {
         "ctrl": "Control Information", "nombre": "Full Name or ID *:", "wha": "WhatsApp Link Number *:",
         "sec1": "Section I. Demographic & Geographic Data", "edad": "1. Age (Years):", "genero": "2. Gender:",
@@ -102,12 +111,12 @@ DICCIONARIO_IDIOMAS = {
             "⏳ Temporal Health": ["Chronic Procrastination", "Burnout/Overwork", "Perpetual Tardiness", "Lack of Margin/Rest"],
             "🙏 Spiritual Health": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Loss of Meaning"]
         }
-    }
-       "err_fields": "Please fill in all required fields.", "proc": "Processing analytics...", "local_ok": "Stored Locally (Offline Mode)",
+        "err_fields": "Please fill in all required fields.", "proc": "Processing analytics...", "local_ok": "Stored Locally (Offline Mode)",
         "fields_msg": "💡 Complete fields to activate your secure download.", "thanks": "## 🍊 Thank you very much for your participation!",
         "thanks_sub": "You have completed the diagnostic profile. Recognizing temporal vectors marks the threshold of adaptive maturity.",
         "qr_title": "📱 Dynamic Security QR Code (Project to Audience)", "qr_sub1": "1. Point your smartphone camera at the QR code.",
         "qr_sub2": "2. You will interact natively with our software deployment tailored for your institution."
+    },
     
     "Coreano": {
         "ctrl": "제어 데이터", "nombre": "성명 또는 학번 *:", "wha": "연락처 전화번호 *:",
