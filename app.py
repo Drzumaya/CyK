@@ -28,6 +28,37 @@ NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
+
+# =================================================================
+# PARTE 2.5: INICIALIZACIÓN ABSOLUTA DE SESIÓN Y QUERY PARAMS GLOBAL
+# =================================================================
+# Regla de Oro: Se inicializan los atributos de estado al inicio absoluto del script
+if "audiencia_activa" not in st.session_state:
+    st.session_state.audiencia_activa = "🍊 Salud Integral"
+if "admin_autenticado" not in st.session_state:
+    st.session_state.admin_autenticado = False
+if "guardado_exitoso" not in st.session_state:
+    st.session_state.guardado_exitoso = False
+if "flujo_finalizado" not in st.session_state:
+    st.session_state.flujo_finalizado = False
+if "alertas_mandarina_previas" not in st.session_state:
+    st.session_state.alertas_mandarina_previas = []
+
+# Captura prioritaria de parámetros URL desde el espacio de nombres global
+minuto_actual = int(time.time() // 60)
+token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
+
+token_actual = st.query_params.get("token", None)
+modo_admin_url = st.query_params.get("modo_admin", "true")
+es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+diag_tipo_url = st.query_params.get("diag_tipo", None)
+
+if es_celular_del_publico and diag_tipo_url:
+    st.session_state.audiencia_activa = diag_tipo_url
+
+# Ahora esta línea compilará con total seguridad matemática en Drive
+url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
+
 # =================================================================
 # PARTE 3: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (ESPAÑOL)
 # =================================================================
