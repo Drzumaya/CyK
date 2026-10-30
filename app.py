@@ -717,7 +717,7 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
     
     tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"])
     
-        if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
+    if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
         sheet = conectar_google_sheets(tabla_analizar)
         if sheet:
             try:
