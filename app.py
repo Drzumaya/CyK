@@ -792,7 +792,7 @@ def main():
                         if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): 
                             del st.session_state[k]
                             
-                st.download_button(
+                                st.download_button(
                     label=tx["btn_pdf"],
                     data=reporte_procesado,
                     file_name=f"Report_{idioma_sel}_{nombre_archivo}.pdf",
@@ -802,29 +802,27 @@ def main():
             else: 
                 st.info(tx["fields_msg"])
     else:
-        nombre = ""
-        whatsapp = ""
-        else:
-    tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
-    st.balloons()
-    st.success("### Process Completed! 🎉")
-    with st.container(border=True):
-        st.write(tx_final["thanks"])
-        st.markdown(tx_final["thanks_sub"])
-        st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
-    
-    # OJO EXPERTO: Este botón solo se renderiza si el dispositivo NO es el celular del público
-    if not es_celular_del_publico:
-        st.write("")
-        if st.button("🔄 Regresar al Diagnóstico Activo / Reset View", type="secondary"):
-            st.session_state.flujo_finalizado = False
-            st.rerun()
+        tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
+        st.balloons()
+        st.success("### Process Completed! 🎉")
+        with st.container(border=True):
+            st.write(tx_final["thanks"])
+            st.markdown(tx_final["thanks_sub"])
+            st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
+        
+        # AJUSTE EXPERTO: El botón de regreso solo aparece en la pantalla del ponente
+        if not es_celular_del_publico:
+            st.write("")
+            if st.button("🔄 Regresar al Diagnóstico Activo / Reset View", type="secondary", key="btn_reset_view_ponente"):
+                st.session_state.flujo_finalizado = False
+                st.rerun()
 
-
+    # MÓDULO CENTRAL AVANZADO: OFICINA DE INVESTIGACIÓN ALTA AUDITORÍA
     if st.session_state.admin_autenticado and not es_celular_del_publico:
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
         st.write("Módulo avanzado de modelado predictivo de variables latentes.")
+        
         try:
             if "gcp_service_account" in st.secrets:
                 secrets_dict = dict(st.secrets["gcp_service_account"])
@@ -878,16 +876,14 @@ def main():
                                 else:
                                     st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
                         with col_graph2:
-                                                with col_graph2:
                             st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                             res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                             st.json(res_sem)
-                            
-                        # === INYECCIÓN QUIRÚRGICA: SISTEMA DE EXPORTACIÓN EN PDF PARA EL PONENTE ===
+
+                        # === INYECCIÓN QUIRÚRGICA: EXPORTACIÓN EN PDF PARA EL PONENTE ===
                         st.markdown("---")
                         st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
                         
-                        # Compilamos el resumen de auditoría en memoria utilizando FPDF
                         pdf_auditoria = FPDF()
                         pdf_auditoria.add_page()
                         pdf_auditoria.set_font("Helvetica", "B", 14)
@@ -919,10 +915,9 @@ def main():
                             mime="application/pdf",
                             key="btn_download_admin_pdf"
                         )
-                            
                 except Exception as e:
                     st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
 
-
+# Guardia de ejecución principal para el ecosistema web de Streamlit
 if __name__ == "__main__":
     main()
