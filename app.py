@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-# SOLUCIÓN ABSOLUTA DE SECUENCIA: Inicialización síncrona y global de tokens y variables de red
+# Inicialización síncrona y global de tokens y variables de red prioritarias
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
@@ -221,6 +221,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         invitacion_lbl = "Lograr el acoplamiento perfecto entre la eficiencia del reloj (Cronos) y el valor real de la oportunidad (Kairos) requiere un diseno estrategico avanzado. Te invitamos a solicitar una sesion de consultoria especializada y personalizada con el ponente Jacob Zumaya Prianti para disenar un flujograma de simbiosis temporal C&K adaptado a tus metas corporativas."
         pdf.multi_cell(0, 5, invitacion_lbl, border="LRB")
     else:
+        # Segmentación original Mandarina por Subtítulos Independientes
         for dim_nombre, items in resultados.items():
             conteo = len(items)
             estado = "GAJO SANO Y PLENO" if conteo == 0 else ("EN ALERTA TEMPRANA" if conteo < 3 else "CRITICO / URGENCIA INMEDIATA")
@@ -273,16 +274,16 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
             r_cuadrado = 1 - (np.sum((latent_impacto - X @ beta) ** 2) / np.sum((latent_impacto - np.mean(latent_impacto)) ** 2))
             
             analisis["status"] = "Convergencia Exitosa (SEMDeep Engine v2.6)"
-            analisis["beta_cronos_path"] = float(beta[0]) if len(beta)>0 else 0.0
-            analisis["beta_kairos_path"] = float(beta[1]) if len(beta)>1 else 0.0
+            analisis["beta_cronos_path"] = float(beta) if len(beta)>0 else 0.0
+            analisis["beta_kairos_path"] = float(beta) if len(beta)>1 else 0.0
             analisis["gof_r2_ajuste"] = max(0.0, float(r_cuadrado))
-            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos)[0, 1])
+            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos))
         else:
             matriz_datos = df.iloc[:, 3:10].apply(pd.to_numeric, errors='coerce').fillna(0).to_numpy()
             c_centered = matriz_datos - np.mean(matriz_datos, axis=0)
             _, s, _ = np.linalg.svd(c_centered, full_matrices=False)
             analisis["status"] = "Convergencia Lineal Exitosa (SVD Gajos)"
-            analisis["gof_r2_ajuste"] = float(s[0]**2 / np.sum(s**2)) if len(s)>0 else 0.0
+            analisis["gof_r2_ajuste"] = float(s**2 / np.sum(s**2)) if len(s)>0 else 0.0
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
@@ -428,7 +429,7 @@ BANCO_PREGUNTAS = {
         6: "Creo que la calidad conceptual y el valor humano de una tutoría, revisión de proyecto o vinculación con el sector productivo tienen prioridad absoluta sobre cualquier límite de tiempo fijado en el reloj.",
         7: "Me genera una profunda incomodidad o frustración cuando incidentes técnicos menores, fallas en la red o dinámicas imprevistas alteran la estructura planeada de mis horas de jornada en el plantel.",
         8: "Confío en que el proceso creativo y el desarrollo de soluciones tecnológicas e ingenieriles surgen en ventanas providenciales de oportunidad (momentos de inspiración) que no siempre coinciden con los cronogramas rígidos.",
-        9: "Prefiero que los ponentes en los congresos, los directores de carrera y los equipos de trabajo concluyan sus participaciones ciñéndose estrictamente al tiempo asignado en las convocatorias oficiales.",
+        9: "Prefiero que los ponentes en los congresos, los directors de carrera y los equipos de trabajo concluyan sus participaciones ciñéndose estrictamente al tiempo asignado en las convocatorias oficiales.",
         10: "Cuando me encuentro inmerso en el desarrollo de software, diseño de prototipos, investigación de campo o dinámicas colaborativas complejas, pierdo con frecuencia la noción del tiempo terrenal.",
         11: "Mido el éxito de un proyecto de residencias profesionales, servicio social o evento institucional principalmente a través del cumplimiento exacto de las metas métricas y los tiempos de entrega programados.",
         12: "Prefiero que la gobernanza, las academias y los ministerios de apoyo en la comunidad universitaria se adapten con sensibilidad a las necesidades emocionales y de salud mental urgentes de la comunidad estudiantil.",
@@ -468,66 +469,85 @@ if not st.session_state.flujo_finalizado:
 
     if not es_modo_likert:
         st.write("### 🍊 Tus Gajos de Bienestar (Diseño Estilizado)")
+        st.write("Selecciona los puntos de fuga específicos donde requieres intervención:")
         
+        # 1. SF (Corregido: Mapeo unitario indexado sobre la matriz para evitar repeticiones)
         with st.container(border=True):
             st.markdown("#### 💪 Salud Física (SF)")
             sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
             col_a, col_b = st.columns(2)
             with col_a:
-                st.checkbox(sf_items, key="sf_0"); st.checkbox(sf_items, key="sf_1")
+                st.checkbox(sf_items[0], key="sf_0")
+                st.checkbox(sf_items[1], key="sf_1")
             with col_b:
-                st.checkbox(sf_items, key="sf_2"); st.checkbox(sf_items, key="sf_3")
+                st.checkbox(sf_items[2], key="sf_2")
+                st.checkbox(sf_items[3], key="sf_3")
             resultados_totales["Salud Fisica (SF)"] = [item for idx, item in enumerate(sf_items) if st.session_state[f"sf_{idx}"]]
 
+        # 2. SM
         with st.container(border=True):
             st.markdown("#### 🧠 Salud Mental (SM)")
             sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
             col_a, col_b = st.columns(2)
             with col_a:
-                st.checkbox(sm_items, key="sm_0"); st.checkbox(sm_items, key="sm_1")
+                st.checkbox(sm_items[0], key="sm_0")
+                st.checkbox(sm_items[1], key="sm_1")
             with col_b:
-                st.checkbox(sm_items, key="sm_2"); st.checkbox(sm_items, key="sm_3")
+                st.checkbox(sm_items[2], key="sm_2")
+                st.checkbox(sm_items[3], key="sm_3")
             resultados_totales["Salud Mental (SM)"] = [item for idx, item in enumerate(sm_items) if st.session_state[f"sm_{idx}"]]
 
+        # 3. SE
         with st.container(border=True):
             st.markdown("#### ❤️ Salud Emocional (SE)")
             se_items = ["Gestión de emociones", "Autocontrol (Dominio propio)", "Regulación psicológica", "Comprensión del estado de ánimo"]
             col_a, col_b = st.columns(2)
             with col_a:
-                st.checkbox(se_items, key="se_0"); st.checkbox(se_items, key="se_1")
+                st.checkbox(se_items[0], key="se_0")
+                st.checkbox(se_items[1], key="se_1")
             with col_b:
-                st.checkbox(se_items, key="se_2"); st.checkbox(se_items, key="se_3")
+                st.checkbox(se_items[2], key="se_2")
+                st.checkbox(se_items[3], key="se_3")
             resultados_totales["Salud Emocional (SE)"] = [item for idx, item in enumerate(se_items) if st.session_state[f"se_{idx}"]]
 
+        # 4. SS
         with st.container(border=True):
             st.markdown("#### 👥 Salud Social (SS)")
             ss_items = ["Relaciones positivas (Vínculos sanos)", "Comunicación asertiva", "Empatía activa", "Red de apoyo ante crisis"]
             col_a, col_b = st.columns(2)
             with col_a:
-                st.checkbox(ss_items, key="ss_0"); st.checkbox(ss_items, key="ss_1")
+                st.checkbox(ss_items[0], key="ss_0")
+                st.checkbox(ss_items[1], key="ss_1")
             with col_b:
-                st.checkbox(ss_items, key="ss_2"); st.checkbox(ss_items, key="ss_3")
+                st.checkbox(ss_items[2], key="ss_2")
+                st.checkbox(ss_items[3], key="ss_3")
             resultados_totales["Salud Social (SS)"] = [item for idx, item in enumerate(ss_items) if st.session_state[f"ss_{idx}"]]
 
+        # 5. SECO
         with st.container(border=True):
             st.markdown("#### 💰 Salud Económica (SECO)")
             seco_items = ["Presupuesto (Control de gastos)", "Ahorro sistemático", "Inversión de capital", "Administración Financiera", "Creación / Generación del dinero"]
             col_a, col_b = st.columns(2)
             with col_a:
-                st.checkbox(seco_items, key="seco_0"); st.checkbox(seco_items, key="seco_1"); st.checkbox(seco_items, key="seco_2")
+                st.checkbox(seco_items[0], key="seco_0")
+                st.checkbox(seco_items[1], key="seco_1")
+                st.checkbox(seco_items[2], key="seco_2")
             with col_b:
-                st.checkbox(seco_items, key="seco_3"); st.checkbox(seco_items, key="seco_4")
+                st.checkbox(seco_items[3], key="seco_3")
+                st.checkbox(seco_items[4], key="seco_4")
             resultados_totales["Salud Economica (SECO)"] = [item for idx, item in enumerate(seco_items) if st.session_state[f"seco_{idx}"]]
 
+        # 6. ST
         with st.container(border=True):
             st.markdown("#### ⏳ Salud Temporal (ST)")
             ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck")
             st_items = ["Gestión del tiempo (Agenda)", "Equilibrio (Deber/Descanso)", "Prioridades (Identificar lo importante)"]
             col_a, col_b = st.columns(2)
             with col_a:
-                st.checkbox(st_items, key="st_0"); st.checkbox(st_items, key="st_1")
+                st.checkbox(st_items[0], key="st_0")
+                st.checkbox(st_items[1], key="st_1")
             with col_b:
-                st.checkbox(st_items, key="st_2")
+                st.checkbox(st_items[2], key="st_2")
             st_sel = [item for idx, item in enumerate(st_items) if st.session_state[f"st_{idx}"]]
             if ck_marcado: st_sel.append("Cronos & Kairos (Tiempo del reloj vs. valor real)")
             resultados_totales["Salud Temporal (ST)"] = st_sel
@@ -537,9 +557,11 @@ if not st.session_state.flujo_finalizado:
             spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
             col_a, col_b = st.columns(2)
             with col_a:
-                st.checkbox(spi_items, key="spi_0"); st.checkbox(spi_items, key="spi_1")
+                st.checkbox(spi_items[0], key="spi_0")
+                st.checkbox(spi_items[1], key="spi_1")
             with col_b:
-                st.checkbox(spi_items, key="spi_2"); st.checkbox(spi_items, key="spi_3")
+                st.checkbox(spi_items[2], key="spi_2")
+                st.checkbox(spi_items[3], key="spi_3")
             resultados_totales["Salud Espiritual (SPI)"] = [item for idx, item in enumerate(spi_items) if st.session_state[f"spi_{idx}"]]
 
 
@@ -590,14 +612,14 @@ if not st.session_state.flujo_finalizado:
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
 
     with col_btn1:
-        if st.button("💾 Guardar y Processar Diagnóstico", width="stretch", type="primary"):
+        if st.button("💾 Guardar y Procesar Diagnóstico", width="stretch", type="primary"):
             if not campos_completos: st.error("⚠️ Datos de control incompletos.")
             else:
                 with st.spinner("Registrando vectores temporales en la nube..."):
                     exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
                     if exito: 
                         st.session_state.guardado_exitoso = True
-                        st.success("¡Datos sincronizados con éxito en la nube!")
+                        st.success("¡Datos Sincronizados con éxito en la nube!")
                     else: 
                         st.session_state.guardado_exitoso = True
                         st.warning("Diagnóstico preprocesado localmente.")
@@ -653,7 +675,7 @@ else:
         st.write("---")
         st.write("### 📅 ¿Te gustaría llevar tu diagnóstico al siguiente nivel?")
         st.write("Te invitamos cordialmente a agendar una sesión de consulta directa y personalizada con el ponente. En esta asesoría individualizada estructuraremos un plan de acción a la medida.")
-        st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento directamente en el escenario.")
+        st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento personalizado directamente en el escenario.")
         
     st.markdown("### ✨ ¡Te deseamos el mayor de los éxitos en los nuevos cambios que inicias a partir de esta experiencia! ✨")
     
@@ -662,3 +684,5 @@ else:
             st.session_state.flujo_finalizado = False
             st.session_state.guardado_exitoso = False
             st.rerun()
+
+
