@@ -535,16 +535,8 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 # PARTE 12: PUNTO DE ENTRADA CENTRAL, SESIONES E INTERCEPTOR DE TOKENS
 # =================================================================
 def main():
-    if "audiencia_activa" not in st.session_state:
-        st.session_state.audiencia_activa = "🍊 Salud Integral"
-    if "admin_autenticado" not in st.session_state:
-        st.session_state.admin_autenticado = False
-    if "guardado_exitoso" not in st.session_state:
-        st.session_state.guardado_exitoso = False
-    if "flujo_finalizado" not in st.session_state:
-        st.session_state.flujo_finalizado = False
-    if "alertas_mandarina_previas" not in st.session_state:
-        st.session_state.alertas_mandarina_previas = []
+    # OJO EXPERTO: Las inicializaciones de st.session_state se eliminan de aquí
+    # porque ya fueron procesadas con éxito en el entorno global superior.
 
     # Fundación e instanciación en frío automatizada de las estructuras en la nube
     if "estructuras_inicializadas" not in st.session_state:
@@ -554,20 +546,11 @@ def main():
                 conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-    # Captura prioridad de Query Parameters URL de red
-    minuto_actual = int(time.time() // 60)
-    token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
-    token_actual = st.query_params.get("token", None)
-    modo_admin_url = st.query_params.get("modo_admin", "true")
-    es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
-    diag_tipo_url = st.query_params.get("diag_tipo", None)
+    # OJO EXPERTO: Las lecturas de st.query_params se eliminan de aquí
+    # ya que las variables globales (token_actual, es_celular_del_publico, etc.)
+    # ya existen en la memoria central del script desde el inicio absoluto.
 
-    if es_celular_del_publico and diag_tipo_url:
-        st.session_state.audiencia_activa = diag_tipo_url
-
-    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
-
-    # Interceptor de caducidad temporal anti-duplicados
+    # Interceptor de caducidad temporal anti-duplicados (Usa las variables de red del ámbito global)
     if token_actual and not st.session_state.admin_autenticado:
         acceso_bloqueado = False
         minuto_base = int(time.time() // 60)
@@ -588,6 +571,7 @@ def main():
         if acceso_bloqueado:
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
+
 # =================================================================
 # PARTE 13: SELECTOR DE IDIOMAS, CONSOLA SIDEBAR Y GENERACIÓN QR ADAPTATIVO
 # =================================================================
