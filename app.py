@@ -565,6 +565,9 @@ if not st.session_state.flujo_finalizado:
     resultados_totales = {}
     es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
+# =================================================================
+# PARTE 18: RENDERIZACIÓN ISOMÓRFICA DE LOS 7 GAJOS TRADUCIDOS
+# =================================================================
     if not es_modo_likert:
         st.write(tx["mand_title"])
         st.write(tx["mand_subtitle"])
@@ -573,12 +576,14 @@ if not st.session_state.flujo_finalizado:
             with st.container(border=True):
                 st.markdown(f"#### {g_name}")
                 col1, col2 = st.columns(2)
+                
                 with col1:
-                    cb0 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_0")
-                    cb1 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_1")
+                    # Se asigna explícitamente un ítem único de la lista por casilla
+                    cb0 = st.checkbox(tx["fugas_base"][0], key=f"cb_{g_idx}_0")
+                    cb1 = st.checkbox(tx["fugas_base"][1], key=f"cb_{g_idx}_1")
                 with col2:
-                    cb2 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_2")
-                    cb3 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_3")
+                    cb2 = st.checkbox(tx["fugas_base"][2], key=f"cb_{g_idx}_2")
+                    cb3 = st.checkbox(tx["fugas_base"][3], key=f"cb_{g_idx}_3")
                     
                 resultados_totales[g_name] = [tx["fugas_base"][i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                 
