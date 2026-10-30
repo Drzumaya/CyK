@@ -345,8 +345,6 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                     st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
-            else: st.warning("No hay filas registradas en esta pestaña.")
-        else: st.error("Error de enlace.")
 
 
 DICCIONARIO_IDIOMAS = {
@@ -354,7 +352,7 @@ DICCIONARIO_IDIOMAS = {
         "ctrl": "Datos de Control", "nombre": "Nombre Completo o Matrícula *:", "wha": "Número Telefónico de Enlace *:",
         "sec1": "Sección I. Datos Demográficos y Geográficos", "edad": "1. Edad (Años):", "genero": "2. Género:",
         "nac": "3. Nacionalidad *:", "orig": "4. Estado de origen *:", "res": "5. Estado de residencia actual *:",
-        "pais": "4. Escribe tu País de origen *:", "cont": "5. Selecciona tu Continente de origen *:", "rol": "6. Rol dentro de la Iglesia:",
+        "pais": "4. Escribe tu País de origen *:", "cont": "5. Selecciona tu Continent de origen *:", "rol": "6. Rol dentro de la Iglesia:",
         "sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
         "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
         "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
@@ -375,15 +373,9 @@ DICCIONARIO_IDIOMAS = {
 }
 
 def algoritmo_generar_reactivos_contextuales(perfil_demografico, alertas_salud_integral):
-    """
-    Algoritmo Doctoral de Simbiosis Adaptativa C&K.
-    Construye dinámicamente un banco alterno de 14 reactivos (Impares=Cronos, Pares=Kairos)
-    inyectando el contexto demográfico y las fugas biológicas detectadas en Salud Integral.
-    """
     geo = perfil_demografico.get("Procedencia", "la region")
-    fuga = alertas_salud_integral[0] if alertas_salud_integral else "Bienestar general"
+    fuga = alertas_salud_integral if alertas_salud_integral else "Bienestar general"
     
-    # 7 Reactivos Cronos (Enfoque estructural, reloj, orden)
     cronos_pool = {
         1: f"Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj institucionales.",
         3: f"Establezco limites rigidos de tiempo en mis jornadas para blindar mi rendimiento frente a fugas como: {fuga}.",
@@ -394,7 +386,6 @@ def algoritmo_generar_reactivos_contextuales(perfil_demografico, alertas_salud_i
         13: f"El apego estricto a manuales organizacionales es la clave fundamental para mantener el orden de mis habitos."
     }
     
-    # 7 Reactivos Kairos (Enfoque relacional, oportunidad, salud mental)
     kairos_pool = {
         2: f"La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es mas importante que el reloj.",
         4: f"Tengo plena disposicion para detener mi agenda si surge una crisis relacional o necesidad de apoyo humano.",
@@ -405,14 +396,10 @@ def algoritmo_generar_reactivos_contextuales(perfil_demografico, alertas_salud_i
         14: f"Valoro el impacto de mis jornadas por la transformacion integral de mi entorno mas que por las metricas de egreso."
     }
     
-    # Ensamblar de forma estrictamente alterna (1=C, 2=K, 3=C, 4=K...)
     banco_alterno = {}
     for i in range(1, 15):
-        if i % 2 != 0:
-            banco_alterno[i] = cronos_pool[i]
-        else:
-            banco_alterno[i] = kairos_pool[i]
-            
+        if i % 2 != 0: banco_alterno[i] = cronos_pool[i]
+        else: banco_alterno[i] = kairos_pool[i]
     return banco_alterno
 
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Ciudad de México", "Coahuila", "Colima", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
@@ -431,7 +418,6 @@ if not st.session_state.flujo_finalizado:
     resultados_totales = {}
     es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
-    # MODO MANDARINA CLÁSICO (SOLUCIÓN DE REPETICIONES DE ITERADORES)
     if not es_modo_likert:
         st.write("### 🍊 Tus Gajos de Bienestar")
         st.write("Selecciona los puntos de fuga específicos donde requieres intervención:")
@@ -441,11 +427,11 @@ if not st.session_state.flujo_finalizado:
             sf_items = ["Nutricion (Habitos alimenticios)", "Sueno (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
             col1, col2 = st.columns(2)
             with col1:
-                chk_sf0 = st.checkbox(sf_items, key="sf_unq_0")
-                chk_sf1 = st.checkbox(sf_items, key="sf_unq_1")
+                st.checkbox(sf_items[0], key="sf_unq_0")
+                st.checkbox(sf_items[1], key="sf_unq_1")
             with col2:
-                chk_sf2 = st.checkbox(sf_items, key="sf_2")
-                chk_sf3 = st.checkbox(sf_items, key="sf_3")
+                st.checkbox(sf_items[2], key="sf_2")
+                st.checkbox(sf_items[3], key="sf_3")
             resultados_totales["Salud Fisica (SF)"] = [item for idx, item in enumerate(sf_items) if st.session_state[f"sf_unq_{idx}" if idx < 2 else f"sf_{idx}"]]
 
         with st.container(border=True):
@@ -453,11 +439,11 @@ if not st.session_state.flujo_finalizado:
             sm_items = ["Memoria (Retencion)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptacion)", "Aprendizaje (Habilidades)"]
             col1, col2 = st.columns(2)
             with col1:
-                chk_sm0 = st.checkbox(sm_items, key="sm_unq_0")
-                chk_sm1 = st.checkbox(sm_items, key="sm_unq_1")
+                st.checkbox(sm_items[0], key="sm_unq_0")
+                st.checkbox(sm_items[1], key="sm_unq_1")
             with col2:
-                chk_sm2 = st.checkbox(sm_items, key="sm_2")
-                chk_sm3 = st.checkbox(sm_items, key="sm_3")
+                st.checkbox(sm_items[2], key="sm_2")
+                st.checkbox(sm_items[3], key="sm_3")
             resultados_totales["Salud Mental (SM)"] = [item for idx, item in enumerate(sm_items) if st.session_state[f"sm_unq_{idx}" if idx < 2 else f"sm_{idx}"]]
 
         with st.container(border=True):
@@ -465,13 +451,12 @@ if not st.session_state.flujo_finalizado:
             ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck_unq")
             st_items = ["Gestion del tiempo (Agenda)", "Equilibrio (Deber/Descanso)"]
             col1, col2 = st.columns(2)
-            with col1: chk_st0 = st.checkbox(st_items, key="st_unq_0")
-            with col2: chk_st1 = st.checkbox(st_items, key="st_unq_1")
+            with col1: st.checkbox(st_items[0], key="st_unq_0")
+            with col2: st.checkbox(st_items[1], key="st_unq_1")
             st_sel = [item for idx, item in enumerate(st_items) if st.session_state[f"st_unq_{idx}"]]
             if ck_marcado: st_sel.append("Cronos & Kairos (Tiempo del reloj vs. valor real)")
             resultados_totales["Salud Temporal (ST)"] = st_sel
             
-        # Almacenamiento síncronizado de alertas para el algoritmo adaptativo
         if st.button("Procesar Alertas Base"):
             todas_alertas = resultados_totales["Salud Fisica (SF)"] + resultados_totales["Salud Mental (SM)"]
             st.session_state.alertas_mandarina_previas = todas_alertas if todas_alertas else ["Estres general"]
@@ -513,17 +498,16 @@ if not st.session_state.flujo_finalizado:
 
         st.subheader(tx["sec3"])
         
-        # INVOCACIÓN AL ALGORITMO ADAPTATIVO CONTEXTUAL SOLICITADO
         perfil_contexto = {"Procedencia": geo_contexto}
         alertas_previas = st.session_state.alertas_mandarina_previas
         
-        # El motor reescribe los 14 reactivos de forma alterna inyectando la información demográfica y clínica del participante
         banco_mutado_quirurgico = algoritmo_generar_reactivos_contextuales(perfil_contexto, alertas_previas)
         
         for r_id, enunciado_adaptado in banco_mutado_quirurgico.items():
             st.write(f"**Reactivo {r_id}:** {enunciado_adaptado}")
+            # CORRECCIÓN DE SINTAXIS: Se inyectó el array explícito [1, 2, 3, 4, 5]
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Scale:", options=,
+                "Scale:", options=[1, 2, 3, 4, 5],
                 format_func=lambda x: tx["likert_labels"][x],
                 key=f"dyn_r_{r_id}"
             )
