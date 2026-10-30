@@ -391,7 +391,6 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                     st.json(res_sem)
 
 
-# DICCIONARIO POLÍGLOTA EXPANDIDO CON SOPORTE COMPLETO PARA ITALIANO Y PORTUGUÉS EXIGIDOS
 DICCIONARIO_IDIOMAS = {
     "Español": {
         "ctrl": "Datos de Control", "nombre": "Nombre Completo o Matrícula *:", "wha": "Número Telefónico de Enlace *:",
@@ -401,7 +400,7 @@ DICCIONARIO_IDIOMAS = {
         "sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
         "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
         "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
-        "sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnóstico", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
+        "sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnostic", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
         "likert_labels": {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"},
         "c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
         "k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es mas importante.",
@@ -487,7 +486,9 @@ DICCIONARIO_IDIOMAS = {
         "kn2": "2. Haben Sie über Chronos und Kairos gelesen?", "kn3": "3. Haben Sie jemals über diese Zeitmodelle gelehrt?",
         "kn4": "4. Das Zeitmodell:", "kn5": "5. Über Zeitmodelle zu sprechen bedeutet:",
         "sec3": "Abschnitt III. Likert-Skala", "btn_save": "💾 Speichern & Verarbeiten", "btn_pdf": "ERGEBNISSE ALS PDF HERUNTERLADEN 📥",
-"likert_labels": {1:"1 - Stimme überhaupt nicht zu", 2:"2 - Stimme nicht zu", 3:"3 - Neutral", 4:"4 - Stimme zu", 5:"5 - Stimme vollkommen zu"},
+        "likert_labels": {1:"1 - Stimme überhaupt nicht zu", 2:"2 - Stimme nicht zu", 3:"3 - Neutral", 4:"4 - Stimme zu", 5:"5 - Stimme vollkommen zu"},
+
+
 "c_pool": "Ich plane meine Aktivitäten in {geo} strikt nach der Uhrzeit.",
 "k_pool": "Flexibilität bei der Anpassung von Plänen an Gelegenheiten in {geo} is wichtiger als die Uhr.",
 "mand_title": "### 🍊 Ihre Scheiben des Wohlbefindens",
@@ -500,13 +501,13 @@ DICCIONARIO_IDIOMAS = {
 "sec1": "Sezione I. Dati Demografici e Geografici", "edad": "1. Età (Anni):", "genero": "2. Genere:",
 "nac": "3. Nazionalità *:", "orig": "4. Stato di origine *:", "res": "5. Stato di residenza attuale *:",
 "pais": "4. Scrivi il tuo Paese d'origine *:", "cont": "5. Seleziona il tuo Continente *:", "rol": "6. Ruolo all'interno della Chiesa:",
-"sec2": "Sezione II. Conoscenza dell'Argomento", "kn1": "1. Prima de questo sondaggio hai mai sentito parlare dei Modelli Temporali?",
+"sec2": "Sezione II. Conescienza dell'Argomento", "kn1": "1. Prima di questo sondaggio hai mai sentito parlare dei Modelli Temporali?",
 "kn2": "2. Hai letto dei modelli temporali Chronos e Kairos?", "kn3": "3. Hai mai insegnato questi modelli temporali?",
 "kn4": "4. Il modello temporale:", "kn5": "5. Parlare di modelli temporali significa parlare di:",
 "sec3": "Sezione III. Scala Likert Intercalata", "btn_save": "💾 Salva e Processa Diagnosi", "btn_pdf": "SCARICA I RISULTATI IN PDF 📥",
 "likert_labels": {1:"1 - Totalmente in disaccordo", 2:"2 - In disaccordo", 3:"3 - Neutrale", 4:"4 - D'accordo", 5:"5 - Totalmente d'accordo"},
 "c_pool": "Pianifico le mie attività operative in {geo} seguendo rigorosamente l'orologio.",
-"k_pool": "La flessibilità di adattare i miei piani di fronte a un'opportunità in {geo} è più importante." ,
+"k_pool": "La flessibilità di adattare i miei piani di fronte a un'opportunità in {geo} è più importante.",
 "mand_title": "### 🍊 I Tuoi Spicchi di Benessere (Salute Olistica)",
 "mand_subtitle": "Seleziona gli avvisi critici o le debolezze nella tua salute:",
 "gajos_names": ["💪 Salute Fisica", "🧠 Salute Mentale", "❤️ Salute Emozionale", "👥 Salute Sociale", "💰 Salute Economica", "⏳ Salute Temporale", "🙏 Salute Spirituale"],
@@ -515,7 +516,7 @@ DICCIONARIO_IDIOMAS = {
 "Portugués": {
 "ctrl": "Dados de Controle", "nombre": "Nome Completo ou ID *:", "wha": "Número de Telefone *:",
 "sec1": "Seção I. Dados Demográficos e Geográficos", "edad": "1. Idade (Anos):", "genero": "2. Gênero:",
-"nac": "3. Nacionalidade *:", "orig": "4. Estado de origem *:", "res": "5. Estado de residência atual *:",
+"nac": "3. Nacionalidade *:", "orig": "4. Estado de origem *:", "res": "5. Estado de residência actual *:",
 "pais": "4. Escreva seu País de origem *:", "cont": "5. Selecione seu Continente *:", "rol": "6. Papel dentro da Igreja:",
 "sec2": "Seção II. Conhecimento sobre o tema", "kn1": "1. Antes desta pesquisa, você já tinha ouvido falar dos Modelos Temporais?",
 "kn2": "2. Você já leu sobre os modelos temporais Chronos e Kairos?", "kn3": "3. Você já ensinou sobre os modelos temporais?",
@@ -530,13 +531,16 @@ DICCIONARIO_IDIOMAS = {
 "fugas_base": ["Nutrição Deficiente", "Falta de Sono", "Sedentarismo", "Fadiga Corporal"]
 }
 }
+
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
 fuga = str(b_alertas) if b_alertas else "OK"
 banco_alterno = {}
 for i in range(1, 15):
-if i % 2 != 0: banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
-else: banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
+if i % 2 != 0:
+banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
+else:
+banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
 return banco_alterno
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
@@ -546,7 +550,6 @@ CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
 ### # PARTE 11: CAPA DE INTERFAZ DE USUARIO (MANDARINA SELECTOR DINÁMICO)
 ```python
 if not st.session_state.flujo_finalizado:
-    # FILTRO DE INTERNACIONALIZACIÓN COMPLETO SOLICITADO (INCLUYE ITALIANO Y PORTUGUÉS)
     idioma_sel = st.selectbox("🌐 Choose System Language / Selecciona Idioma:", ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"])
     tx = DICCIONARIO_IDIOMAS[idioma_sel]
     
@@ -558,26 +561,24 @@ if not st.session_state.flujo_finalizado:
     resultados_totales = {}
     es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
-    # LOGICA GENERATIVA INTEGRAL: 100% traducida en tiempo real sin repeticiones de bucles
     if not es_modo_likert:
         st.write(tx["mand_title"])
         st.write(tx["mand_subtitle"])
         
-        # Iteración atómica e indexada sobre la rejilla comprimida para los 7 gajos
         for g_idx, g_name in enumerate(tx["gajos_names"]):
             with st.container(border=True):
                 st.markdown(f"#### {g_name}")
                 col1, col2 = st.columns(2)
                 with col1:
-                    cb0 = st.checkbox(tx["fugas_base"][0], key=f"cb_{g_idx}_0")
-                    cb1 = st.checkbox(tx["fugas_base"][1], key=f"cb_{g_idx}_1")
+                    cb0 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_0")
+                    cb1 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_1")
                 with col2:
-                    cb2 = st.checkbox(tx["fugas_base"][2], key=f"cb_{g_idx}_2")
-                    cb3 = st.checkbox(tx["fugas_base"][3], key=f"cb_{g_idx}_3")
+                    cb2 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_2")
+                    cb3 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_3")
                 resultados_totales[g_name] = [tx["fugas_base"][i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                 
         if st.button("Procesar Alertas Base / Register Alerts"):
-            st.session_state.alertas_mandarina_previas = list(resultados_totales.values())[0] if resultados_totales else ["Alert"]
+            st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
             st.success("OK. Context synchronized.")
 
     else:
@@ -611,11 +612,11 @@ if not st.session_state.flujo_finalizado:
 
         st.subheader(tx["sec3"])
         
-        # MUTACIÓN SÍNCRONA: El banco se reescribe de forma alterna e instantánea en el idioma elegido
         banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
         
         for r_id, enunciado_idioma in banco_mutado.items():
             st.write(f"**Reactivo {r_id}:** {enunciado_idioma}")
+            # ENLACE SEGURO DE ESCALA: Se inyectó la propiedad options completa
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Scale:", 
                 options=[1, 2, 3, 4, 5],
