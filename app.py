@@ -289,6 +289,7 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
+    
 
 
 if not es_celular_del_publico:
@@ -308,6 +309,9 @@ if not es_celular_del_publico:
             st.write("2. Responderás directamente el software nativo adaptado a tu organización sin necesidad de registros externos.")
 
 
+# # PARTE 5: CONSOLA DE MANDO DEL PONENTE E INTERCEPTOR SECURITY
+
+# Inicialización prioritaria absoluta para evitar KeyErrors en cascada
 if "admin_autenticado" not in st.session_state:
     st.session_state.admin_autenticado = False
 if "guardado_exitoso" not in st.session_state:
@@ -315,7 +319,8 @@ if "guardado_exitoso" not in st.session_state:
 if "flujo_finalizado" not in st.session_state:
     st.session_state.flujo_finalizado = False
 
-PASSWORD_CORRECTO = "mandarina2026"  
+# Extracción segura de credenciales desde Secrets para evitar visibilidad en código fuente
+PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
 
 if not es_celular_del_publico:
     with st.sidebar:
@@ -323,10 +328,11 @@ if not es_celular_del_publico:
         if not st.session_state.admin_autenticado:
             input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd")
             if st.button("Desbloquear Tableros", width="stretch"):
-                if input_password == PASSWORD_CORRECTO:
+                if input_password == PASSWORD_SISTEMA:
                     st.session_state.admin_autenticado = True
                     st.rerun()
-                else: st.error("Invalido")
+                else: 
+                    st.error("Contraseña incorrecta. Acceso denegado.")
         else:
             st.success("Modo Ponente Activo")
             lista_audiencias = ["🍊 Salud Integral", "🚜 Sector Primario", "🏭 Sector Secundario", "💼 Sector Terciario", "Docentes", "Padres Primaria", "Padres Secundaria", "Padres Preparatoria", "Padres Universitario", "Estudiantes Primaria", "Estudiantes Secundaria", "Estudiantes Preparatoria", "Estudiantes Universitario", "Religioso General", "Religioso IASD"]
@@ -359,6 +365,7 @@ if token_actual and not st.session_state.admin_autenticado:
 if acceso_bloqueado:
     st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
     st.stop()
+
 
 
 if st.session_state.admin_autenticado and not es_celular_del_publico:
