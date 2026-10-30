@@ -76,7 +76,7 @@ DICCIONARIO_IDIOMAS = {
             "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Ansiedad Financiera"],
             "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Impuntualidad Perpetua", "Falta de Descanso/Margen"],
             "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
-        }
+        },
 
         "err_fields": "Por favor llena los campos obligatorios.", "proc": "Procesando datos...", "local_ok": "Cargado Localmente (Sin Red)",
         "fields_msg": "💡 Complete los campos para habilitar la descarga.", "thanks": "## 🍊 ¡Muchas gracias por tu participación!",
