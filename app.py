@@ -535,8 +535,8 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 # PARTE 12: PUNTO DE ENTRADA CENTRAL, SESIONES E INTERCEPTOR DE TOKENS
 # =================================================================
 def main():
-    # OJO EXPERTO: Las inicializaciones de st.session_state se eliminan de aquí
-    # porque ya fueron procesadas con éxito en el entorno global superior.
+    # INYECCIÓN CRÍTICA: Indicamos a la función que consuma de forma segura las variables de red globales
+    global token_actual, es_celular_del_publico, url_con_token, token_tiempo
 
     # Fundación e instanciación en frío automatizada de las estructuras en la nube
     if "estructuras_inicializadas" not in st.session_state:
@@ -546,11 +546,7 @@ def main():
                 conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-    # OJO EXPERTO: Las lecturas de st.query_params se eliminan de aquí
-    # ya que las variables globales (token_actual, es_celular_del_publico, etc.)
-    # ya existen en la memoria central del script desde el inicio absoluto.
-
-    # Interceptor de caducidad temporal anti-duplicados (Usa las variables de red del ámbito global)
+    # Interceptor de caducidad temporal anti-duplicados
     if token_actual and not st.session_state.admin_autenticado:
         acceso_bloqueado = False
         minuto_base = int(time.time() // 60)
