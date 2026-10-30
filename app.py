@@ -717,31 +717,55 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
     
     tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"])
     
-    if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
+        if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
         sheet = conectar_google_sheets(tabla_analizar)
         if sheet:
-            records = sheet.get_all_records()
-            if records:
-                df_doc = pd.DataFrame(records)
-                st.success(f"¡Base de datos cargada! Registros analizados: {len(df_doc)}")
-                es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
+            try:
+                # OJO EXPERTO: Leemos primero todas las filas como matriz para verificar contenido
+                todas_las_filas = sheet.get_all_values()
                 
-                col_graph1, col_graph2 = st.columns(2)
-                with col_graph1:
-                    st.write("#### 📈 Distribución Descriptiva Global")
-                    if not es_tabla_likert:
-                        col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
-                        promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
-                        if promedios: 
-                            st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
-                    else:
-                        r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-                        matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        c_mean = np.mean(matriz_r[:, 0::2]) if len(r_cols) >= 14 else 3.0
-                        k_mean = np.mean(matriz_r[:, 1::2]) if len(r_cols) >= 14 else 3.0
-                        st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
+                if not todas_las_filas or len(todas_las_filas) < 2:
+                    st.warning("⚠️ La tabla seleccionada no contiene registros o datos suficientes para la auditoría.")
+                else:
+                    # Si hay datos, transformamos de forma segura la matriz a un DataFrame
+                    encabezados = todas_las_filas[0]
+                    datos_cuerpo = todas_las_filas[1:]
+                    
+                    # Manejo de encabezados duplicados por si acaso
+                    encabezados_unicos = []
+                    for i, col in enumerate(encabezados):
+                        nombre_col = col.strip() if col.strip() else f"Columna_{i}"
+                        if nombre_col in encabezados_unicos:
+                            nombre_col = f"{nombre_col}_{i}"
+                        encabezados_unicos.append(nombre_col)
                         
-                with col_graph2:
-                    st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
-                    res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-                    st.json(res_sem)
+                    df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
+                    st.success(f"¡Base de datos cargada exitosamente! Registros analizados: {len(df_doc)}")
+                    es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
+                    
+                    # CONTINÚA EL FLUJO INTERNO DE GRÁFICOS (col_graph1, col_graph2...)
+                    col_graph1, col_graph2 = st.columns(2)
+                    with col_graph1:
+                        st.write("#### 📈 Distribución Descriptiva Global")
+                        if not es_tabla_likert:
+                            col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
+                            promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
+                            if promedios: 
+                                st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
+                        else:
+                            r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
+                            if len(r_cols) >= 14:
+                                matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                                c_mean = np.mean(matriz_r[:, 0::2])
+                                k_mean = np.mean(matriz_r[:, 1::2])
+                                st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
+                            else:
+                                st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
+                                
+                    with col_graph2:
+                        st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
+                        res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
+                        st.json(res_sem)
+                        
+            except Exception as e:
+                st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
