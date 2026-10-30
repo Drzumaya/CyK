@@ -538,6 +538,7 @@ if not st.session_state.flujo_finalizado:
             resultados_totales["Salud Espiritual (SPI)"] = [item for idx, item in enumerate(spi_items) if st.session_state[f"spi_{idx}"]]
 
 
+    # # PARTE 8: DESPLIEGUE GEOGRÁFICO ADAPTADO, CONOCIMIENTO Y ESCALA LIKERT LIMPÍA
     else:
         st.subheader("🏛️ Sección I. Datos Demográficos y Geográficos")
         resultados_totales["Edad"] = st.number_input("1. Edad (Años):", min_value=10, max_value=100, value=20, key="dem_edad")
@@ -559,7 +560,8 @@ if not st.session_state.flujo_finalizado:
             
         if "Religioso" in st.session_state.audiencia_activa:
             resultados_totales["Rol Iglesia"] = st.selectbox("6. Rol dentro de la Iglesia:", ["", "Laico / Miembro", "Líder de Departamento", "Anciano / Diácono", "Pastor / Ministro"], key="dem_rol")
-        else: resultados_totales["Rol Iglesia"] = "N/A"
+        else: 
+            resultados_totales["Rol Iglesia"] = "N/A"
 
         st.subheader("🧠 Sección II. Conocimiento sobre el tema")
         resultados_totales["C1_Escuchado"] = st.radio("1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:", ["Sí", "No"], horizontal=True, key="kn_1")
@@ -573,9 +575,9 @@ if not st.session_state.flujo_finalizado:
         for r_id, enunciado in banco_activo.items():
             texto_final = enunciado.replace("el ITAP", f"mi organizacion ({st.session_state.audiencia_activa})").replace("el instituto", "la institucion").replace("maquiladora", "empresa")
             st.write(f"**Reactivo {r_id}:** {texto_final}")
-            # Corrección explícita de la escala psicométrica Likert
+            # CORRECCIÓN DEFINITIVA: Se inyectó el array de enteros [1, 2, 3, 4, 5]
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Grado de alineación:", options=,
+                "Grado de alineación:", options=[1, 2, 3, 4, 5],
                 format_func=lambda x: {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}[x],
                 key=f"dyn_r_{r_id}"
             )
