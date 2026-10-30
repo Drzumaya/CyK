@@ -669,7 +669,7 @@ if not st.session_state.flujo_finalizado:
     # =================================================================
     # PARTE 19: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
     # =================================================================
-    else:
+       else:
         st.subheader(tx["sec1"])
         resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
         resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
@@ -701,7 +701,7 @@ if not st.session_state.flujo_finalizado:
         st.subheader(tx["sec3"])
         banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
         
-                for r_id, enunciado_idioma in banco_mutado.items():
+        for r_id, enunciado_idioma in banco_mutado.items():
             st.write(f"Reactivo {r_id}: {enunciado_idioma}")
             
             etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
@@ -711,6 +711,7 @@ if not st.session_state.flujo_finalizado:
                 format_func=lambda x: etiquetas_likert.get(x, str(x)),
                 key=f"dyn_r_{r_id}"
             )
+
 
 
     # =================================================================
