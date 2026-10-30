@@ -429,12 +429,12 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                         if promedios: 
                             st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
 
-else:
-r_cols = [c for c in df_doc.columns if c.startswith("R") or c.startswith("Reactivo")]
-matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-c_mean = np.mean(matriz_r[:, 0::2]) if len(r_cols) >= 14 else 3.0
-k_mean = np.mean(matriz_r[:, 1::2]) if len(r_cols) >= 14 else 3.0
-st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
+                    else:
+                        r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
+                        matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                        c_mean = np.mean(matriz_r[:, 0::2]) if len(r_cols) >= 14 else 3.0
+                        k_mean = np.mean(matriz_r[:, 1::2]) if len(r_cols) >= 14 else 3.0
+                        st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
 with col_graph2:
 st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
 res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
