@@ -168,7 +168,7 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
 
 # =================================================================
-# PARTE 6: CONSTRUCTOR DEL FLUJO DE BYTES EXPORTABLE (PDF ENGINE)
+# PARTE 6: CONSTRUCTOR INTERNO BLINDADO DEL REPORTE (PDF ENGINE)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
@@ -205,6 +205,7 @@ pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
 pdf.set_font("Helvetica", "", 11)
 pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
 pdf.ln(5)
+# RESOLUCIÓN DEL ERROR DE INDENTACIÓN SÍNCRONA
 if es_likert:
 cronos_v = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
 kairos_v = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
@@ -422,7 +423,7 @@ st.json(res_sem)
 =================================================================
 
 
-PARTE 12: DICCIONARIO MAESTRO GEOMÉTRICO (SOPORTE POLÍGLOTA EXPANDIDO)
+PARTE 12: DICCIONARIO MAESTRO GEOMÉTRICO (SOPORTE POLÍGLOTA EXPANDED)
 
 
 =================================================================
@@ -436,10 +437,10 @@ DICCIONARIO_IDIOMAS = {
 "sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
 "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
 "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
-"sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnóstico", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
+"sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnostic", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
 "likert_labels": {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"},
 "c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
-"k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es mas importante.",
+"k_pool": "La flexibilidad para adaptar mis plans ante una ventana de oportunidad en {geo} es mas importante.",
 "mand_title": "### 🍊 Tus Gajos de Bienestar (Ecosistema)",
 "mand_subtitle": "Selecciona las alertas o debilidades críticas en tu salud integral:",
 "gajos_names": ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"],
@@ -550,8 +551,8 @@ DICCIONARIO_IDIOMAS = {
 "Portugués": {
 "ctrl": "Dados de Controle", "nombre": "Nome Completo ou ID *:", "wha": "Número de Telefone *:",
 "sec1": "Seção I. Dados Demográficos e Geográficos", "edad": "1. Idade (Anos):", "genero": "2. Gênero:",
-"nac": "3. Nacionalidade *:", "orig": "4. Estado de origem *:", "res": "5. Estado de residência actual *:",
-"pais": "4. Escreva seu País de origem *:", "cont": "5. Selecione seu Continente *:", "rol": "6. Papel dentro da Igreja:",
+"nac": "3. Nacionalidade *:", "orig": "4. Estado de origem *:", "res": "5. Estado de referência actual *:",
+"pais": "4. Escreva seu País de origem *:", "cont": "5. Selecione seu Continent *:", "rol": "6. Papel dentro da Igreja:",
 "sec2": "Seção II. Conhecimento sobre o tema", "kn1": "1. Antes desta pesquisa, você já tinha ouvido falar dos Modelos Temporais?",
 "kn2": "2. Você já leu sobre os modelos temporais Chronos e Kairos?", "kn3": "3. Você já ensinou sobre os modelos temporais?",
 "kn4": "4. O modelo temporal:", "kn5": "5. Falar de modelos temporais significa falar de:",
@@ -569,7 +570,7 @@ DICCIONARIO_IDIOMAS = {
 =================================================================
 
 
-PARTE 13: ALGORITMO DE RECONSTRUCCIÓN CONTEXTUAL COMPILADO
+PARTE 13: ALGORITMO DE RECONSTRUCCIÓN CONTEXTUAL COMPILADO SANO
 
 
 =================================================================
