@@ -631,9 +631,15 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
 # =================================================================
-# PARTE 17: DESPLIEGUE MULTILINGÜE DEL FORMULARIO PRINCIPAL
+# PARTE 17: DESPLIEGUE MULTILINGÜE DEL SELECTOR EN PANTALLA
 # =================================================================
 if not st.session_state.flujo_finalizado:
+    idioma_sel = st.selectbox(
+        "🌐 Choose System Language / Selecciona Idioma:", 
+        ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"]
+    )
+    tx = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
+    
     st.header(f"📋 {st.session_state.audiencia_activa}")
     nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
     whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
@@ -669,7 +675,7 @@ if not st.session_state.flujo_finalizado:
     # =================================================================
     # PARTE 19: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
     # =================================================================
-       else:
+    else:
         st.subheader(tx["sec1"])
         resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
         resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
@@ -703,14 +709,14 @@ if not st.session_state.flujo_finalizado:
         
         for r_id, enunciado_idioma in banco_mutado.items():
             st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+            
             etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Scale:",
-                options=[1, 2, 3, 4, 5],
+                options=,
                 format_func=lambda x: etiquetas_likert.get(x, str(x)),
                 key=f"dyn_r_{r_id}"
             )
-
 
 
 
