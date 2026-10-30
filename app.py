@@ -13,15 +13,35 @@ import hashlib
 import time
 import base64
 
-# CONFIGURACIÓN OBLIGATORIA DEL ENTRAMADO DE STREAMLIT (Primera instrucción ejecutable)
+# CONFIGURACIÓN OBLIGATORIA DEL ENTRAMADO DE STREAMLIT (Primera línea ejecutable)
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
+
 # =================================================================
-# PARTE 2: DESACTIVACIÓN SÍNCRONA DE ADVERTENCIAS GRÁFICAS DE PYPLOT
+# PARTE 2: CAPTURA PRIORITARIA DE QUERY PARAMS DE RED (GLOBALES)
+# =================================================================
+# ESTAS LÍNEAS DEBEN IR AQUÍ ARRIBA PARA ERRADICAR EL NAMEERROR de raíz:
+minuto_actual = int(time.time() // 60)
+token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
+
+token_actual = st.query_params.get("token", None)
+modo_admin_url = st.query_params.get("modo_admin", "true")
+es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+diag_tipo_url = st.query_params.get("diag_tipo", None)
+
+if "audiencia_activa" not in st.session_state:
+    st.session_state.audiencia_activa = "🍊 Salud Integral"
+
+if es_celular_del_publico and diag_tipo_url:
+    st.session_state.audiencia_activa = diag_tipo_url
+
+url_con_token = f"https://streamlit.app{token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
+
+# =================================================================
+# PARTE 2a: DESACTIVACIÓN SÍNCRONA DE ADVERTENCIAS GRÁFICAS DE PYPLOT
 # =================================================================
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-
 # =================================================================
 # PARTE 3: CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
