@@ -330,71 +330,50 @@ if not es_celular_del_publico:
             st.write("2. Responderás el formulario adaptado de forma nativa e instantánea.")
 
 
+
+# # PARTE 5: CONSOLA DE MANDO DEL PONENTE E INTERCEPTOR SECURITY
+
+st.divider()
+
+# CORRECCIÓN DE RAÍZ: Inicialización prioritaria absoluta antes de cualquier lectura condicional
+if "admin_autenticado" not in st.session_state:
+    st.session_state.admin_autenticado = False
+if "guardado_exitoso" not in st.session_state:
+    st.session_state.guardado_exitoso = False
+if "flujo_finalizado" not in st.session_state:
+    st.session_state.flujo_finalizado = False
+
 PASSWORD_CORRECTO = "mandarina2026"  
 
 if not es_celular_del_publico:
     with st.sidebar:
-        st.markdown("## 🔐 Oficina de Control del Ponente")
+        st.markdown("## 🔐 Control del Ponente")
         if not st.session_state.admin_autenticado:
             input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd")
-            if st.button("Abrir Despacho Organizacional", width="stretch"):
+            if st.button("Desbloquear Tableros", width="stretch"):
                 if input_password == PASSWORD_CORRECTO:
                     st.session_state.admin_autenticado = True
                     st.rerun()
-                else: st.error("Acceso denegado.")
+                else:
+                    st.error("Invalido")
         else:
-            st.success("Modo Doctoral Activo")
-            lista_audiencias = ["🍊 Salud Integral", "🚜 Sector Primario", "🏭 Sector Secundario", "💼 Sector Terciario", "Docentes", "Padres Primaria", "Padres Secundaria", "Padres Preparatoria", "Padres Universitario", "Estudiantes Primaria", "Estudiantes Secundaria", "Estudiantes Preparatoria", "Estudiantes Universitario", "Religioso General", "Religioso IASD"]
-            seleccion = st.selectbox("Cambiar Audiencia en Vivo:", lista_audiencias)
+            st.success("Modo Ponente Activo")
+            lista_audiencias = [
+                "🍊 Salud Integral", "🚜 Sector Primario", "🏭 Sector Secundario", "💼 Sector Terciario",
+                "Docentes", "Padres Primaria", "Padres Secundaria", "Padres Preparatoria", "Padres Universitario",
+                "Estudiantes Primaria", "Estudiantes Secundaria", "Estudiantes Preparatoria", "Estudiantes Universitario",
+                "Religioso General", "Religioso IASD"
+            ]
+            seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias)
             if seleccion != st.session_state.audiencia_activa:
                 st.session_state.audiencia_activa = seleccion
                 st.rerun()
-            if st.button("Cerrar Sesion Corporativa", width="stretch"):
+                
+            if st.button("Cerrar Sesion", width="stretch"):
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-# RENDERIZADO DEL ENTORNO DE INVESTIGACIÓN CIENTÍFICA (OFICINA PONENTE)
-if st.session_state.admin_autenticado and not es_celular_del_publico:
-    st.markdown("---")
-    st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
-    st.write("Módulo avanzado de visualización y modelado predictivo de muestras.")
-    
-    tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", [st.session_state.audiencia_activa] + ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"])
-    
-    if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
-        sheet = conectar_google_sheets(tabla_analizar)
-        if sheet:
-            records = sheet.get_all_records()
-            if records:
-                df_doc = pd.DataFrame(records)
-                st.success(f"¡Base de datos cargada! Registros analizados: {len(df_doc)}")
-                
-                es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
-                
-                col_graph1, col_graph2 = st.columns(2)
-                
-                with col_graph1:
-                    st.write("#### 📈 Distribución Descriptiva Global")
-                    if not es_tabla_likert:
-                        col_gajos = df_doc.columns[3:10]
-                        promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos}
-                        st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
-                    else:
-                        r_cols = [c for c in df_doc.columns if c.startswith("R")] or list(df_doc.columns[16:30])
-                        matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        c_mean = np.mean(matriz_r[:, 0::2]) if len(r_cols)>=14 else 3.0
-                        k_mean = np.mean(matriz_r[:, 1::2]) if len(r_cols)>=14 else 3.0
-                        st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
-                
-                with col_graph2:
-                    st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
-                    res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-                    st.json(res_sem)
-                    
-                    if "gof_r2" in res_sem and es_tabla_likert:
-                        st.info(f"**Interpretación Doctoral:** El modelo estructural de covarianza latente explica el **{res_sem['gof_r2']*100:.1f}%** del comportamiento adaptativo de la muestra de esta audiencia.")
-            else: st.warning("No hay filas registradas en esta pestaña.")
-        else: st.error("Error de enlace.")
+# Interceptor de caducidad por Token de Tiempo (Rango de 5 minutos)
 token_actual = st.query_params.get("token", None)
 acceso_bloqueado = False
 if token_actual and not st.session_state.admin_autenticado:
@@ -416,6 +395,8 @@ if token_actual and not st.session_state.admin_autenticado:
 if acceso_bloqueado:
     st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
     st.stop()
+
+
 BANCO_PREGUNTAS = {
     "Docentes": {
         1: "Planifico mis actividades académicas, proyectos de ingeniería o labores administrativas en el ITAP siguiendo estrictamente los horarios institucionales y el calendario oficial del semestre.",
