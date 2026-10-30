@@ -11,6 +11,7 @@ import time
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
+# IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
 URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
@@ -33,12 +34,11 @@ def conectar_google_sheets(nombre_pestana):
         client = gspread.service_account_from_dict(secrets_dict)
         workbook = client.open(NOMBRE_HOJA_CALCULO)
         
-        # Intenta abrir la pestaña específica de la audiencia, si no existe la crea automáticamente
+        # Abre la pestaña asignada; si no existe en tu Google Sheets, la crea automáticamente
         try:
             return workbook.worksheet(nombre_pestana)
         except gspread.exceptions.WorksheetNotFound:
-            # Crea una pestaña limpia con espacio suficiente
-            return workbook.add_worksheet(title=nombre_pestana, rows="1000", cols="20")
+            return workbook.add_worksheet(title=nombre_pestana, rows="1000", cols="35")
     except Exception:
         return None
 
@@ -47,13 +47,22 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
     if sheet:
         try:
             if es_likert:
-                # Fila estructurada para respuestas Likert de 14 reactivos
-                fila = [str(datetime.datetime.now()), nombre, whatsapp]
+                # Fila expandida con datos geográficos refinados (Incluye País de Origen)
+                fila = [
+                    str(datetime.datetime.now()), nombre, whatsapp,
+                    resultados.get("Edad", ""), resultados.get("Género", ""),
+                    resultados.get("Nacionalidad", ""), resultados.get("Estado Origen", ""),
+                    resultados.get("Estado Residencia", ""), resultados.get("País Origen", ""),
+                    resultados.get("Continente Extranjero", ""), resultados.get("Rol Iglesia", ""),
+                    resultados.get("C1_Escuchado", ""), resultados.get("C2_Leído", ""),
+                    resultados.get("C3_Enseñado", ""), resultados.get("C4_Origen", ""),
+                    resultados.get("C5_Concepto", "")
+                ]
                 for i in range(1, 15):
                     fila.append(resultados.get(f"R{i}", 3))
                 fila.append(token if token else "Acceso_Directo")
             else:
-                # Fila tradicional cuantitativa para Salud Integral
+                # Fila tradicional para el diagnóstico de Salud Integral Mandarina
                 fila = [
                     str(datetime.datetime.now()), nombre, whatsapp,
                     len(resultados.get("Salud Fisica (SF)", [])), len(resultados.get("Salud Mental (SM)", [])),
@@ -67,7 +76,6 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
         except Exception:
             return False
     return False
-
 
 
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False):
@@ -88,7 +96,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(10)
     
-    # Datos de control
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, "Participante:", new_x="RIGHT", new_y="TOP")
@@ -106,7 +113,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.ln(10)
     
     if es_likert:
-        # Cálculo analítico de vectores Cronos vs Kairos
+        # Extracción analítica e índices vectoriales para escalas de 14 ítems
         cronos_items = [resultados.get(f"R{i}", 3) for i in]
         kairos_items = [resultados.get(f"R{i}", 3) for i in]
         
@@ -135,7 +142,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             msg = "Tu perfil muestra una orientacion Kairologica relacional. Priorizas el valor humano, la adaptabilidad conceptual y la atencion inmediata a crisis emocionales o de salud mental por encima de las rigideces del reloj. Recomendacion: Cuida que la adaptabilidad flexible no diluya el cumplimiento cuantitativo de metas metricas y plazos estandares."
         pdf.multi_cell(0, 5, msg)
     else:
-        # Formato Tradicional Mandarina
+        # Formato Tradicional Mandarina original
         for dim_nombre, items in resultados.items():
             conteo = len(items)
             estado = "Sano y Pleno (0 alertas)"
@@ -162,7 +169,7 @@ modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 diag_tipo_url = st.query_params.get("diag_tipo", None)
 
-# Sincronización automática: El celular adopta estrictamente el formulario dictado por el QR del proyector
+# Sincronización automática: El celular de la audiencia acopla estrictamente el formulario dictado por el QR del proyector
 if es_celular_del_publico and diag_tipo_url:
     st.session_state.audiencia_activa = diag_tipo_url
 
@@ -183,7 +190,7 @@ if not es_celular_del_publico:
         with col2:
             st.write(f"### Audiencia Proyectada: **{st.session_state.audiencia_activa}**")
             st.write("1. Abre la cámara de tu smartphone y escanea el código.")
-            st.write("2. Responderás directamente el software nativo adaptado a tu organización.")
+            st.write("2. Responderás directamente el software nativo adaptado a tu organización sin necesidad de registros externos.")
 
 
 st.divider()
@@ -235,7 +242,6 @@ if token_actual and not st.session_state.admin_autenticado:
     if token_actual not in tokens_validos:
         acceso_bloqueado = True
     else:
-        # Revisa en la pestaña correspondiente de Google Sheets si ya se quemó el token
         sheet = conectar_google_sheets(st.session_state.audiencia_activa)
         if sheet:
             try:
@@ -251,7 +257,6 @@ if acceso_bloqueado:
     st.stop()
 
 
-# Mapeador de Baterías de Reactivos Isomorfas en formato de diseño intercalado ciego (Impares=Cronos / Pares=Kairos)
 BANCO_PREGUNTAS = {
     "Docentes": {
         1: "Planifico mis actividades académicas, proyectos de ingeniería o labores administrativas en el ITAP siguiendo estrictamente los horarios institucionales y el calendario oficial del semestre.",
@@ -279,13 +284,24 @@ BANCO_PREGUNTAS = {
         7: "Me genera una profunda incomodidad, frustración o estrés cuando incidentes en la cadena de suministros, retrasos de material o juntas improvisadas alteran la estructura planeada de mi jornada laboral.",
         8: "Confío en que las ideas innovadoras de mejora continua (Kaizen) y las soluciones eficientes a problemas de ingeniería surgen en momentos de oportunidad que no siempre coinciden con los cronogramas rígidos.",
         9: "Prefiero que los supervisores, los ingenieros de procesos y los gerentes concluyan sus juntas y auditorías ciñéndose estrictamente al tiempo asignado en la agenda oficial de operaciones.",
-        10: "When me encuentro inmerso en la resolución de una falla crítica de producción, el mantenimiento correctivo de una máquina o la optimización de un diseño, pierdo con frecuencia la noción del reloj.",
+        10: "Cuando me encuentro inmerso en la resolución de una falla crítica de producción, el mantenimiento correctivo de una máquina o la optimización de un diseño, pierdo con frecuencia la noción del reloj.",
         11: "Mido el éxito de una línea de ensamble, un proyecto de manufactura o un departamento operativo principalmente a través del cumplimiento exacto de los indicadores métricos (blancos numéricos de eficiencia).",
         12: "Prefiero que la gerencia, el departamento de Recursos Humanos y el área de seguridad ocupacional se adapten con sensibilidad a las necesidades de salud mental y el bienestar físico urgente de los operadores.",
         13: "Considero que el apego riguroso a los manuales de procedimientos estandarizados (SOP), las auditorías de calidad (como 5S o ISO) y las minutas es la clave fundamental para mantener la excelencia operativa.",
         14: "Valoro el impacto de la maquiladora por el desarrollo integral y profesional del personal, la disminución sostenible de la rotación y la preservación de la salud mental de los empleados, más que por los números de volumen manufacturado."
     }
 }
+
+ESTADOS_MEXICO = [
+    "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Ciudad de México", 
+    "Coahuila", "Colima", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", 
+    "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", 
+    "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
+]
+
+CONTINENTES = [
+    "América del Norte", "América Central / El Caribe", "América del Sur", "Europa", "Asia", "África", "Oceanía"
+]
 
 
 if not st.session_state.flujo_finalizado:
@@ -297,7 +313,7 @@ if not st.session_state.flujo_finalizado:
     resultados_totales = {}
     es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
-    # MODO A: DIAGNÓSTICO NATIVO MANDARINA (CHECKBOXES)
+    # MODO A: DIAGNÓSTICO NATIVO MANDARINA (CHECKBOXES ORIGINALES)
     if not es_modo_likert:
         st.write("Selecciona las casillas en las que requieres intervención:")
         sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
@@ -318,19 +334,62 @@ if not st.session_state.flujo_finalizado:
         spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
         resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
 
-    # MODO B: CUESTIONARIOS LIKERT DINÁMICOS POR AUDIENCIA
+
+    # MODO B: CUESTIONARIOS LIKERT DINÁMICOS CON MUTACIÓN GEOGRÁFICA ESTRICTA
     else:
-        st.write("Selecciona tu grado de acuerdo frente a cada enunciado de jornada:")
-        # Si la audiencia no tiene banco específico de preguntas, adopta el de Docentes/ITAP o Industrial como matriz base
-        banco_activo = BANCO_PREGUNTAS.get(st.session_state.audiencia_activa, BANCO_PREGUNTAS["Docentes"])
+        # ---- SECCIÓN I: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS ----
+        st.subheader("🏛️ Sección I. Datos Demográficos y Geográficos")
         
+        resultados_totales["Edad"] = st.number_input("1. Edad (Años):", min_value=10, max_value=100, value=20, key="dem_edad")
+        resultados_totales["Género"] = st.radio("2. Género:", ["Masculino", "Femenino", "Otro / Prefiero no decir"], horizontal=True, key="dem_genero")
+        
+        nacionalidad = st.radio("3. Nacionalidad *:", ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
+        resultados_totales["Nacionalidad"] = nacionalidad
+        
+        # Bifurcación síncrona según la nacionalidad seleccionada
+        if nacionalidad == "Mexicana":
+            resultados_totales["Estado Origen"] = st.selectbox("4. Estado mexicano de origen *:", [""] + ESTADOS_MEXICO, key="dem_orig")
+            resultados_totales["Estado Residencia"] = st.selectbox("5. Estado mexicano de residencia actual *:", [""] + ESTADOS_MEXICO, key="dem_res")
+            resultados_totales["País Origen"] = "México"
+            resultados_totales["Continente Extranjero"] = "América"
+        else:
+            resultados_totales["Estado Origen"] = "N/A"
+            resultados_totales["Estado Residencia"] = "N/A"
+            resultados_totales["País Origen"] = st.text_input("4. Escribe tu País de origen *:", placeholder="Ej. Colombia / España", key="dem_pais_txt")
+            resultados_totales["Continente Extranjero"] = st.selectbox("5. Selecciona tu Continente de origen *:", [""] + CONTINENTES, key="dem_cont")
+            
+        # Filtro exclusivo para audiencias del sector religioso
+        if "Religioso" in st.session_state.audiencia_activa:
+            resultados_totales["Rol Iglesia"] = st.selectbox("6. Rol dentro de la Iglesia:", ["", "Laico / Miembro", "Líder de Departamento", "Anciano de Iglesia / Diácono", "Pastor / Ministro", "Administrador / Directivo"], key="dem_rol")
+        else:
+            resultados_totales["Rol Iglesia"] = "N/A"
+
+        st.write("")
+        
+        # ---- SECCIÓN II: CONOCIMIENTO SOBRE EL TEMA ----
+        st.subheader("🧠 Sección II. Conocimiento sobre el tema")
+        st.write("Selecciona tus respuestas con base en tu experiencia previa:")
+        
+        resultados_totales["C1_Escuchado"] = st.radio("1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:", ["Sí", "No"], horizontal=True, key="kn_1")
+        resultados_totales["C2_Leído"] = st.radio("2. He leído sobre los modelos temporales Cronos y Kairos:", ["Sí", "No"], horizontal=True, key="kn_2")
+        resultados_totales["C3_Enseñado"] = st.radio("3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:", ["Sí", "No"], horizontal=True, key="kn_3")
+        resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
+        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], horizontal=True, key="kn_5")
+
+        st.write("---")
+        
+        # ---- SECCIÓN III: BATERÍA PSICOMÉTRICA DE 14 REACTIVOS LIKERT LIMPÍA ----
+        st.subheader("📊 Sección III. Batería de Reactivos Intercalados")
+        st.write("Selecciona tu grado de acuerdo frente a cada enunciado de jornada:")
+        
+        # Rutear al diccionario según la audiencia activa dictada por el Ponente
+        banco_activo = BANCO_PREGUNTAS.get(st.session_state.audiencia_activa, BANCO_PREGUNTAS["Docentes"])
         for r_id, enunciado in banco_activo.items():
-            # Inyección limpia parametrizada para el sector religioso o sub-educativos del switch
             texto_final = enunciado.replace("el ITAP", f"mi organizacion ({st.session_state.audiencia_activa})").replace("el instituto", "la institucion").replace("maquiladora", "empresa")
             st.write(f"**Reactivo {r_id}:** {texto_final}")
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Grado de alineacion:", 
-                options=,
+                options=[1, 2, 3, 4, 5],
                 format_func=lambda x: {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}[x],
                 key=f"dyn_r_{r_id}"
             )
@@ -345,10 +404,10 @@ if not st.session_state.flujo_finalizado:
     with col_btn1:
         if st.button("💾 Guardar y Procesar Diagnóstico", width="stretch", type="primary"):
             if not campos_completos: 
-                st.error("⚠️ Datos obligatorios incompletos.")
+                st.error("⚠️ Datos de control incompletos.")
             else:
                 with st.spinner("Registrando vectores temporales en la nube..."):
-                    # El sistema guarda dinámicamente segregando por el nombre de la pestaña de la audiencia activa
+                    # Segregación multi-tabla: Guarda dinámicamente usando el nombre exacto de la pestaña del sector activo
                     exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
                     if exito: 
                         st.session_state.guardado_exitoso = True
@@ -365,7 +424,7 @@ if not st.session_state.flujo_finalizado:
             def callback_finalizar():
                 st.session_state.flujo_finalizado = True
                 for k in list(st.session_state.keys()):
-                    if k.startswith(("sf_", "sm_", "se_", "ss_", "seco_", "st_", "spi_", "dyn_r_")): 
+                    if k.startswith(("sf_", "sm_", "se_", "ss_", "seco_", "st_", "spi_", "dyn_r_", "dem_", "kn_")): 
                         del st.session_state[k]
                         
             st.download_button(
@@ -379,6 +438,7 @@ if not st.session_state.flujo_finalizado:
             st.info("💡 Procesa para activar descarga.")
             
     st.caption("🔒 Tus datos están protegidos. El registro en Google Sheets se realiza de forma interna mediante tokens de seguridad validados.")
+
 
 else:
     st.balloons()
@@ -398,4 +458,3 @@ else:
             st.session_state.flujo_finalizado = False
             st.session_state.guardado_exitoso = False
             st.rerun()
-
