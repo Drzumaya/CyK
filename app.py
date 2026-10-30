@@ -804,13 +804,22 @@ def main():
     else:
         nombre = ""
         whatsapp = ""
-        tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
-        st.balloons()
-        st.success("### Process Completed! 🎉")
-        with st.container(border=True):
-            st.write(tx_final["thanks"])
-            st.markdown(tx_final["thanks_sub"])
-            st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
+        else:
+    tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
+    st.balloons()
+    st.success("### Process Completed! 🎉")
+    with st.container(border=True):
+        st.write(tx_final["thanks"])
+        st.markdown(tx_final["thanks_sub"])
+        st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
+    
+    # OJO EXPERTO: Este botón solo se renderiza si el dispositivo NO es el celular del público
+    if not es_celular_del_publico:
+        st.write("")
+        if st.button("🔄 Regresar al Diagnóstico Activo / Reset View", type="secondary"):
+            st.session_state.flujo_finalizado = False
+            st.rerun()
+
 
     if st.session_state.admin_autenticado and not es_celular_del_publico:
         st.markdown("---")
@@ -869,11 +878,51 @@ def main():
                                 else:
                                     st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
                         with col_graph2:
+                                                with col_graph2:
                             st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                             res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                             st.json(res_sem)
+                            
+                        # === INYECCIÓN QUIRÚRGICA: SISTEMA DE EXPORTACIÓN EN PDF PARA EL PONENTE ===
+                        st.markdown("---")
+                        st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
+                        
+                        # Compilamos el resumen de auditoría en memoria utilizando FPDF
+                        pdf_auditoria = FPDF()
+                        pdf_auditoria.add_page()
+                        pdf_auditoria.set_font("Helvetica", "B", 14)
+                        pdf_auditoria.set_text_color(230, 81, 0)
+                        pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
+                        pdf_auditoria.set_font("Helvetica", "", 10)
+                        pdf_auditoria.set_text_color(100, 100, 100)
+                        pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+                        pdf_auditoria.ln(5)
+                        
+                        pdf_auditoria.set_font("Helvetica", "B", 11)
+                        pdf_auditoria.set_text_color(50, 50, 50)
+                        pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
+                        pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        if es_tabla_likert:
+                            pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                            pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                            pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        bytes_auditoria = bytes(pdf_auditoria.output())
+                        
+                        st.download_button(
+                            label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
+                            data=bytes_auditoria,
+                            file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '_')}_{datetime.date.today()}.pdf",
+                            mime="application/pdf",
+                            key="btn_download_admin_pdf"
+                        )
+                            
                 except Exception as e:
                     st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
+
 
 if __name__ == "__main__":
     main()
