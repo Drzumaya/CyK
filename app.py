@@ -116,8 +116,8 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     
     if es_likert:
         # Extracción analítica e índices vectoriales para escalas de 14 ítems (Impares=Cronos, Pares=Kairos)
-        cronos_items = [resultados.get(f"R{i}", 3) for i in]
-        kairos_items = [resultados.get(f"R{i}", 3) for i in]
+        cronos_items = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
+        kairos_items = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
         
         avg_cronos = sum(cronos_items) / 7
         avg_kairos = sum(kairos_items) / 7
@@ -159,6 +159,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.ln(3)
             
     return bytes(pdf.output())
+
 
 
 
