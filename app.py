@@ -1,5 +1,5 @@
 # =================================================================
-# PARTE 1: LIBRERÍAS, IMPORTACIONES Y CAPA DE ENTORNO GLOBAL
+# PARTE 1: LIBRERÍAS E IMPORTACIONES DEL ENTORNO CORE
 # =================================================================
 import streamlit as st
 import qrcode
@@ -13,40 +13,45 @@ import hashlib
 import time
 import base64
 
-# Desactivar advertencias interactivas de pyplot globales por ejecución síncrona
+# =================================================================
+# PARTE 2: DESACTIVACIÓN SÍNCRONA DE ADVERTENCIAS GRÁFICAS DE PYPLOT
+# =================================================================
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-# Configuraciones generales y enlaces estables de la ponencia
+# =================================================================
+# PARTE 3: CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
+# =================================================================
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 # =================================================================
-# PARTE 2: CAPTURA DINÁMICA DE PARÁMETROS Y CONTROL DE RED
+# PARTE 4: CAPTURA PRIORITARIA DE QUERY PARAMS DE RED
 # =================================================================
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
-# Captura prioritaria de parámetros de consulta (Query Params)
 token_actual = st.query_params.get("token", None)
 modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 diag_tipo_url = st.query_params.get("diag_tipo", None)
 
+# =================================================================
+# PARTE 5: INICIALIZACIÓN COGNITIVA SÍNCRONA DEL SECTOR EN VIVO
+# =================================================================
 if "audiencia_activa" not in st.session_state:
     st.session_state.audiencia_activa = "🍊 Salud Integral"
 
 if es_celular_del_publico and diag_tipo_url:
     st.session_state.audiencia_activa = diag_tipo_url
 
-# Construcción unificada de la URL parametrizada del QR
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
 # =================================================================
-# PARTE 3: MOTOR DE ENLACE DE DATOS (GOOGLE SHEETS INTEGRATION)
+# PARTE 6: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS
 # =================================================================
 def conectar_google_sheets(nombre_pestana):
     try:
@@ -70,7 +75,7 @@ def conectar_google_sheets(nombre_pestana):
         return None
 
 # =================================================================
-# PARTE 4: MOTOR DE ESCRITURA Y CONTROL DE FILAS EN LA NUBE
+# PARTE 7: DESPACHO AUTOMATIZADO DE VECTORES ANALÍTICOS A LA NUBE
 # =================================================================
 def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token, es_likert=False):
     sheet = conectar_google_sheets(nombre_pestana)
@@ -106,7 +111,7 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
     return False
 
 # =================================================================
-# PARTE 5: FILTRO DE SANITIZACIÓN Y TRANSLITERACIÓN FONÉTICA PARA PDF
+# PARTE 8: SANITIZADOR POLÍGLOTA ANTI-UNICODE EXPORTABLE
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
@@ -168,7 +173,7 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
 
 # =================================================================
-# PARTE 6: CONSTRUCTOR INTERNO BLINDADO DEL REPORTE (PDF ENGINE)
+# PARTE 9: CONSTRUCTOR DE REPORTES EN FLUXO DE BYTES (CORRECCIÓN SANGRE)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
@@ -184,14 +189,13 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(0, 10, titulo_sano, new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font("Helvetica", "B", 10)
-    pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 6, f"Jacob Zumaya Prianti (c) 2026 | Language: {lang}", new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.ln(5)
-    pdf.set_draw_color(255, 152, 0)
-    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-    pdf.ln(8)
-    
-    pdf.set_text_color(50, 50, 50)
+pdf.set_text_color(100, 100, 100)
+pdf.cell(0, 6, f"Jacob Zumaya Prianti (c) 2026 | Language: {lang}", new_x="LMARGIN", new_y="NEXT", align="C")
+pdf.ln(5)
+pdf.set_draw_color(255, 152, 0)
+pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+pdf.ln(8)
+pdf.set_text_color(50, 50, 50)
 pdf.set_font("Helvetica", "B", 11)
 pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
 pdf.set_font("Helvetica", "", 11)
@@ -205,7 +209,7 @@ pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
 pdf.set_font("Helvetica", "", 11)
 pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
 pdf.ln(5)
-# RESOLUCIÓN DEL ERROR DE INDENTACIÓN SÍNCRONA
+# 4 ESPACIOS ADICIONALES DE SANGRE EN ABSOLUTAMENTE TODO EL BLOQUE INTERNO
 if es_likert:
 cronos_v = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
 kairos_v = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
@@ -251,7 +255,7 @@ return bytes(pdf.output())
 =================================================================
 
 
-PARTE 7: ALGORITMO CIENTÍFICO MATRICIAL DE COMPRESIÓN SVD (SEMDEEP V2.6)
+PARTE 10: ALGORITMO CIENTÍFICO DE PROCESAMIENTO MATRICIAL SVD
 
 
 =================================================================
@@ -299,7 +303,7 @@ return analisis
 =================================================================
 
 
-PARTE 8: MÓDULO DE EMISIÓN DE ACCESOS SECURE (CÓDIGOS QR)
+PARTE 11: MÓDULO DE EMISIÓN DE CÓDIGOS QR AL AUDITORIO
 
 
 =================================================================
@@ -323,7 +327,7 @@ st.write("2. Responderás directamente el software nativo adaptado a tu organiza
 =================================================================
 
 
-PARTE 9: CERCADO DE AUTENTICACIÓN Y ENLACES (SIDEBAR MANDARINA)
+PARTE 12: CONSOLA DE MANDO DE SEGURIDAD (SIDEBAR PONENTE)
 
 
 =================================================================
@@ -358,7 +362,7 @@ st.rerun()
 =================================================================
 
 
-PARTE 10: INTERCEPTOR DE EXPIRACIÓN TEMPORAL DE ACCESO DIRECTO
+PARTE 13: INTERCEPTOR DE ACCESOS DIRECTOS CADUCADOS
 
 
 =================================================================
@@ -384,7 +388,7 @@ st.stop()
 =================================================================
 
 
-PARTE 11: TABLEROS ANALÍTICOS AVANZADOS (RESEARCH OFFICE)
+PARTE 14: OFICINA DE ALTA AUDITORÍA ESTADÍSTICA (RESEARCH PANEL)
 
 
 =================================================================
@@ -423,7 +427,7 @@ st.json(res_sem)
 =================================================================
 
 
-PARTE 12: DICCIONARIO MAESTRO GEOMÉTRICO (SOPORTE POLÍGLOTA EXPANDED)
+PARTE 15: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA
 
 
 =================================================================
@@ -551,8 +555,8 @@ DICCIONARIO_IDIOMAS = {
 "Portugués": {
 "ctrl": "Dados de Controle", "nombre": "Nome Completo ou ID *:", "wha": "Número de Telefone *:",
 "sec1": "Seção I. Dados Demográficos e Geográficos", "edad": "1. Idade (Anos):", "genero": "2. Gênero:",
-"nac": "3. Nacionalidade *:", "orig": "4. Estado de origem *:", "res": "5. Estado de referência actual *:",
-"pais": "4. Escreva seu País de origem *:", "cont": "5. Selecione seu Continent *:", "rol": "6. Papel dentro da Igreja:",
+"nac": "3. Nacionalidade *:", "orig": "4. Estado de origem *:", "res": "5. Estado de residência actual *:",
+"pais": "4. Escreva seu País de origem *:", "cont": "5. Selecione seu Continente *:", "rol": "6. Papel dentro da Igreja:",
 "sec2": "Seção II. Conhecimento sobre o tema", "kn1": "1. Antes desta pesquisa, você já tinha ouvido falar dos Modelos Temporais?",
 "kn2": "2. Você já leu sobre os modelos temporais Chronos e Kairos?", "kn3": "3. Você já ensinou sobre os modelos temporais?",
 "kn4": "4. O modelo temporal:", "kn5": "5. Falar de modelos temporais significa falar de:",
@@ -570,7 +574,7 @@ DICCIONARIO_IDIOMAS = {
 =================================================================
 
 
-PARTE 13: ALGORITMO DE RECONSTRUCCIÓN CONTEXTUAL COMPILADO SANO
+PARTE 16: ALGORITMO POLÍGLOTA CON EXTRACTO DE SANGRE REGULARIZADA
 
 
 =================================================================
@@ -591,7 +595,7 @@ CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
 =================================================================
 
 
-PARTE 14: INTERFAZ EN VIVO (GAJOS GENERATIVOS TRADUCIDOS 100%)
+PARTE 17: DESPLIEGUE MULTILINGÜE DEL SELECTOR EN PANTALLA
 
 
 =================================================================
@@ -605,6 +609,15 @@ whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
 st.divider()
 resultados_totales = {}
 es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
+
+=================================================================
+
+
+PARTE 18: RENDERIZACIÓN ISOMÓRFICA DE LOS 7 GAJOS TRADUCIDOS
+
+
+=================================================================
+
 if not es_modo_likert:
 st.write(tx["mand_title"])
 st.write(tx["mand_subtitle"])
@@ -626,7 +639,7 @@ st.success("OK. Context synchronized.")
 =================================================================
 
 
-PARTE 15: DESPLIEGUE PSICOMÉTRICO ADAPTATIVO Y GENERACIÓN DE REPORTE BINARIO
+PARTE 19: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
 
 
 =================================================================
@@ -660,12 +673,22 @@ st.subheader(tx["sec3"])
 banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
 for r_id, enunciado_idioma in banco_mutado.items():
 st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+# RENDER DE OPCIONES NUMÉRICAS REPARADO DE FORMA ABSOLUTA
 resultados_totales[f"R{r_id}"] = st.radio(
 "Scale:",
 options=[1, 2, 3, 4, 5],
 format_func=lambda x: tx["likert_labels"][x],
 key=f"dyn_r_{r_id}"
 )
+
+=================================================================
+
+
+PARTE 20: COMPILACIÓN CIENTÍFICA MATPLOTLIB Y REINICIO GLOBAL
+
+
+=================================================================
+
 st.divider()
 col_btn1, col_btn2 = st.columns(2)
 campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
