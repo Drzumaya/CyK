@@ -41,6 +41,8 @@ if es_celular_del_publico and diag_tipo_url:
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
+
+
 def conectar_google_sheets(nombre_pestana):
     try:
         if "gcp_service_account" not in st.secrets:
@@ -94,10 +96,11 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
         except Exception:
             return False
     return False
+
+
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
     
-    # Matriz Analítica de Transliteración y Romanización Fonética Internacional para FPDF (Latin-1 Core)
     diccionario_pdf = {
         "Español": {
             "rep": "REPORTE DIAGNOSTICO DE MODELOS TEMPORALES", "part": "Participante:", "cont": "Contacto/WhatsApp:",
@@ -128,26 +131,6 @@ def limpiar_texto_pdf(texto, idioma="Español"):
             "rep": "DIAGNOSTISCHER BERICHT ZEITMODELLE", "part": "Teilnehmer:", "cont": "Kontakt/WhatsApp:",
             "fecha": "Ausstellungsdatum:", "vec": "ADAPTIVE CHRONOS UND KAIROS VEKTOREN", "perf_s": "Ausgeglichene Zeit-Symbiose (C&K)",
             "perf_c": "Chronozentrisches Profil (Rigide)", "perf_k": "Kairotisches Profil (Adaptiv)"
-        },
-        "Italiano": {
-            "rep": "RAPPORTO DIAGNOSTICO MODELLI TEMPORALI", "part": "Partecipante:", "cont": "Contatto/WhatsApp:",
-            "fecha": "Data di Emissione:", "vec": "VETTORI CRONOS E KAIROS ADATTIVI", "perf_s": "Profilo di Simbiosi Temporale Bilanciata (C&K)",
-            "perf_c": "Profilo Cronocentrico Puro (Rigido)", "perf_k": "Profilo Kairotico Puro (Adattivo)"
-        },
-        "Portugués": {
-            "rep": "RELATORIO DIAGNOSTICO DE MODELOS TEMPORAIS", "part": "Participante:", "cont": "Contato/WhatsApp:",
-            "fecha": "Data de Emissao:", "vec": "VETTORES CRONOS E KAIROS ADAPTATIVOS", "perf_s": "Perfil de Simbiose Temporal Equilibrada (C&K)",
-            "perf_c": "Perfil Cronocentrico Puro (Rigido)", "perf_k": "Perfil Kairotico Puro (Adaptativo)"
-        },
-        "Ruso": {
-            "rep": "DIAGNOSTICHESKIY OTCHET: VREMENNYE MODELI", "part": "Uchastnik:", "cont": "Kontakt/WhatsApp:",
-            "fecha": "Data Vydachi:", "vec": "ADAPTIVNYE VEKTORY CRONOS I KAIROS", "perf_s": "Sbalansirovanniy Simbioz Vremeni (C&K)",
-            "perf_c": "Hronocentricheskiy Profil (Rigid)", "perf_k": "Kairoticheskiy Profil (Adaptive)"
-        },
-        "Árabe": {
-            "rep": "TAQRIR TASHKHISI LIL-NAWAZIL AL-ZAMANIYYA", "part": "Al-Musharik:", "cont": "Al-Ittisal:",
-            "fecha": "Tarikh Al-Isdar:", "vec": "MUTAWAJJIHAT CRONOS WA KAIROS", "perf_s": "Takaful Zamani Mutawazin (C&K)",
-            "perf_c": "Al-Nizam Al-Rigid (Cronos)", "perf_k": "Al-Nizam Al-Marun (Kairos)"
         }
     }
     
@@ -248,6 +231,8 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
             
     return bytes(pdf.output())
+
+
 def ejecutar_analisis_semdeep(df, es_likert=False):
     analisis = {}
     if len(df) < 5:
@@ -287,6 +272,8 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
+
+
 if not es_celular_del_publico:
     with st.expander("📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", expanded=True):
         col1, col2 = st.columns([1, 1.5])
@@ -302,6 +289,8 @@ if not es_celular_del_publico:
             st.write(f"### Audiencia Proyectada en Vivo: **{st.session_state.audiencia_activa}**")
             st.write("1. Enfoca el código QR con la cámara de tu smartphone.")
             st.write("2. Responderás directamente el software nativo adaptado a tu organización sin necesidad de registros externos.")
+
+
 if "admin_autenticado" not in st.session_state:
     st.session_state.admin_autenticado = False
 if "guardado_exitoso" not in st.session_state:
@@ -352,6 +341,8 @@ else: acceso_bloqueado = False
 if acceso_bloqueado:
     st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
     st.stop()
+
+
 if st.session_state.admin_autenticado and not es_celular_del_publico:
     st.markdown("---")
     st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
@@ -386,6 +377,8 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                     st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
+
+
 DICCIONARIO_IDIOMAS = {
     "Español": {
         "ctrl": "Datos de Control", "nombre": "Nombre Completo o Matrícula *:", "wha": "Número Telefónico de Enlace *:",
@@ -432,7 +425,7 @@ DICCIONARIO_IDIOMAS = {
         "nac": "3. Υπηκοότητα *:", "orig": "4. Πολιτεία Καταγωγής *:", "res": "5. Πολιτεία Διαμονής *:",
         "pais": "4. Εισάγετε τη Χώρα Καταγωγής σας *:", "cont": "5. Επιλέξτε την Ήπειρο Καταγωγής σας *:", "rol": "6. Ρόλος μέσα στην Εκκλησία:",
         "sec2": "Ενότητα ΙΙ. Γνώση επί του Θέματος", "kn1": "1. Πριν από αυτήν την έρευνα, είχατε ακούσει για τα Χρονικά Μοντέλα Κρόνος και Καιρός;",
-        "kn2": "2. Έχετε διαβάσει για τα χρονικά μοντέла Κρόνος και Καιρός;", "kn3": "3. Έχετε διδάξει ποτέ για τα χρονικά μοντέλα Κρόνος και Καιρός;",
+        "kn2": "2. Έχετε διαβάσει για τα χρονικά μοντέλα Κρόνος και Καιρός;", "kn3": "3. Έχετε διδάξει ποτέ για τα χρονικά μοντέλα Κρόνος και Καιρός;",
         "kn4": "4. Το χρονικό μοντέλο είναι:", "kn5": "5. Μιλώντας για χρονικά μοντέλα σημαίνει μιλώντας για:",
         "sec3": "Ενότητα ΙΙΙ. Κλίμακα Likert", "btn_save": "💾 Αποθήκευση & Επεξεργασία Διάγνωσης", "btn_pdf": "ΛΗΨΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ PDF 📥",
         "likert_labels": {1:"1 - Διαφωνώ απόλυτα", 2:"2 - Διαφωνώ", 3:"3 - Ουδέτερο", 4:"4 - Συμφωνώ", 5:"5 - Συμφωνώ απόλυτα"},
@@ -481,8 +474,9 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
+
+
 if not st.session_state.flujo_finalizado:
-    # 1. SELECTOR EN TIEMPO REAL CON TODOS LOS IDIOMAS EXIGIDOS E INDUSTRIALES
     idioma_sel = st.selectbox("🌐 Choose System Language / Selecciona Idioma:", ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán"])
     tx = DICCIONARIO_IDIOMAS[idioma_sel]
     
@@ -521,6 +515,8 @@ if not st.session_state.flujo_finalizado:
         if st.button("Procesar Alertas Base / Register Aler"):
             st.session_state.alertas_mandarina_previas = resultados_totales["Salud Fisica (SF)"] + resultados_totales["Salud Mental (SM)"]
             st.success("OK. Context synchronized.")
+
+
     else:
         st.subheader(tx["sec1"])
         resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
@@ -552,16 +548,18 @@ if not st.session_state.flujo_finalizado:
 
         st.subheader(tx["sec3"])
         
-        # MUTACIÓN EN TIEMPO REAL: Reconstrucción y renderizado políglota alternado síncrono
         banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
         
         for r_id, enunciado_idioma in banco_mutado.items():
             st.write(f"**Reactivo {r_id}:** {enunciado_idioma}")
+            # ARREGLO CONFIRMADO: Se inyectó el array explícito [1, 2, 3, 4, 5]
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Scale:", options=,
+                "Scale:", options=[1, 2, 3, 4, 5],
                 format_func=lambda x: tx["likert_labels"][x],
                 key=f"dyn_r_{r_id}"
             )
+
+
     st.divider()
     col_btn1, col_btn2 = st.columns(2)
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
@@ -593,7 +591,6 @@ if not st.session_state.flujo_finalizado:
                     plt.close(fig)
                 except Exception: pass
             
-            # INYECCIÓN SÍNCRONA: Construcción del PDF parametrizado con el idioma seleccionado
             reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
             nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
             
@@ -610,6 +607,8 @@ if not st.session_state.flujo_finalizado:
                 on_click=callback_finalizar
             )
         else: st.info("💡 Process fields.")
+
+
 else:
     st.balloons()
     st.success("### Process Completed! 🎉")
