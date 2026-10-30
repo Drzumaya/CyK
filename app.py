@@ -436,7 +436,7 @@ DICCIONARIO_IDIOMAS = {
 "sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
 "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
 "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
-"sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnostic", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
+"sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnóstico", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
 "likert_labels": {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"},
 "c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
 "k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es mas importante.",
@@ -493,7 +493,7 @@ DICCIONARIO_IDIOMAS = {
 "k_pool": "Η ευελιξία να προσαρμόζω τα πλάνα μου μπροστά σε μια ευκαιρία στο {geo} είναι πιο σημαντική.",
 "mand_title": "### 🍊 Τα Κομμάτια της Ευεξίας σας",
 "mand_subtitle": "Επιλέξτε τις κρίσιμες προειδοποιήσεις ή αδυναμίες στην ολιστική σας υγεία:",
-"gajos_names": ["💪 Φυσική Υγεία", "🧠 Ψυχική Υγεία", "❤️ Συναισθηματική Υγεία", "💰 Οικονομική Υγεία", "💰 Οικονομική Υγεία", "⏳ Χρονική Υγεία", "🙏 Πνευματική Υγεία"],
+"gajos_names": ["💪 Φυσική Υγεία", "🧠 Ψυχική Υγεία", "❤️ Συναισθηματική Υγεία", "👥 Κοινωνική Υγεία", "💰 Οικονομική Υγεία", "⏳ Χρονική Υγεία", "🙏 Πνευματική Υγεία"],
 "fugas_base": ["Κακή Διατροφή", "Έλλειψη Ύπνου", "Καθιστική Ζωή", "Σωματική Κόπωση"]
 },
 "Francés": {
@@ -501,7 +501,7 @@ DICCIONARIO_IDIOMAS = {
 "sec1": "Section I. Données Démographiques et Géographiques", "edad": "1. Âge (Ans):", "genero": "2. Genre:",
 "nac": "3. Nationalité *:", "orig": "4. État d'origine *:", "res": "5. État de résidence actuelle *:",
 "pais": "4. Écrivez votre Pays d'origine *:", "cont": "5. Sélectionnez votre Continent d'origine *:", "rol": "6. Rôle au sein de l'Église:",
-"sec2": "Section II. Connaissance du sujet", "kn1": "1. Avant cette enquête, aviez-vous entendu parler des Modèles Temporels Chronos et Kairos?",
+"sec2": "Section II. Connaissance du sujet", "kn1": "1. Avant esta enquête, aviez-vous entendu parler des Modèles Temporels Chronos et Kairos?",
 "kn2": "2. Avez-vous lu sur les modèles temporels Chronos et Kairos?", "kn3": "3. Avez-vous déjà enseigné les modèles temporels Chronos et Kairos?",
 "kn4": "4. Le modelo temporel:", "kn5": "5. Parler de modèles temporels, c'est parler de:",
 "sec3": "Section III. Échelle de Réactifs Likert", "btn_save": "💾 Enregistrer et Traiter le Diagnostic", "btn_pdf": "TÉLÉCHARGER LES RÉSULTATS EN PDF 📥",
@@ -714,4 +714,3 @@ with st.container(border=True):
 st.write("## 🍊 ¡Muchas gracias por tu participación!")
 st.markdown(f"Has completado el diagnóstico. Reconocer nuestros vectores temporales es el inicio de una alta madurez.")
 st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
-
