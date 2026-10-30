@@ -705,18 +705,24 @@ if not st.session_state.flujo_finalizado:
         resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
         
         st.subheader(tx["sec3"])
+                # 8 Espacios desde el margen izquierdo
+        st.subheader(tx["sec3"])
         banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
         
-            for r_id, enunciado_idioma in banco_mutado.items():
-                 st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+        # 8 Espacios exactos (Alineación perfecta con la variable de arriba)
+        for r_id, enunciado_idioma in banco_mutado.items():
+            # 12 Espacios (Primer nivel interno del bucle for)
+            st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+            etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
             
-                 etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
-                resultados_totales[f"R{r_id}"] = st.radio(
+            # 12 Espacios para la asignación del componente
+            resultados_totales[f"R{r_id}"] = st.radio(
                 "Scale:",
-                options=[1, 2, 3, 4, 5],
+                options=[1, 2, 3, 4, 5], # 16 Espacios para los parámetros internos
                 format_func=lambda x: etiquetas_likert.get(x, str(x)),
                 key=f"dyn_r_{r_id}"
             )
+
 
 
     # =================================================================
