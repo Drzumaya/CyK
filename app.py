@@ -66,9 +66,15 @@ DICCIONARIO_IDIOMAS = {
         "likert_labels": {1: "1 - Totalmente en desacuerdo", 2: "2 - En desacuerdo", 3: "3 - Neutral", 4: "4 - De acuerdo", 5: "5 - Totalmente de acuerdo"},
         "c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
         "k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es más importante.",
-        "mand_title": "### 🍊 Tus Gajos de Bienestar (Ecosistema)", "mand_subtitle": "Selecciona las alertas o debilidades críticas en tu salud integral:",
-        "gajos_names": ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"],
-        "fugas_base": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
+         "mand_title": "### 🍊 Tus Gajos de Bienestar (Ecosistema)",
+        "mand_subtitle": "Selecciona las alertas o debilidades críticas en tu salud integral:",
+        "gajos_data": {
+            "💪 Salud Física": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
+            "🧠 Salud Mental": ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"],
+            "❤️ Salud Emocional": ["Ansiedad o Estrés Agudo", "Irritabilidad Reactiva", "Desmotivación General", "Inestabilidad Anímica"],
+            "👥 Salud Social": ["Aislamiento Voluntario", "Conflictos Interpersonales", "Falta de Red de Apoyo", "Falta de Límites Sanos"],
+            "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
+        }
         "err_fields": "Por favor llena los campos obligatorios.", "proc": "Procesando datos...", "local_ok": "Cargado Localmente (Sin Red)",
         "fields_msg": "💡 Complete los campos para habilitar la descarga.", "thanks": "## 🍊 ¡Muchas gracias por tu participación!",
         "thanks_sub": "Has completado el diagnóstico. Reconocer nuestros vectores temporales es el inicio de una alta madurez.",
@@ -87,9 +93,17 @@ DICCIONARIO_IDIOMAS = {
         "likert_labels": {1: "1 - Strongly Disagree", 2: "2 - Disagree", 3: "3 - Neutral", 4: "4 - Agree", 5: "5 - Strongly Agree"},
         "c_pool": "I plan my operational activities in {geo} strictly following the clock schedule.",
         "k_pool": "Flexibility to adapt plans before an opportunity window in {geo} is much more important than the clock.",
-        "mand_title": "### 🍊 Your Slices of Wellbeing", "mand_subtitle": "Select the critical alerts or weaknesses in your holistic health:",
-        "gajos_names": ["💪 Physical Health", "🧠 Mental Health", "❤️ Emotional Health", "👥 Social Health", "💰 Financial Health", "⏳ Temporal Health", "🙏 Spiritual Health"],
-        "fugas_base": ["Poor Nutrition", "Lack of Sleep/Insomnia", "Chronic Sedentarism", "Body Fatigue"],
+        "mand_title": "### 🍊 Your Slices of Wellbeing",
+        "mand_subtitle": "Select the critical alerts or weaknesses in your holistic health:",
+        "gajos_data": {
+            "💪 Physical Health": ["Poor Nutrition", "Lack of Sleep/Insomnia", "Chronic Sedentarism", "Body Fatigue"],
+            "🧠 Mental Health": ["Brain Fog/Lack of Focus", "Rumination/Overthinking", "Information Overload", "Cognitive Apathy"],
+            "❤️ Emotional Health": ["Acute Anxiety/Stress", "Reactive Irritability", "General Demotivation", "Mood Instability"],
+            "👥 Social Health": ["Voluntary Isolation", "Interpersonal Conflicts", "Lack of Support Network", "Weak Boundaries"],
+            "💰 Financial Health": ["Compulsive Spending", "Overwhelming Debt", "Lack of Emergency Fund", "Financial Anxiety"],
+            "⏳ Temporal Health": ["Chronic Procrastination", "Burnout/Overwork", "Perpetual Tardiness", "Lack of Margin/Rest"],
+            "🙏 Spiritual Health": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Loss of Meaning"]
+        }
         "err_fields": "Please fill in all required fields.", "proc": "Processing analytics...", "local_ok": "Stored Locally (Offline Mode)",
         "fields_msg": "💡 Complete fields to activate your secure download.", "thanks": "## 🍊 Thank you very much for your participation!",
         "thanks_sub": "You have completed the diagnostic profile. Recognizing temporal vectors marks the threshold of adaptive maturity.",
@@ -565,31 +579,35 @@ if not st.session_state.flujo_finalizado:
     resultados_totales = {}
     es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
-# =================================================================
-# PARTE 18: RENDERIZACIÓN ISOMÓRFICA DE LOS 7 GAJOS TRADUCIDOS
-# =================================================================
+    # =================================================================
+    # PARTE 18: RENDERIZACIÓN ISOMÓRFICA DE LOS 7 GAJOS TRADUCIDOS
+    # =================================================================
     if not es_modo_likert:
         st.write(tx["mand_title"])
         st.write(tx["mand_subtitle"])
         
-        for g_idx, g_name in enumerate(tx["gajos_names"]):
+        # Recuperamos la matriz expandida de gajos y fugas del idioma actual
+        gajos_dinamicos = tx.get("gajos_data", DICCIONARIO_IDIOMAS["Español"]["gajos_data"])
+        
+        for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
             with st.container(border=True):
                 st.markdown(f"#### {g_name}")
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    # Se asigna explícitamente un ítem único de la lista por casilla
-                    cb0 = st.checkbox(tx["fugas_base"][0], key=f"cb_{g_idx}_0")
-                    cb1 = st.checkbox(tx["fugas_base"][1], key=f"cb_{g_idx}_1")
+                    cb0 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_0")
+                    cb1 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_1")
                 with col2:
-                    cb2 = st.checkbox(tx["fugas_base"][2], key=f"cb_{g_idx}_2")
-                    cb3 = st.checkbox(tx["fugas_base"][3], key=f"cb_{g_idx}_3")
+                    cb2 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_2")
+                    cb3 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_3")
                     
-                resultados_totales[g_name] = [tx["fugas_base"][i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
+                # Guardamos los textos seleccionados de forma atómica para esta dimensión
+                resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                 
         if st.button("Procesar Alertas Base / Register Alerts"):
             st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
             st.success("OK. Context synchronized.")
+
     else:
         st.subheader(tx["sec1"])
         resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
