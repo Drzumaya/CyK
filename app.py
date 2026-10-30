@@ -208,6 +208,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
+    # AQUÍ ESTABA EL ERROR: Todo el bloque interno lleva ahora 8 espacios exactos de indentación
     if es_likert:
         cronos_v = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
         kairos_v = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
@@ -255,6 +256,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
             
     return bytes(pdf.output())
+
 # =================================================================
 # PARTE 10: ALGORITMO CIENTÍFICO DE PROCESAMIENTO MATRICIAL SVD
 # =================================================================
