@@ -173,7 +173,7 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
 
 # =================================================================
-# PARTE 9: CONSTRUCTOR DE REPORTES EN FLUXO DE BYTES (CORRECCIÓN SANGRE)
+# PARTE 9: CONSTRUCTOR DE REPORTES EN FLUJO DE BYTES (CORRECCIÓN SANGRE)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
@@ -209,7 +209,7 @@ pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
 pdf.set_font("Helvetica", "", 11)
 pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
 pdf.ln(5)
-# 4 ESPACIOS ADICIONALES DE SANGRE EN ABSOLUTAMENTE TODO EL BLOQUE INTERNO
+# INDENTACIÓN REESTRUCTURADA: Bloque en línea y alineado al condicional maestro
 if es_likert:
 cronos_v = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
 kairos_v = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
@@ -673,7 +673,7 @@ st.subheader(tx["sec3"])
 banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
 for r_id, enunciado_idioma in banco_mutado.items():
 st.write(f"Reactivo {r_id}: {enunciado_idioma}")
-# RENDER DE OPCIONES NUMÉRICAS REPARADO DE FORMA ABSOLUTA
+# ARREGLO CORRECTO DE ESCALA LIKERT: Inyección explícita del rango numérico
 resultados_totales[f"R{r_id}"] = st.radio(
 "Scale:",
 options=[1, 2, 3, 4, 5],
