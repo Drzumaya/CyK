@@ -1,3 +1,6 @@
+# =================================================================
+# PARTE 1: LIBRERÍAS, IMPORTACIONES Y CAPA DE ENTORNO GLOBAL
+# =================================================================
 import streamlit as st
 import qrcode
 from io import BytesIO
@@ -10,16 +13,18 @@ import hashlib
 import time
 import base64
 
-# =================================================================
-# CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
-# =================================================================
+# Desactivar advertencias interactivas de pyplot globales por ejecución síncrona
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+
+# Configuraciones generales y enlaces estables de la ponencia
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
-
-
-# Inicialización síncrona y global de tokens y variables de red prioritarias
+# =================================================================
+# PARTE 2: CAPTURA DINÁMICA DE PARÁMETROS Y CONTROL DE RED
+# =================================================================
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
@@ -38,7 +43,11 @@ if es_celular_del_publico and diag_tipo_url:
 # Construcción unificada de la URL parametrizada del QR
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
+st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
+# =================================================================
+# PARTE 3: MOTOR DE ENLACE DE DATOS (GOOGLE SHEETS INTEGRATION)
+# =================================================================
 def conectar_google_sheets(nombre_pestana):
     try:
         if "gcp_service_account" not in st.secrets:
@@ -60,7 +69,9 @@ def conectar_google_sheets(nombre_pestana):
     except Exception:
         return None
 
-
+# =================================================================
+# PARTE 4: MOTOR DE ESCRITURA Y CONTROL DE FILAS EN LA NUBE
+# =================================================================
 def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token, es_likert=False):
     sheet = conectar_google_sheets(nombre_pestana)
     if sheet:
@@ -94,7 +105,9 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
             return False
     return False
 
-
+# =================================================================
+# PARTE 5: FILTRO DE SANITIZACIÓN Y TRANSLITERACIÓN FONÉTICA PARA PDF
+# =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
     
@@ -154,7 +167,9 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     texto_sano = "".join(reemplazos.get(c, c) for c in txt_str)
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
 
-
+# =================================================================
+# PARTE 6: CONSTRUCTOR DEL FLUJO DE BYTES EXPORTABLE (PDF ENGINE)
+# =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
     pdf.add_page()
@@ -177,313 +192,337 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.ln(8)
     
     pdf.set_text_color(50, 50, 50)
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, nombre_sano if nombre_sano else "Anonimo", new_x="LMARGIN", new_y="NEXT")
-    
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, limpiar_texto_pdf("cont", lang), new_x="RIGHT", new_y="TOP")
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, whatsapp_sano if whatsapp_sano else "N/A", new_x="LMARGIN", new_y="NEXT")
-    
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(5)
-    
-    if es_likert:
-        cronos_v = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
-        kairos_v = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
-        avg_cronos = sum(cronos_v) / 7
-        avg_kairos = sum(kairos_v) / 7
-        
-        pdf.set_font("Helvetica", "B", 12)
-        pdf.set_text_color(230, 81, 0)
-        pdf.cell(0, 8, limpiar_texto_pdf("vec", lang), new_x="LMARGIN", new_y="NEXT")
-        pdf.ln(2)
-        
-        if img_grafica_base64:
-            try:
-                img_clean = img_grafica_base64.split(",")[-1]
-                img_data = BytesIO(base64.b64decode(img_clean))
-                pdf.image(img_data, x=60, w=90)
-                pdf.ln(4)
-            except Exception: pass
-            
-        pdf.set_font("Helvetica", "", 11)
-        pdf.cell(0, 6, f"- CRONOS SCORE: {avg_cronos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
-        pdf.cell(0, 6, f"- KAIROS SCORE: {avg_kairos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
-        pdf.ln(4)
-        
-        diferencia = abs(avg_cronos - avg_kairos)
-        pdf.set_font("Helvetica", "B", 11)
-        if diferencia <= 0.4:
-            pdf.set_text_color(38, 166, 91)
-            pdf.cell(0, 6, limpiar_texto_pdf("perf_s", lang), new_x="LMARGIN", new_y="NEXT")
-        elif avg_kairos > avg_cronos:
-            pdf.set_text_color(30, 139, 195)
-            pdf.cell(0, 6, limpiar_texto_pdf("perf_k", lang), new_x="LMARGIN", new_y="NEXT")
-        else:
-            pdf.set_text_color(217, 30, 24)
-            pdf.cell(0, 6, limpiar_texto_pdf("perf_c", lang), new_x="LMARGIN", new_y="NEXT")
-    else:
-        for dim_nombre, items in resultados.items():
-            pdf.set_font("Helvetica", "B", 11)
-            pdf.set_text_color(230, 81, 0)
-            pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
-            puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if len(items) > 0 else "OK"
-            pdf.set_font("Helvetica", "", 10)
-            pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
-            
-    return bytes(pdf.output())
+pdf.set_font("Helvetica", "B", 11)
+pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
+pdf.set_font("Helvetica", "", 11)
+pdf.cell(0, 6, nombre_sano if nombre_sano else "Anonimo", new_x="LMARGIN", new_y="NEXT")
+pdf.set_font("Helvetica", "B", 11)
+pdf.cell(45, 6, limpiar_texto_pdf("cont", lang), new_x="RIGHT", new_y="TOP")
+pdf.set_font("Helvetica", "", 11)
+pdf.cell(0, 6, whatsapp_sano if whatsapp_sano else "N/A", new_x="LMARGIN", new_y="NEXT")
+pdf.set_font("Helvetica", "B", 11)
+pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
+pdf.set_font("Helvetica", "", 11)
+pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
+pdf.ln(5)
+if es_likert:
+cronos_v = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
+kairos_v = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
+avg_cronos = sum(cronos_v) / 7
+avg_kairos = sum(kairos_v) / 7
+pdf.set_font("Helvetica", "B", 12)
+pdf.set_text_color(230, 81, 0)
+pdf.cell(0, 8, limpiar_texto_pdf("vec", lang), new_x="LMARGIN", new_y="NEXT")
+pdf.ln(2)
+if img_grafica_base64:
+try:
+img_clean = img_grafica_base64.split(",")[-1]
+img_data = BytesIO(base64.b64decode(img_clean))
+pdf.image(img_data, x=60, w=90)
+pdf.ln(4)
+except Exception: pass
+pdf.set_font("Helvetica", "", 11)
+pdf.cell(0, 6, f"- CRONOS SCORE: {avg_cronos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
+pdf.cell(0, 6, f"- KAIROS SCORE: {avg_kairos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
+pdf.ln(4)
+diferencia = abs(avg_cronos - avg_kairos)
+pdf.set_font("Helvetica", "B", 11)
+if diferencia <= 0.4:
+pdf.set_text_color(38, 166, 91)
+pdf.cell(0, 6, limpiar_texto_pdf("perf_s", lang), new_x="LMARGIN", new_y="NEXT")
+elif avg_kairos > avg_cronos:
+pdf.set_text_color(30, 139, 195)
+pdf.cell(0, 6, limpiar_texto_pdf("perf_k", lang), new_x="LMARGIN", new_y="NEXT")
+else:
+pdf.set_text_color(217, 30, 24)
+pdf.cell(0, 6, limpiar_texto_pdf("perf_c", lang), new_x="LMARGIN", new_y="NEXT")
+else:
+for dim_nombre, items in resultados.items():
+pdf.set_font("Helvetica", "B", 11)
+pdf.set_text_color(230, 81, 0)
+pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
+puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if len(items) > 0 else "OK"
+pdf.set_font("Helvetica", "", 10)
+pdf.set_text_color(50, 50, 50)
+pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
+return bytes(pdf.output())
 
+=================================================================
+
+
+PARTE 7: ALGORITMO CIENTÍFICO MATRICIAL DE COMPRESIÓN SVD (SEMDEEP V2.6)
+
+
+=================================================================
 
 def ejecutar_analisis_semdeep(df, es_likert=False):
-    analisis = {}
-    if len(df) < 5:
-        analisis["status"] = "Muestra insuficiente para convergencia estructural (Mínimo 5 registros)."
-        return analisis
-    try:
-        if es_likert:
-            columnas_r = [c for c in df.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-            if len(columnas_r) < 14: columnas_r = list(df.columns[16:30])
-            matriz_datos = df[columnas_r].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-            cronos_data = matriz_datos[:, 0::2]
-            kairos_data = matriz_datos[:, 1::2]
-            c_centered = cronos_data - np.mean(cronos_data, axis=0)
-            k_centered = kairos_data - np.mean(kairos_data, axis=0)
-            _, _, V_c = np.linalg.svd(c_centered, full_matrices=False)
-            _, _, V_k = np.linalg.svd(k_centered, full_matrices=False)
-            latent_cronos = c_centered @ V_c[0, :]
-            latent_kairos = k_centered @ V_k[0, :]
-            impacto_data = matriz_datos[:, 12:14]
-            i_centered = impacto_data - np.mean(impacto_data, axis=0)
-            _, _, V_i = np.linalg.svd(i_centered, full_matrices=False)
-            latent_impacto = i_centered @ V_i[0, :]
-            X = np.vstack([latent_cronos, latent_kairos]).T
-            beta = np.linalg.pinv(X.T @ X) @ X.T @ latent_impacto
-            r_cuadrado = 1 - (np.sum((latent_impacto - X @ beta) ** 2) / np.sum((latent_impacto - np.mean(latent_impacto)) ** 2))
-            analisis["status"] = "Convergencia Exitosa (SEMDeep Engine v2.6)"
-            analisis["beta_cronos_path"] = float(beta) if len(beta)>0 else 0.0
-            analisis["beta_kairos_path"] = float(beta) if len(beta)>1 else 0.0
-            analisis["gof_r2_ajuste"] = max(0.0, float(r_cuadrado))
-            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos))
-        else:
-            matriz_datos = df.iloc[:, 3:10].apply(pd.to_numeric, errors='coerce').fillna(0).to_numpy()
-            c_centered = matriz_datos - np.mean(matriz_datos, axis=0)
-            _, s, _ = np.linalg.svd(c_centered, full_matrices=False)
-            analisis["status"] = "Convergencia Lineal Exitosa (SVD Gajos)"
-            analisis["gof_r2_ajuste"] = float(s**2 / np.sum(s**2)) if len(s)>0 else 0.0
-    except Exception as e:
-        analisis["status"] = f"Error en cálculo matricial: {str(e)}"
-    return analisis
+analisis = {}
+if len(df) < 5:
+analisis["status"] = "Muestra insuficiente para convergencia estructural (Mínimo 5 registros)."
+return analisis
+try:
+if es_likert:
+columnas_r = [c for c in df.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
+if len(columnas_r) < 14: columnas_r = list(df.columns[16:30])
+matriz_datos = df[columnas_r].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+cronos_data = matriz_datos[:, 0::2]
+kairos_data = matriz_datos[:, 1::2]
+c_centered = cronos_data - np.mean(cronos_data, axis=0)
+k_centered = kairos_data - np.mean(kairos_data, axis=0)
+_, _, V_c = np.linalg.svd(c_centered, full_matrices=False)
+_, _, V_k = np.linalg.svd(k_centered, full_matrices=False)
+latent_cronos = c_centered @ V_c[0, :]
+latent_kairos = k_centered @ V_k[0, :]
+impacto_data = matriz_datos[:, 12:14]
+i_centered = impacto_data - np.mean(impacto_data, axis=0)
+_, _, V_i = np.linalg.svd(i_centered, full_matrices=False)
+latent_impacto = i_centered @ V_i[0, :]
+X = np.vstack([latent_cronos, latent_kairos]).T
+beta = np.linalg.pinv(X.T @ X) @ X.T @ latent_impacto
+r_cuadrado = 1 - (np.sum((latent_impacto - X @ beta) ** 2) / np.sum((latent_impacto - np.mean(latent_impacto)) ** 2))
+analisis["status"] = "Convergencia Exitosa (SEMDeep Engine v2.6)"
+analisis["beta_cronos_path"] = float(beta) if len(beta)>0 else 0.0
+analisis["beta_kairos_path"] = float(beta) if len(beta)>1 else 0.0
+analisis["gof_r2_ajuste"] = max(0.0, float(r_cuadrado))
+analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos))
+else:
+matriz_datos = df.iloc[:, 3:10].apply(pd.to_numeric, errors='coerce').fillna(0).to_numpy()
+c_centered = matriz_datos - np.mean(matriz_datos, axis=0)
+_, s, _ = np.linalg.svd(c_centered, full_matrices=False)
+analisis["status"] = "Convergencia Lineal Exitosa (SVD Gajos)"
+analisis["gof_r2_ajuste"] = float(s2 / np.sum(s2)) if len(s)>0 else 0.0
+except Exception as e:
+analisis["status"] = f"Error en cálculo matricial: {str(e)}"
+return analisis
 
+=================================================================
+
+
+PARTE 8: MÓDULO DE EMISIÓN DE ACCESOS SECURE (CÓDIGOS QR)
+
+
+=================================================================
 
 if not es_celular_del_publico:
-    with st.expander("📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", expanded=True):
-        col1, col2 = st.columns([1, 1.5])
-        with col1:
-            qr = qrcode.QRCode(version=1, box_size=10, border=2)
-            qr.add_data(url_con_token)
-            qr.make(fit=True)
-            img_qr = qr.make_image(fill_color="#e65100", back_color="white")
-            buf = BytesIO()
-            img_qr.save(buf, format="PNG")
-            st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", width="stretch")
-        with col2:
-            st.write(f"### Audiencia Proyectada en Vivo: **{st.session_state.audiencia_activa}**")
-            st.write("1. Enfoca el código QR con la cámara de tu smartphone.")
-            st.write("2. Responderás directamente el software nativo adaptado a tu organización sin necesidad de registros externos.")
+with st.expander("📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", expanded=True):
+col1, col2 = st.columns([1, 1.5])
+with col1:
+qr = qrcode.QRCode(version=1, box_size=10, border=2)
+qr.add_data(url_con_token)
+qr.make(fit=True)
+img_qr = qr.make_image(fill_color="#e65100", back_color="white")
+buf = BytesIO()
+img_qr.save(buf, format="PNG")
+st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", width="stretch")
+with col2:
+st.write(f"### Audiencia Proyectada en Vivo: {st.session_state.audiencia_activa}")
+st.write("1. Enfoca el código QR con la cámara de tu smartphone.")
+st.write("2. Responderás directamente el software nativo adaptado a tu organización sin necesidad de registros externos.")
 
+=================================================================
+
+
+PARTE 9: CERCADO DE AUTENTICACIÓN Y ENLACES (SIDEBAR MANDARINA)
+
+
+=================================================================
 
 if "admin_autenticado" not in st.session_state:
-    st.session_state.admin_autenticado = False
+st.session_state.admin_autenticado = False
 if "guardado_exitoso" not in st.session_state:
-    st.session_state.guardado_exitoso = False
+st.session_state.guardado_exitoso = False
 if "flujo_finalizado" not in st.session_state:
-    st.session_state.flujo_finalizado = False
+st.session_state.flujo_finalizado = False
 if "alertas_mandarina_previas" not in st.session_state:
-    st.session_state.alertas_mandarina_previas = []
-
+st.session_state.alertas_mandarina_previas = []
 PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
-
 if not es_celular_del_publico:
-    with st.sidebar:
-        st.markdown("## 🔐 Control del Ponente")
-        if not st.session_state.admin_autenticado:
-            input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd")
-            if st.button("Desbloquear Tableros", width="stretch"):
-                if input_password == PASSWORD_SISTEMA:
-                    st.session_state.admin_autenticado = True
-                    st.rerun()
-                else: st.error("Contraseña incorrecta. Acceso denegado.")
-        else:
-            st.success("Modo Ponente Activo")
-            lista_audiencias = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-            seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias)
-            if seleccion != st.session_state.audiencia_activa:
-                st.session_state.audiencia_activa = seleccion
-                st.rerun()
+with st.sidebar:
+st.markdown("## 🔐 Control del Ponente")
+if not st.session_state.admin_autenticado:
+input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd")
+if st.button("Desbloquear Tableros", width="stretch"):
+if input_password == PASSWORD_SISTEMA:
+st.session_state.admin_autenticado = True
+st.rerun()
+else: st.error("Contraseña incorrecta. Acceso denegado.")
+else:
+st.success("Modo Ponente Activo")
+lista_audiencias = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
+seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias)
+if seleccion != st.session_state.audiencia_activa:
+st.session_state.audiencia_activa = seleccion
+st.rerun()
 
+=================================================================
+
+
+PARTE 10: INTERCEPTOR DE EXPIRACIÓN TEMPORAL DE ACCESO DIRECTO
+
+
+=================================================================
 
 if token_actual and not st.session_state.admin_autenticado:
-    minuto_base = int(time.time() // 60)
-    tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(5)]
-    if token_actual not in tokens_validos: acceso_bloqueado = True
-    else:
-        sheet = conectar_google_sheets(st.session_state.audiencia_activa)
-        if sheet:
-            try:
-                registros = sheet.get_all_records()
-                if registros:
-                    df_check = pd.DataFrame(registros)
-                    if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]: acceso_bloqueado = True
-            except Exception: pass
+minuto_base = int(time.time() // 60)
+tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(5)]
+if token_actual not in tokens_validos: acceso_bloqueado = True
+else:
+sheet = conectar_google_sheets(st.session_state.audiencia_activa)
+if sheet:
+try:
+registros = sheet.get_all_records()
+if registros:
+df_check = pd.DataFrame(registros)
+if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]: acceso_bloqueado = True
+except Exception: pass
 else: acceso_bloqueado = False
-
 if acceso_bloqueado:
-    st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
-    st.stop()
+st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
+st.stop()
 
+=================================================================
+
+
+PARTE 11: TABLEROS ANALÍTICOS AVANZADOS (RESEARCH OFFICE)
+
+
+=================================================================
 
 if st.session_state.admin_autenticado and not es_celular_del_publico:
-    st.markdown("---")
-    st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
-    st.write("Módulo avanzado de modelado predictivo de variables latentes.")
-    
-    tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"])
-    
-    if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
-        sheet = conectar_google_sheets(tabla_analizar)
-        if sheet:
-            records = sheet.get_all_records()
-            if records:
-                df_doc = pd.DataFrame(records)
-                st.success(f"¡Base de datos cargada! Registros analizados: {len(df_doc)}")
-                es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
-                col_graph1, col_graph2 = st.columns(2)
-                
-                with col_graph1:
-                    st.write("#### 📈 Distribución Descriptiva Global")
-                    if not es_tabla_likert:
-                        col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
-                        promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
-                        if promedios: st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
-                    else:
-                        r_cols = [c for c in df_doc.columns if c.startswith("R") or c.startswith("Reactivo")]
-                        matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        c_mean = np.mean(matriz_r[:, 0::2]) if len(r_cols)>=14 else 3.0
-                        k_mean = np.mean(matriz_r[:, 1::2]) if len(r_cols)>=14 else 3.0
-                        st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
-                
-                with col_graph2:
-                    st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
-                    res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-                    st.json(res_sem)
+st.markdown("---")
+st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
+st.write("Módulo avanzado de modelado predictivo de variables latentes.")
+tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"])
+if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
+sheet = conectar_google_sheets(tabla_analizar)
+if sheet:
+records = sheet.get_all_records()
+if records:
+df_doc = pd.DataFrame(records)
+st.success(f"¡Base de datos cargada! Registros analizados: {len(df_doc)}")
+es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
+col_graph1, col_graph2 = st.columns(2)
+with col_graph1:
+st.write("#### 📈 Distribución Descriptiva Global")
+if not es_tabla_likert:
+col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
+promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
+if promedios: st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
+else:
+r_cols = [c for c in df_doc.columns if c.startswith("R") or c.startswith("Reactivo")]
+matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+c_mean = np.mean(matriz_r[:, 0::2]) if len(r_cols)>=14 else 3.0
+k_mean = np.mean(matriz_r[:, 1::2]) if len(r_cols)>=14 else 3.0
+st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
+with col_graph2:
+st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
+res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
+st.json(res_sem)
 
+=================================================================
+
+
+PARTE 12: DICCIONARIO MAESTRO GEOMÉTRICO (SOPORTE POLÍGLOTA EXPANDIDO)
+
+
+=================================================================
 
 DICCIONARIO_IDIOMAS = {
-    "Español": {
-        "ctrl": "Datos de Control", "nombre": "Nombre Completo o Matrícula *:", "wha": "Número Telefónico de Enlace *:",
-        "sec1": "Sección I. Datos Demográficos y Geográficos", "edad": "1. Edad (Años):", "genero": "2. Género:",
-        "nac": "3. Nacionalidad *:", "orig": "4. Estado de origen *:", "res": "5. Estado de residencia actual *:",
-        "pais": "4. Escribe tu País de origen *:", "cont": "5. Selecciona tu Continente de origen *:", "rol": "6. Rol dentro de la Iglesia:",
-        "sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
-        "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
-        "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
-        "sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnóstico", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
-        "likert_labels": {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"},
-        "c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
-        "k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es mas importante.",
-        "mand_title": "### 🍊 Tus Gajos de Bienestar (Ecosistema)",
-        "mand_subtitle": "Selecciona las alertas o debilidades críticas en tu salud integral:",
-        "gajos_names": ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"],
-        "fugas_base": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"]
-    },
-    "Inglés": {
-        "ctrl": "Control Information", "nombre": "Full Name or ID *:", "wha": "WhatsApp Link Number *:",
-        "sec1": "Section I. Demographic & Geographic Data", "edad": "1. Age (Years):", "genero": "2. Gender:",
-        "nac": "3. Nationality *:", "orig": "4. State of Origin *:", "res": "5. State of Residence *:",
-        "pais": "4. Enter your Country of Origin *:", "cont": "5. Select your Continent of Origin *:", "rol": "6. Role within the Church:",
-        "sec2": "Section II. Knowledge of the Topic", "kn1": "1. Before this survey, had you heard about the Cronos and Kairos Temporal Models?",
-        "kn2": "2. Have you read about the Cronos and Kairos temporal models?", "kn3": "3. Have you ever taught about the Chronos and Kairos temporal models?",
-        "kn4": "4. The temporal model is:", "kn5": "5. Speaking of temporal models means speaking of:",
-        "sec3": "Section III. Intercalated Contextual Scale", "btn_save": "💾 Save & Process Diagnosis", "btn_pdf": "DOWNLOAD RESULTS IN PDF 📥",
-        "likert_labels": {1:"1 - Strongly Disagree", 2:"2 - Disagree", 3:"3 - Neutral", 4:"4 - Agree", 5:"5 - Strongly Agree"},
-        "c_pool": "I plan my operational activities in {geo} strictly following the clock schedule.",
-        "k_pool": "Flexibility to adapt plans before an opportunity window in {geo} is much more important than the clock.",
-        "mand_title": "### 🍊 Your Slices of Wellbeing",
-        "mand_subtitle": "Select the critical alerts or weaknesses in your holistic health:",
-        "gajos_names": ["💪 Physical Health", "🧠 Mental Health", "❤️ Emotional Health", "👥 Social Health", "💰 Financial Health", "⏳ Temporal Health", "🙏 Spiritual Health"],
-        "fugas_base": ["Poor Nutrition", "Lack of Sleep/Insomnia", "Chronic Sedentarism", "Body Fatigue"]
-    },
-    "Coreano": {
-        "ctrl": "제어 데이터", "nombre": "성명 또는 학번 *:", "wha": "연락처 전화번호 *:",
-        "sec1": "제1절. 인구통계학적 및 지리적 데이터", "edad": "1. 연령 (세):", "genero": "2. 성별:",
-        "nac": "3. 국적 *:", "orig": "4. 출신 주 *:", "res": "5. 현재 거주 주 *:",
-        "pais": "4. 출신 국가를 입력하세요 *:", "cont": "5. 출신 대륙을 선택하세요 *:", "rol": "6. 교회 내 직분:",
-        "sec2": "제2절. 주제에 대한 지식", "kn1": "1. 이 설문조사 전에 크로노스와 카이로스 시간 모델에 대해 들어본 적이 있습니까?",
-        "kn2": "2. 크로노스와 카이로스 시간 모델에 대해 읽어본 적이 있습니까?", "kn3": "3. 크로노스와 카이로스 시간 모델에 대해 가르쳐본 적이 있습니까?",
-        "kn4": "4. 시간 모델은 다음과 같습니다:", "kn5": "5. 시간 모델에 대해 말하는 것은 다음을 의미합니다:",
-        "sec3": "제3절. 중간 리커트 문항 척도", "btn_save": "💾 진단 저장 및 처리", "btn_pdf": "PDF 결과 다운로드 📥",
-        "likert_labels": {1:"1 - 전혀 동의하지 않음", 2:"2 - 동의하지 않음", 3:"3 - 보통", 4:"4 - 동의함", 5:"5 - 매우 동의함"},
-        "c_pool": "{geo}에서의 생산 활동을 시계 일정에 맞추어 철저히 계획합니다.",
-        "k_pool": "{geo}에서 기회의 창이 열렸을 때 일정을 유연하게 변경하는 능력이 시계보다 중요합니다.",
-        "mand_title": "### 🍊 당신의 웰빙 귤 조각 (전인적 건강)",
-        "mand_subtitle": "종합적인 건강에서 위험한 경고 조항이나 취약점을 선택하십시오:",
-        "gajos_names": ["💪 신체 건강", "🧠 정신 건강", "❤️ 감정 건강", "👥 사회적 건강", "💰 경제적 건강", "⏳ 시간적 건강", "🙏 영적 건강"],
-        "fugas_base": ["영양 불량", "수면 부족", "만성 좌식 생활", "신체 피로"]
-    },
-    "Griego": {
-        "ctrl": "Στοιχεία Ελέγχου", "nombre": "Ονοματεπώνυμο ή Μητρώο *:", "wha": "Αριθμός Τηλεφώνου Σύνδεσης *:",
-        "sec1": "Ενότητα Ι. Δημογραφικά & Γεωγραφικά Δεδομένα", "edad": "1. Ηλικία (Έτη):", "genero": "2. Φύλο:",
-        "nac": "3. Υπηκοότητα *:", "orig": "4. Πολιτεία Καταγωγής *:", "res": "5. Πολιτεία Διαμονής *:",
-        "pais": "4. Εισάγετε τη Χώρα Καταγωγής σας *:", "cont": "5. Επιλέξτε την Ήπειρο Καταγωγής σας *:", "rol": "6. Ρόλος μέσα στην Εκκλησία:",
-        "sec2": "Ενότητα ΙΙ. Γνώση επί του Θέματος", "kn1": "1. Πριν από αυτήν την έρευνα, είχατε ακούσει για τα Χρονικά Μοντέλα Κρόνος και Καιρός;",
-        "kn2": "2. Έχετε διαβάσει για τα χρονικά μοντέλα Κρόνος και Καιρός;", "kn3": "3. Έχετε διδάξει ποτέ για τα χρονικά μοντέλα Κρόνος και Καιρός;",
-        "kn4": "4. Το χρονικό μοντέλο είναι:", "kn5": "5. Μιλώντας για χρονικά μοντέλα σημαίνει μιλώντας για:",
-        "sec3": "Ενότητα ΙΙΙ. Κλίμακα Likert", "btn_save": "💾 Αποθήκευση & Επεξεργασία Διάγνωσης", "btn_pdf": "ΛΗΨΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ PDF 📥",
-        "likert_labels": {1:"1 - Διαφωνώ απόλυτα", 2:"2 - Διαφωνώ", 3:"3 - Ουδέτερο", 4:"4 - Συμφωνώ", 5:"5 - Συμφωνώ απόλυτα"},
-        "c_pool": "Προγραμματίζω τις δραστηριότητές μου στο {geo} ακολουθώντας αυστηρά το ρολόι.",
-        "k_pool": "Η ευελιξία να προσαρμόζω τα πλάνα μου μπροστά σε μια ευκαιρία στο {geo} είναι πιο σημαντική.",
-        "mand_title": "### 🍊 Τα Κομμάτια της Ευεξίας σας",
-        "mand_subtitle": "Επιλέξτε τις κρίσιμες προειδοποιήσεις ή αδυναμίες στην ολιστική σας υγεία:",
-        "gajos_names": ["💪 Φυσική Υγεία", "🧠 Ψυχική Υγεία", "❤️ Συναισθηματική Υγεία", "👥 Κοινωνική Υγεία", "💰 Οικονομική Υγεία", "⏳ Χρονική Υγεία", "🙏 Πνευματική Υγεία"],
-        "fugas_base": ["Κακή Διατροφή", "Έλλειψη Ύπνου", "Καθιστική Ζωή", "Σωματική Κόπωση"]
-    },
-    "Francés": {
-        "ctrl": "Données de Contrôle", "nombre": "Nom Complet ou Matricule *:", "wha": "Numéro de Téléphone *:",
-        "sec1": "Section I. Données Démographiques et Géographiques", "edad": "1. Âge (Ans):", "genero": "2. Genre:",
-        "nac": "3. Nationalité *:", "orig": "4. État d'origine *:", "res": "5. État de résidence actuelle *:",
-        "pais": "4. Écrivez votre Pays d'origine *:", "cont": "5. Sélectionnez votre Continent d'origine *:", "rol": "6. Rôle au sein de l'Église:",
-        "sec2": "Section II. Connaissance du sujet", "kn1": "1. Avant cette enquête, aviez-vous entendu parler des Modèles Temporels Chronos et Kairos?",
-        "kn2": "2. Avez-vous lu sur les modèles temporels Chronos et Kairos?", "kn3": "3. Avez-vous déjà enseigné les modèles temporels Chronos et Kairos?",
-        "kn4": "4. Le modelo temporel:", "kn5": "5. Parler de modèles temporels, c'est parler de:",
-        "sec3": "Section III. Échelle de Réactifs Likert", "btn_save": "💾 Enregistrer et Traiter le Diagnostic", "btn_pdf": "TÉLÉCHARGER LES RÉSULTATS EN PDF 📥",
-        "likert_labels": {1:"1 - Pas d'accord", 2:"2 - Partiellement", 3:"3 - Neutre", 4:"4 - D'accord", 5:"5 - Tout à fait d'accord"},
-        "c_pool": "Je planifie mes activités opérationnelles à {geo} en suivant strictement les horaires de l'horloge.",
-        "k_pool": "La flexibilité d'adapter mes plans face à une fenêtre d'opportunité à {geo} est plus importante.",
-        "mand_title": "### 🍊 Vos Quartiers de Bien-être (Santé Globale)",
-        "mand_subtitle": "Sélectionnez les alertes critiques ou les faiblesses de votre santé globale :",
-        "gajos_names": ["💪 Santé Physique", "🧠 Santé Mentale", "❤️ Santé Émotionnelle", "👥 Santé Sociale", "💰 Santé Économique", "⏳ Santé Temporelle", "🙏 Santé Spirituelle"],
-        "fugas_base": ["Mauvaise Nutrition", "Manque de Sommeil", "Sédentarisme", "Fatigue Corporelle"]
-    },
-    "Alemán": {
-        "ctrl": "Kontrolldaten", "nombre": "Vollständiger Name *:", "wha": "Telefonnummer *:",
-        "sec1": "Abschnitt I. Demografische Daten", "edad": "1. Alter (Jahre):", "genero": "2. Geschlecht:",
-        "nac": "3. Nationalität *:", "orig": "4. Herkunftsland *:", "res": "5. Aktueller Wohnort *:",
-        "pais": "4. Geburtsland eingeben *:", "cont": "5. Kontinent auswählen *:", "rol": "6. Rolle in der Kirche:",
-        "sec2": "Abschnitt II. Themenkenntnis", "kn1": "1. Haben Sie vor dieser Umfrage von den Zeitmodellen Chronos und Kairos gehört?",
-        "kn2": "2. Haben Sie über Chronos und Kairos gelesen?", "kn3": "3. Haben Sie jemals über diese Zeitmodelle gelehrt?",
-        "kn4": "4. Das Zeitmodell:", "kn5": "5. Über Zeitmodelle zu sprechen bedeutet:",
-        "sec3": "Abschnitt III. Likert-Skala", "btn_save": "💾 Speichern & Verarbeiten", "btn_pdf": "ERGEBNISSE ALS PDF HERUNTERLADEN 📥",
-        "likert_labels": {1:"1 - Stimme überhaupt nicht zu", 2:"2 - Stimme nicht zu", 3:"3 - Neutral", 4:"4 - Stimme zu", 5:"5 - Stimme vollkommen zu"},
-
-
-
+"Español": {
+"ctrl": "Datos de Control", "nombre": "Nombre Completo o Matrícula *:", "wha": "Número Telefónico de Enlace *:",
+"sec1": "Sección I. Datos Demográficos y Geográficos", "edad": "1. Edad (Años):", "genero": "2. Género:",
+"nac": "3. Nacionalidad *:", "orig": "4. Estado de origen *:", "res": "5. Estado de residencia actual *:",
+"pais": "4. Escribe tu País de origen *:", "cont": "5. Selecciona tu Continente de origen *:", "rol": "6. Rol dentro de la Iglesia:",
+"sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
+"kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
+"kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
+"sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnostic", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
+"likert_labels": {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"},
+"c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
+"k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es mas importante.",
+"mand_title": "### 🍊 Tus Gajos de Bienestar (Ecosistema)",
+"mand_subtitle": "Selecciona las alertas o debilidades críticas en tu salud integral:",
+"gajos_names": ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"],
+"fugas_base": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"]
+},
+"Inglés": {
+"ctrl": "Control Information", "nombre": "Full Name or ID *:", "wha": "WhatsApp Link Number *:",
+"sec1": "Section I. Demographic & Geographic Data", "edad": "1. Age (Years):", "genero": "2. Gender:",
+"nac": "3. Nationality *:", "orig": "4. State of Origin *:", "res": "5. State of Residence *:",
+"pais": "4. Enter your Country of Origin *:", "cont": "5. Select your Continent of Origin *:", "rol": "6. Role within the Church:",
+"sec2": "Section II. Knowledge of the Topic", "kn1": "1. Before this survey, had you heard about the Cronos and Kairos Temporal Models?",
+"kn2": "2. Have you read about the Cronos and Kairos temporal models?", "kn3": "3. Have you ever taught about the Chronos and Kairos temporal models?",
+"kn4": "4. The temporal model is:", "kn5": "5. Speaking of temporal models means speaking of:",
+"sec3": "Section III. Intercalated Contextual Scale", "btn_save": "💾 Save & Process Diagnosis", "btn_pdf": "DOWNLOAD RESULTS IN PDF 📥",
+"likert_labels": {1:"1 - Strongly Disagree", 2:"2 - Disagree", 3:"3 - Neutral", 4:"4 - Agree", 5:"5 - Strongly Agree"},
+"c_pool": "I plan my operational activities in {geo} strictly following the clock schedule.",
+"k_pool": "Flexibility to adapt plans before an opportunity window in {geo} is much more important than the clock.",
+"mand_title": "### 🍊 Your Slices of Wellbeing",
+"mand_subtitle": "Select the critical alerts or weaknesses in your holistic health:",
+"gajos_names": ["💪 Physical Health", "🧠 Mental Health", "❤️ Emotional Health", "👥 Social Health", "💰 Financial Health", "⏳ Temporal Health", "🙏 Spiritual Health"],
+"fugas_base": ["Poor Nutrition", "Lack of Sleep/Insomnia", "Chronic Sedentarism", "Body Fatigue"]
+},
+"Coreano": {
+"ctrl": "제어 데이터", "nombre": "성명 또는 학번 *:", "wha": "연락처 전화번호 *:",
+"sec1": "제1절. 인구통계학적 및 지리적 데이터", "edad": "1. 연령 (세):", "genero": "2. 성별:",
+"nac": "3. 국적 *:", "orig": "4. 출신 주 *:", "res": "5. 현재 거주 주 *:",
+"pais": "4. 출신 국가를 입력하세요 *:", "cont": "5. 출신 대륙을 선택하세요 *:", "rol": "6. 교회 내 직분:",
+"sec2": "제2절. 주제에 대한 지식", "kn1": "1. 이 설문조사 전에 크로노스와 카이로스 시간 모델에 대해 들어본 적이 있습니까?",
+"kn2": "2. 크로노스와 카이로스 시간 모델에 대해 읽어본 적이 있습니까?", "kn3": "3. 크로노스와 카이로스 시간 모델에 대해 가르쳐본 적이 있습니까?",
+"kn4": "4. 시간 모델은 다음과 같습니다:", "kn5": "5. 시간 모델에 대해 말하는 것은 다음을 의미합니다:",
+"sec3": "제3절. 중간 리커트 문항 척도", "btn_save": "💾 진단 저장 및 처리", "btn_pdf": "PDF 결과 다운로드 📥",
+"likert_labels": {1:"1 - 전혀 동의하지 않음", 2:"2 - 동의하지 않음", 3:"3 - 보통", 4:"4 - 동의함", 5:"5 - 매우 동의함"},
+"c_pool": "{geo}에서의 생산 활동을 시계 일정에 맞추어 철저히 계획합니다.",
+"k_pool": "{geo}에서 기회의 창이 열렸을 때 일정을 유연하게 변경하는 능력이 시계보다 중요합니다.",
+"mand_title": "### 🍊 당신의 웰빙 귤 조각 (전인적 건강)",
+"mand_subtitle": "종합적인 건강에서 위험한 경고 조항이나 취약점을 선택하십시오:",
+"gajos_names": ["💪 신체 건강", "🧠 정신 건강", "❤️ 감정 건강", "👥 사회적 건강", "💰 경제적 건강", "⏳ 시간적 건강", "🙏 영적 건강"],
+"fugas_base": ["영양 불량", "수면 부족", "만성 좌식 생활", "신체 피로"]
+},
+"Griego": {
+"ctrl": "Στοιχεία Ελέγχου", "nombre": "Ονοματεπώνυμο ή Μητρώο *:", "wha": "Αριθμός Τηλεφώνου Σύνδεσης *:",
+"sec1": "Ενότητα Ι. Δημογραφικά & Γεωγραφικά Δεδομένα", "edad": "1. Ηλικία (Έτη):", "genero": "2. Φύλο:",
+"nac": "3. Υπηκοότητα *:", "orig": "4. Πολιτεία Καταγωγής *:", "res": "5. Πολιτεία Διαμονής *:",
+"pais": "4. Εισάγετε τη Χώρα Καταγωγής σας *:", "cont": "5. Επιλέξτε την Ήπειρο Καταγωγής σας *:", "rol": "6. Ρόλος μέσα στην Εκκλησία:",
+"sec2": "Ενότητα ΙΙ. Γνώση επί του Θέματος", "kn1": "1. Πριν από αυτήν την έρευνα, είχατε ακούσει για τα Χρονικά Μοντέλα Κρόνος και Καιρός;",
+"kn2": "2. Έχετε διαβάσει για τα χρονικά μοντέλα Κρόνος και Καιρός;", "kn3": "3. Έχετε διδάξει ποτέ για τα χρονικά μοντέλα Κρόνος και Καιρός;",
+"kn4": "4. Το χρονικό μοντέλο είναι:", "kn5": "5. Μιλώντας για χρονικά μοντέλα σημαίνει μιλώντας για:",
+"sec3": "Ενότητα ΙΙΙ. Κλίμακα Likert", "btn_save": "💾 Αποθήκευση & Επεξεργασία Διάγνωσης", "btn_pdf": "ΛΗΨΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ PDF 📥",
+"likert_labels": {1:"1 - Διαφωνώ απόλυτα", 2:"2 - Διαφωνώ", 3:"3 - Ουδέτερο", 4:"4 - Συμφωνώ", 5:"5 - Συμφωνώ απόλυτα"},
+"c_pool": "Προγραμματίζω τις δραστηριότητές μου στο {geo} ακολουθώντας αυστηρά το ρολόι.",
+"k_pool": "Η ευελιξία να προσαρμόζω τα πλάνα μου μπροστά σε μια ευκαιρία στο {geo} είναι πιο σημαντική.",
+"mand_title": "### 🍊 Τα Κομμάτια της Ευεξίας σας",
+"mand_subtitle": "Επιλέξτε τις κρίσιμες προειδοποιήσεις ή αδυναμίες στην ολιστική σας υγεία:",
+"gajos_names": ["💪 Φυσική Υγεία", "🧠 Ψυχική Υγεία", "❤️ Συναισθηματική Υγεία", "💰 Οικονομική Υγεία", "💰 Οικονομική Υγεία", "⏳ Χρονική Υγεία", "🙏 Πνευματική Υγεία"],
+"fugas_base": ["Κακή Διατροφή", "Έλλειψη Ύπνου", "Καθιστική Ζωή", "Σωματική Κόπωση"]
+},
+"Francés": {
+"ctrl": "Données de Contrôle", "nombre": "Nom Complet ou Matricule *:", "wha": "Numéro de Téléphone *:",
+"sec1": "Section I. Données Démographiques et Géographiques", "edad": "1. Âge (Ans):", "genero": "2. Genre:",
+"nac": "3. Nationalité *:", "orig": "4. État d'origine *:", "res": "5. État de résidence actuelle *:",
+"pais": "4. Écrivez votre Pays d'origine *:", "cont": "5. Sélectionnez votre Continent d'origine *:", "rol": "6. Rôle au sein de l'Église:",
+"sec2": "Section II. Connaissance du sujet", "kn1": "1. Avant cette enquête, aviez-vous entendu parler des Modèles Temporels Chronos et Kairos?",
+"kn2": "2. Avez-vous lu sur les modèles temporels Chronos et Kairos?", "kn3": "3. Avez-vous déjà enseigné les modèles temporels Chronos et Kairos?",
+"kn4": "4. Le modelo temporel:", "kn5": "5. Parler de modèles temporels, c'est parler de:",
+"sec3": "Section III. Échelle de Réactifs Likert", "btn_save": "💾 Enregistrer et Traiter le Diagnostic", "btn_pdf": "TÉLÉCHARGER LES RÉSULTATS EN PDF 📥",
+"likert_labels": {1:"1 - Pas d'accord", 2:"2 - Partiellement", 3:"3 - Neutre", 4:"4 - D'accord", 5:"5 - Tout à fait d'accord"},
+"c_pool": "Je planifie mes activités opérationnelles à {geo} en suivant strictement les horaires de l'horloge.",
+"k_pool": "La flexibilité d'adapter mes plans face à une fenêtre d'opportunité à {geo} est plus importante.",
+"mand_title": "### 🍊 Vos Quartiers de Bien-être (Santé Globale)",
+"mand_subtitle": "Sélectionnez les alertes critiques ou les faiblesses de votre santé globale :",
+"gajos_names": ["💪 Santé Physique", "🧠 Santé Mentale", "❤️ Santé Émotionnelle", "👥 Santé Sociale", "💰 Santé Économique", "⏳ Santé Temporelle", "🙏 Santé Spirituelle"],
+"fugas_base": ["Mauvaise Nutrition", "Manque de Sommeil", "Sédentarisme", "Fatigue Corporelle"]
+},
+"Alemán": {
+"ctrl": "Kontrolldaten", "nombre": "Vollständiger Name *:", "wha": "Telefonnummer *:",
+"sec1": "Abschnitt I. Demografische Daten", "edad": "1. Alter (Jahre):", "genero": "2. Geschlecht:",
+"nac": "3. Nationalität *:", "orig": "4. Herkunftsland *:", "res": "5. Aktueller Wohnort *:",
+"pais": "4. Geburtsland eingeben *:", "cont": "5. Kontinent auswählen *:", "rol": "6. Rolle in der Kirche:",
+"sec2": "Abschnitt II. Themenkenntnis", "kn1": "1. Haben Sie vor dieser Umfrage von den Zeitmodellen Chronos und Kairos gehört?",
+"kn2": "2. Haben Sie über Chronos und Kairos gelesen?", "kn3": "3. Haben Sie jemals über diese Zeitmodelle gelehrt?",
+"kn4": "4. Das Zeitmodell:", "kn5": "5. Über Zeitmodelle zu sprechen bedeutet:",
+"sec3": "Abschnitt III. Likert-Skala", "btn_save": "💾 Speichern & Verarbeiten", "btn_pdf": "ERGEBNISSE ALS PDF HERUNTERLADEN 📥",
+"likert_labels": {1:"1 - Stimme überhaupt nicht zu", 2:"2 - Stimme nicht zu", 3:"3 - Neutral", 4:"4 - Stimme zu", 5:"5 - Stimme vollkommen zu"},
 "c_pool": "Ich plane meine Aktivitäten in {geo} strikt nach der Uhrzeit.",
 "k_pool": "Flexibilität bei der Anpassung von Plänen an Gelegenheiten in {geo} is wichtiger als die Uhr.",
 "mand_title": "### 🍊 Ihre Scheiben des Wohlbefindens",
@@ -527,151 +566,152 @@ DICCIONARIO_IDIOMAS = {
 }
 }
 
----
+=================================================================
 
-### # PARTE 13: ALGORITMO DE RECONSTRUCCIÓN CONTEXTUAL COMPILADO (ZERO INDENTATION ERROR)
-```python
+
+PARTE 13: ALGORITMO DE RECONSTRUCCIÓN CONTEXTUAL COMPILADO
+
+
+=================================================================
+
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
-    tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
-    fuga = str(b_alertas) if b_alertas else "OK"
-    banco_alterno = {}
-    for i in range(1, 15):
-        if i % 2 != 0: 
-            banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
-        else: 
-            banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
-    return banco_alterno
-
+tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
+fuga = str(b_alertas) if b_alertas else "OK"
+banco_alterno = {}
+for i in range(1, 15):
+if i % 2 != 0:
+banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
+else:
+banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
+return banco_alterno
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
 
+=================================================================
+
+
+PARTE 14: INTERFAZ EN VIVO (GAJOS GENERATIVOS TRADUCIDOS 100%)
+
+
+=================================================================
 
 if not st.session_state.flujo_finalizado:
-    idioma_sel = st.selectbox("🌐 Choose System Language / Selecciona Idioma:", ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"])
-    tx = DICCIONARIO_IDIOMAS[idioma_sel]
-    
-    st.header(f"📋 {st.session_state.audiencia_activa}")
-    nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
-    whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
-    st.divider()
+idioma_sel = st.selectbox("🌐 Choose System Language / Selecciona Idioma:", ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"])
+tx = DICCIONARIO_IDIOMAS[idioma_sel]
+st.header(f"📋 {st.session_state.audiencia_activa}")
+nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
+whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
+st.divider()
+resultados_totales = {}
+es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
+if not es_modo_likert:
+st.write(tx["mand_title"])
+st.write(tx["mand_subtitle"])
+for g_idx, g_name in enumerate(tx["gajos_names"]):
+with st.container(border=True):
+st.markdown(f"#### {g_name}")
+col1, col2 = st.columns(2)
+with col1:
+cb0 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}0")
+cb1 = st.checkbox(tx["fugas_base"], key=f"cb{g_idx}1")
+with col2:
+cb2 = st.checkbox(tx["fugas_base"], key=f"cb{g_idx}2")
+cb3 = st.checkbox(tx["fugas_base"], key=f"cb{g_idx}_3")
+resultados_totales[g_name] = [tx["fugas_base"][i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
+if st.button("Procesar Alertas Base / Register Alerts"):
+st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
+st.success("OK. Context synchronized.")
 
-    resultados_totales = {}
-    es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
-
-    if not es_modo_likert:
-        st.write(tx["mand_title"])
-        st.write(tx["mand_subtitle"])
-        
-        for g_idx, g_name in enumerate(tx["gajos_names"]):
-            with st.container(border=True):
-                st.markdown(f"#### {g_name}")
-                col1, col2 = st.columns(2)
-                with col1:
-                    cb0 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_0")
-                    cb1 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_1")
-                with col2:
-                    cb2 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_2")
-                    cb3 = st.checkbox(tx["fugas_base"], key=f"cb_{g_idx}_3")
-                resultados_totales[g_name] = [tx["fugas_base"][i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
-                
-        if st.button("Procesar Alertas Base / Register Alerts"):
-            st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
-            st.success("OK. Context synchronized.")
+=================================================================
 
 
-    else:
-        st.subheader(tx["sec1"])
-        resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
-        resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
-        
-        nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
-        resultados_totales["Nacionalidad"] = nacionalidad
-        
-        geo_contexto = "Region"
-        if nacionalidad == "Mexicana":
-            resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
-            resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
-            resultados_totales["País Origen"] = "México"
-            resultados_totales["Continente Extranjero"] = "América"
-            geo_contexto = str(resultados_totales["Estado Residencia"])
-        else:
-            resultados_totales["Estado Origen"] = "N/A"
-            resultados_totales["Estado Residencia"] = "N/A"
-            resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
-            resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
-            geo_contexto = str(resultados_totales["País Origen"])
+PARTE 15: DESPLIEGUE PSICOMÉTRICO ADAPTATIVO Y GENERACIÓN DE REPORTE BINARIO
 
-        st.subheader(tx["sec2"])
-        resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
-        resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
-        resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
-        resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
-        resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
 
-        st.subheader(tx["sec3"])
-        
-        banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
-        
-        for r_id, enunciado_idioma in banco_mutado.items():
-            st.write(f"**Reactivo {r_id}:** {enunciado_idioma}")
-            resultados_totales[f"R{r_id}"] = st.radio(
-                "Scale:", 
-                options=[1, 2, 3, 4, 5],
-                format_func=lambda x: tx["likert_labels"][x],
-                key=f"dyn_r_{r_id}"
-            )
+=================================================================
 
-    st.divider()
-    col_btn1, col_btn2 = st.columns(2)
-    campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
-
-    with col_btn1:
-        if st.button(tx["btn_save"], width="stretch", type="primary"):
-            if not campos_completos: st.error("Incomplete fields.")
-            else:
-                with st.spinner("Processing..."):
-                    exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
-                    if exito: st.session_state.guardado_exitoso = True; st.success("OK")
-                    else: st.session_state.guardado_exitoso = True; st.warning("Local OK")
-
-    with col_btn2:
-        if st.session_state.guardado_exitoso and campos_completos:
-            grafica_base64 = None
-            if es_modo_likert:
-                try:
-                    cronos_v = [resultados_totales.get(f"R{i}", 3) for i in range(1, 15, 2)]
-                    kairos_v = [resultados_totales.get(f"R{i}", 3) for i in range(2, 15, 2)]
-                    fig, ax = plt.subplots(figsize=(4, 4))
-                    ax.axhspan(1, 3, 1, 3, color='#f2f1ef', alpha=0.5) 
-                    ax.axhspan(3, 5, 3, 5, color='#e8f8f5', alpha=0.7) 
-                    ax.scatter(sum(cronos_v)/7, sum(kairos_v)/7, color='#e65100', s=120)
-                    buf_g = BytesIO()
-                    plt.savefig(buf_g, format='png', bbox_inches='tight', dpi=100)
-                    buf_g.seek(0)
-                    grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_g.read()).decode('utf-8')}"
-                    plt.close(fig)
-                except Exception: pass
-            
-            reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
-            nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
-            
-            def callback_finalizar():
-                st.session_state.flujo_finalizado = True
-                for k in list(st.session_state.keys()):
-                    if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): del st.session_state[k]
-            
-            st.download_button(
-                label=tx["btn_pdf"], 
-                data=reporte_procesado, 
-                file_name=f"Report_{idioma_sel}_{nombre_archivo}.pdf", 
-                mime="application/pdf", 
-                on_click=callback_finalizar
-            )
-        else: st.info("💡 Process fields.")
 else:
-    st.balloons()
-    st.success("### Process Completed! 🎉")
-    with st.container(border=True):
-        st.write("## 🍊 ¡Muchas gracias por tu participación!")
-        st.markdown(f"Has completado el diagnóstico. Reconocer nuestros vectores temporales es el inicio de una alta madurez.")
-        st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
+st.subheader(tx["sec1"])
+resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
+resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
+nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
+resultados_totales["Nacionalidad"] = nacionalidad
+geo_contexto = "Region"
+if nacionalidad == "Mexicana":
+resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
+resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
+resultados_totales["País Origen"] = "México"
+resultados_totales["Continente Extranjero"] = "América"
+geo_contexto = str(resultados_totales["Estado Residencia"])
+else:
+resultados_totales["Estado Origen"] = "N/A"
+resultados_totales["Estado Residencia"] = "N/A"
+resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
+resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
+geo_contexto = str(resultados_totales["País Origen"])
+st.subheader(tx["sec2"])
+resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
+resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
+resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
+resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
+resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
+st.subheader(tx["sec3"])
+banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
+for r_id, enunciado_idioma in banco_mutado.items():
+st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+resultados_totales[f"R{r_id}"] = st.radio(
+"Scale:",
+options=[1, 2, 3, 4, 5],
+format_func=lambda x: tx["likert_labels"][x],
+key=f"dyn_r_{r_id}"
+)
+st.divider()
+col_btn1, col_btn2 = st.columns(2)
+campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
+with col_btn1:
+if st.button(tx["btn_save"], width="stretch", type="primary"):
+if not campos_completos: st.error("Incomplete fields.")
+else:
+with st.spinner("Processing..."):
+exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
+if exito: st.session_state.guardado_exitoso = True; st.success("OK")
+else: st.session_state.guardado_exitoso = True; st.warning("Local OK")
+with col_btn2:
+if st.session_state.guardado_exitoso and campos_completos:
+grafica_base64 = None
+if es_modo_likert:
+try:
+cronos_v = [resultados_totales.get(f"R{i}", 3) for i in range(1, 15, 2)]
+kairos_v = [resultados_totales.get(f"R{i}", 3) for i in range(2, 15, 2)]
+fig, ax = plt.subplots(figsize=(4, 4))
+ax.axhspan(1, 3, 1, 3, color='#f2f1ef', alpha=0.5)
+ax.axhspan(3, 5, 3, 5, color='#e8f8f5', alpha=0.7)
+ax.scatter(sum(cronos_v)/7, sum(kairos_v)/7, color='#e65100', s=120)
+buf_g = BytesIO()
+plt.savefig(buf_g, format='png', bbox_inches='tight', dpi=100)
+buf_g.seek(0)
+grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_g.read()).decode('utf-8')}"
+plt.close(fig)
+except Exception: pass
+reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
+nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
+def callback_finalizar():
+st.session_state.flujo_finalizado = True
+for k in list(st.session_state.keys()):
+if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): del st.session_state[k]
+st.download_button(
+label=tx["btn_pdf"],
+data=reporte_procesado,
+file_name=f"Report_{idioma_sel}_{nombre_archivo}.pdf",
+mime="application/pdf",
+on_click=callback_finalizar
+)
+else: st.info("💡 Process fields.")
+else:
+st.balloons()
+st.success("### Process Completed! 🎉")
+with st.container(border=True):
+st.write("## 🍊 ¡Muchas gracias por tu participación!")
+st.markdown(f"Has completado el diagnóstico. Reconocer nuestros vectores temporales es el inicio de una alta madurez.")
+st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
+
