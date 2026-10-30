@@ -669,7 +669,7 @@ if not st.session_state.flujo_finalizado:
     # =================================================================
     # PARTE 19: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
     # =================================================================
-       else:
+    else:
         st.subheader(tx["sec1"])
         resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
         resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
@@ -711,7 +711,6 @@ if not st.session_state.flujo_finalizado:
                 format_func=lambda x: etiquetas_likert.get(x, str(x)),
                 key=f"dyn_r_{r_id}"
             )
-
 
 
     # =================================================================
