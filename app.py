@@ -601,10 +601,11 @@ if not st.session_state.flujo_finalizado:
             etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Scale:",
-                options=,
+                options=[1, 2, 3, 4, 5],
                 format_func=lambda x: etiquetas_likert.get(x, str(x)),
                 key=f"dyn_r_{r_id}"
             )
+
     # =================================================================
     # PARTE 20: COMPILACIÓN CIENTÍFICA MATPLOTLIB Y REINICIO GLOBAL
     # =================================================================
