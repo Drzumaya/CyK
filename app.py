@@ -506,21 +506,26 @@ else:
     tx = DICCIONARIO_IDIOMAS["Español"]
 
 if not es_celular_del_publico:
-    with st.expander(tx["qr_title"], expanded=True):
+ # BÚSQUEDA PROTEGIDA: Si un idioma no tiene 'qr_title', extrae de forma segura el equivalente en Español
+    titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
+    sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
+    sub_qr2 = tx.get("qr_sub2", DICCIONARIO_IDIOMAS["Español"]["qr_sub2"])
+
+    with st.expander(titulo_qr, expanded=True):
         col1, col2 = st.columns([1, 1.5])
         with col1:
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
             qr.add_data(url_con_token)
             qr.make(fit=True)
             img_qr = qr.make_image(fill_color="#e65100", back_color="white")
-            
             buf = BytesIO()
             img_qr.save(buf, format="PNG")
             st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", use_container_width=True)
         with col2:
             st.write(f"### Audiencia Proyectada en Vivo: {st.session_state.audiencia_activa}")
-            st.write(tx["qr_sub1"])
-            st.write(tx["qr_sub2"])
+            st.write(sub_qr1)
+            st.write(sub_qr2)
+
 # =================================================================
 # PARTE 12: CONSOLA DE MANDO DE SEGURIDAD (SIDEBAR PONENTE)
 # =================================================================
