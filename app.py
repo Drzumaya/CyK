@@ -428,7 +428,7 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                         promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
                         if promedios: 
                             st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
-Usa el código con precaución.
+
 else:
 r_cols = [c for c in df_doc.columns if c.startswith("R") or c.startswith("Reactivo")]
 matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
