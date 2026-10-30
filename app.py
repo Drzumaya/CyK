@@ -1,3 +1,5 @@
+# # PARTE 1: LIBRERÍAS, IMPORTACIONES Y ENTORNO DE TRABAJO (2026 STANDARDS)
+
 import streamlit as st
 import qrcode
 from io import BytesIO
@@ -18,14 +20,20 @@ import matplotlib.pyplot as plt
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+# IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
+
+# SOLUCIÓN DE RAÍZ: Definición global y atómica del token de tiempo para todo el ciclo de vida
+minuto_actual = int(time.time() // 60)
+token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
 st.title("🍊 Ecosistema de Diagnóstico de Salud Integral")
 st.subheader("Modelo Mandarina & Modelos Temporales Sectores")
 st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026 | JACOB ZUMAYA PRIANTI, A.C.")
+
 
 
 def conectar_google_sheets(nombre_pestana):
@@ -288,6 +296,8 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
     return analisis
 
 
+# # PARTE 4: ENRUTAMIENTO DINÁMICO DE QR PARA LA AUDIENCIA
+
 if "audiencia_activa" not in st.session_state:
     st.session_state.audiencia_activa = "🍊 Salud Integral"
 
@@ -295,10 +305,13 @@ modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 diag_tipo_url = st.query_params.get("diag_tipo", None)
 
+# Sincronización automática: El celular de la audiencia acopla estrictamente el formulario dictado por el QR del proyector
 if es_celular_del_publico and diag_tipo_url:
     st.session_state.audiencia_activa = diag_tipo_url
 
+# Inyectamos el token de tiempo global en la URL codificada del QR
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
+
 
 if not es_celular_del_publico:
     with st.expander("📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", expanded=True):
