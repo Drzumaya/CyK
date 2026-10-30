@@ -1,5 +1,5 @@
 # =================================================================
-# PARTE 1: CONFIGURACIÓN BÁSICA E IMPORTACIONES GENERALES
+# PARTE 1: LIBRERÍAS E IMPORTACIONES DEL ENTORNO CORE
 # =================================================================
 import streamlit as st
 import qrcode
@@ -13,36 +13,23 @@ import hashlib
 import time
 import base64
 
-# REGLA DE ORO DE STREAMLIT: Debe ser la primera instrucción ejecutable del archivo
+# CONFIGURACIÓN OBLIGATORIA DE STREAMLIT (Debe ser la primera instrucción ejecutable)
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 # =================================================================
-# PARTE 2: CAPTURA PRIORITARIA DE QUERY PARAMS DE RED (GLOBALES)
+# PARTE 2: DESACTIVACIÓN SÍNCRONA DE ADVERTENCIAS GRÁFICAS DE PYPLOT
 # =================================================================
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+# =================================================================
+# PARTE 2.5: CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
+# =================================================================
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
-
-minuto_actual = int(time.time() // 60)
-token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
-
-token_actual = st.query_params.get("token", None)
-modo_admin_url = st.query_params.get("modo_admin", "true")
-es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
-diag_tipo_url = st.query_params.get("diag_tipo", None)
-
-if "audiencia_activa" not in st.session_state:
-    st.session_state.audiencia_activa = "🍊 Salud Integral"
-
-if es_celular_del_publico and diag_tipo_url:
-    st.session_state.audiencia_activa = diag_tipo_url
-
-url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 # =================================================================
 # PARTE 3: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (ESPAÑOL)
 # =================================================================
@@ -117,7 +104,7 @@ DICCIONARIO_IDIOMAS = {
         "nac": "3. 국적 *:", "orig": "4. 출신 주 *:", "res": "5. 현재 거주 주 *:",
         "pais": "4. 출신 국가를 입력하세요 *:", "cont": "5. 출신 대륙을 선택하세요 *:", "rol": "6. 교회 내 직분:",
         "sec2": "제2절. 주제에 대한 지식", "kn1": "1. 이 설문조사 전에 크로노스와 카이로스 시간 모델에 대해 들어본 적이 있습니까?",
-        "kn2": "2. 크로노스와 카이로스 시간 모델에 대해 읽어본 적이 있습니까?", "kn3": "3. 이전에 시간 모델에 대해 가르쳐본 적이 있습니까?",
+        "kn2": "2. 크로노스와 카이로스 시간 모델에 대해 읽어본 적이 있습니까?", "kn3": "3. 크로노스와 카이로스 시간 모델에 대해 가르쳐본 적이 있습니까?",
         "kn4": "4. 시간 모델은 다음과 같습니다:", "kn5": "5. 시간 모델에 대해 말하는 것은 다음을 의미합니다:",
         "sec3": "제3절. 중간 리커트 문항 척도", "btn_save": "💾 진단 저장 및 처리", "btn_pdf": "PDF 결과 다운로드 📥",
         "likert_labels": {1: "1 - 전혀 동의하지 않음", 2: "2 - 동의하지 않음", 3: "3 - 보통", 4: "4 - 동의함", 5: "5 - 매우 동의함"},
@@ -131,7 +118,7 @@ DICCIONARIO_IDIOMAS = {
         "qr_sub2": "2. 기관용으로 최적화된 당사 소프트웨어 에이전트와 직접 상호 작용합니다.",
         "gajos_data": {
             "💪 신체 건강": ["영양 불량", "수면 부족", "만성 좌식 생활", "신체 피로"],
-            "🧠 정신 건강": ["Niebla Mental", "Rumination", "Overload", "Cognitive Apathy"],
+            "🧠 정신 건강": ["Brain Fog", "Rumination", "Overload", "Cognitive Apathy"],
             "❤️ 감정 건강": ["Acute Anxiety", "Irritability", "General Demotivation", "Mood Instability"],
             "👥 사회적 건강": ["Voluntary Isolation", "Interpersonal Conflicts", "Lack of Support Network", "Weak Boundaries"],
             "💰 경제적 건강": ["Compulsive Spending", "Overwhelming Debt", "Lack of Emergency Fund", "Financial Anxiety"],
@@ -233,7 +220,7 @@ DICCIONARIO_IDIOMAS = {
         }
     },
 # =================================================================
-# PARTE 9: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL (ITALIANO Y PORTUGUÉS)
+# PARTE 9: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (ITALIANO Y PORTUGUÉS)
 # =================================================================
     "Italiano": {
         "ctrl": "Dati di Controllo", "nombre": "Nome Completo o ID *:", "wha": "Numero WhatsApp di Contatto *:",
@@ -250,7 +237,7 @@ DICCIONARIO_IDIOMAS = {
         "mand_title": "### 🍊 I Tuoi Spicchi di Benessere", "mand_subtitle": "Seleziona gli indicatori critici della tua salute olistica:",
         "err_fields": "Per favore, compila i campi obbligatori.", "proc": "Elaborazione dell'analisi...", "local_ok": "Salvato Localmente (Modalità Offline)",
         "fields_msg": "💡 Compila i campi per sbloccare il download sicuro.", "thanks": "## 🍊 Grazie mille per la tua partecipazione!",
-        "thanks_sub": "Hai completato il profil diagnostico. Riconoscere i propri vettori temporali costituisce l'inizio della maturità.",
+        "thanks_sub": "Hai completato il profilo diagnostico. Riconoscere i propri vettori temporali costituisce l'inizio della maturità.",
         "qr_title": "📱 Codice QR Dinamico di Sicurezza (Proietta al Pubblico)", "qr_sub1": "1. Inquadra il codice QR con la fotocamera dello smartphone.",
         "qr_sub2": "2. Interagirai direttamente con l'applicazione nativa sviluppata per la tua organizzazione.",
         "gajos_data": {
@@ -284,37 +271,54 @@ DICCIONARIO_IDIOMAS = {
         "gajos_data": {
             "💪 Saúde Física": ["Nutrição Deficiente", "Falta de Sono/Insônia", "Sedentarismo Crônico", "Fatiga Corporal"],
             "🧠 Saúde Mental": ["Brain Fog", "Rumination", "Overload", "Cognitive Apathy"],
-            "❤️ Emocional Saúde": ["Acute Anxiety", "Irritability", "General Demotivation", "Mood Instability"],
+            "❤️ Saúde Emocional": ["Acute Anxiety", "Irritability", "General Demotivation", "Mood Instability"],
             "👥 Saúde Social": ["Voluntary Isolation", "Interpersonal Conflicts", "Lack of Support Network", "Weak Boundaries"],
-            "💰 Econômica Saúde": ["Compulsive Spending", "Overwhelming Debt", "Lack of Emergency Fund", "Financial Anxiety"],
-            "⏳ Temporal Saúde": ["Chronic Procrastination", "Burnout", "Perpetual Tardiness", "Lack of Margin"],
-            "🙏 Espiritual Saúde": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Loss of Meaning"]
+            "💰 Saúde Econômica": ["Compulsive Spending", "Overwhelming Debt", "Lack of Emergency Fund", "Financial Anxiety"],
+            "⏳ Saúde Temporal": ["Chronic Procrastination", "Burnout", "Perpetual Tardiness", "Lack of Margin"],
+            "🙏 Saúde Espiritual": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Loss of Meaning"]
         }
     }
 }
 # =================================================================
-# PARTE 10: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS Y AUTO-FUNDACIÓN
+# PARTE 10: CONXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS Y AUTO-FUNDACIÓN
 # =================================================================
 def conectar_google_sheets(nombre_pestana):
     try:
         if "gcp_service_account" not in st.secrets:
             return None
+            
         secrets_dict = dict(st.secrets["gcp_service_account"])
         if "private_key" in secrets_dict:
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+            
         client = gspread.service_account_from_dict(secrets_dict)
         workbook = client.open(NOMBRE_HOJA_CALCULO)
+        
         pestana_sana = nombre_pestana.replace("/", "_").replace("(", "").replace(")", "")[:30]
+        
         try:
             return workbook.worksheet(pestana_sana)
         except gspread.exceptions.WorksheetNotFound:
             new_sheet = workbook.add_worksheet(title=pestana_sana, rows="1000", cols="35")
+            
             if pestana_sana == "🍊 Salud Integral":
-                headers = ["Timestamp", "Nombre", "WhatsApp", "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"]
+                headers = [
+                    "Timestamp", "Nombre", "WhatsApp", 
+                    "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", 
+                    "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", 
+                    "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"
+                ]
             else:
-                headers = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1_Escuchado", "C2_Leído", "C3_Enseñado", "C4_Origen", "C5_Concepto"]
-                for i in range(1, 15): headers.append(f"R{i}")
+                headers = [
+                    "Timestamp", "Nombre", "WhatsApp", "Edad", "Género", 
+                    "Nacionalidad", "Estado Origen", "Estado Residencia", 
+                    "País Origen", "Continente Extranjero", "Rol Iglesia", 
+                    "C1_Escuchado", "C2_Leído", "C3_Enseñado", "C4_Origen", "C5_Concepto"
+                ]
+                for i in range(1, 15):
+                    headers.append(f"R{i}")
                 headers.append("Token")
+                
             new_sheet.append_row(headers)
             return new_sheet
     except Exception:
@@ -337,7 +341,8 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
                     resultados.get("C3_Enseñado", ""), resultados.get("C4_Origen", ""),
                     resultados.get("C5_Concepto", "")
                 ]
-                for i in range(1, 15): fila.append(resultados.get(f"R{i}", 3))
+                for i in range(1, 15):
+                    fila.append(resultados.get(f"R{i}", 3))
                 fila.append(token if token else "Acceso_Directo")
             else:
                 fila = [
@@ -358,18 +363,34 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
+    
     diccionario_pdf = {
-        "Español": {"rep": "REPORTE DIAGNOSTICO DE MODELOS TEMPORALES", "part": "Participante:", "cont": "Contacto/WhatsApp:", "fecha": "Fecha de Emision:", "vec": "VECTORES CRONOS Y KAIROS ADAPTATIVOS", "perf_s": "Perfil de Simbiosis Temporal Equilibrada (C&K)", "perf_c": "Perfil Temporal Cronocentrico Puro (Rigido)", "perf_k": "Perfil Temporal Kairotico Puro (Adaptativo)"},
-        "Inglés": {"rep": "DIAGNOSTIC REPORT OF TEMPORAL MODELS", "part": "Participant:", "cont": "Contact/WhatsApp:", "fecha": "Date of Issue:", "vec": "ADAPTIVE CRONOS AND KAIROS VECTORS", "perf_s": "Balanced Temporal Symbiosis Profile (C&K)", "perf_c": "Pure Chronocentric Temporal Profile (Rigid)", "perf_k": "Pure Kairotic Temporal Profile (Adaptive)"}
+        "Español": {
+            "rep": "REPORTE DIAGNOSTICO DE MODELOS TEMPORALES", "part": "Participante:", "cont": "Contacto/WhatsApp:",
+            "fecha": "Fecha de Emision:", "vec": "VECTORES CRONOS Y KAIROS ADAPTATIVOS", "perf_s": "Perfil de Simbiosis Temporal Equilibrada (C&K)",
+            "perf_c": "Perfil Temporal Cronocentrico Puro (Rigido)", "perf_k": "Perfil Temporal Kairotico Puro (Adaptativo)"
+        },
+        "Inglés": {
+            "rep": "DIAGNOSTIC REPORT OF TEMPORAL MODELS", "part": "Participant:", "cont": "Contact/WhatsApp:",
+            "fecha": "Date of Issue:", "vec": "ADAPTIVE CRONOS AND KAIROS VECTORS", "perf_s": "Balanced Temporal Symbiosis Profile (C&K)",
+            "perf_c": "Pure Chronocentric Temporal Profile (Rigid)", "perf_k": "Pure Kairotic Temporal Profile (Adaptive)"
+        }
     }
+    
     txt_str = str(texto)
     lang_dic = diccionario_pdf.get(idioma, diccionario_pdf["Español"])
-    if txt_str in lang_dic: return lang_dic[txt_str]
-    reemplazos = {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'ñ': 'n', 'Ñ': 'N', 'ü': 'u', 'Ü': 'U'}
+    if txt_str in lang_dic:
+        return lang_dic[txt_str]
+        
+    reemplazos = {
+        'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
+        'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
+        'ñ': 'n', 'Ñ': 'N', 'ü': 'u', 'Ü': 'U'
+    }
     texto_sano = "".join(reemplazos.get(c, c) for c in txt_str)
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
 # =================================================================
-# PARTE 13: CONSTRUCTOR DE REPORTES EN FLUJO DE BYTES (PDF ENGINE)
+# PARTE 13: CONSTRUCTOR DE REPORTES EN FLUJO DE BYTES (CORRECCIÓN SANGRE)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
@@ -383,6 +404,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.set_font("Helvetica", "B", 14)
     pdf.set_text_color(230, 81, 0) 
     pdf.cell(0, 10, titulo_sano, new_x="LMARGIN", new_y="NEXT", align="C")
+    
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(100, 100, 100)
     pdf.cell(0, 6, f"Jacob Zumaya Prianti (c) 2026 | Language: {lang}", new_x="LMARGIN", new_y="NEXT", align="C")
@@ -396,10 +418,12 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, nombre_sano if nombre_sano else "Anonimo", new_x="LMARGIN", new_y="NEXT")
+    
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("cont", lang), new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, whatsapp_sano if whatsapp_sano else "N/A", new_x="LMARGIN", new_y="NEXT")
+    
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
@@ -411,21 +435,26 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         kairos_v = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
         avg_cronos = sum(cronos_v) / 7
         avg_kairos = sum(kairos_v) / 7
+        
         pdf.set_font("Helvetica", "B", 12)
         pdf.set_text_color(230, 81, 0)
         pdf.cell(0, 8, limpiar_texto_pdf("vec", lang), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
+        
         if img_grafica_base64:
             try:
                 img_clean = img_grafica_base64.split(",")[-1]
                 img_data = BytesIO(base64.b64decode(img_clean))
                 pdf.image(img_data, x=60, w=90)
                 pdf.ln(4)
-            except Exception: pass
+            except Exception: 
+                pass
+                
         pdf.set_font("Helvetica", "", 11)
         pdf.cell(0, 6, f"- CRONOS SCORE: {avg_cronos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
         pdf.cell(0, 6, f"- KAIROS SCORE: {avg_kairos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(4)
+        
         diferencia = abs(avg_cronos - avg_kairos)
         pdf.set_font("Helvetica", "B", 11)
         if diferencia <= 0.4:
@@ -446,6 +475,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.set_font("Helvetica", "", 10)
             pdf.set_text_color(50, 50, 50)
             pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
+            
     return bytes(pdf.output())
 # =================================================================
 # PARTE 14: ALGORITMO CIENTÍFICO DE PROCESAMIENTO MATRICIAL SVD
@@ -458,23 +488,32 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
     try:
         if es_likert:
             columnas_r = [c for c in df.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-            if len(columnas_r) < 14: columnas_r = list(df.columns[16:30])
+            if len(columnas_r) < 14: 
+                columnas_r = list(df.columns[16:30])
+                
             matriz_datos = df[columnas_r].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
             cronos_data = matriz_datos[:, 0::2]
             kairos_data = matriz_datos[:, 1::2]
+            
             c_centered = cronos_data - np.mean(cronos_data, axis=0)
             k_centered = kairos_data - np.mean(kairos_data, axis=0)
+            
             _, _, V_c = np.linalg.svd(c_centered, full_matrices=False)
             _, _, V_k = np.linalg.svd(k_centered, full_matrices=False)
+            
             latent_cronos = c_centered @ V_c[0, :]
             latent_kairos = k_centered @ V_k[0, :]
+            
             impacto_data = matriz_datos[:, 12:14]
             i_centered = impacto_data - np.mean(impacto_data, axis=0)
             _, _, V_i = np.linalg.svd(i_centered, full_matrices=False)
             latent_impacto = i_centered @ V_i[0, :]
+            
             X = np.vstack([latent_cronos, latent_kairos]).T
             beta = np.linalg.pinv(X.T @ X) @ X.T @ latent_impacto
+            
             r_cuadrado = 1 - (np.sum((latent_impacto - X @ beta) ** 2) / np.sum((latent_impacto - np.mean(latent_impacto)) ** 2))
+            
             analisis["status"] = "Convergencia Exitosa (SEMDeep Engine v2.6)"
             analisis["beta_cronos_path"] = float(beta) if len(beta) > 0 else 0.0
             analisis["beta_kairos_path"] = float(beta) if len(beta) > 1 else 0.0
@@ -484,44 +523,61 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
             matriz_datos = df.iloc[:, 3:10].apply(pd.to_numeric, errors='coerce').fillna(0).to_numpy()
             c_centered = matriz_datos - np.mean(matriz_datos, axis=0)
             _, s, _ = np.linalg.svd(c_centered, full_matrices=False)
+            
             s_cuadrado = s ** 2
             analisis["status"] = "Convergencia Lineal Exitosa (SVD Gajos)"
             analisis["gof_r2_ajuste"] = float(s_cuadrado / np.sum(s_cuadrado)) if len(s) > 0 else 0.0
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
+        
     return analisis
 
+# =================================================================
+# PARTE 14.5: MUTADOR ISOMÓRFICO DE ENUNCIADOS DEL BANCO POLÍGLOTA
+# =================================================================
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
     fuga = str(b_alertas) if b_alertas else "OK"
     banco_alterno = {}
     for i in range(1, 15):
-        if i % 2 != 0: banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
-        else: banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
+        if i % 2 != 0:
+            banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
+        else:
+            banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
     return banco_alterno
 # =================================================================
 # PARTE 15: ORQUESTACIÓN CENTRAL Y FUNDACIÓN EN FRÍO DEL ECOSISTEMA
 # =================================================================
 def main():
-    if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
-    if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
-    if "guardado_exitoso" not in st.session_state: st.session_state.guardado_exitoso = False
-    if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
-    if "alertas_mandarina_previas" not in st.session_state: st.session_state.alertas_mandarina_previas = []
+    # Inicialización cognitiva de la pila del Session State de Streamlit
+    if "audiencia_activa" not in st.session_state:
+        st.session_state.audiencia_activa = "🍊 Salud Integral"
+    if "admin_autenticado" not in st.session_state:
+        st.session_state.admin_autenticado = False
+    if "guardado_exitoso" not in st.session_state:
+        st.session_state.guardado_exitoso = False
+    if "flujo_finalizado" not in st.session_state:
+        st.session_state.flujo_finalizado = False
+    if "alertas_mandarina_previas" not in st.session_state:
+        st.session_state.alertas_mandarina_previas = []
 
+    # Fundación estructural en frío automática de pestañas base en Google Sheets
     if "estructuras_inicializadas" not in st.session_state:
         lista_inicializar = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
         with st.spinner("Instanciando matriz de datos políglota en Google Sheets... 🍊"):
-            for tabla in lista_inicializar: conectar_google_sheets(tabla)
+            for tabla in lista_inicializar:
+                conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 # =================================================================
-# PARTE 16: INTERCEPTOR DE ACCESOS Y CAPA INTERNACIONAL (I18N)
+# PARTE 16: INTERCEPTOR DE ACCESOS Y CAPA INTERNACIONAL DE IDIOMA
 # =================================================================
+    # Interceptor Temporal de Accesos Únicos y Tokens Caducados
     if token_actual and not st.session_state.admin_autenticado:
         acceso_bloqueado = False
         minuto_base = int(time.time() // 60)
         tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(5)]
-        if token_actual not in tokens_validos: acceso_bloqueado = True
+        if token_actual not in tokens_validos: 
+            acceso_bloqueado = True
         else:
             sheet = conectar_google_sheets(st.session_state.audiencia_activa)
             if sheet:
@@ -529,21 +585,28 @@ def main():
                     registros = sheet.get_all_records()
                     if registros:
                         df_check = pd.DataFrame(registros)
-                        if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]: acceso_bloqueado = True
-                except Exception: pass
+                        if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]: 
+                            acceso_bloqueado = True
+                except Exception: 
+                    pass
         if acceso_bloqueado:
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
+    # Despliegue prioritario de la compuerta de traducción políglota
     if not st.session_state.flujo_finalizado:
-        idioma_sel = st.selectbox("🌐 Choose System Language / Selecciona Idioma:", ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"])
+        idioma_sel = st.selectbox(
+            "🌐 Choose System Language / Selecciona Idioma:", 
+            ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"]
+        )
         tx = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
     else:
         idioma_sel = "Español"
         tx = DICCIONARIO_IDIOMAS["Español"]
 # =================================================================
-# PARTE 17: EMISION DE CODIGO QR PROYECTADO AL AUDITORIO
+# PARTE 17: MÓDULO DE EMISIÓN DE CÓDIGOS QR AL AUDITORIO
 # =================================================================
+    # Renderizado dinámico del expander del Código QR con fallback blindado
     if not es_celular_del_publico:
         titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
         sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
@@ -564,7 +627,7 @@ def main():
                 st.write(sub_qr1)
                 st.write(sub_qr2)
 # =================================================================
-# PARTE 18: RENDERIZACIÓN ISOMÓRFICA DE LOS GAJOS DE BIENESTAR
+# PARTE 18: RENDERIZACIÓN ISOMÓRFICA DE LOS 7 GAJOS TRADUCIDOS
 # =================================================================
     if not st.session_state.flujo_finalizado:
         st.header(f"📋 {st.session_state.audiencia_activa}")
@@ -572,13 +635,14 @@ def main():
         whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
         st.divider()
         
-        # SOLUCIÓN QUIRÚRGICA: Instanciación en la raíz del formulario, inmune a NameError
+        # HOISTING DE VARIABLES: Declaración superior síncrona inmune al NameError
         resultados_totales = {}
         es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
         if not es_modo_likert:
             st.write(tx["mand_title"])
             st.write(tx["mand_subtitle"])
+            
             gajos_dinamicos = tx.get("gajos_data", DICCIONARIO_IDIOMAS["Español"]["gajos_data"])
             
             for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
@@ -586,11 +650,12 @@ def main():
                     st.markdown(f"#### {g_name}")
                     col1, col2 = st.columns(2)
                     with col1:
-                        cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
-                        cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
+                        cb0 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_0")
+                        cb1 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_1")
                     with col2:
-                        cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
-                        cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
+                        cb2 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_2")
+                        cb3 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_3")
+                        
                     resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                     
             if st.button("Procesar Alertas Base / Register Alerts"):
@@ -701,7 +766,7 @@ def main():
                     if not todas_las_filas or len(todas_las_filas) < 2:
                         st.warning("⚠️ La tabla seleccionada no contiene registros o datos suficientes para la auditoría.")
                     else:
-                        encabezados = todas_las_filas[0]
+                        encabezados = todas_las_filas
                         datos_cuerpo = todas_las_filas[1:]
                         
                         encabezados_unicos = []
