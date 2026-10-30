@@ -18,24 +18,26 @@ import matplotlib.pyplot as plt
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-# SOLUCIÓN DE SECUENCIA TOTAL: Inicialización atómica prioritaria de tokens y variables de entorno de red
+# SOLUCIÓN ABSOLUTA DE SECUENCIA: Inicialización síncrona y global de tokens y variables de red
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
-if "audiencia_activa" not in st.session_state:
-    st.session_state.audiencia_activa = "🍊 Salud Integral"
-
+# Captura prioritaria de parámetros de consulta (Query Params)
+token_actual = st.query_params.get("token", None)
 modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 diag_tipo_url = st.query_params.get("diag_tipo", None)
 
+if "audiencia_activa" not in st.session_state:
+    st.session_state.audiencia_activa = "🍊 Salud Integral"
+
 if es_celular_del_publico and diag_tipo_url:
     st.session_state.audiencia_activa = diag_tipo_url
 
-# Asignación inamovible global de la URL del token para evitar NameErrors en cascada
+# Construcción unificada de la URL parametrizada del QR
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
@@ -271,16 +273,16 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
             r_cuadrado = 1 - (np.sum((latent_impacto - X @ beta) ** 2) / np.sum((latent_impacto - np.mean(latent_impacto)) ** 2))
             
             analisis["status"] = "Convergencia Exitosa (SEMDeep Engine v2.6)"
-            analisis["beta_cronos_path"] = float(beta) if len(beta)>0 else 0.0
-            analisis["beta_kairos_path"] = float(beta) if len(beta)>1 else 0.0
+            analisis["beta_cronos_path"] = float(beta[0]) if len(beta)>0 else 0.0
+            analisis["beta_kairos_path"] = float(beta[1]) if len(beta)>1 else 0.0
             analisis["gof_r2_ajuste"] = max(0.0, float(r_cuadrado))
-            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos))
+            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos)[0, 1])
         else:
             matriz_datos = df.iloc[:, 3:10].apply(pd.to_numeric, errors='coerce').fillna(0).to_numpy()
             c_centered = matriz_datos - np.mean(matriz_datos, axis=0)
             _, s, _ = np.linalg.svd(c_centered, full_matrices=False)
             analisis["status"] = "Convergencia Lineal Exitosa (SVD Gajos)"
-            analisis["gof_r2_ajuste"] = float(s**2 / np.sum(s**2)) if len(s)>0 else 0.0
+            analisis["gof_r2_ajuste"] = float(s[0]**2 / np.sum(s**2)) if len(s)>0 else 0.0
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
@@ -310,7 +312,7 @@ if "guardado_exitoso" not in st.session_state:
 if "flujo_finalizado" not in st.session_state:
     st.session_state.flujo_finalizado = False
 
-# Extracción de clave cifrada desde Secrets TOML
+# Extracción segura de la clave cifrada de Secrets para blindar el código fuente
 PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
 
 if not es_celular_del_publico:
@@ -334,6 +336,7 @@ if not es_celular_del_publico:
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
+# Interceptor estructural de caducidad temporal (Ventana de 5 minutos de gracia)
 if token_actual and not st.session_state.admin_autenticado:
     minuto_base = int(time.time() // 60)
     tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(5)]
@@ -349,6 +352,8 @@ if token_actual and not st.session_state.admin_autenticado:
                     if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]:
                         acceso_bloqueado = True
             except Exception: pass
+else:
+    acceso_bloqueado = False
 
 if acceso_bloqueado:
     st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
@@ -538,7 +543,6 @@ if not st.session_state.flujo_finalizado:
             resultados_totales["Salud Espiritual (SPI)"] = [item for idx, item in enumerate(spi_items) if st.session_state[f"spi_{idx}"]]
 
 
-    # # PARTE 8: DESPLIEGUE GEOGRÁFICO ADAPTADO, CONOCIMIENTO Y ESCALA LIKERT LIMPÍA
     else:
         st.subheader("🏛️ Sección I. Datos Demográficos y Geográficos")
         resultados_totales["Edad"] = st.number_input("1. Edad (Años):", min_value=10, max_value=100, value=20, key="dem_edad")
@@ -560,8 +564,7 @@ if not st.session_state.flujo_finalizado:
             
         if "Religioso" in st.session_state.audiencia_activa:
             resultados_totales["Rol Iglesia"] = st.selectbox("6. Rol dentro de la Iglesia:", ["", "Laico / Miembro", "Líder de Departamento", "Anciano / Diácono", "Pastor / Ministro"], key="dem_rol")
-        else: 
-            resultados_totales["Rol Iglesia"] = "N/A"
+        else: resultados_totales["Rol Iglesia"] = "N/A"
 
         st.subheader("🧠 Sección II. Conocimiento sobre el tema")
         resultados_totales["C1_Escuchado"] = st.radio("1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:", ["Sí", "No"], horizontal=True, key="kn_1")
@@ -573,9 +576,7 @@ if not st.session_state.flujo_finalizado:
         st.subheader("📊 Sección III. Batería de Reactivos Intercalados")
         banco_activo = BANCO_PREGUNTAS.get(st.session_state.audiencia_activa, BANCO_PREGUNTAS["Docentes"])
         for r_id, enunciado in banco_activo.items():
-            texto_final = enunciado.replace("el ITAP", f"mi organizacion ({st.session_state.audiencia_activa})").replace("el instituto", "la institucion").replace("maquiladora", "empresa")
-            st.write(f"**Reactivo {r_id}:** {texto_final}")
-            # CORRECCIÓN DEFINITIVA: Se inyectó el array de enteros [1, 2, 3, 4, 5]
+            st.write(f"**Reactivo {r_id}:** {enunciado}")
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Grado de alineación:", options=[1, 2, 3, 4, 5],
                 format_func=lambda x: {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}[x],
@@ -589,7 +590,7 @@ if not st.session_state.flujo_finalizado:
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
 
     with col_btn1:
-        if st.button("💾 Guardar y Procesar Diagnóstico", width="stretch", type="primary"):
+        if st.button("💾 Guardar y Processar Diagnóstico", width="stretch", type="primary"):
             if not campos_completos: st.error("⚠️ Datos de control incompletos.")
             else:
                 with st.spinner("Registrando vectores temporales en la nube..."):
