@@ -18,16 +18,25 @@ import matplotlib.pyplot as plt
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+# IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-# SOLUCIÓN MAESTRA DE SECUENCIA: Inicialización global y prioritaria de variables de entorno de red
+# SOLUCIÓN MAESTRA DE SECUENCIA: Declaración y construcción del token global y la URL dinámica
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
+
+if "audiencia_activa" not in st.session_state:
+    st.session_state.audiencia_activa = "🍊 Salud Integral"
 
 modo_admin_url = st.query_params.get("modo_admin", "true")
 es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
 diag_tipo_url = st.query_params.get("diag_tipo", None)
+
+if es_celular_del_publico and diag_tipo_url:
+    st.session_state.audiencia_activa = diag_tipo_url
+
+url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
@@ -48,11 +57,13 @@ def conectar_google_sheets(nombre_pestana):
         client = gspread.service_account_from_dict(secrets_dict)
         workbook = client.open(NOMBRE_HOJA_CALCULO)
         
+        # Limpieza sintáctica del nombre de la pestaña para evitar quiebres en Google Sheets
         pestana_sana = nombre_pestana.replace("/", "_").replace("(", "").replace(")", "")[:30]
         
         try:
             return workbook.worksheet(pestana_sana)
         except gspread.exceptions.WorksheetNotFound:
+            # Autogeneración de tablas independientes estructuradas según la audiencia del ponente
             return workbook.add_worksheet(title=pestana_sana, rows="1000", cols="35")
     except Exception:
         return None
@@ -62,6 +73,7 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
     if sheet:
         try:
             if es_likert:
+                # Fila expandida con datos geográficos refinados (Incluye País de Origen)
                 fila = [
                     str(datetime.datetime.now()), nombre, whatsapp,
                     resultados.get("Edad", ""), resultados.get("Género", ""),
@@ -76,6 +88,7 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
                     fila.append(resultados.get(f"R{i}", 3))
                 fila.append(token if token else "Acceso_Directo")
             else:
+                # Fila tradicional para el diagnóstico nativo de Salud Integral Mandarina
                 fila = [
                     str(datetime.datetime.now()), nombre, whatsapp,
                     len(resultados.get("Salud Fisica (SF)", [])), len(resultados.get("Salud Mental (SM)", [])),
@@ -163,7 +176,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.cell(0, 6, "Perfil Temporal Kairotico Puro", new_x="LMARGIN", new_y="NEXT")
             pdf.set_font("Helvetica", "I", 10)
             pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(0, 5, "Tu comportamiento prioriza las ventanas providenciales de oportunidad, la salud mental y la adaptabilidad. Tu reto es evitar que la flexibilidad diluya el cumplimiento de metas metricas.")
+            pdf.multi_cell(0, 5, "Tu comportamiento prioriza las ventanas providenciales de oportunidad, la salud mental and la adaptabilidad. Tu reto es evitar que la flexibilidad diluya el cumplimiento de metas metricas.")
         else:
             pdf.set_text_color(217, 30, 24) 
             pdf.cell(0, 6, "Perfil Temporal Cronocentrico Puro (Estructurado)", new_x="LMARGIN", new_y="NEXT")
@@ -210,6 +223,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         invitacion_lbl = "Lograr el acoplamiento perfecto entre la eficiencia del reloj (Cronos) y el valor real de la oportunidad (Kairos) requiere un diseno estrategico avanzado. Te invitamos a solicitar una sesion de consultoria especializada y personalizada con el ponente Jacob Zumaya Prianti para disenar un flujograma de simbiosis temporal C&K adaptado a tus metas corporativas."
         pdf.multi_cell(0, 5, invitacion_lbl, border="LRB")
     else:
+        # Segmentación original Mandarina por Subtítulos Independientes
         for dim_nombre, items in resultados.items():
             conteo = len(items)
             estado = "GAJO SANO Y PLENO" if conteo == 0 else ("EN ALERTA TEMPRANA" if conteo < 3 else "CRITICO / URGENCIA INMEDIATA")
@@ -262,8 +276,8 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
             r_cuadrado = 1 - (np.sum((latent_impacto - X @ beta) ** 2) / np.sum((latent_impacto - np.mean(latent_impacto)) ** 2))
             
             analisis["status"] = "Convergencia Exitosa (SEMDeep Engine v2.6)"
-            analisis["beta_cronos_path"] = float(beta[0])
-            analisis["beta_kairos_path"] = float(beta[1])
+            analisis["beta_cronos_path"] = float(beta[0]) if len(beta)>0 else 0.0
+            analisis["beta_kairos_path"] = float(beta[1]) if len(beta)>1 else 0.0
             analisis["gof_r2_ajuste"] = max(0.0, float(r_cuadrado))
             analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos)[0, 1])
         else:
@@ -271,14 +285,11 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
             c_centered = matriz_datos - np.mean(matriz_datos, axis=0)
             _, s, _ = np.linalg.svd(c_centered, full_matrices=False)
             analisis["status"] = "Convergencia Lineal Exitosa (SVD Gajos)"
-            analisis["gof_r2_ajuste"] = float(s[0]**2 / np.sum(s**2)) if len(s)>0 else 0.0
+            analisis["gof_r2_ajuste"] = float(s**2 / np.sum(s**2)) if len(s)>0 else 0.0
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
 
-
-if es_celular_del_publico and diag_tipo_url:
-    st.session_state.audiencia_activa = diag_tipo_url
 
 if not es_celular_del_publico:
     with st.expander("📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", expanded=True):
@@ -390,20 +401,13 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
                 
-                # ---- MANUAL DE INTERPRETACIÓN CIENTÍFICA SEMDEEP DE NIVEL DOCTORAL ----
                 with st.container(border=True):
                     st.markdown("### 📚 Guía de Interpretación Epistemológica del SEMDeep (Fidelidad Doctoral)")
                     st.markdown(
-                        "El motor **SEMDeep (Structural Equation Modeling Deep Engine)** evalúa relaciones de covarianza estructural "
-                        "entre constructos no observables (Variables Latentes) derivados del comportamiento temporal de la muestra. "
-                        "A diferencia de las regresiones ordinarias, calcula cargas factoriales puras mediante Descomposición en Valores Singulares (SVD).\n\n"
-                        "**1. Path Coefficients (Beta Cronos / Beta Kairos):** Indican la magnitud y dirección del impacto de cada régimen temporal sobre la capacidad de adaptación "
-                        "y transformación ética del grupo. Un coeficiente mayor a `0.40` indica una influencia crítica dominante. Si `Beta Cronos > Beta Kairos`, el auditorio unifica su excelencia "
-                        "vía estructuras rígidas; si es a la inversa, la organización depende del clima relacional y momentos de oportunidad.\n\n"
-                        "**2. Goodness of Fit (GoF / R² Ajustado):** Representa el poder de predictibilidad científica general del modelo. Un `GoF` de `0.50` a `0.70` se clasifica con rigor académico "
-                        "como un ajuste de alta fidelidad, indicando que el régimen del tiempo explica la mayor parte del comportamiento adaptativo de la muestra.\n\n"
-                        "**3. Covarianza Latente:** Mide la distancia analítica entre los constructos. Una covarianza cercana a `0.00` o negativa evidencia una tensión severa y fricción operativa "
-                        "en la muestra de la organización, validando la urgencia inmediata de implementar la **Simbiosis C&K** promovida en la consultoría."
+                        "El motor **SEMDeep** evalúa relaciones de covarianza estructural entre constructos no observables derivados de la muestra.\n\n"
+                        "**1. Path Coefficients (Beta):** Indican la magnitud del impacto de cada régimen temporal sobre la capacidad de adaptación. Un coeficiente mayor a `0.40` es dominante.\n\n"
+                        "**2. Goodness of Fit (GoF / R²):** Poder de predictibilidad general. Un `GoF` de `0.50` a `0.70` es un ajuste de alta fidelidad académica.\n\n"
+                        "**3. Covarianza Latente:** Mide la distancia entre los constructos. Una covarianza cercana a `0.00` evidencia una tensión severa y fricción en la organización."
                     )
             else: st.warning("No hay filas registradas en esta pestaña.")
         else: st.error("Error de enlace.")
@@ -459,7 +463,6 @@ if not st.session_state.flujo_finalizado:
 
     if not es_modo_likert:
         st.write("### 🍊 Tus Gajos de Bienestar (Diseño Estilizado)")
-        st.write("Selecciona los puntos de fuga específicos donde requieres intervención:")
         
         with st.container(border=True):
             st.markdown("#### 💪 Salud Física (SF)")
@@ -535,8 +538,6 @@ if not st.session_state.flujo_finalizado:
             resultados_totales["Salud Espiritual (SPI)"] = [item for idx, item in enumerate(spi_items) if st.session_state[f"spi_{idx}"]]
 
 
-   # # PARTE 8: DESPLIEGUE GEOGRÁFICO ADAPTADO, CONOCIMIENTO Y ESCALA LIKERT LIMPÍA
-
     else:
         st.subheader("🏛️ Sección I. Datos Demográficos y Geográficos")
         resultados_totales["Edad"] = st.number_input("1. Edad (Años):", min_value=10, max_value=100, value=20, key="dem_edad")
@@ -558,8 +559,7 @@ if not st.session_state.flujo_finalizado:
             
         if "Religioso" in st.session_state.audiencia_activa:
             resultados_totales["Rol Iglesia"] = st.selectbox("6. Rol dentro de la Iglesia:", ["", "Laico / Miembro", "Líder de Departamento", "Anciano / Diácono", "Pastor / Ministro"], key="dem_rol")
-        else: 
-            resultados_totales["Rol Iglesia"] = "N/A"
+        else: resultados_totales["Rol Iglesia"] = "N/A"
 
         st.subheader("🧠 Sección II. Conocimiento sobre el tema")
         resultados_totales["C1_Escuchado"] = st.radio("1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:", ["Sí", "No"], horizontal=True, key="kn_1")
@@ -573,15 +573,12 @@ if not st.session_state.flujo_finalizado:
         for r_id, enunciado in banco_activo.items():
             texto_final = enunciado.replace("el ITAP", f"mi organizacion ({st.session_state.audiencia_activa})").replace("el instituto", "la institucion").replace("maquiladora", "empresa")
             st.write(f"**Reactivo {r_id}:** {texto_final}")
-            # CORRECCIÓN DE SINTAXIS: Se asignó la lista de enteros [1, 2, 3, 4, 5] a la propiedad options
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Grado de alineación:", 
-                options=[1, 2, 3, 4, 5],
+                "Grado de alineación:", options=[1, 2, 3, 4, 5],
                 format_func=lambda x: {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}[x],
                 key=f"dyn_r_{r_id}"
             )
         ck_marcado = False
-
 
 
     st.divider()
@@ -652,7 +649,7 @@ else:
         st.write("---")
         st.write("### 📅 ¿Te gustaría llevar tu diagnóstico al siguiente nivel?")
         st.write("Te invitamos cordialmente a agendar una sesión de consulta directa y personalizada con el ponente. En esta asesoría individualizada estructuraremos un plan de acción a la medida.")
-        st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento directamente en el escenario.")
+        st.info("👉 Acércate al término de la ponencia o solicita tu espacio de asesoramiento personalizado directamente en el escenario.")
         
     st.markdown("### ✨ ¡Te deseamos el mayor de los éxitos en los nuevos cambios que inicias a partir de esta experiencia! ✨")
     
