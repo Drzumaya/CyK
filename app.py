@@ -13,6 +13,7 @@ import hashlib
 import time
 import base64
 
+
 # CONFIGURACIÓN OBLIGATORIA DE SEGURIDAD: Debe ser la primera instrucción ejecutable del script
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
@@ -275,8 +276,9 @@ if es_celular_del_publico and diag_tipo_url:
     st.session_state.audiencia_activa = diag_tipo_url
 
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
+
 # =================================================================
-# PARTE 6: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS (HEADERS AUTO)
+# PARTE 6: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS Y AUTO-FUNDACIÓN
 # =================================================================
 def conectar_google_sheets(nombre_pestana):
     try:
@@ -295,10 +297,9 @@ def conectar_google_sheets(nombre_pestana):
         try:
             return workbook.worksheet(pestana_sana)
         except gspread.exceptions.WorksheetNotFound:
-            # Si la pestaña no existe, la creamos de forma segura
+            # INSTANCIACIÓN QUIRÚRGICA: Si la hoja no existe, la fundamos con sus columnas exactas
             new_sheet = workbook.add_worksheet(title=pestana_sana, rows="1000", cols="35")
             
-            # OJO CRÍTICO: Inyectamos los encabezados base según el tipo de audiencia
             if pestana_sana == "🍊 Salud Integral":
                 headers = [
                     "Timestamp", "Nombre", "WhatsApp", 
@@ -313,7 +314,6 @@ def conectar_google_sheets(nombre_pestana):
                     "País Origen", "Continente Extranjero", "Rol Iglesia", 
                     "C1_Escuchado", "C2_Leído", "C3_Enseñado", "C4_Origen", "C5_Concepto"
                 ]
-                # Agregamos dinámicamente los encabezados para los 14 reactivos Likert
                 for i in range(1, 15):
                     headers.append(f"R{i}")
                 headers.append("Token")
@@ -322,6 +322,7 @@ def conectar_google_sheets(nombre_pestana):
             return new_sheet
     except Exception:
         return None
+
 
 # =================================================================
 # PARTE 7: DESPACHO AUTOMATIZADO DE VECTORES ANALÍTICOS A LA NUBE
@@ -579,6 +580,78 @@ if "flujo_finalizado" not in st.session_state:
     st.session_state.flujo_finalizado = False
 if "alertas_mandarina_previas" not in st.session_state:
     st.session_state.alertas_mandarina_previas = []
+
+# =================================================================
+# PARTE 12.5: ORQUESTACIÓN CENTRAL Y FUNDACIÓN EN FRÍO DEL ECOSISTEMA
+# =================================================================
+def main():
+    # 1. Inicialización síncrona y cognitiva del Session State de Streamlit
+    if "audiencia_activa" not in st.session_state:
+        st.session_state.audiencia_activa = "🍊 Salud Integral"
+    if "admin_autenticado" not in st.session_state:
+        st.session_state.admin_autenticado = False
+    if "guardado_exitoso" not in st.session_state:
+        st.session_state.guardado_exitoso = False
+    if "flujo_finalizado" not in st.session_state:
+        st.session_state.flujo_finalizado = False
+    if "alertas_mandarina_previas" not in st.session_state:
+        st.session_state.alertas_mandarina_previas = []
+
+    # 2. PASO 2 CORREGIDO: Inicializador y Constructor de Estructuras en la Nube
+    # Revisa Google Sheets en el primer milisegundo. Si no existen las pestañas, las crea con sus columnas.
+    if "estructuras_inicializadas" not in st.session_state:
+        lista_inicializar = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
+        with st.spinner("Instanciando matriz de datos políglota en Google Sheets... 🍊"):
+            for tabla in lista_inicializar:
+                conectar_google_sheets(tabla)
+        st.session_state.estructuras_inicializadas = True
+
+    # 3. Intercepción y Extracción de Parámetros URL de Red
+    minuto_actual = int(time.time() // 60)
+    token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
+    token_actual = st.query_params.get("token", None)
+    modo_admin_url = st.query_params.get("modo_admin", "true")
+    es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+    diag_tipo_url = st.query_params.get("diag_tipo", None)
+
+    if es_celular_del_publico and diag_tipo_url:
+        st.session_state.audiencia_activa = diag_tipo_url
+
+    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
+
+    # 4. Interceptor Temporal de Accesos y Tokens Caducados
+    if token_actual and not st.session_state.admin_autenticado:
+        acceso_bloqueado = False
+        minuto_base = int(time.time() // 60)
+        tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(5)]
+        if token_actual not in tokens_validos: 
+            acceso_bloqueado = True
+        else:
+            sheet = conectar_google_sheets(st.session_state.audiencia_activa)
+            if sheet:
+                try:
+                    registros = sheet.get_all_records()
+                    if registros:
+                        df_check = pd.DataFrame(registros)
+                        if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]: 
+                            acceso_bloqueado = True
+                except Exception: 
+                    pass
+        if acceso_bloqueado:
+            st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
+            st.stop()
+
+    # 5. Capa i18n Internacional (Traductor Global Inmediato)
+    if not st.session_state.flujo_finalizado:
+        idioma_sel = st.selectbox(
+            "🌐 Choose System Language / Selecciona Idioma:", 
+            ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"]
+        )
+        tx = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
+    else:
+        idioma_sel = "Español"
+        tx = DICCIONARIO_IDIOMAS["Español"]
+
 
 # =================================================================
 # PARTE 13: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
