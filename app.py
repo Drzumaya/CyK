@@ -487,8 +487,6 @@ DICCIONARIO_IDIOMAS = {
         "kn4": "4. Das Zeitmodell:", "kn5": "5. Über Zeitmodelle zu sprechen bedeutet:",
         "sec3": "Abschnitt III. Likert-Skala", "btn_save": "💾 Speichern & Verarbeiten", "btn_pdf": "ERGEBNISSE ALS PDF HERUNTERLADEN 📥",
         "likert_labels": {1:"1 - Stimme überhaupt nicht zu", 2:"2 - Stimme nicht zu", 3:"3 - Neutral", 4:"4 - Stimme zu", 5:"5 - Stimme vollkommen zu"},
-
-
 "c_pool": "Ich plane meine Aktivitäten in {geo} strikt nach der Uhrzeit.",
 "k_pool": "Flexibilität bei der Anpassung von Plänen an Gelegenheiten in {geo} is wichtiger als die Uhr.",
 "mand_title": "### 🍊 Ihre Scheiben des Wohlbefindens",
@@ -503,7 +501,7 @@ DICCIONARIO_IDIOMAS = {
 "pais": "4. Scrivi il tuo Paese d'origine *:", "cont": "5. Seleziona il tuo Continente *:", "rol": "6. Ruolo all'interno della Chiesa:",
 "sec2": "Sezione II. Conescienza dell'Argomento", "kn1": "1. Prima di questo sondaggio hai mai sentito parlare dei Modelli Temporali?",
 "kn2": "2. Hai letto dei modelli temporali Chronos e Kairos?", "kn3": "3. Hai mai insegnato questi modelli temporali?",
-"kn4": "4. Il modello temporale:", "kn5": "5. Parlare di modelli temporali significa parlare di:",
+"kn4": "4. Il modello temporale:", "kn5": "5. Parlare di modelli temporales significa parlare di:",
 "sec3": "Sezione III. Scala Likert Intercalata", "btn_save": "💾 Salva e Processa Diagnosi", "btn_pdf": "SCARICA I RISULTATI IN PDF 📥",
 "likert_labels": {1:"1 - Totalmente in disaccordo", 2:"2 - In disaccordo", 3:"3 - Neutrale", 4:"4 - D'accordo", 5:"5 - Totalmente d'accordo"},
 "c_pool": "Pianifico le mie attività operative in {geo} seguendo rigorosamente l'orologio.",
@@ -581,6 +579,7 @@ if not st.session_state.flujo_finalizado:
             st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
             st.success("OK. Context synchronized.")
 
+
     else:
         st.subheader(tx["sec1"])
         resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
@@ -616,7 +615,7 @@ if not st.session_state.flujo_finalizado:
         
         for r_id, enunciado_idioma in banco_mutado.items():
             st.write(f"**Reactivo {r_id}:** {enunciado_idioma}")
-            # ENLACE SEGURO DE ESCALA: Se inyectó la propiedad options completa
+            # RESOLUCIÓN LIKERT: Inyección explícita de opciones
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Scale:", 
                 options=[1, 2, 3, 4, 5],
