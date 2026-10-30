@@ -261,6 +261,8 @@ if acceso_bloqueado:
     st.stop()
 
 
+# # PARTE 6: BANCOS DE REACTIVOS PSICOMÉTRICOS DEL ECOSISTEMA (DICCIONARIOS)
+
 BANCO_PREGUNTAS = {
     "Docentes": {
         1: "Planifico mis actividades académicas, proyectos de ingeniería o labores administrativas en el ITAP siguiendo estrictamente los horarios institucionales y el calendario oficial del semestre.",
@@ -275,7 +277,7 @@ BANCO_PREGUNTAS = {
         10: "Cuando me encuentro inmerso en el desarrollo de software, diseño de prototipos, investigación de campo o dinámicas colaborativas complejas, pierdo con frecuencia la noción del tiempo terrenal.",
         11: "Mido el éxito de un proyecto de residencias profesionales, servicio social o evento institucional principalmente a través del cumplimiento exacto de las metas métricas y los tiempos de entrega programados.",
         12: "Prefiero que la gobernanza, las academias y los ministerios de apoyo en la comunidad universitaria se adapten con sensibilidad a las necesidades emocionales y de salud mental urgentes de la comunidad estudiantil.",
-        13: "Considero que el apego riguroso a los manuales de procesos organizacionales, las minutas y los flujogramas del ITAP es la clave fundamental para mantener el orden, la eficiencia y la excelencia institucional.",
+        13: "Considero que el apego riguroso a los manuales de procesos organizacionales, las minutas y los flujogramas del ITAP es la clave fundamental para mantener el orden, la eficiencia and la excelencia institucional.",
         14: "Valoro los resultados del impacto educativo del ITAP por la transformación integral del pensamiento, la ética profesional y el bienestar de los graduados, más que por las métricas de egreso o los blancos numéricos alcanzados."
     },
     "🏭 Sector Secundario": {
@@ -307,6 +309,7 @@ CONTINENTES = [
     "América del Norte", "América Central / El Caribe", "América del Sur", "Europa", "Asia", "África", "Oceanía"
 ]
 
+# # PARTE 7: DESPLIEGUE DINÁMICO DEL FORMULARIO ACTIVO (MUTACIÓN DE CAMPOS Y GEOGRAFÍA)
 
 if not st.session_state.flujo_finalizado:
     st.header(f"📋 Formulario de Evaluación: {st.session_state.audiencia_activa}")
@@ -338,7 +341,6 @@ if not st.session_state.flujo_finalizado:
         spi_items = ["Propósito (Sentido de vida)", "Valores (Alineación de actos)", "Meditación u oración", "Conexión del interior con el exterior"]
         resultados_totales["Salud Espiritual (SPI)"] = [i for i in spi_items if st.checkbox(i, key=f"spi_{i}")]
 
-
     # MODO B: CUESTIONARIOS LIKERT DINÁMICOS CON MUTACIÓN GEOGRÁFICA ESTRICTA
     else:
         # ---- SECCIÓN I: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS ----
@@ -350,7 +352,7 @@ if not st.session_state.flujo_finalizado:
         nacionalidad = st.radio("3. Nacionalidad *:", ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
         resultados_totales["Nacionalidad"] = nacionalidad
         
-        # Bifurcación síncrona según la nacionalidad seleccionada
+        # Bifurcación síncrona según la nacionalidad elegida por la audiencia
         if nacionalidad == "Mexicana":
             resultados_totales["Estado Origen"] = st.selectbox("4. Estado mexicano de origen *:", [""] + ESTADOS_MEXICO, key="dem_orig")
             resultados_totales["Estado Residencia"] = st.selectbox("5. Estado mexicano de residencia actual *:", [""] + ESTADOS_MEXICO, key="dem_res")
@@ -360,9 +362,10 @@ if not st.session_state.flujo_finalizado:
             resultados_totales["Estado Origen"] = "N/A"
             resultados_totales["Estado Residencia"] = "N/A"
             resultados_totales["País Origen"] = st.text_input("4. Escribe tu País de origen *:", placeholder="Ej. Colombia / España", key="dem_pais_txt")
+            # AJUSTADO: Al ser extranjero, despliega explícitamente el selector cerrado con el catálogo de continentes
             resultados_totales["Continente Extranjero"] = st.selectbox("5. Selecciona tu Continente de origen *:", [""] + CONTINENTES, key="dem_cont")
             
-        # Filtro exclusivo para audiencias del sector religioso
+        # Filtro exclusivo de roles eclesiales para sectores religiosos
         if "Religioso" in st.session_state.audiencia_activa:
             resultados_totales["Rol Iglesia"] = st.selectbox("6. Rol dentro de la Iglesia:", ["", "Laico / Miembro", "Líder de Departamento", "Anciano de Iglesia / Diácono", "Pastor / Ministro", "Administrador / Directivo"], key="dem_rol")
         else:
@@ -382,18 +385,17 @@ if not st.session_state.flujo_finalizado:
 
         st.write("---")
         
-        # ---- SECCIÓN III: BATERÍA PSICOMÉTRICA DE 14 REACTIVOS LIKERT LIMPÍA ----
+        # ---- SECCIÓN III: BATERÍA PSICOMÉTRICA DE 14 REACTIVOS LIKERT ----
         st.subheader("📊 Sección III. Batería de Reactivos Intercalados")
         st.write("Selecciona tu grado de acuerdo frente a cada enunciado de jornada:")
         
-        # Rutear al diccionario según la audiencia activa dictada por el Ponente
         banco_activo = BANCO_PREGUNTAS.get(st.session_state.audiencia_activa, BANCO_PREGUNTAS["Docentes"])
         for r_id, enunciado in banco_activo.items():
             texto_final = enunciado.replace("el ITAP", f"mi organizacion ({st.session_state.audiencia_activa})").replace("el instituto", "la institucion").replace("maquiladora", "empresa")
             st.write(f"**Reactivo {r_id}:** {texto_final}")
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Grado de alineacion:", 
-                options=[1, 2, 3, 4, 5],
+                options=,
                 format_func=lambda x: {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}[x],
                 key=f"dyn_r_{r_id}"
             )
