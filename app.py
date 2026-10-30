@@ -362,7 +362,7 @@ if not st.session_state.flujo_finalizado:
             resultados_totales["Estado Origen"] = "N/A"
             resultados_totales["Estado Residencia"] = "N/A"
             resultados_totales["País Origen"] = st.text_input("4. Escribe tu País de origen *:", placeholder="Ej. Colombia / España", key="dem_pais_txt")
-            # AJUSTADO: Al ser extranjero, despliega explícitamente el selector cerrado con el catálogo de continentes
+            # Ajustado: Al ser extranjero, despliega el selector con el catálogo de continentes
             resultados_totales["Continente Extranjero"] = st.selectbox("5. Selecciona tu Continente de origen *:", [""] + CONTINENTES, key="dem_cont")
             
         # Filtro exclusivo de roles eclesiales para sectores religiosos
@@ -393,15 +393,15 @@ if not st.session_state.flujo_finalizado:
         for r_id, enunciado in banco_activo.items():
             texto_final = enunciado.replace("el ITAP", f"mi organizacion ({st.session_state.audiencia_activa})").replace("el instituto", "la institucion").replace("maquiladora", "empresa")
             st.write(f"**Reactivo {r_id}:** {texto_final}")
+            # CORRECCIÓN DE SINTAXIS: Se agregaron los valores de las opciones Likert [1, 2, 3, 4, 5]
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Grado de alineacion:", 
-                options=,
+                options=[1, 2, 3, 4, 5],
                 format_func=lambda x: {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}[x],
                 key=f"dyn_r_{r_id}"
             )
             st.write("")
         ck_marcado = False
-
 
     st.divider()
     col_btn1, col_btn2 = st.columns(2)
