@@ -705,8 +705,6 @@ if not st.session_state.flujo_finalizado:
         resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
         
         st.subheader(tx["sec3"])
-                # 8 Espacios desde el margen izquierdo
-        st.subheader(tx["sec3"])
         banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
         
         # 8 Espacios exactos (Alineación perfecta con la variable de arriba)
