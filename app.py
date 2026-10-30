@@ -18,7 +18,7 @@ NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
 st.title("🍊 Ecosistema de Diagnóstico de Salud Integral")
-st.subheader("Modelo Mandarina & Modelos Temporales Sectores")
+st.subheader("Modelo Mandarina & Modelos Temporales Multisectoriales")
 st.caption("Desarrollado por: Jacob Zumaya Prianti (c) 2026 | JACOB ZUMAYA PRIANTI, A.C.")
 
 
