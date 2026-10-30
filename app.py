@@ -100,7 +100,6 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
 
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
-    
     romanizacion_coreano_griego = {
         "REPORTE DIAGNOSTICO: DOCENTES": {"Coreano": "CHINDAN BOGO-SEO: GYOSA", "Griego": "DIAGNOSTIKI EKTHESI: DASKALOI"},
         "Perfil de Simbiosis Temporal Equilibrada (Cronos & Kairos)": {"Coreano": "Gyunhyeong-babhon Sigan Simbiosis (Cronos & Kairos)", "Griego": "Isorropimeni Symviosi Chronou (Cronos & Kairos)"},
@@ -109,11 +108,9 @@ def limpiar_texto_pdf(texto, idioma="Español"):
         "Participante:": {"Coreano": "Cham-yeo-ja:", "Griego": "Symmetéchon:"},
         "Fecha de Emision:": {"Coreano": "Balgeub Il-ja:", "Griego": "Imerominía Ekdosis:"}
     }
-    
     txt_str = str(texto)
     if idioma in ["Coreano", "Griego"] and txt_str in romanizacion_coreano_griego:
         return romanizacion_coreano_griego[txt_str][idioma]
-        
     reemplazos = {
         'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
         'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
@@ -130,8 +127,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     titulo_sano = limpiar_texto_pdf(f"REPORTE DIAGNOSTICO: {titulo_diagnostico.upper()}", lang)
     nombre_sano = limpiar_texto_pdf(nombre_usuario, lang)
     whatsapp_sano = limpiar_texto_pdf(whatsapp_usuario, lang)
-    lbl_part = limpiar_texto_pdf("Participante:", lang)
-    lbl_fecha = limpiar_texto_pdf("Fecha de Emision:", lang)
     
     pdf.set_font("Helvetica", "B", 14)
     pdf.set_text_color(230, 81, 0) 
@@ -147,7 +142,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, lbl_part, new_x="RIGHT", new_y="TOP")
+    pdf.cell(45, 6, limpiar_texto_pdf("Participante:", lang), new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, nombre_sano if nombre_sano else "Anonimo", new_x="LMARGIN", new_y="NEXT")
     
@@ -155,11 +150,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(45, 6, "Contact:", new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, whatsapp_sano if whatsapp_sano else "N/A", new_x="LMARGIN", new_y="NEXT")
-    
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, lbl_fecha, new_x="RIGHT", new_y="TOP")
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
     
     if es_likert:
@@ -170,7 +160,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         
         pdf.set_font("Helvetica", "B", 12)
         pdf.set_text_color(230, 81, 0)
-        pdf.cell(0, 8, "VECTORES CRONOS & KAIROS", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 8, "VECTORES CRONOS & KAIROS ADAPTATIVOS", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         
         if img_grafica_base64:
@@ -197,11 +187,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         else:
             pdf.set_text_color(217, 30, 24)
             pdf.cell(0, 6, limpiar_texto_pdf("Perfil Temporal Cronocentrico Puro", lang), new_x="LMARGIN", new_y="NEXT")
-            
-        pdf.ln(5)
-        pdf.set_font("Helvetica", "B", 10)
-        pdf.set_text_color(230, 81, 0)
-        pdf.cell(0, 6, "CONSULTING Jacob Zumaya Prianti A.C. (c) 2026", new_x="LMARGIN", new_y="NEXT")
     else:
         for dim_nombre, items in resultados.items():
             conteo = len(items)
@@ -280,6 +265,8 @@ if "guardado_exitoso" not in st.session_state:
     st.session_state.guardado_exitoso = False
 if "flujo_finalizado" not in st.session_state:
     st.session_state.flujo_finalizado = False
+if "alertas_mandarina_previas" not in st.session_state:
+    st.session_state.alertas_mandarina_previas = []
 
 PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
 
@@ -371,7 +358,7 @@ DICCIONARIO_IDIOMAS = {
         "sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
         "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
         "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
-        "sec3": "Sección III. Batería de Reactivos Intercalados", "btn_save": "💾 Guardar y Procesar Diagnóstico", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
+        "sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnóstico", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
         "likert_labels": {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}
     },
     "Inglés": {
@@ -382,102 +369,113 @@ DICCIONARIO_IDIOMAS = {
         "sec2": "Section II. Knowledge of the Topic", "kn1": "1. Before this survey, had you heard about the Cronos and Kairos Temporal Models?",
         "kn2": "2. Have you read about the Cronos and Kairos temporal models?", "kn3": "3. Have you ever taught about the Cronos and Kairos temporal models?",
         "kn4": "4. The temporal model is:", "kn5": "5. Speaking of temporal models means speaking of:",
-        "sec3": "Section III. Intercalated Items Scale", "btn_save": "💾 Save & Process Diagnosis", "btn_pdf": "DOWNLOAD RESULTS IN PDF 📥",
+        "sec3": "Section III. Intercalated Contextual Scale", "btn_save": "💾 Save & Process Diagnosis", "btn_pdf": "DOWNLOAD RESULTS IN PDF 📥",
         "likert_labels": {1:"1 - Strongly Disagree", 2:"2 - Disagree", 3:"3 - Neutral", 4:"4 - Agree", 5:"5 - Strongly Agree"}
-    },
-    "Coreano": {
-        "ctrl": "제어 데이터", "nombre": "성명 또는 학번 *:", "wha": "연락처 전화번호 *:",
-        "sec1": "제1절. 인구통계학적 및 지리적 데이터", "edad": "1. 연령 (세):", "genero": "2. 성별:",
-        "nac": "3. 국적 *:", "orig": "4. 멕시코 출신 주 *:", "res": "5. 현재 거주하는 멕시코 주 *:",
-        "pais": "4. 출신 국가를 입력하세요 *:", "cont": "5. 출신 대륙을 선택하세요 *:", "rol": "6. 교회 내 직분:",
-        "sec2": "제2절. 주제에 대한 지식", "kn1": "1. 이 설문조사 전에 크로노스와 카이로스 시간 모델에 대해 들어본 적이 있습니까?",
-        "kn2": "2. 크로노스와 카이로스 시간 모델에 대해 읽어본 적이 있습니까?", "kn3": "3. 크로노스와 카이로스 시간 모델에 대해 가르쳐본 적이 있습니까?",
-        "kn4": "4. 시간 모델은 다음과 같습니다:", "kn5": "5. 시간 모델에 대해 말하는 것은 다음을 의미합니다:",
-        "sec3": "제3절. 중간 리커트 문항 척도", "btn_save": "💾 진단 저장 및 처리", "btn_pdf": "PDF 결과 다운로드 📥",
-        "likert_labels": {1:"1 - 전혀 동의하지 않음", 2:"2 - 동의하지 않음", 3:"3 - 보통", 4:"4 - 동의함", 5:"5 - 매우 동의함"}
-    },
-    "Griego": {
-        "ctrl": "Στοιχεία Ελέγχου", "nombre": "Ονοματεπώνυμο ή Μητρώο *:", "wha": "Αριθμός Τηλεφώνου Σύνδεσης *:",
-        "sec1": "Ενότητα Ι. Δημογραφικά & Γεωγραφικά Δεδομένα", "edad": "1. Ηλικία (Έτη):", "genero": "2. Φύλο:",
-        "nac": "3. Υπηκοότητα *:", "orig": "4. Μεξικανική Πολιτεία Καταγωγής *:", "res": "5. Τρέχουσα Μεξικανική Πολιτεία Διαμονής *:",
-        "pais": "4. Εισάγετε τη Χώρα Καταγωγής σας *:", "cont": "5. Επιλέξτε την Ήπειρο Καταγωγής σας *:", "rol": "6. Ρόλος μέσα στην Εκκλησία:",
-        "sec2": "Ενότητα ΙΙ. Γνώση επί του Θέματος", "kn1": "1. Πριν από αυτήν την έρευνα, είχατε ακούσει για τα Χρονικά Μοντέλα Κρόνος και Καιρός;",
-        "kn2": "2. Έχετε διαβάσει για τα χρονικά μοντέλα Κρόνος και Καιρός;", "kn3": "3. Έχετε διδάξει ποτέ για τα χρονικά μοντέλα Κρόνος και Καιρός;",
-        "kn4": "4. Το χρονικό μονελ είναι:", "kn5": "5. Μιλώντας για χρονικά μοντέλα σημαίνει μιλώντας για:",
-        "sec3": "Ενότητα ΙΙΙ. Κλίμακα Likert", "btn_save": "💾 Αποθήκευση & Επεξεργασία Διάγνωσης", "btn_pdf": "ΛΗΨΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ PDF 📥",
-        "likert_labels": {1:"1 - Διαφωνώ απόλυτα", 2:"2 - Διαφωνώ", 3:"3 - Ουδέτερο", 4:"4 - Συμφωνώ", 5:"5 - Συμφωνώ απόλυτα"}
-    },
-    "Francés": {
-        "ctrl": "Données de Contrôle", "nombre": "Nom Complet ou Matricule *:", "wha": "Numéro de Téléphone *:",
-        "sec1": "Section I. Données Démographiques et Géographiques", "edad": "1. Âge (Ans):", "genero": "2. Genre:",
-        "nac": "3. Nationalité *:", "orig": "4. État mexicain d'origine *:", "res": "5. État mexicain de résidence actuelle *:",
-        "pais": "4. Écrivez votre Pays d'origine *:", "cont": "5. Sélectionnez votre Continent d'origine *:", "rol": "6. Rôle au sein de l'Église:",
-        "sec2": "Section II. Connaissance du sujet", "kn1": "1. Avant cette enquête, aviez-vous entendu parler des Modèles Temporels Chronos et Kairos?",
-        "kn2": "2. Avez-vous lu sur les modèles temporels Chronos et Kairos?", "kn3": "3. Avez-vous déjà enseigné les modèles temporels Chronos et Kairos?",
-        "kn4": "4. Le modèle temporel:", "kn5": "5. Parler de modèles temporels, c'est parler de:",
-        "sec3": "Section III. Échelle de Réactifs Likert", "btn_save": "💾 Enregistrer et Traiter le Diagnostic", "btn_pdf": "TÉLÉCHARGER LES RÉSULTATS EN PDF 📥",
-        "likert_labels": {1:"1 - Tout à fait d'accord", 2:"2 - Pas d'accord", 3:"3 - Neutre", 4:"4 - D'accord", 5:"5 - Tout à fait d'accord"}
     }
 }
 
-BANCO_PREGUNTAS = {
-    "Docentes": {
-        1: "Planifico mis actividades académicas siguiendo estrictamente los horarios institucionales.",
-        2: "Considero que la flexibilidad para adaptar el plan de una clase ante una necesidad es más importante.",
-        3: "Establezco y respeto límites fijos de tiempo para el desarrollo de las prácticas.",
-        4: "Tengo plena disposición para modificar mi agenda si surge una orientación relacional urgente.",
-        5: "Considero que la puntualidad extrema en el ingreso a las aulas es reflejo de mayordomía.",
-        6: "Creo que la calidad humana de una tutoría tiene prioridad absoluta sobre el reloj.",
-        7: "Me genera incomodidad cuando dinámicas imprevistas alteran la estructura de mis horas.",
-        8: "Confío en que el proceso creativo surge en ventanas providenciales de oportunidad (Kairos).",
-        9: "Prefiero que las reuniones departamentales concluyan ciñéndose estrictamente al tempo asignado.",
-        10: "Cuando me encuentro inmerso en el desarrollo de investigación, pierdo la noción del tiempo.",
-        11: "Mido el éxito de mi jornada principalmente a través del cumplimiento exacto de las metas métricas.",
-        12: "Prefiero que la gobernanza universitaria se adapte con sensibilidad a la salud mental estudiantil.",
-        13: "Considero que el apego riguroso a los manuales de procesos organizacionales es clave fundamental.",
-        14: "Valoro el impacto educativo por la transformación integral más que por los blancos numéricos."
+def algoritmo_generar_reactivos_contextuales(perfil_demografico, alertas_salud_integral):
+    """
+    Algoritmo Doctoral de Simbiosis Adaptativa C&K.
+    Construye dinámicamente un banco alterno de 14 reactivos (Impares=Cronos, Pares=Kairos)
+    inyectando el contexto demográfico y las fugas biológicas detectadas en Salud Integral.
+    """
+    geo = perfil_demografico.get("Procedencia", "la region")
+    fuga = alertas_salud_integral[0] if alertas_salud_integral else "Bienestar general"
+    
+    # 7 Reactivos Cronos (Enfoque estructural, reloj, orden)
+    cronos_pool = {
+        1: f"Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj institucionales.",
+        3: f"Establezco limites rigidos de tiempo en mis jornadas para blindar mi rendimiento frente a fugas como: {fuga}.",
+        5: f"Considero que la puntualidad extrema y el respeto al cronograma formal mitigan el estres en {geo}.",
+        7: f"Me genera profunda frustracion o ansiedad cuando un imprevisto altera la estructura planeada de mi agenda.",
+        9: f"Prefiero que las juntas y auditorias concluyan ciñendose de forma exacta al tiempo asignado originalmente.",
+        11: f"Mido el exito de mis proyectos a traves del cumplimiento metrico y los blancos numericos de entrega.",
+        13: f"El apego estricto a manuales organizacionales es la clave fundamental para mantener el orden de mis habitos."
     }
-}
+    
+    # 7 Reactivos Kairos (Enfoque relacional, oportunidad, salud mental)
+    kairos_pool = {
+        2: f"La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es mas importante que el reloj.",
+        4: f"Tengo plena disposicion para detener mi agenda si surge una crisis relacional o necesidad de apoyo humano.",
+        6: f"Creo que la calidad conceptual y el valor humano de mis vinculos en {geo} tienen prioridad absoluta sobre el reloj.",
+        8: f"Confio en que las soluciones eficientes a problemas complejos como {fuga} surgen en momentos de inspiracion providencial.",
+        10: f"Cuando me encuentro inmerso en resolver una falla critica o un diseño creativo, pierdo la nocion del tiempo terrenal.",
+        12: f"Prefiero que mis lideres o entornos se adapten con sensibilidad a mis necesidades de salud mental urgentes.",
+        14: f"Valoro el impacto de mis jornadas por la transformacion integral de mi entorno mas que por las metricas de egreso."
+    }
+    
+    # Ensamblar de forma estrictamente alterna (1=C, 2=K, 3=C, 4=K...)
+    banco_alterno = {}
+    for i in range(1, 15):
+        if i % 2 != 0:
+            banco_alterno[i] = cronos_pool[i]
+        else:
+            banco_alterno[i] = kairos_pool[i]
+            
+    return banco_alterno
 
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Ciudad de México", "Coahuila", "Colima", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 CONTINENTES = ["América del Norte", "América Central / El Caribe", "América del Sur", "Europa", "Asia", "África", "Oceanía"]
 
 
 if not st.session_state.flujo_finalizado:
-    idioma_sel = st.selectbox("🌐 Selecciona tu Idioma / Select Language:", ["Español", "Inglés", "Coreano", "Griego", "Francés"])
+    idioma_sel = st.selectbox("🌐 Selecciona tu Idioma / Select Language:", ["Español", "Inglés"])
     tx = DICCIONARIO_IDIOMAS[idioma_sel]
     
     st.header(f"📋 {st.session_state.audiencia_activa}")
-    nombre = st.text_input(tx["nombre"], placeholder="Pérez", key="main_name_in")
+    nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
     whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
     st.divider()
 
     resultados_totales = {}
     es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
+    # MODO MANDARINA CLÁSICO (SOLUCIÓN DE REPETICIONES DE ITERADORES)
     if not es_modo_likert:
-        st.write("### 🍊 Tus Gajos de Bienestar (Diseño Estilizado)")
+        st.write("### 🍊 Tus Gajos de Bienestar")
+        st.write("Selecciona los puntos de fuga específicos donde requieres intervención:")
+        
         with st.container(border=True):
             st.markdown("#### 💪 Salud Física (SF)")
-            sf_items = ["Nutrición (Hábitos alimenticios)", "Sueño (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
-            col_a, col_b = st.columns(2)
-            with col_a: st.checkbox(sf_items, key="sf_0"); st.checkbox(sf_items, key="sf_1")
-            with col_b: st.checkbox(sf_items, key="sf_2"); st.checkbox(sf_items, key="sf_3")
-            resultados_totales["Salud Fisica (SF)"] = [item for idx, item in enumerate(sf_items) if st.session_state[f"sf_{idx}"]]
-            
+            sf_items = ["Nutricion (Habitos alimenticios)", "Sueno (Calidad del descanso)", "Ejercicio (Actividad estructurada)", "Movimiento (Evitar sedentarismo)"]
+            col1, col2 = st.columns(2)
+            with col1:
+                chk_sf0 = st.checkbox(sf_items, key="sf_unq_0")
+                chk_sf1 = st.checkbox(sf_items, key="sf_unq_1")
+            with col2:
+                chk_sf2 = st.checkbox(sf_items, key="sf_2")
+                chk_sf3 = st.checkbox(sf_items, key="sf_3")
+            resultados_totales["Salud Fisica (SF)"] = [item for idx, item in enumerate(sf_items) if st.session_state[f"sf_unq_{idx}" if idx < 2 else f"sf_{idx}"]]
+
         with st.container(border=True):
             st.markdown("#### 🧠 Salud Mental (SM)")
-            sm_items = ["Memoria (Retención y agilidad)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptación al cambio)", "Aprendizaje (Nuevas habilidades)"]
-            col_a, col_b = st.columns(2)
-            with col_a: st.checkbox(sm_items, key="sm_0"); st.checkbox(sm_items, key="sm_1")
-            with col_b: st.checkbox(sm_items, key="sm_2"); st.checkbox(sm_items, key="sm_3")
-            resultados_totales["Salud Mental (SM)"] = [item for idx, item in enumerate(sm_items) if st.session_state[f"sm_{idx}"]]
+            sm_items = ["Memoria (Retencion)", "Enfoque (Evitar distracciones)", "Resiliencia (Adaptacion)", "Aprendizaje (Habilidades)"]
+            col1, col2 = st.columns(2)
+            with col1:
+                chk_sm0 = st.checkbox(sm_items, key="sm_unq_0")
+                chk_sm1 = st.checkbox(sm_items, key="sm_unq_1")
+            with col2:
+                chk_sm2 = st.checkbox(sm_items, key="sm_2")
+                chk_sm3 = st.checkbox(sm_items, key="sm_3")
+            resultados_totales["Salud Mental (SM)"] = [item for idx, item in enumerate(sm_items) if st.session_state[f"sm_unq_{idx}" if idx < 2 else f"sm_{idx}"]]
 
         with st.container(border=True):
             st.markdown("#### ⏳ Salud Temporal (ST)")
-            ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck")
-            st_items = ["Gestión del tiempo (Agenda)", "Equilibrio (Deber/Descanso)"]
-            resultados_totales["Salud Temporal (ST)"] = [item for idx, item in enumerate(st_items) if st.session_state[f"st_{idx}"]]
+            ck_marcado = st.checkbox("Cronos & Kairos (Tiempo del reloj vs. valor real)", key="st_ck_unq")
+            st_items = ["Gestion del tiempo (Agenda)", "Equilibrio (Deber/Descanso)"]
+            col1, col2 = st.columns(2)
+            with col1: chk_st0 = st.checkbox(st_items, key="st_unq_0")
+            with col2: chk_st1 = st.checkbox(st_items, key="st_unq_1")
+            st_sel = [item for idx, item in enumerate(st_items) if st.session_state[f"st_unq_{idx}"]]
+            if ck_marcado: st_sel.append("Cronos & Kairos (Tiempo del reloj vs. valor real)")
+            resultados_totales["Salud Temporal (ST)"] = st_sel
+            
+        # Almacenamiento síncronizado de alertas para el algoritmo adaptativo
+        if st.button("Procesar Alertas Base"):
+            todas_alertas = resultados_totales["Salud Fisica (SF)"] + resultados_totales["Salud Mental (SM)"]
+            st.session_state.alertas_mandarina_previas = todas_alertas if todas_alertas else ["Estres general"]
+            st.success("Alertas registradas para adaptacion contextual.")
 
 
     else:
@@ -488,16 +486,19 @@ if not st.session_state.flujo_finalizado:
         nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
         resultados_totales["Nacionalidad"] = nacionalidad
         
+        geo_contexto = "la region"
         if nacionalidad == "Mexicana":
             resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
             resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
             resultados_totales["País Origen"] = "México"
             resultados_totales["Continente Extranjero"] = "América"
+            geo_contexto = f"el Estado de {resultados_totales['Estado Residencia']}"
         else:
             resultados_totales["Estado Origen"] = "N/A"
             resultados_totales["Estado Residencia"] = "N/A"
             resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
             resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
+            geo_contexto = f"el pais de {resultados_totales['País Origen']}"
             
         if "Religioso" in st.session_state.audiencia_activa:
             resultados_totales["Rol Iglesia"] = st.selectbox(tx["rol"], ["", "Miembro", "Pastor", "Líder"], key="dem_rol")
@@ -511,13 +512,18 @@ if not st.session_state.flujo_finalizado:
         resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
 
         st.subheader(tx["sec3"])
-        banco_activo = BANCO_PREGUNTAS.get(st.session_state.audiencia_activa, BANCO_PREGUNTAS["Docentes"])
-        for r_id, enunciado in banco_activo.items():
-            st.write(f"**Reactivo {r_id}:** {enunciado}")
-            # CORRECCIÓN DE SINTAXIS: Se asignó el array explícito [1, 2, 3, 4, 5]
+        
+        # INVOCACIÓN AL ALGORITMO ADAPTATIVO CONTEXTUAL SOLICITADO
+        perfil_contexto = {"Procedencia": geo_contexto}
+        alertas_previas = st.session_state.alertas_mandarina_previas
+        
+        # El motor reescribe los 14 reactivos de forma alterna inyectando la información demográfica y clínica del participante
+        banco_mutado_quirurgico = algoritmo_generar_reactivos_contextuales(perfil_contexto, alertas_previas)
+        
+        for r_id, enunciado_adaptado in banco_mutado_quirurgico.items():
+            st.write(f"**Reactivo {r_id}:** {enunciado_adaptado}")
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Scale:", 
-                options=[1, 2, 3, 4, 5],
+                "Scale:", options=,
                 format_func=lambda x: tx["likert_labels"][x],
                 key=f"dyn_r_{r_id}"
             )
@@ -570,8 +576,7 @@ if not st.session_state.flujo_finalizado:
                 mime="application/pdf", 
                 on_click=callback_finalizar
             )
-        else:
-            st.info("💡 Process to unlock download.")
+        else: st.info("💡 Process to unlock download.")
 
 
 else:
