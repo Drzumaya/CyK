@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 # SOLUCIÓN DE SECUENCIA TOTAL: Inicialización atómica prioritaria de tokens y variables de entorno de red
