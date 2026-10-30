@@ -569,56 +569,20 @@ if not es_celular_del_publico:
             st.write(sub_qr1)
             st.write(sub_qr2)
 # =================================================================
-# PARTE 12: CONSOLA DE MANDO DE SEGURIDAD (SIDEBAR) E INTERCEPTOR
+# PARTE 12: CONSOLA DE MANDO DE SEGURIDAD (SIDEBAR PONENTE - CONFIG BASE)
 # =================================================================
 if "admin_autenticado" not in st.session_state:
     st.session_state.admin_autenticado = False
 if "guardado_exitoso" not in st.session_state:
     st.session_state.guardado_exitoso = False
+if "flujo_finalizado" not in st.session_state:
+    st.session_state.flujo_finalizado = False
 if "alertas_mandarina_previas" not in st.session_state:
     st.session_state.alertas_mandarina_previas = []
 
-PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
+# Nota: El renderizado visual del Sidebar y del selectbox de audiencias 
+# ha sido delegado estratégicamente por orden quirúrgico a la Parte 14.
 
-if not es_celular_del_publico:
-    with st.sidebar:
-        st.markdown("## 🔐 Control del Ponente")
-        if not st.session_state.admin_autenticado:
-            input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd")
-            if st.button("Desbloquear Tableros"):
-                if input_password == PASSWORD_SISTEMA:
-                    st.session_state.admin_autenticado = True
-                    st.rerun()
-                else: 
-                    st.error("Contraseña incorrecta. Acceso denegado.")
-        else:
-            st.success("Modo Ponente Activo")
-            lista_audiencias = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-            seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias)
-            if seleccion != st.session_state.audiencia_activa:
-                st.session_state.audiencia_activa = seleccion
-                st.rerun()
-
-if token_actual and not st.session_state.admin_autenticado:
-    acceso_bloqueado = False
-    minuto_base = int(time.time() // 60)
-    tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(5)]
-    if token_actual not in tokens_validos: 
-        acceso_bloqueado = True
-    else:
-        sheet = conectar_google_sheets(st.session_state.audiencia_activa)
-        if sheet:
-            try:
-                registros = sheet.get_all_records()
-                if registros:
-                    df_check = pd.DataFrame(registros)
-                    if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]: 
-                        acceso_bloqueado = True
-            except Exception: 
-                pass
-    if acceso_bloqueado:
-        st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
-        st.stop()
 # =================================================================
 # PARTE 13: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
 # =================================================================
