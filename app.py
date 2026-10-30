@@ -535,8 +535,20 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 # PARTE 12: PUNTO DE ENTRADA CENTRAL, SESIONES E INTERCEPTOR DE TOKENS
 # =================================================================
 def main():
-    # INYECCIÓN CRÍTICA: Indicamos a la función que consuma de forma segura las variables de red globales
-    global token_actual, es_celular_del_publico, url_con_token, token_tiempo
+    # Inicialización local/global síncrona de variables de control de red
+    minuto_actual = int(time.time() // 60)
+    token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
+
+    # Extracción directa y segura de parámetros desde el entorno de red de Streamlit
+    token_actual = st.query_params.get("token", None)
+    modo_admin_url = st.query_params.get("modo_admin", "true")
+    es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+    diag_tipo_url = st.query_params.get("diag_tipo", None)
+
+    if es_celular_del_publico and diag_tipo_url:
+        st.session_state.audiencia_activa = diag_tipo_url
+
+    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
     # Fundación e instanciación en frío automatizada de las estructuras en la nube
     if "estructuras_inicializadas" not in st.session_state:
