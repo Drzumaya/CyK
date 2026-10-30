@@ -209,7 +209,7 @@ pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
 pdf.set_font("Helvetica", "", 11)
 pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
 pdf.ln(5)
-# INDENTACIÓN REESTRUCTURADA: Bloque en línea y alineado al condicional maestro
+# SOLUCIÓN DE INDENTACIÓN: Todo el bloque interno lleva ahora 4 espacios exactos
 if es_likert:
 cronos_v = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
 kairos_v = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
@@ -437,7 +437,7 @@ DICCIONARIO_IDIOMAS = {
 "ctrl": "Datos de Control", "nombre": "Nombre Completo o Matrícula *:", "wha": "Número Telefónico de Enlace *:",
 "sec1": "Sección I. Datos Demográficos y Geográficos", "edad": "1. Edad (Años):", "genero": "2. Género:",
 "nac": "3. Nacionalidad *:", "orig": "4. Estado de origen *:", "res": "5. Estado de residencia actual *:",
-"pais": "4. Escribe tu País de origen *:", "cont": "5. Selecciona tu Continente de origen *:", "rol": "6. Rol dentro de la Iglesia:",
+"pais": "4. Escribe tu País de origen *:", "cont": "5. Selecciona tu Continente de origen *:", "rol": "6. Rol dentro de the Iglesia:",
 "sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
 "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
 "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
@@ -673,7 +673,6 @@ st.subheader(tx["sec3"])
 banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
 for r_id, enunciado_idioma in banco_mutado.items():
 st.write(f"Reactivo {r_id}: {enunciado_idioma}")
-# ARREGLO CORRECTO DE ESCALA LIKERT: Inyección explícita del rango numérico
 resultados_totales[f"R{r_id}"] = st.radio(
 "Scale:",
 options=[1, 2, 3, 4, 5],
