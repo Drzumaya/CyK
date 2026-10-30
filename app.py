@@ -213,7 +213,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if conteo > 0 else "OK"
             pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
             
-    # CORRECCIÓN DE ERROR RENDER: Forzar el casteo explícito a cadena binaria de bytes compatible con Streamlit
     return bytes(pdf.output())
 
 
@@ -359,6 +358,8 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                     st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
+            else: st.warning("No hay filas registradas en esta pestaña.")
+        else: st.error("Error de enlace.")
 
 
 DICCIONARIO_IDIOMAS = {
@@ -402,7 +403,7 @@ DICCIONARIO_IDIOMAS = {
         "pais": "4. Εισάγετε τη Χώρα Καταγωγής σας *:", "cont": "5. Επιλέξτε την Ήπειρο Καταγωγής σας *:", "rol": "6. Ρόλος μέσα στην Εκκλησία:",
         "sec2": "Ενότητα ΙΙ. Γνώση επί του Θέματος", "kn1": "1. Πριν από αυτήν την έρευνα, είχατε ακούσει για τα Χρονικά Μοντέλα Κρόνος και Καιρός;",
         "kn2": "2. Έχετε διαβάσει για τα χρονικά μοντέλα Κρόνος και Καιρός;", "kn3": "3. Έχετε διδάξει ποτέ για τα χρονικά μοντέλα Κρόνος και Καιρός;",
-        "kn4": "4. Το χρονικό μοντέλο είναι:", "kn5": "5. Μιλώντας για χρονικά μοντέλα σημαίνει μιλώντας για:",
+        "kn4": "4. Το χρονικό μονελ είναι:", "kn5": "5. Μιλώντας για χρονικά μοντέλα σημαίνει μιλώντας για:",
         "sec3": "Ενότητα ΙΙΙ. Κλίμακα Likert", "btn_save": "💾 Αποθήκευση & Επεξεργασία Διάγνωσης", "btn_pdf": "ΛΗΨΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ PDF 📥",
         "likert_labels": {1:"1 - Διαφωνώ απόλυτα", 2:"2 - Διαφωνώ", 3:"3 - Ουδέτερο", 4:"4 - Συμφωνώ", 5:"5 - Συμφωνώ απόλυτα"}
     },
@@ -513,8 +514,10 @@ if not st.session_state.flujo_finalizado:
         banco_activo = BANCO_PREGUNTAS.get(st.session_state.audiencia_activa, BANCO_PREGUNTAS["Docentes"])
         for r_id, enunciado in banco_activo.items():
             st.write(f"**Reactivo {r_id}:** {enunciado}")
+            # CORRECCIÓN DE SINTAXIS: Se asignó el array explícito [1, 2, 3, 4, 5]
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Scale:", options=,
+                "Scale:", 
+                options=[1, 2, 3, 4, 5],
                 format_func=lambda x: tx["likert_labels"][x],
                 key=f"dyn_r_{r_id}"
             )
@@ -552,7 +555,6 @@ if not st.session_state.flujo_finalizado:
                     plt.close(fig)
                 except Exception: pass
             
-            # Llamado al constructor del PDF pasando la variable de idioma activa
             reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
             nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
             
@@ -561,7 +563,6 @@ if not st.session_state.flujo_finalizado:
                 for k in list(st.session_state.keys()):
                     if k.startswith(("sf_", "sm_", "dyn_r_", "dem_", "kn_")): del st.session_state[k]
             
-            # EJECUCIÓN LIMPÍA: data ahora recibe el array binario de bytes purificados, resolviendo la StreamlitAPIException
             st.download_button(
                 label=tx["btn_pdf"], 
                 data=reporte_procesado, 
