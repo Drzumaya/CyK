@@ -41,7 +41,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 # CONSTANTES DE ENTORNO DE PONENCIA Y MATRICES GEOGRÁFICAS
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
