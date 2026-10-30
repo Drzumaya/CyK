@@ -10,16 +10,14 @@ import hashlib
 import time
 import base64
 
-# Desactivar advertencias interactivas de pyplot globales por ejecución síncrona
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
+
+st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
+
 
 # Inicialización síncrona y global de tokens y variables de red prioritarias
 minuto_actual = int(time.time() // 60)
@@ -39,8 +37,6 @@ if es_celular_del_publico and diag_tipo_url:
 
 # Construcción unificada de la URL parametrizada del QR
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
-
-st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
 
 def conectar_google_sheets(nombre_pestana):
@@ -153,7 +149,7 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     reemplazos = {
         'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
         'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
-        'ñ': 'n', 'Ñ': 'N', 'ü': 'u', 'Ü': 'U', 'ç': 'c', 'è': 'e', 'ò': 'o'
+        'ñ': 'n', 'Ñ': 'N', 'ü': 'u', 'Ü': 'U'
     }
     texto_sano = "".join(reemplazos.get(c, c) for c in txt_str)
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
@@ -326,14 +322,12 @@ if not es_celular_del_publico:
                 else: st.error("Contraseña incorrecta. Acceso denegado.")
         else:
             st.success("Modo Ponente Activo")
-            lista_audiencias = ["🍊 Salud Integral", "🚜 Sector Primario", "🏭 Sector Secundario", "💼 Sector Terciario", "Docentes", "Padres Primaria", "Padres Secundaria", "Padres Preparatoria", "Padres Universitario", "Estudiantes Primaria", "Estudiantes Secundaria", "Estudiantes Preparatoria", "Estudiantes Universitario", "Religioso General", "Religioso IASD"]
+            lista_audiencias = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
             seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias)
             if seleccion != st.session_state.audiencia_activa:
                 st.session_state.audiencia_activa = seleccion
                 st.rerun()
-            if st.button("Cerrar Sesion", width="stretch"):
-                st.session_state.admin_autenticado = False
-                st.rerun()
+
 
 if token_actual and not st.session_state.admin_autenticado:
     minuto_base = int(time.time() // 60)
@@ -400,7 +394,7 @@ DICCIONARIO_IDIOMAS = {
         "sec2": "Sección II. Conocimiento sobre el tema", "kn1": "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairos:",
         "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
         "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
-        "sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnostic", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
+        "sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnóstico", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
         "likert_labels": {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"},
         "c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
         "k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es mas importante.",
@@ -487,6 +481,9 @@ DICCIONARIO_IDIOMAS = {
         "kn4": "4. Das Zeitmodell:", "kn5": "5. Über Zeitmodelle zu sprechen bedeutet:",
         "sec3": "Abschnitt III. Likert-Skala", "btn_save": "💾 Speichern & Verarbeiten", "btn_pdf": "ERGEBNISSE ALS PDF HERUNTERLADEN 📥",
         "likert_labels": {1:"1 - Stimme überhaupt nicht zu", 2:"2 - Stimme nicht zu", 3:"3 - Neutral", 4:"4 - Stimme zu", 5:"5 - Stimme vollkommen zu"},
+
+
+
 "c_pool": "Ich plane meine Aktivitäten in {geo} strikt nach der Uhrzeit.",
 "k_pool": "Flexibilität bei der Anpassung von Plänen an Gelegenheiten in {geo} is wichtiger als die Uhr.",
 "mand_title": "### 🍊 Ihre Scheiben des Wohlbefindens",
@@ -507,7 +504,7 @@ DICCIONARIO_IDIOMAS = {
 "c_pool": "Pianifico le mie attività operative in {geo} seguendo rigorosamente l'orologio.",
 "k_pool": "La flessibilità di adattare i miei piani di fronte a un'opportunità in {geo} è più importante.",
 "mand_title": "### 🍊 I Tuoi Spicchi di Benessere (Salute Olistica)",
-"mand_subtitle": "Seleziona gli avvisi critici o le debolezze nella tua salute:",
+"mand_subtitle": "Seleziona gli avvisi kritici o le debolezze nella tua salute:",
 "gajos_names": ["💪 Salute Fisica", "🧠 Salute Mentale", "❤️ Salute Emozionale", "👥 Salute Sociale", "💰 Salute Economica", "⏳ Salute Temporale", "🙏 Salute Spirituale"],
 "fugas_base": ["Nutrizione Carente", "Carenza di Sonno", "Sedentarietà", "Affaticamento Corporeo"]
 },
@@ -530,23 +527,25 @@ DICCIONARIO_IDIOMAS = {
 }
 }
 
+---
+
+### # PARTE 13: ALGORITMO DE RECONSTRUCCIÓN CONTEXTUAL COMPILADO (ZERO INDENTATION ERROR)
+```python
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
-tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
-fuga = str(b_alertas) if b_alertas else "OK"
-banco_alterno = {}
-for i in range(1, 15):
-if i % 2 != 0:
-banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
-else:
-banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
-return banco_alterno
+    tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
+    fuga = str(b_alertas) if b_alertas else "OK"
+    banco_alterno = {}
+    for i in range(1, 15):
+        if i % 2 != 0: 
+            banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
+        else: 
+            banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
+    return banco_alterno
+
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
 
----
 
-### # PARTE 11: CAPA DE INTERFAZ DE USUARIO (MANDARINA SELECTOR DINÁMICO)
-```python
 if not st.session_state.flujo_finalizado:
     idioma_sel = st.selectbox("🌐 Choose System Language / Selecciona Idioma:", ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"])
     tx = DICCIONARIO_IDIOMAS[idioma_sel]
@@ -615,14 +614,12 @@ if not st.session_state.flujo_finalizado:
         
         for r_id, enunciado_idioma in banco_mutado.items():
             st.write(f"**Reactivo {r_id}:** {enunciado_idioma}")
-            # RESOLUCIÓN LIKERT: Inyección explícita de opciones
             resultados_totales[f"R{r_id}"] = st.radio(
                 "Scale:", 
                 options=[1, 2, 3, 4, 5],
                 format_func=lambda x: tx["likert_labels"][x],
                 key=f"dyn_r_{r_id}"
             )
-
 
     st.divider()
     col_btn1, col_btn2 = st.columns(2)
@@ -678,9 +675,3 @@ else:
         st.write("## 🍊 ¡Muchas gracias por tu participación!")
         st.markdown(f"Has completado el diagnóstico. Reconocer nuestros vectores temporales es el inicio de una alta madurez.")
         st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
-        
-    if not es_celular_del_publico:
-        if st.button("🔄 Reiniciar Ecosistema", width="stretch"):
-            st.session_state.flujo_finalizado = False
-            st.session_state.guardado_exitoso = False
-            st.rerun()
