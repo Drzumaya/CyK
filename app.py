@@ -580,13 +580,15 @@ if "flujo_finalizado" not in st.session_state:
 if "alertas_mandarina_previas" not in st.session_state:
     st.session_state.alertas_mandarina_previas = []
 
-# Nota: El renderizado visual del Sidebar y del selectbox de audiencias 
-# ha sido delegado estratégicamente por orden quirúrgico a la Parte 14.
-
 # =================================================================
 # PARTE 13: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
 # =================================================================
-    else:
+# Nota: Este bloque se ejecuta dentro de la bifurcación lógica principal controlado por es_modo_likert
+if not st.session_state.flujo_finalizado:
+    # Verificación del estado del modo Likert para la UI
+    es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
+    
+    if es_modo_likert:
         st.subheader(tx["sec1"])
         resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
         resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
