@@ -698,10 +698,10 @@ if not st.session_state.flujo_finalizado:
         resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
         resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
         
-        st.subheader(tx["sec3"])
+                st.subheader(tx["sec3"])
         banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
         
-                for r_id, enunciado_idioma in banco_mutado.items():
+        for r_id, enunciado_idioma in banco_mutado.items():
             st.write(f"Reactivo {r_id}: {enunciado_idioma}")
             
             etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
