@@ -707,11 +707,11 @@ if not st.session_state.flujo_finalizado:
         st.subheader(tx["sec3"])
         banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
         
-                for r_id, enunciado_idioma in banco_mutado.items():
-            st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+            for r_id, enunciado_idioma in banco_mutado.items():
+                 st.write(f"Reactivo {r_id}: {enunciado_idioma}")
             
-            etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
-            resultados_totales[f"R{r_id}"] = st.radio(
+                 etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
+                resultados_totales[f"R{r_id}"] = st.radio(
                 "Scale:",
                 options=[1, 2, 3, 4, 5],
                 format_func=lambda x: etiquetas_likert.get(x, str(x)),
