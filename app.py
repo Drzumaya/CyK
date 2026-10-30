@@ -18,13 +18,16 @@ import matplotlib.pyplot as plt
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
-# IMPORTANTE: Reemplaza con la dirección URL pública real de tu app de Streamlit
 URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-# Inicialización global y atómica del token de tiempo para todo el ciclo de vida
+# SOLUCIÓN MAESTRA DE SECUENCIA: Inicialización global y prioritaria de variables de entorno de red
 minuto_actual = int(time.time() // 60)
 token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
+
+modo_admin_url = st.query_params.get("modo_admin", "true")
+es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+diag_tipo_url = st.query_params.get("diag_tipo", None)
 
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
 
@@ -45,13 +48,11 @@ def conectar_google_sheets(nombre_pestana):
         client = gspread.service_account_from_dict(secrets_dict)
         workbook = client.open(NOMBRE_HOJA_CALCULO)
         
-        # Limpieza sintáctica del nombre de la pestaña para evitar quiebres en Google Sheets
         pestana_sana = nombre_pestana.replace("/", "_").replace("(", "").replace(")", "")[:30]
         
         try:
             return workbook.worksheet(pestana_sana)
         except gspread.exceptions.WorksheetNotFound:
-            # Autogeneración de tablas independientes estructuradas según la audiencia del ponente
             return workbook.add_worksheet(title=pestana_sana, rows="1000", cols="35")
     except Exception:
         return None
@@ -61,7 +62,6 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
     if sheet:
         try:
             if es_likert:
-                # Fila expandida con datos geográficos refinados (Incluye País de Origen)
                 fila = [
                     str(datetime.datetime.now()), nombre, whatsapp,
                     resultados.get("Edad", ""), resultados.get("Género", ""),
@@ -76,7 +76,6 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
                     fila.append(resultados.get(f"R{i}", 3))
                 fila.append(token if token else "Acceso_Directo")
             else:
-                # Fila tradicional para el diagnóstico nativo de Salud Integral Mandarina
                 fila = [
                     str(datetime.datetime.now()), nombre, whatsapp,
                     len(resultados.get("Salud Fisica (SF)", [])), len(resultados.get("Salud Mental (SM)", [])),
@@ -97,21 +96,19 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # Encabezado institucional del reporte
     pdf.set_font("Helvetica", "B", 16)
     pdf.set_text_color(230, 81, 0) 
     pdf.cell(0, 10, f"REPORTE DIAGNOSTICO: {titulo_diagnostico.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font("Helvetica", "B", 11)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 6, "Ecosistema Organizacional de Modelos Temporales | (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(0, 6, "Metricas de Organizacion Temporal | Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(5)
     
     pdf.set_draw_color(255, 152, 0)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(8)
     
-    # Datos de control
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, "Participante:", new_x="RIGHT", new_y="TOP")
@@ -123,33 +120,13 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, whatsapp_usuario if whatsapp_usuario else "No Proporcionado", new_x="LMARGIN", new_y="NEXT")
     
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, "Fecha de Emision:", new_x="RIGHT", new_y="TOP")
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
-    
     if es_likert:
-        pdf.set_font("Helvetica", "B", 11)
-        pdf.cell(45, 6, "Edad y Genero:", new_x="RIGHT", new_y="TOP")
-        pdf.set_font("Helvetica", "", 11)
-        pdf.cell(0, 6, f"{resultados.get('Edad', 'N/A')} anos | {resultados.get('Género', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
-        
-        pdf.set_font("Helvetica", "B", 11)
-        pdf.cell(45, 6, "Procedencia Geo:", new_x="RIGHT", new_y="TOP")
-        pdf.set_font("Helvetica", "", 11)
-        origen_geo = resultados.get('Estado Origen', 'N/A') if resultados.get('Nacionalidad') == 'Mexicana' else resultados.get('País Origen', 'N/A')
-        pdf.cell(0, 6, f"Origen: {origen_geo} ({resultados.get('Nacionalidad', 'N/A')})", new_x="LMARGIN", new_y="NEXT")
-        
-    pdf.ln(5)
-    
-    if es_likert:
-        # Algoritmo de extracción vectorial ciego (Impares = Cronos, Pares = Kairos)
         cronos_items = [resultados.get(f"R{i}", 3) for i in range(1, 15, 2)]
         kairos_items = [resultados.get(f"R{i}", 3) for i in range(2, 15, 2)]
-        
         avg_cronos = sum(cronos_items) / 7
         avg_kairos = sum(kairos_items) / 7
         
+        pdf.ln(3)
         pdf.set_font("Helvetica", "B", 13)
         pdf.set_text_color(230, 81, 0)
         pdf.cell(0, 8, "VECTORES DE TENSION TEMPORAL CALCULADOS", new_x="LMARGIN", new_y="NEXT")
@@ -162,10 +139,9 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.cell(0, 6, f"- Indice de Orientacion Relacional (KAIROS): {avg_kairos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(4)
         
-        # Inyección del Gráfico de Cuadrantes de colores en el PDF
         if img_grafica_base64:
             try:
-                img_clean = img_grafica_base64.split(",")[1]
+                img_clean = img_grafica_base64.split(",")[-1]
                 img_data = BytesIO(base64.b64decode(img_clean))
                 pdf.image(img_data, x=55, w=100)
                 pdf.ln(4)
@@ -234,7 +210,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         invitacion_lbl = "Lograr el acoplamiento perfecto entre la eficiencia del reloj (Cronos) y el valor real de la oportunidad (Kairos) requiere un diseno estrategico avanzado. Te invitamos a solicitar una sesion de consultoria especializada y personalizada con el ponente Jacob Zumaya Prianti para disenar un flujograma de simbiosis temporal C&K adaptado a tus metas corporativas."
         pdf.multi_cell(0, 5, invitacion_lbl, border="LRB")
     else:
-        # Segmentación original Mandarina por Subtítulos Independientes
         for dim_nombre, items in resultados.items():
             conteo = len(items)
             estado = "GAJO SANO Y PLENO" if conteo == 0 else ("EN ALERTA TEMPRANA" if conteo < 3 else "CRITICO / URGENCIA INMEDIATA")
@@ -251,10 +226,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
 
 
 def ejecutar_analisis_semdeep(df, es_likert=False):
-    """
-    Algoritmo matemático SEMDeep de nivel Doctoral.
-    Calcula matrices de covarianza y estimaciones de trayectorias estructurales (Path Coefficients)
-    """
     analisis = {}
     if len(df) < 5:
         analisis["status"] = "Muestra insuficiente para convergencia estructural (Mínimo 5 registros)."
@@ -306,10 +277,8 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
     return analisis
 
 
-if "audiencia_activa" not in st.session_state:
-    st.session_state.audiencia_activa = "🍊 Salud Integral"
-
-url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
+if es_celular_del_publico and diag_tipo_url:
+    st.session_state.audiencia_activa = diag_tipo_url
 
 if not es_celular_del_publico:
     with st.expander("📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", expanded=True):
@@ -328,15 +297,14 @@ if not es_celular_del_publico:
             st.write("2. Responderás directamente el software nativo adaptado a tu organización sin necesidad de registros externos.")
 
 
-st.divider()
-
-# Inicialización prioritaria absoluta para evitar KeyErrors
 if "admin_autenticado" not in st.session_state:
     st.session_state.admin_autenticado = False
 if "guardado_exitoso" not in st.session_state:
     st.session_state.guardado_exitoso = False
 if "flujo_finalizado" not in st.session_state:
     st.session_state.flujo_finalizado = False
+
+PASSWORD_CORRECTO = "mandarina2026"  
 
 if not es_celular_del_publico:
     with st.sidebar:
@@ -385,7 +353,7 @@ if acceso_bloqueado:
 if st.session_state.admin_autenticado and not es_celular_del_publico:
     st.markdown("---")
     st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
-    st.write("Módulo avanzado de modelado predictivo y gráficas doctorales.")
+    st.write("Módulo avanzado de modelado predictivo de variables latentes.")
     
     tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"])
     
@@ -421,6 +389,22 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                     st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
+                
+                # ---- MANUAL DE INTERPRETACIÓN CIENTÍFICA SEMDEEP DE NIVEL DOCTORAL ----
+                with st.container(border=True):
+                    st.markdown("### 📚 Guía de Interpretación Epistemológica del SEMDeep (Fidelidad Doctoral)")
+                    st.markdown(
+                        "El motor **SEMDeep (Structural Equation Modeling Deep Engine)** evalúa relaciones de covarianza estructural "
+                        "entre constructos no observables (Variables Latentes) derivados del comportamiento temporal de la muestra. "
+                        "A diferencia de las regresiones ordinarias, calcula cargas factoriales puras mediante Descomposición en Valores Singulares (SVD).\n\n"
+                        "**1. Path Coefficients (Beta Cronos / Beta Kairos):** Indican la magnitud y dirección del impacto de cada régimen temporal sobre la capacidad de adaptación "
+                        "y transformación ética del grupo. Un coeficiente mayor a `0.40` indica una influencia crítica dominante. Si `Beta Cronos > Beta Kairos`, el auditorio unifica su excelencia "
+                        "vía estructuras rígidas; si es a la inversa, la organización depende del clima relacional y momentos de oportunidad.\n\n"
+                        "**2. Goodness of Fit (GoF / R² Ajustado):** Representa el poder de predictibilidad científica general del modelo. Un `GoF` de `0.50` a `0.70` se clasifica con rigor académico "
+                        "como un ajuste de alta fidelidad, indicando que el régimen del tiempo explica la mayor parte del comportamiento adaptativo de la muestra.\n\n"
+                        "**3. Covarianza Latente:** Mide la distancia analítica entre los constructos. Una covarianza cercana a `0.00` o negativa evidencia una tensión severa y fricción operativa "
+                        "en la muestra de la organización, validando la urgencia inmediata de implementar la **Simbiosis C&K** promovida en la consultoría."
+                    )
             else: st.warning("No hay filas registradas en esta pestaña.")
         else: st.error("Error de enlace.")
 
@@ -587,7 +571,7 @@ if not st.session_state.flujo_finalizado:
             texto_final = enunciado.replace("el ITAP", f"mi organizacion ({st.session_state.audiencia_activa})").replace("el instituto", "la institucion").replace("maquiladora", "empresa")
             st.write(f"**Reactivo {r_id}:** {texto_final}")
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Grado de alineación:", options=[1, 2, 3, 4, 5],
+                "Grado de alineación:", options=,
                 format_func=lambda x: {1:"1 - Totalmente en desacuerdo", 2:"2 - En desacuerdo", 3:"3 - Neutral", 4:"4 - De acuerdo", 5:"5 - Totalmente de acuerdo"}[x],
                 key=f"dyn_r_{r_id}"
             )
