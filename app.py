@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # =================================================================
 # CONFIGURACIONES GENERALES Y ENLACES DE LA PONENCIA
 # =================================================================
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 # Inicialización síncrona y global de tokens y variables de red prioritarias
@@ -99,10 +99,8 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
 
 
 def limpiar_texto_pdf(texto, idioma="Español"):
-    """Sanea cadenas Unicode y realiza transliteración fonética para idiomas no occidentales"""
     if not texto: return ""
     
-    # Mapeo de romanización fonética de emergencia para prevenir FPDFUnicodeEncodingException
     romanizacion_coreano_griego = {
         "REPORTE DIAGNOSTICO: DOCENTES": {"Coreano": "CHINDAN BOGO-SEO: GYOSA", "Griego": "DIAGNOSTIKI EKTHESI: DASKALOI"},
         "Perfil de Simbiosis Temporal Equilibrada (Cronos & Kairos)": {"Coreano": "Gyunhyeong-babhon Sigan Simbiosis (Cronos & Kairos)", "Griego": "Isorropimeni Symviosi Chronou (Cronos & Kairos)"},
@@ -215,7 +213,8 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if conteo > 0 else "OK"
             pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
             
-    return pdf.output()
+    # CORRECCIÓN DE ERROR RENDER: Forzar el casteo explícito a cadena binaria de bytes compatible con Streamlit
+    return bytes(pdf.output())
 
 
 def ejecutar_analisis_semdeep(df, es_likert=False):
@@ -244,16 +243,16 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
             beta = np.linalg.pinv(X.T @ X) @ X.T @ latent_impacto
             r_cuadrado = 1 - (np.sum((latent_impacto - X @ beta) ** 2) / np.sum((latent_impacto - np.mean(latent_impacto)) ** 2))
             analisis["status"] = "Convergencia Exitosa (SEMDeep Engine v2.6)"
-            analisis["beta_cronos_path"] = float(beta[0]) if len(beta)>0 else 0.0
-            analisis["beta_kairos_path"] = float(beta[1]) if len(beta)>1 else 0.0
+            analisis["beta_cronos_path"] = float(beta) if len(beta)>0 else 0.0
+            analisis["beta_kairos_path"] = float(beta) if len(beta)>1 else 0.0
             analisis["gof_r2_ajuste"] = max(0.0, float(r_cuadrado))
-            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos)[0,1])
+            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos))
         else:
             matriz_datos = df.iloc[:, 3:10].apply(pd.to_numeric, errors='coerce').fillna(0).to_numpy()
             c_centered = matriz_datos - np.mean(matriz_datos, axis=0)
             _, s, _ = np.linalg.svd(c_centered, full_matrices=False)
             analisis["status"] = "Convergencia Lineal Exitosa (SVD Gajos)"
-            analisis["gof_r2_ajuste"] = float(s[0]**2 / np.sum(s**2)) if len(s)>0 else 0.0
+            analisis["gof_r2_ajuste"] = float(s**2 / np.sum(s**2)) if len(s)>0 else 0.0
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
@@ -360,8 +359,6 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                     st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
-            else: st.warning("No hay filas registradas en esta pestaña.")
-        else: st.error("Error de enlace.")
 
 
 DICCIONARIO_IDIOMAS = {
@@ -432,7 +429,7 @@ BANCO_PREGUNTAS = {
         6: "Creo que la calidad humana de una tutoría tiene prioridad absoluta sobre el reloj.",
         7: "Me genera incomodidad cuando dinámicas imprevistas alteran la estructura de mis horas.",
         8: "Confío en que el proceso creativo surge en ventanas providenciales de oportunidad (Kairos).",
-        9: "Prefiero que las reuniones departamentales concluyan ciñéndose estrictamente al tiempo asignado.",
+        9: "Prefiero que las reuniones departamentales concluyan ciñéndose estrictamente al tempo asignado.",
         10: "Cuando me encuentro inmerso en el desarrollo de investigación, pierdo la noción del tiempo.",
         11: "Mido el éxito de mi jornada principalmente a través del cumplimiento exacto de las metas métricas.",
         12: "Prefiero que la gobernanza universitaria se adapte con sensibilidad a la salud mental estudiantil.",
@@ -446,7 +443,6 @@ CONTINENTES = ["América del Norte", "América Central / El Caribe", "América d
 
 
 if not st.session_state.flujo_finalizado:
-    # FILTRO GLOBAL DE IDIOMAS SOLICITADO
     idioma_sel = st.selectbox("🌐 Selecciona tu Idioma / Select Language:", ["Español", "Inglés", "Coreano", "Griego", "Francés"])
     tx = DICCIONARIO_IDIOMAS[idioma_sel]
     
@@ -518,7 +514,7 @@ if not st.session_state.flujo_finalizado:
         for r_id, enunciado in banco_activo.items():
             st.write(f"**Reactivo {r_id}:** {enunciado}")
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Scale:", options=[1, 2, 3, 4, 5],
+                "Scale:", options=,
                 format_func=lambda x: tx["likert_labels"][x],
                 key=f"dyn_r_{r_id}"
             )
@@ -556,6 +552,7 @@ if not st.session_state.flujo_finalizado:
                     plt.close(fig)
                 except Exception: pass
             
+            # Llamado al constructor del PDF pasando la variable de idioma activa
             reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
             nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
             
@@ -563,8 +560,17 @@ if not st.session_state.flujo_finalizado:
                 st.session_state.flujo_finalizado = True
                 for k in list(st.session_state.keys()):
                     if k.startswith(("sf_", "sm_", "dyn_r_", "dem_", "kn_")): del st.session_state[k]
-                        
-            st.download_button(label=tx["btn_pdf"], data=reporte_procesado, file_name=f"Report_{nombre_archivo}.pdf", mime="application/pdf", on_click=callback_finalizar)
+            
+            # EJECUCIÓN LIMPÍA: data ahora recibe el array binario de bytes purificados, resolviendo la StreamlitAPIException
+            st.download_button(
+                label=tx["btn_pdf"], 
+                data=reporte_procesado, 
+                file_name=f"Report_{nombre_archivo}.pdf", 
+                mime="application/pdf", 
+                on_click=callback_finalizar
+            )
+        else:
+            st.info("💡 Process to unlock download.")
 
 
 else:
