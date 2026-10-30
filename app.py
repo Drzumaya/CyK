@@ -1,5 +1,5 @@
 # =================================================================
-# PARTE 1: LIBRERÍAS, IMPORTACIONES Y CONFIGURACIÓN CORE DEL ENTORNO
+# PARTE 1: LIBRERÍAS E IMPORTACIONES DEL ENTORNO CORE
 # =================================================================
 import streamlit as st
 import qrcode
@@ -13,24 +13,41 @@ import hashlib
 import time
 import base64
 
-
-# CONFIGURACIÓN OBLIGATORIA DE SEGURIDAD: Debe ser la primera instrucción ejecutable del script
+# CONFIGURACIÓN OBLIGATORIA DEL ENTRAMADO DE STREAMLIT (Primera instrucción ejecutable)
 st.set_page_config(page_title="Ecosistema Diagnóstico de Modelos Temporales", layout="centered")
+# =================================================================
+# PARTE 2: CAPTURA PRIORITARIA DE QUERY PARAMS DE RED (GLOBALES)
+# =================================================================
+minuto_actual = int(time.time() // 60)
+token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
 
-# Desactivación síncrona del backend interactivo de PyPlot para entornos distribuidos
+token_actual = st.query_params.get("token", None)
+modo_admin_url = st.query_params.get("modo_admin", "true")
+es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+diag_tipo_url = st.query_params.get("diag_tipo", None)
+
+if "audiencia_activa" not in st.session_state:
+    st.session_state.audiencia_activa = "🍊 Salud Integral"
+
+if es_celular_del_publico and diag_tipo_url:
+    st.session_state.audiencia_activa = diag_tipo_url
+
+url_con_token = f"https://streamlit.app{token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
+# =================================================================
+# PARTE 3: DESACTIVACIÓN SÍNCRONA DE ADVERTENCIAS GRÁFICAS DE PYPLOT
+# =================================================================
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-# =================================================================
-# PARTE 2: CONSTANTES DEL SISTEMA DE RED Y PARÁMETROS GEOGRÁFICOS
-# =================================================================
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+
+# CONSTANTES DE ENTORNO DE PONENCIA Y MATRICES GEOGRÁFICAS
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
 # =================================================================
-# PARTE 3: MATRIZ DE IDIOMAS I18N - BLOQUE CONTINENTAL (ESPAÑOL E INGLÉS)
+# PARTE 4: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (ESPAÑOL)
 # =================================================================
 DICCIONARIO_IDIOMAS = {
     "Español": {
@@ -45,7 +62,8 @@ DICCIONARIO_IDIOMAS = {
         "likert_labels": {1: "1 - Totalmente en desacuerdo", 2: "2 - En desacuerdo", 3: "3 - Neutral", 4: "4 - De acuerdo", 5: "5 - Totalmente de acuerdo"},
         "c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
         "k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es más importante.",
-        "mand_title": "### 🍊 Tus Gajos de Bienestar (Ecosistema)", "mand_subtitle": "Selecciona las alertas o debilidades críticas en tu salud integral:",
+        "mand_title": "### 🍊 Tus Gajos de Bienestar (Ecosistema)", 
+        "mand_subtitle": "Selecciona las alertas o debilidades críticas en tu salud integral:",
         "err_fields": "Por favor llena los campos obligatorios.", "proc": "Procesando datos...", "local_ok": "Cargado Localmente (Sin Red)",
         "fields_msg": "💡 Complete los campos para habilitar la descarga.", "thanks": "## 🍊 ¡Muchas gracias por tu participación!",
         "thanks_sub": "Has completado el diagnóstico. Reconocer nuestros vectores temporales es el inicio de una alta madurez.",
@@ -61,6 +79,9 @@ DICCIONARIO_IDIOMAS = {
             "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
         }
     },
+# =================================================================
+# PARTE 5: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (INGLÉS)
+# =================================================================
     "Inglés": {
         "ctrl": "Control Information", "nombre": "Full Name or ID *:", "wha": "WhatsApp Link Number *:",
         "sec1": "Section I. Demographic & Geographic Data", "edad": "1. Age (Years):", "genero": "2. Gender:",
@@ -73,7 +94,8 @@ DICCIONARIO_IDIOMAS = {
         "likert_labels": {1: "1 - Strongly Disagree", 2: "2 - Disagree", 3: "3 - Neutral", 4: "4 - Agree", 5: "5 - Strongly Agree"},
         "c_pool": "I plan my operational activities in {geo} strictly following the clock schedule.",
         "k_pool": "Flexibility to adapt plans before an opportunity window in {geo} is much more important than the clock.",
-        "mand_title": "### 🍊 Your Slices of Wellbeing", "mand_subtitle": "Select the critical alerts or weaknesses in your holistic health:",
+        "mand_title": "### 🍊 Your Slices of Wellbeing", 
+        "mand_subtitle": "Select the critical alerts or weaknesses in your holistic health:",
         "err_fields": "Please fill in all required fields.", "proc": "Processing analytics...", "local_ok": "Stored Locally (Offline Mode)",
         "fields_msg": "💡 Complete fields to activate your secure download.", "thanks": "## 🍊 Thank you very much for your participation!",
         "thanks_sub": "You have completed the diagnostic profile. Recognizing temporal vectors marks the threshold of adaptive maturity.",
@@ -89,6 +111,9 @@ DICCIONARIO_IDIOMAS = {
             "🙏 Spiritual Health": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Loss of Meaning"]
         }
     },
+# =================================================================
+# PARTE 6: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (COREANO Y GRIEGO)
+# =================================================================
     "Coreano": {
         "ctrl": "제어 데이터", "nombre": "성명 또는 학번 *:", "wha": "연락처 전화번호 *:",
         "sec1": "제1절. 인구통계학적 및 지리적 데이터", "edad": "1. 연령 (세):", "genero": "2. 성별:",
@@ -124,7 +149,7 @@ DICCIONARIO_IDIOMAS = {
         "pais": "4. Εισάγετε τη Χώρα Καταγωγής σας *:", "cont": "5. Επιλέξτε την Ήπειρο Καταγωγής σας *:", "rol": "6. Ρόλος μέσα στην Εκκλησία:",
         "sec2": "Ενότητα ΙΙ. Γνώση επί του Θέματος", "kn1": "1. Πριν από αυτήν την έρευνα, είχατε ακούσει για τα Χρονικά Μοντέλα Κρόνος και Καιρός;",
         "kn2": "2. Έχετε διαβάσει για τα χρονικά μοντέλα Κρόνος και Καιρός;", "kn3": "3. Έχετε διδάξει ποτέ για τα χρονικά μοντέλα Κρόνος και Καιρός;",
-        "kn4": "4. To χρονικό μοντέλο είναι:", "kn5": "5. Μιλώντας για χρονικά μοντέλα σημαίνει μιλώντας για:",
+        "kn4": "4. Το χρονικό μοντέλο είναι:", "kn5": "5. Μιλώντας για χρονικά μοντέλα σημαίνει μιλώντας για:",
         "sec3": "Ενότητα ΙΙΙ. Κλίμακα Likert", "btn_save": "💾 Αποθήκευση & Επεξεργασία Διάγνωσης", "btn_pdf": "ΛΗΨΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ PDF 📥",
         "likert_labels": {1: "1 - Διαφωνώ απόλυτα", 2: "2 - Διαφωνώ", 3: "3 - Ουδέτερο", 4: "4 - Συμφωνώ", 5: "5 - Συμφωνώ απόλυτα"},
         "c_pool": "Προγραμματίζω τις δραστηριότητές μου στο {geo} ακολουθώντας αυστηρά το ρολόι.",
@@ -145,6 +170,9 @@ DICCIONARIO_IDIOMAS = {
             "🙏 Πνευματική Υγεία": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Loss of Meaning"]
         }
     },
+# =================================================================
+# PARTE 7: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (FRANCÉS Y ALEMÁN)
+# =================================================================
     "Francés": {
         "ctrl": "Données de Contrôle", "nombre": "Nom Complet ou ID *:", "wha": "Numéro WhatsApp *:",
         "sec1": "Section I. Données Démographiques", "edad": "1. Âge (Années) :", "genero": "2. Genre :",
@@ -187,7 +215,7 @@ DICCIONARIO_IDIOMAS = {
         "k_pool": "Die Flexibilität, Pläne bei Gelegenheiten in {geo} anzupassen, ist wichtiger als die Uhr.",
         "mand_title": "### 🍊 Ihre Segmente des Wohlbefindens", "mand_subtitle": "Wählen Sie kritische Warnungen in Ihrer ganzheitlichen Gesundheit aus:",
         "err_fields": "Bitte füllen Sie alle Pflichtfelder aus.", "proc": "Analyse wird verarbeitet...", "local_ok": "Lokal gespeichert (Offline-Modus)",
-        "fields_msg": "💡 Felder ausfüllen, um den sicheren Download zu aktivieren.", "thanks": "## 🍊 Vielen Dank für Ihre Teilnahme!",
+        "fields_msg": "💡 Felder ausfüllen, um den sicheren Download zu aktivieren.", "thanks": "## 🍊 Vielen Dank für Ihre Bedeutung!",
         "thanks_sub": "Sie haben das Diagnoseprofil abgeschlossen. Das Erkennen zeitlicher Vektoren ist der Beginn hoher Reife.",
         "qr_title": "📱 Dynamischer QR-Sicherheitscode (Auf Leinwand projizieren)", "qr_sub1": "1. Scannen Sie den QR-Code mit Ihrer Smartphone-Kamera.",
         "qr_sub2": "2. Sie interagieren direkt mit unserer für Ihre Organisation angepassten Software.",
@@ -201,6 +229,9 @@ DICCIONARIO_IDIOMAS = {
             "🙏 Spirituelle Gesundheit": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Loss of Meaning"]
         }
     },
+# =================================================================
+# PARTE 8: MATRICES GEOMÉTRICAS DE TRADUCCIÓN GLOBAL POLÍGLOTA (ITALIANO Y PORTUGUÉS)
+# =================================================================
     "Italiano": {
         "ctrl": "Dati di Controllo", "nombre": "Nome Completo o ID *:", "wha": "Numero WhatsApp di Contatto *:",
         "sec1": "Sezione I. Dati Demografici e Geografici", "edad": "1. Età (Anni):", "genero": "2. Genere:",
@@ -232,7 +263,7 @@ DICCIONARIO_IDIOMAS = {
     "Portugués": {
         "ctrl": "Dados de Controle", "nombre": "Nome Completo ou Registro *:", "wha": "Número de Telefone/WhatsApp *:",
         "sec1": "Seção I. Dados Demográficos e Geográficos", "edad": "1. Idade (Anos):", "genero": "2. Gênero:",
-        "nac": "3. Nationality *:", "orig": "4. Estado de Origem *:", "res": "5. Estado de Residência Atual *:",
+        "nac": "3. Nacionalidade *:", "orig": "4. Estado de Origem *:", "res": "5. Estado de Residência Atual *:",
         "pais": "4. Escreva seu País de Origem *:", "cont": "5. Selecione seu Continente de Origem *:", "rol": "6. Papel dentro da Igreja:",
         "sec2": "Seção II. Conhecimento sobre o Tema", "kn1": "1. Antes desta pesquisa, você já tinha ouvido falar sobre os Modelos Temporais Cronos e Kairos?",
         "kn2": "2. Você já leu sobre os modelos temporais Cronos e Kairos?", "kn3": "3. Você já ensinou alguma vez sobre os modelos temporais Cronos e Kairos?",
@@ -250,7 +281,7 @@ DICCIONARIO_IDIOMAS = {
         "gajos_data": {
             "💪 Saúde Física": ["Nutrição Deficiente", "Falta de Sono/Insônia", "Sedentarismo Crônico", "Fadiga Corporal"],
             "🧠 Saúde Mental": ["Brain Fog", "Rumination", "Overload", "Cognitive Apathy"],
-            "❤️ Saúde Emocional": ["Acute Anxiety", "Irritability", "General Demotivation", "Mood Instability"],
+            "❤️ Emocional Saúde": ["Acute Anxiety", "Irritability", "General Demotivation", "Mood Instability"],
             "👥 Saúde Social": ["Voluntary Isolation", "Interpersonal Conflicts", "Lack of Support Network", "Weak Boundaries"],
             "💰 Saúde Econômica": ["Compulsive Spending", "Overwhelming Debt", "Lack of Emergency Fund", "Financial Anxiety"],
             "⏳ Saúde Temporal": ["Chronic Procrastination", "Burnout", "Perpetual Tardiness", "Lack of Margin"],
@@ -259,26 +290,7 @@ DICCIONARIO_IDIOMAS = {
     }
 }
 # =================================================================
-# PARTE 4: CAPTURA PRIORITARIA DE QUERY PARAMS DE RED (GLOBALES)
-# =================================================================
-minuto_actual = int(time.time() // 60)
-token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
-
-token_actual = st.query_params.get("token", None)
-modo_admin_url = st.query_params.get("modo_admin", "true")
-es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
-diag_tipo_url = st.query_params.get("diag_tipo", None)
-
-if "audiencia_activa" not in st.session_state:
-    st.session_state.audiencia_activa = "🍊 Salud Integral"
-
-if es_celular_del_publico and diag_tipo_url:
-    st.session_state.audiencia_activa = diag_tipo_url
-
-url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
-
-# =================================================================
-# PARTE 6: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS Y AUTO-FUNDACIÓN
+# PARTE 9: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS Y AUTO-FUNDACIÓN
 # =================================================================
 def conectar_google_sheets(nombre_pestana):
     try:
@@ -297,7 +309,6 @@ def conectar_google_sheets(nombre_pestana):
         try:
             return workbook.worksheet(pestana_sana)
         except gspread.exceptions.WorksheetNotFound:
-            # INSTANCIACIÓN QUIRÚRGICA: Si la hoja no existe, la fundamos con sus columnas exactas
             new_sheet = workbook.add_worksheet(title=pestana_sana, rows="1000", cols="35")
             
             if pestana_sana == "🍊 Salud Integral":
@@ -322,10 +333,8 @@ def conectar_google_sheets(nombre_pestana):
             return new_sheet
     except Exception:
         return None
-
-
 # =================================================================
-# PARTE 7: DESPACHO AUTOMATIZADO DE VECTORES ANALÍTICOS A LA NUBE
+# PARTE 10: DESPACHO AUTOMATIZADO DE VECTORES ANALÍTICOS A LA NUBE
 # =================================================================
 def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token, es_likert=False):
     sheet = conectar_google_sheets(nombre_pestana)
@@ -360,7 +369,7 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
             return False
     return False
 # =================================================================
-# PARTE 8: SANITIZADOR POLÍGLOTA ANTI-UNICODE EXPORTABLE
+# PARTE 11: SANITIZADOR POLÍGLOTA ANTI-UNICODE EXPORTABLE
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
@@ -391,7 +400,7 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     texto_sano = "".join(reemplazos.get(c, c) for c in txt_str)
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
 # =================================================================
-# PARTE 9: CONSTRUCTOR DE REPORTES EN FLUJO DE BYTES
+# PARTE 12: CONSTRUCTOR DE REPORTES EN FLUJO DE BYTES (CORRECCIÓN SANGRE)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
@@ -479,7 +488,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             
     return bytes(pdf.output())
 # =================================================================
-# PARTE 10: ALGORITMO CIENTÍFICO DE PROCESAMIENTO MATRICIAL SVD
+# PARTE 13: ALGORITMO CIENTÍFICO DE PROCESAMIENTO MATRICIAL SVD
 # =================================================================
 def ejecutar_analisis_semdeep(df, es_likert=False):
     analisis = {}
@@ -532,60 +541,21 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
         
     return analisis
-# =================================================================
-# PARTE 11: MÓDULO DE EMISIÓN DE CÓDIGOS QR AL AUDITORIO
-# =================================================================
-if "flujo_finalizado" not in st.session_state:
-    st.session_state.flujo_finalizado = False
 
-# Selector lingüístico y carga de variables i18n
-if not st.session_state.flujo_finalizado:
-    idioma_sel = st.selectbox(
-        "🌐 Choose System Language / Selecciona Idioma:", 
-        ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"]
-    )
-    tx = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
-else:
-    tx = DICCIONARIO_IDIOMAS["Español"]
-
-# Extracción de llaves del QR protegidas contra KeyError mediante .get()
-titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
-sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
-sub_qr2 = tx.get("qr_sub2", DICCIONARIO_IDIOMAS["Español"]["qr_sub2"])
-
-if not es_celular_del_publico:
-    with st.expander(titulo_qr, expanded=True):
-        col1, col2 = st.columns([1, 1.5])
-        with col1:
-            qr = qrcode.QRCode(version=1, box_size=10, border=2)
-            qr.add_data(url_con_token)
-            qr.make(fit=True)
-            img_qr = qr.make_image(fill_color="#e65100", back_color="white")
-            
-            buf = BytesIO()
-            img_qr.save(buf, format="PNG")
-            st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", use_container_width=True)
-        with col2:
-            st.write(f"### Audiencia Proyectada en Vivo: {st.session_state.audiencia_activa}")
-            st.write(sub_qr1)
-            st.write(sub_qr2)
+def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
+    tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
+    fuga = str(b_alertas) if b_alertas else "OK"
+    banco_alterno = {}
+    for i in range(1, 15):
+        if i % 2 != 0:
+            banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
+        else:
+            banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
+    return banco_alterno
 # =================================================================
-# PARTE 12: CONSOLA DE MANDO DE SEGURIDAD (SIDEBAR PONENTE - CONFIG BASE)
-# =================================================================
-if "admin_autenticado" not in st.session_state:
-    st.session_state.admin_autenticado = False
-if "guardado_exitoso" not in st.session_state:
-    st.session_state.guardado_exitoso = False
-if "flujo_finalizado" not in st.session_state:
-    st.session_state.flujo_finalizado = False
-if "alertas_mandarina_previas" not in st.session_state:
-    st.session_state.alertas_mandarina_previas = []
-
-# =================================================================
-# PARTE 12.5: ORQUESTACIÓN CENTRAL Y FUNDACIÓN EN FRÍO DEL ECOSISTEMA
+# PARTE 14: ORQUESTACIÓN CENTRAL Y FUNDACIÓN EN FRÍO DEL ECOSISTEMA
 # =================================================================
 def main():
-    # 1. Inicialización síncrona y cognitiva del Session State de Streamlit
     if "audiencia_activa" not in st.session_state:
         st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state:
@@ -597,29 +567,16 @@ def main():
     if "alertas_mandarina_previas" not in st.session_state:
         st.session_state.alertas_mandarina_previas = []
 
-    # 2. PASO 2 CORREGIDO: Inicializador y Constructor de Estructuras en la Nube
-    # Revisa Google Sheets en el primer milisegundo. Si no existen las pestañas, las crea con sus columnas.
+    # Fundación en frío síncrona automática para inicializar tablas en la nube
     if "estructuras_inicializadas" not in st.session_state:
         lista_inicializar = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
         with st.spinner("Instanciando matriz de datos políglota en Google Sheets... 🍊"):
             for tabla in lista_inicializar:
                 conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
-
-    # 3. Intercepción y Extracción de Parámetros URL de Red
-    minuto_actual = int(time.time() // 60)
-    token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
-    token_actual = st.query_params.get("token", None)
-    modo_admin_url = st.query_params.get("modo_admin", "true")
-    es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
-    diag_tipo_url = st.query_params.get("diag_tipo", None)
-
-    if es_celular_del_publico and diag_tipo_url:
-        st.session_state.audiencia_activa = diag_tipo_url
-
-    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
-
-    # 4. Interceptor Temporal de Accesos y Tokens Caducados
+# =================================================================
+# PARTE 15: INTERCEPTOR DE ACCESOS DIRECTOS CADUCADOS E I18N GLOBAL
+# =================================================================
     if token_actual and not st.session_state.admin_autenticado:
         acceso_bloqueado = False
         minuto_base = int(time.time() // 60)
@@ -641,7 +598,6 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-    # 5. Capa i18n Internacional (Traductor Global Inmediato)
     if not st.session_state.flujo_finalizado:
         idioma_sel = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
@@ -651,171 +607,103 @@ def main():
     else:
         idioma_sel = "Español"
         tx = DICCIONARIO_IDIOMAS["Español"]
-
-
 # =================================================================
-# PARTE 13: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
+# PARTE 16: MÓDULO DE EMISIÓN DE CÓDIGOS QR AL AUDITORIO
 # =================================================================
-# Nota: Este bloque se ejecuta dentro de la bifurcación lógica principal controlado por es_modo_likert
-if not st.session_state.flujo_finalizado:
-    # Verificación del estado del modo Likert para la UI
-    es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
-    
-    if es_modo_likert:
-        st.subheader(tx["sec1"])
-        resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
-        resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
-        
-        nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
-        resultados_totales["Nacionalidad"] = nacionalidad
-        geo_contexto = "Region"
-        
-        if nacionalidad == "Mexicana":
-            resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
-            resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
-            resultados_totales["País Origen"] = "México"
-            resultados_totales["Continente Extranjero"] = "América"
-            geo_contexto = str(resultados_totales["Estado Residencia"])
-        else:
-            resultados_totales["Estado Origen"] = "N/A"
-            resultados_totales["Estado Residencia"] = "N/A"
-            resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
-            resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
-            geo_contexto = str(resultados_totales["País Origen"])
-            
-        st.subheader(tx["sec2"])
-        resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
-        resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
-        resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
-        resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
-        resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
-        
-        st.subheader(tx["sec3"])
-        banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
-        
-        for r_id, enunciado_idioma in banco_mutado.items():
-            st.write(f"Reactivo {r_id}: {enunciado_idioma}")
-            
-            etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
-            resultados_totales[f"R{r_id}"] = st.radio(
-                "Scale:",
-                options=[1, 2, 3, 4, 5],
-                format_func=lambda x: etiquetas_likert.get(x, str(x)),
-                key=f"dyn_r_{r_id}"
-            )
+    if not es_celular_del_publico:
+        titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
+        sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
+        sub_qr2 = tx.get("qr_sub2", DICCIONARIO_IDIOMAS["Español"]["qr_sub2"])
+
+        with st.expander(titulo_qr, expanded=True):
+            col1, col2 = st.columns([1, 1.5])
+            with col1:
+                qr = qrcode.QRCode(version=1, box_size=10, border=2)
+                qr.add_data(url_con_token)
+                qr.make(fit=True)
+                img_qr = qr.make_image(fill_color="#e65100", back_color="white")
+                buf = BytesIO()
+                img_qr.save(buf, format="PNG")
+                st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", use_container_width=True)
+            with col2:
+                st.write(f"### Audiencia Proyectada en Vivo: {st.session_state.audiencia_activa}")
+                st.write(sub_qr1)
+                st.write(sub_qr2)
 # =================================================================
-# PARTE 14: OFICINA DE ALTA AUDITORÍA ESTADÍSTICA (RESEARCH PANEL) Y SIDEBAR PONENTE
+# PARTE 17: DESPLIEGUE MULTILINGÜE DEL FORMULARIO PRINCIPAL
 # =================================================================
-
-# --- CONSOLA DE MANDO DE SEGURIDAD (SIDEBAR PONENTE) ---
-PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
-
-if not es_celular_del_publico:
-    with st.sidebar:
-        st.markdown("## 🔐 Control del Ponente")
-        if not st.session_state.admin_autenticado:
-            input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd")
-            if st.button("Desbloquear Tableros"):
-                if input_password == PASSWORD_SISTEMA:
-                    st.session_state.admin_autenticado = True
-                    st.rerun()
-                else: 
-                    st.error("Contraseña incorrecta. Acceso denegado.")
-        else:
-            st.success("Modo Ponente Activo")
-            
-            # Formulario dinámico en caliente para registrar audiencias personalizadas sin tocar el código
-            nueva_aud_txt = st.text_input("➕ Agregar Nueva Audiencia Personalizada:", key="add_new_aud_input").strip()
-            
-            lista_audiencias_base = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-            if "audiencias_custom_list" not in st.session_state:
-                st.session_state.audiences_custom_list = []
-                
-            if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiences_custom_list:
-                st.session_state.audiences_custom_list.append(nueva_aud_txt)
-                st.toast(f"Audiencia '{nueva_aud_txt}' añadida a la sesión", icon="🍊")
-                
-            lista_audiencias_completa = lista_audiencias_base + st.session_state.audiences_custom_list
-            
-            seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias_completa, index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0)
-            
-            if seleccion != st.session_state.audiencia_activa:
-                st.session_state.audiencia_activa = seleccion
-                
-                # AJUSTE QUIRÚRGICO: Forzamos la creación inmediata de la pestaña en la nube con sus headers correspondientes
-                with st.spinner("Inicializando entorno de datos en Google Sheets..."):
-                    conectar_google_sheets(seleccion)
-                st.rerun()
-
-    # --- OFICINA DE ALTA AUDITORÍA ESTADÍSTICA (RESEARCH PANEL CENTRAL) ---
-    if st.session_state.admin_autenticado:
-        st.markdown("---")
-        st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
-        st.write("Módulo avanzado de modelado predictivo de variables latentes.")
+    if not st.session_state.flujo_finalizado:
+        st.header(f"📋 {st.session_state.audiencia_activa}")
+        nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
+        whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
+        st.divider()
         
-        # Extracción dinámica en tiempo real de las pestañas reales que existen físicamente en Google Sheets
-        try:
-            if "gcp_service_account" in st.secrets:
-                secrets_dict = dict(st.secrets["gcp_service_account"])
-                if "private_key" in secrets_dict:
-                    secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
-                client_back = gspread.service_account_from_dict(secrets_dict)
-                workbook_back = client_back.open(NOMBRE_HOJA_CALCULO)
-                lista_tablas_reales = [sh.title for sh in workbook_back.worksheets()]
-            else:
-                lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-        except Exception:
-            lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-
-        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", lista_tablas_reales)
-        
-        if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
-            sheet = conectar_google_sheets(tabla_analizar)
-            if sheet:
-                try:
-                    # OJO EXPERTO: Extracción matricial cruda inmune a fallos de gspread
-                    todas_las_filas = sheet.get_all_values()
+        resultados_totales = {}
+        es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
+# =================================================================
+# PARTE 18: RENDERIZACIÓN ISOMÓRFICA DE LOS 7 GAJOS TRADUCIDOS
+# =================================================================
+        if not es_modo_likert:
+            st.write(tx["mand_title"])
+            st.write(tx["mand_subtitle"])
+            gajos_dinamicos = tx.get("gajos_data", DICCIONARIO_IDIOMAS["Español"]["gajos_data"])
+            
+            for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
+                with st.container(border=True):
+                    st.markdown(f"#### {g_name}")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
+                        cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
+                    with col2:
+                        cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
+                        cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
+                        
+                    resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                     
-                    if not todas_las_filas or len(todas_las_filas) < 2:
-                        st.warning("⚠️ La tabla seleccionada no contiene registros o datos suficientes para la auditoría.")
-                    else:
-                        encabezados = todas_las_filas[0]
-                        datos_cuerpo = todas_las_filas[1:]
-                        
-                        # Sanitización inmediata en caliente de encabezados duplicados o vacíos
-                        encabezados_unicos = []
-                        for i, col in enumerate(encabezados):
-                            nombre_col = col.strip() if col.strip() else f"Columna_{i}"
-                            if nombre_col in encabezados_unicos:
-                                nombre_col = f"{nombre_col}_{i}"
-                            encabezados_unicos.append(nombre_col)
-                            
-                        df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
-                        st.success(f"¡Base de datos cargada exitosamente! Registros analizados: {len(df_doc)}")
-                        es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
-                        
-                        col_graph1, col_graph2 = st.columns(2)
-                        with col_graph1:
-                            st.write("#### 📈 Distribución Descriptiva Global")
-                            if not es_tabla_likert:
-                                col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
-                                promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
-                                if promedios: 
-                                    st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
-                            else:
-                                r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-                                if len(r_cols) >= 14:
-                                    matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                                    c_mean = np.mean(matriz_r[:, 0::2])
-                                    k_mean = np.mean(matriz_r[:, 1::2])
-                                    st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
-                                else:
-                                    st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
-                                    
-                        with col_graph2:
-                            st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
-                            res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-                            st.json(res_sem)
-                            
-                except Exception as e:
-                    st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
+            if st.button("Procesar Alertas Base / Register Alerts"):
+                st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
+                st.success("OK. Context synchronized.")
+# =================================================================
+# PARTE 19: FORMULARIO GEOGRÁFICO Y ESCALA PSICOMÉTRICA (LIKERT FIXED)
+# =================================================================
+        else:
+            st.subheader(tx["sec1"])
+            resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
+            resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
+            nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
+            resultados_totales["Nacionalidad"] = nacionalidad
+            geo_contexto = "Region"
+            
+            if nacionalidad == "Mexicana":
+                resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
+                resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
+                resultados_totales["País Origen"] = "México"
+                resultados_totales["Continente Extranjero"] = "América"
+                geo_contexto = str(resultados_totales["Estado Residencia"])
+            else:
+                resultados_totales["Estado Origen"] = "N/A"
+                resultados_totales["Estado Residencia"] = "N/A"
+                resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
+                resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
+                geo_contexto = str(resultados_totales["País Origen"])
+                
+            st.subheader(tx["sec2"])
+            resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
+            resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
+            resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
+            resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
+            resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
+            
+            st.subheader(tx["sec3"])
+            banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
+            
+            for r_id, enunciado_idioma in banco_mutado.items():
+                st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+                etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
+                resultados_totales[f"R{r_id}"] = st.radio(
+                    "Scale:",
+                    options=[1, 2, 3, 4, 5],
+                    format_func=lambda x: etiquetas_likert.get(x, str(x)),
+                    key=f"dyn_r_{r_id}"
+                )
