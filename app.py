@@ -276,7 +276,7 @@ if es_celular_del_publico and diag_tipo_url:
 
 url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 # =================================================================
-# PARTE 6: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS
+# PARTE 6: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS (HEADERS AUTO)
 # =================================================================
 def conectar_google_sheets(nombre_pestana):
     try:
@@ -295,9 +295,34 @@ def conectar_google_sheets(nombre_pestana):
         try:
             return workbook.worksheet(pestana_sana)
         except gspread.exceptions.WorksheetNotFound:
-            return workbook.add_worksheet(title=pestana_sana, rows="1000", cols="35")
+            # Si la pestaña no existe, la creamos de forma segura
+            new_sheet = workbook.add_worksheet(title=pestana_sana, rows="1000", cols="35")
+            
+            # OJO CRÍTICO: Inyectamos los encabezados base según el tipo de audiencia
+            if pestana_sana == "🍊 Salud Integral":
+                headers = [
+                    "Timestamp", "Nombre", "WhatsApp", 
+                    "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", 
+                    "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", 
+                    "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"
+                ]
+            else:
+                headers = [
+                    "Timestamp", "Nombre", "WhatsApp", "Edad", "Género", 
+                    "Nacionalidad", "Estado Origen", "Estado Residencia", 
+                    "País Origen", "Continente Extranjero", "Rol Iglesia", 
+                    "C1_Escuchado", "C2_Leído", "C3_Enseñado", "C4_Origen", "C5_Concepto"
+                ]
+                # Agregamos dinámicamente los encabezados para los 14 reactivos Likert
+                for i in range(1, 15):
+                    headers.append(f"R{i}")
+                headers.append("Token")
+                
+            new_sheet.append_row(headers)
+            return new_sheet
     except Exception:
         return None
+
 # =================================================================
 # PARTE 7: DESPACHO AUTOMATIZADO DE VECTORES ANALÍTICOS A LA NUBE
 # =================================================================
