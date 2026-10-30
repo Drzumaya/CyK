@@ -96,8 +96,6 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
         except Exception:
             return False
     return False
-
-
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
     
@@ -172,17 +170,12 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, nombre_sano if nombre_sano else "Anonimo", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(0, 6, name_sano if nombre_sano else "Anonimo", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("cont", lang), new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 11)
     pdf.cell(0, 6, whatsapp_sano if whatsapp_sano else "N/A", new_x="LMARGIN", new_y="NEXT")
-    
-    pdf.set_font("Helvetica", "B", 11)
-    pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
-    pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
     
     if es_likert:
@@ -231,8 +224,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
             
     return bytes(pdf.output())
-
-
 def ejecutar_analisis_semdeep(df, es_likert=False):
     analisis = {}
     if len(df) < 5:
@@ -272,25 +263,6 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
-
-
-if not es_celular_del_publico:
-    with st.expander("📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", expanded=True):
-        col1, col2 = st.columns([1, 1.5])
-        with col1:
-            qr = qrcode.QRCode(version=1, box_size=10, border=2)
-            qr.add_data(url_con_token)
-            qr.make(fit=True)
-            img_qr = qr.make_image(fill_color="#e65100", back_color="white")
-            buf = BytesIO()
-            img_qr.save(buf, format="PNG")
-            st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", width="stretch")
-        with col2:
-            st.write(f"### Audiencia Proyectada en Vivo: **{st.session_state.audiencia_activa}**")
-            st.write("1. Enfoca el código QR con la cámara de tu smartphone.")
-            st.write("2. Responderás directamente el software nativo adaptado a tu organización sin necesidad de registros externos.")
-
-
 if "admin_autenticado" not in st.session_state:
     st.session_state.admin_autenticado = False
 if "guardado_exitoso" not in st.session_state:
@@ -341,8 +313,6 @@ else: acceso_bloqueado = False
 if acceso_bloqueado:
     st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
     st.stop()
-
-
 if st.session_state.admin_autenticado and not es_celular_del_publico:
     st.markdown("---")
     st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
@@ -377,8 +347,6 @@ if st.session_state.admin_autenticado and not es_celular_del_publico:
                     st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
-
-
 DICCIONARIO_IDIOMAS = {
     "Español": {
         "ctrl": "Datos de Control", "nombre": "Nombre Completo o Matrícula *:", "wha": "Número Telefónico de Enlace *:",
@@ -399,7 +367,7 @@ DICCIONARIO_IDIOMAS = {
         "nac": "3. Nationality *:", "orig": "4. State of Origin *:", "res": "5. State of Residence *:",
         "pais": "4. Enter your Country of Origin *:", "cont": "5. Select your Continent of Origin *:", "rol": "6. Role within the Church:",
         "sec2": "Section II. Knowledge of the Topic", "kn1": "1. Before this survey, had you heard about the Cronos and Kairos Temporal Models?",
-        "kn2": "2. Have you read about the Cronos and Kairos temporal models?", "kn3": "3. Have you ever taught about the Cronos and Kairos temporal models?",
+        "kn2": "2. Have you read about the Cronos and Kairos temporal models?", "kn3": "3. Have you ever taught about the Chronos and Kairos temporal models?",
         "kn4": "4. The temporal model is:", "kn5": "5. Speaking of temporal models means speaking of:",
         "sec3": "Section III. Intercalated Contextual Scale", "btn_save": "💾 Save & Process Diagnosis", "btn_pdf": "DOWNLOAD RESULTS IN PDF 📥",
         "likert_labels": {1:"1 - Strongly Disagree", 2:"2 - Disagree", 3:"3 - Neutral", 4:"4 - Agree", 5:"5 - Strongly Agree"},
@@ -474,8 +442,6 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
-
-
 if not st.session_state.flujo_finalizado:
     idioma_sel = st.selectbox("🌐 Choose System Language / Selecciona Idioma:", ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán"])
     tx = DICCIONARIO_IDIOMAS[idioma_sel]
@@ -488,35 +454,94 @@ if not st.session_state.flujo_finalizado:
     resultados_totales = {}
     es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
+    # RESTAURACIÓN MAESTRA COMPLETA DE LOS 7 GAJOS NATIVOS DEL MODELO MANDARINA
     if not es_modo_likert:
-        st.write("### 🍊 Tus Gajos de Bienestar (Diseño Estilizado)")
+        st.write("### 🍊 Tus Gajos de Bienestar (Estructura de Producción)")
+        st.write("Selecciona los puntos de fuga específicos donde requieres intervención:")
+        
+        # 1. SF
         with st.container(border=True):
             st.markdown("#### 💪 Salud Física (SF)")
-            sf_items = ["Nutricion", "Sueno", "Ejercicio", "Movimiento"]
+            sf_items = ["Nutricion (Hábitos)", "Sueno (Descanso)", "Ejercicio (Estructurado)", "Movimiento (Sedentarismo)"]
             col1, col2 = st.columns(2)
             with col1:
-                st.checkbox(sf_items, key="sf_unq_0")
-                st.checkbox(sf_items, key="sf_unq_1")
+                sf_0 = st.checkbox(sf_items, key="sf_unq_0")
+                sf_1 = st.checkbox(sf_items, key="sf_unq_1")
             with col2:
-                st.checkbox(sf_items, key="sf_2")
-                st.checkbox(sf_items, key="sf_3")
-            resultados_totales["Salud Fisica (SF)"] = [item for idx, item in enumerate(sf_items) if st.session_state[f"sf_unq_{idx}" if idx < 2 else f"sf_{idx}"]]
+                sf_2 = st.checkbox(sf_items, key="sf_unq_2")
+                sf_3 = st.checkbox(sf_items, key="sf_unq_3")
+            resultados_totales["Salud Fisica (SF)"] = [sf_items for i, val in enumerate([sf_0, sf_1, sf_2, sf_3]) if val]
 
+        # 2. SM (SOLUCIÓN ABSOLUTA AL KEYERROR DE LLAVES CONDICIONALES ASIMÉTRICAS)
         with st.container(border=True):
             st.markdown("#### 🧠 Salud Mental (SM)")
-            sm_items = ["Memoria", "Enfoque", "Resiliencia"]
+            sm_items = ["Memoria (Retención)", "Enfoque (Concentración)", "Resiliencia (Cambio)"]
             col1, col2 = st.columns(2)
             with col1:
-                st.checkbox(sm_items, key="sm_unq_0")
+                sm_0 = st.checkbox(sm_items, key="sm_unq_0")
+                sm_1 = st.checkbox(sm_items, key="sm_unq_1")
             with col2:
-                st.checkbox(sm_items, key="sm_2")
-            resultados_totales["Salud Mental (SM)"] = [item for idx, item in enumerate(sm_items) if st.session_state[f"sm_unq_{idx}" if idx < 1 else f"sm_{idx}"]]
+                sm_2 = st.checkbox(sm_items, key="sm_unq_2")
+            resultados_totales["Salud Mental (SM)"] = [sm_items for i, val in enumerate([sm_0, sm_1, sm_2]) if val]
+
+        # 3. SE (GAJO RESTAURADO)
+        with st.container(border=True):
+            st.markdown("#### ❤️ Salud Emocional (SE)")
+            se_items = ["Gestión de emociones", "Autocontrol propio", "Regulación del ánimo"]
+            col1, col2 = st.columns(2)
+            with col1:
+                se_0 = st.checkbox(se_items, key="se_unq_0")
+                se_1 = st.checkbox(se_items, key="se_unq_1")
+            with col2:
+                se_2 = st.checkbox(se_items, key="se_unq_2")
+            resultados_totales["Salud Emocional (SE)"] = [se_items for i, val in enumerate([se_0, se_1, se_2]) if val]
+
+        # 4. SS (GAJO RESTAURADO)
+        with st.container(border=True):
+            st.markdown("#### 👥 Salud Social (SS)")
+            ss_items = ["Relaciones positivas", "Comunicación asertiva", "Red de apoyo"]
+            col1, col2 = st.columns(2)
+            with col1:
+                ss_0 = st.checkbox(ss_items, key="ss_unq_0")
+                ss_1 = st.checkbox(ss_items, key="ss_unq_1")
+            with col2:
+                ss_2 = st.checkbox(ss_items, key="ss_unq_2")
+            resultados_totales["Salud Social (SS)"] = [ss_items for i, val in enumerate([ss_0, ss_1, ss_2]) if val]
+
+        # 5. SECO (GAJO RESTAURADO)
+        with st.container(border=True):
+            st.markdown("#### 💰 Salud Económica (SECO)")
+            seco_items = ["Presupuesto base", "Ahorro sistemático", "Inversión de capital"]
+            col1, col2 = st.columns(2)
+            with col1:
+                seco_0 = st.checkbox(seco_items, key="seco_unq_0")
+                seco_1 = st.checkbox(seco_items, key="seco_unq_1")
+            with col2:
+                seco_2 = st.checkbox(seco_items, key="seco_unq_2")
+            resultados_totales["Salud Económica (SECO)"] = [seco_items for i, val in enumerate([seco_0, seco_1, seco_2]) if val]
+
+        # 6. ST (GAJO RESTAURADO)
+        with st.container(border=True):
+            st.markdown("#### ⏳ Salud Temporal (ST)")
+            st_items = ["Gestión de agenda", "Equilibrio deber/descanso"]
+            col1, col2 = st.columns(2)
+            with col1: st_0 = st.checkbox(st_items, key="st_unq_0")
+            with col2: st_1 = st.checkbox(st_items, key="st_unq_1")
+            resultados_totales["Salud Temporal (ST)"] = [st_items for i, val in enumerate([st_0, st_1]) if val]
+
+        # 7. SPI (GAJO RESTAURADO)
+        with st.container(border=True):
+            st.markdown("#### 🙏 Salud Espiritual (SPI)")
+            spi_items = ["Propósito de vida", "Meditación u oración"]
+            col1, col2 = st.columns(2)
+            with col1: spi_0 = st.checkbox(spi_items, key="spi_unq_0")
+            with col2: spi_1 = st.checkbox(spi_items, key="spi_unq_1")
+            resultados_totales["Salud Espiritual (SPI)"] = [spi_items for i, val in enumerate([spi_0, spi_1]) if val]
             
         if st.button("Procesar Alertas Base / Register Aler"):
+            # Consolidación atómica de alarmas biológicas cruzadas en memoria segura
             st.session_state.alertas_mandarina_previas = resultados_totales["Salud Fisica (SF)"] + resultados_totales["Salud Mental (SM)"]
             st.success("OK. Context synchronized.")
-
-
     else:
         st.subheader(tx["sec1"])
         resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
@@ -552,14 +577,12 @@ if not st.session_state.flujo_finalizado:
         
         for r_id, enunciado_idioma in banco_mutado.items():
             st.write(f"**Reactivo {r_id}:** {enunciado_idioma}")
-            # ARREGLO CONFIRMADO: Se inyectó el array explícito [1, 2, 3, 4, 5]
             resultados_totales[f"R{r_id}"] = st.radio(
-                "Scale:", options=[1, 2, 3, 4, 5],
+                "Scale:", 
+                options=[1, 2, 3, 4, 5],
                 format_func=lambda x: tx["likert_labels"][x],
                 key=f"dyn_r_{r_id}"
             )
-
-
     st.divider()
     col_btn1, col_btn2 = st.columns(2)
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
@@ -607,8 +630,6 @@ if not st.session_state.flujo_finalizado:
                 on_click=callback_finalizar
             )
         else: st.info("💡 Process fields.")
-
-
 else:
     st.balloons()
     st.success("### Process Completed! 🎉")
