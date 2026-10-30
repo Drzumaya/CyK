@@ -78,6 +78,8 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
     return False
 
 
+# # PARTE 3: GENERADOR MULTI-REPORTES PDF EN BYTES (fpdf2 SANITIZADO)
+
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False):
     pdf = FPDF()
     pdf.add_page()
@@ -113,7 +115,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.ln(10)
     
     if es_likert:
-        # Extracción analítica e índices vectoriales para escalas de 14 ítems
+        # Extracción analítica e índices vectoriales para escalas de 14 ítems (Impares=Cronos, Pares=Kairos)
         cronos_items = [resultados.get(f"R{i}", 3) for i in]
         kairos_items = [resultados.get(f"R{i}", 3) for i in]
         
@@ -157,6 +159,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.ln(3)
             
     return bytes(pdf.output())
+
 
 
 minuto_actual = int(time.time() // 60)
