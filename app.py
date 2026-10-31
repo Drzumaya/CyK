@@ -556,6 +556,9 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
 # =================================================================
 # ALGORITMO PSICOMÉTRICA ADAPTATIVO CON INTELIGENCIA LÉXICA (FIXED)
 # =================================================================
+# =================================================================
+# ALGORITMO PSICOMÉTRICO ADAPTATIVO CON INTELIGENCIA LÉXICA MULTICAPA
+# =================================================================
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
     
@@ -563,15 +566,11 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     audiencia = st.session_state.get("audiencia_activa", "Docentes").strip()
     geo_limpio = str(geo).strip() if geo and str(geo).strip() != "Region" else "mi entorno operativo"
     
-    # 2. Diccionario base de jergas operativas preestablecidas
+    # 2. Diccionario base de jergas operativas fijas
     modificadores_cultura = {
         "Docentes": {
             "reloj": "mi planeación didáctica y el avance del programa escolar",
             "oportunidad": "el ritmo de aprendizaje de mis alumnos o una contingencia institucional"
-        },
-        "Estudiantes Universitarios": {
-            "reloj": "mi calendario de entregas, exámenes y horas de estudio",
-            "oportunidad": "un proyecto emergente de última hora o una convocatoria de beca"
         },
         "🏭 Sector Secundario": {
             "reloj": "los turnos de producción, cuotas de línea y tiempos del reloj",
@@ -583,21 +582,28 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
         }
     }
     
-    # 3. MÓDULO INTELIGENTE: Clasificador Léxico para Audiencias Personalizadas (TELMEX, etc.)
+    # 3. MÓDULO INTELIGENTE AVANZADO: Clasificador Léxico Multicapa (Análisis de Subcadenas)
     aud_lower = audiencia.lower()
+    
     if audiencia in modificadores_cultura:
         modificadores = modificadores_cultura[audiencia]
-    elif any(keyword in aud_lower for keyword in ["telmex", "corporativo", "empresa", "industrial", "secundario", "negocio", "sa"]):
-        # Jerga adaptada a la cultura de empresas, ingenierías y telecomunicaciones
+    # MULTICAPA ACADÉMICA: Si contiene raíces asociadas a educación superior, alumnos o siglas como ITAP
+    elif any(keyword in aud_lower for keyword in ["estudiante", "alumno", "universitario", "itap", "it", "ingenieria", "licenciatura", "tec"]):
+        modificadores = {
+            "reloj": "mi calendario de entregas de proyectos, fechas de exámenes y horas de estudio",
+            "oportunidad": "un proyecto emergente de última hora, una ventana de oportunidad de beca o una contingencia en el campus académico"
+        }
+    # MULTICAPA CORPORATIVA: (TELMEX, Bimbo, etc.)
+    elif any(keyword in aud_lower for keyword in ["telmex", "corporativo", "empresa", "industrial", "negocio", "sa"]):
         modificadores = {
             "reloj": "los cronogramas de proyecto, acuerdos de nivel de servicio (SLA) y KPIs métricos",
             "oportunidad": "una ventana de oportunidad en el mercado, un requerimiento crítico del cliente o una contingencia de red"
         }
     else:
-        # Fallback genérico profesional de alta adaptabilidad
+        # Fallback genérico profesional institucional
         modificadores = {
             "reloj": "mi agenda diaria de trabajo, hitos asignados y los tiempos del reloj",
-            "oportunidad": "una reestructuración de prioridades o una ventana de oportunidad emergente"
+            "oportunidad": "una reestructuración de prioridades organizacionales o una ventana de oportunidad emergente"
         }
     
     # 4. Vector de Alerta Psicológica (Regularización por Estrés e i18n)
@@ -628,6 +634,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
             )
             
     return banco_alterno
+
 
 
 # =================================================================
