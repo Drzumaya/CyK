@@ -552,17 +552,18 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
         
     return analisis
 
+
 # =================================================================
-# ALGORITMO PSICOMÉTRICO ADAPTATIVO CON REGULARIZACIÓN DE PERFIL (EXPERTO)
+# ALGORITMO PSICOMÉTRICA ADAPTATIVO CON INTELIGENCIA LÉXICA (FIXED)
 # =================================================================
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
     
-    # 1. Extracción y normalización del contexto de la audiencia activa
-    audiencia = st.session_state.get("audiencia_activa", "Docentes")
+    # 1. Extracción y sanitización de la audiencia activa
+    audiencia = st.session_state.get("audiencia_activa", "Docentes").strip()
+    geo_limpio = str(geo).strip() if geo and str(geo).strip() != "Region" else "mi entorno operativo"
     
-    # 2. Diccionario de Modificadores de Cultura e Idiosincrasia por Audiencia
-    # Modificadores estructurados: (Jerga Operativa, Jerga Adaptativa / Ventana de Oportunidad)
+    # 2. Diccionario base de jergas operativas preestablecidas
     modificadores_cultura = {
         "Docentes": {
             "reloj": "mi planeación didáctica y el avance del programa escolar",
@@ -570,7 +571,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
         },
         "Estudiantes Universitarios": {
             "reloj": "mi calendario de entregas, exámenes y horas de estudio",
-            "oportunidad": "un proyecto emergente de última hora o una convocatoria de beca/trabajo"
+            "oportunidad": "un proyecto emergente de última hora o una convocatoria de beca"
         },
         "🏭 Sector Secundario": {
             "reloj": "los turnos de producción, cuotas de línea y tiempos del reloj",
@@ -582,41 +583,52 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
         }
     }
     
-    # Fallback si el ponente escribe una audiencia personalizada en caliente
-    aud_key = audiencia if audiencia in modificadores_cultura else "Docentes"
-    modificadores = modificadores_cultura[aud_key]
+    # 3. MÓDULO INTELIGENTE: Clasificador Léxico para Audiencias Personalizadas (TELMEX, etc.)
+    aud_lower = audiencia.lower()
+    if audiencia in modificadores_cultura:
+        modificadores = modificadores_cultura[audiencia]
+    elif any(keyword in aud_lower for keyword in ["telmex", "corporativo", "empresa", "industrial", "secundario", "negocio", "sa"]):
+        # Jerga adaptada a la cultura de empresas, ingenierías y telecomunicaciones
+        modificadores = {
+            "reloj": "los cronogramas de proyecto, acuerdos de nivel de servicio (SLA) y KPIs métricos",
+            "oportunidad": "una ventana de oportunidad en el mercado, un requerimiento crítico del cliente o una contingencia de red"
+        }
+    else:
+        # Fallback genérico profesional de alta adaptabilidad
+        modificadores = {
+            "reloj": "mi agenda diaria de trabajo, hitos asignados y los tiempos del reloj",
+            "oportunidad": "una reestructuración de prioridades o una ventana de oportunidad emergente"
+        }
     
-    # 3. Vector de Alerta Psicológica (Regularización por Estrés Temporal)
-    # Si el participante o el histórico del grupo tiene registros de fuga temporal o mental...
+    # 4. Vector de Alerta Psicológica (Regularización por Estrés e i18n)
     fuga_txt = str(b_alertas).lower()
     modificador_estres = ""
-    if "burnout" in fuga_txt or "sobrecarga" in fuga_txt or "falta de sueño" in fuga_txt:
-        modificador_estres = " -incluso bajo altos niveles de fatiga o saturación mental-"
+    if any(k in fuga_txt for k in ["burnout", "sobrecarga", "sueño", "fatiga"]):
+        modificador_estres = " -incluso bajo altos niveles de fatiga o saturación operativa-"
     elif "procrastinación" in fuga_txt:
-        modificador_estres = " -a pesar de la tendencia generalizada a postergar los entregables-"
+        modificador_estres = " -a pesar de la tendencia o presión por postergar los entregables-"
 
-    # 4. Construcción y mutación matemática del banco de reactivos (14 ítems)
+    # 5. Construcción matemática simétrica del banco de reactivos (14 ítems)
     banco_alterno = {}
     for i in range(1, 15):
         if i % 2 != 0:
-            # Vectores Impares: Orientados a la Rigidez Cronos (Reloj)
-            base_string = "Como {audiencia}, planifico mis actividades operativas en {geo} siguiendo estrictamente {contexto_reloj}{estres}."
+            base_string = "Como parte de {audiencia}, planifico mis actividades operativas en {geo} siguiendo estrictamente {contexto_reloj}{estres}."
             banco_alterno[i] = base_string.format(
-                audiencia=audiencia.lower(),
-                geo=geo,
+                audiencia=audiencia,
+                geo=geo_limpio,
                 contexto_reloj=modificadores["reloj"],
                 estres=modificador_estres
             )
         else:
-            # Vectores Pares: Orientados a la Adaptabilidad Kairós (Oportunidad)
             base_string = "Para el perfil de {audiencia} en {geo}, la flexibilidad para reestructurar planes ante {contexto_oportunidad} es prioritario sobre el reloj."
             banco_alterno[i] = base_string.format(
-                audiencia=audiencia.lower(),
-                geo=geo,
+                audiencia=audiencia,
+                geo=geo_limpio,
                 contexto_oportunidad=modificadores["oportunidad"]
             )
             
     return banco_alterno
+
 
 # =================================================================
 # PARTE 12: PUNTO DE ENTRADA CENTRAL, SESIONES E INTERCEPTOR DE TOKENS
