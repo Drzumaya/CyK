@@ -554,67 +554,75 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
 
 
 # =================================================================
-# ALGORITMO PSICOMÉTRICA ADAPTATIVO CON INTELIGENCIA LÉXICA (FIXED)
-# =================================================================
-# =================================================================
-# ALGORITMO PSICOMÉTRICO ADAPTATIVO CON INTELIGENCIA LÉXICA MULTICAPA
+# MOTOR DE INFERENCIA SEMÁNTICO ADAPTATIVO MULTICAPA (IA-SIMULATED)
 # =================================================================
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
     
-    # 1. Extracción y sanitización de la audiencia activa
+    # 1. Extracción y normalización de la audiencia activa
     audiencia = st.session_state.get("audiencia_activa", "Docentes").strip()
     geo_limpio = str(geo).strip() if geo and str(geo).strip() != "Region" else "mi entorno operativo"
-    
-    # 2. Diccionario base de jergas operativas fijas
-    modificadores_cultura = {
-        "Docentes": {
-            "reloj": "mi planeación didáctica y el avance del programa escolar",
-            "oportunidad": "el ritmo de aprendizaje de mis alumnos o una contingencia institucional"
-        },
-        "🏭 Sector Secundario": {
-            "reloj": "los turnos de producción, cuotas de línea y tiempos del reloj",
-            "oportunidad": "una falla en maquinaria o un cuello de botella en los suministros"
-        },
-        "🍊 Salud Integral": {
-            "reloj": "mis rutinas diarias de alimentación, descanso y horarios fijos",
-            "oportunidad": "las necesidades inmediatas de mi cuerpo o un colapso de energía"
-        }
-    }
-    
-    # 3. MÓDULO INTELIGENTE AVANZADO: Clasificador Léxico Multicapa (Análisis de Subcadenas)
     aud_lower = audiencia.lower()
     
-    if audiencia in modificadores_cultura:
-        modificadores = modificadores_cultura[audiencia]
-    # MULTICAPA ACADÉMICA: Si contiene raíces asociadas a educación superior, alumnos o siglas como ITAP
-    elif any(keyword in aud_lower for keyword in ["estudiante", "alumno", "universitario", "itap", "it", "ingenieria", "licenciatura", "tec"]):
+    # 2. MATRIZ EXPANDIDA DE INFERENCIA DE CONTEXTOS (CULTURA, LENGUAJE E IDIOSINCRASIA)
+    # Capa 1: Entorno Eclesiástico, Espiritual o Misionero (IASD, Ministerios, etc.)
+    if any(k in aud_lower for k in ["iasd", "iglesia", "adventista", "ministerio", "pastor", "clero", "fe", "espiritual", "templo", "relig"]):
         modificadores = {
-            "reloj": "mi calendario de entregas de proyectos, fechas de exámenes y horas de estudio",
-            "oportunidad": "un proyecto emergente de última hora, una ventana de oportunidad de beca o una contingencia en el campus académico"
+            "reloj": "el cronograma de actividades de la iglesia, los programas de adoración y las responsabilidades asignadas en mi rol espiritual",
+            "oportunidad": "una necesidad de atención pastoral urgente, una ventana de oportunidad de servicio misionero o la guía providencial de un tiempo kairós"
         }
-    # MULTICAPA CORPORATIVA: (TELMEX, Bimbo, etc.)
-    elif any(keyword in aud_lower for keyword in ["telmex", "corporativo", "empresa", "industrial", "negocio", "sa"]):
+    # Capa 2: Entorno Docente, Educativo o de Instrucción (Profesores, Escuelas)
+    elif any(k in aud_lower for k in ["docente", "profesor", "maestro", "escuela", "colegio", "aula", "didactica", "academia"]):
         modificadores = {
-            "reloj": "los cronogramas de proyecto, acuerdos de nivel de servicio (SLA) y KPIs métricos",
-            "oportunidad": "una ventana de oportunidad en el mercado, un requerimiento crítico del cliente o una contingencia de red"
+            "reloj": "mi planeación didáctica, el control de la clase y el avance del programa escolar",
+            "oportunidad": "el ritmo de aprendizaje de mis alumnos, una contingencia institucional o un espacio de innovación en el aula"
         }
+    # Capa 3: Entorno Estudiantil Académico Superior (ITAP, Universitarios, Alumnos)
+    elif any(k in aud_lower for k in ["estudiante", "alumno", "universi", "prepa", "itap", "tec", "ingenieria", "licenciatura", "campus"]):
+        modificadores = {
+            "reloj": "mi calendario de entregas de proyectos, fechas de exámenes y horas de estudio en el semestre",
+            "oportunidad": "un proyecto de investigación emergente, una ventana de oportunidad de beca o una contingencia en el campus académico"
+        }
+    # Capa 4: Entorno de Telecomunicaciones, Software y TI (TELMEX, Desarrolladores, Sistemas)
+    elif any(k in aud_lower for k in ["telmex", "tel", "comunicac", "redes", "fibra", "soporte", "sistemas", "software", "dev", "ti"]):
+        modificadores = {
+            "reloj": "los cronogramas de despliegue, acuerdos de nivel de servicio (SLA) y métricas críticas de KPIs",
+            "oportunidad": "una contingencia crítica en la infraestructura de red, un requerimiento emergente de ciberseguridad o una migración urgente de sistemas"
+        }
+    # Capa 5: Entorno de Salud, Clínico o Médico (Doctores, Hospitales, Enfermería)
+    elif any(k in aud_lower for k in ["medico", "doctor", "enfermer", "hospital", "clinica", "salud", "quirurg", "imss", "issste"]):
+        modificadores = {
+            "reloj": "los turnos de guardia establecidos, el registro de expedientes clínicos y los protocolos de atención por tiempos",
+            "oportunidad": "una emergencia en el área de urgencias, la llegada crítica de un paciente o una complicación en el quirófano"
+        }
+    # Capa 6: Entorno Industrial, Manufacturero o Logístico (Fábricas, Sector Secundario)
+    elif any(k in aud_lower for k in ["sector secundario", "fabrica", "linea", "planta", "manufactu", "logistica", "almacen", "producc"]):
+        modificadores = {
+            "reloj": "los turnos de producción asignados, las cuotas métricas de línea y los estándares automáticos de control de calidad",
+            "oportunidad": "una falla crítica en la maquinaria de ensamble, un retraso de suministros en la cadena de abasto o un rediseño de procesos"
+        }
+    # Capa 7: Entorno Corporativo, Financiero, Comercial y Negocios (Bancos, Ejecutivos, SA, Bimbo)
+    elif any(k in aud_lower for k in ["banco", "financier", "contad", "admin", "comerc", "ventas", "ejecutiv", "empresa", "sa", "corpora"]):
+        modificadores = {
+            "reloj": "los cierres de mes contables, las metas comerciales de la organización y la agenda de juntas ejecutivas",
+            "oportunidad": "una ventana de oportunidad de mercado frente a la competencia, una negociación directa con un gran cliente o una reestructuración de inversiones"
+        }
+    # Capa 8: Fallback de Alta Regularización Profesional (Para cualquier otra entrada genérica)
     else:
-        # Fallback genérico profesional institucional
         modificadores = {
-            "reloj": "mi agenda diaria de trabajo, hitos asignados y los tiempos del reloj",
-            "oportunidad": "una reestructuración de prioridades organizacionales o una ventana de oportunidad emergente"
+            "reloj": "mi agenda diaria estructurada de trabajo, los hitos operativos asignados y los tiempos del reloj",
+            "oportunidad": "una reestructuración inmediata de prioridades organizacionales o la aparición de una ventana de oportunidad emergente"
         }
     
-    # 4. Vector de Alerta Psicológica (Regularización por Estrés e i18n)
+    # 3. Vector de Alerta Psicológica (Regularización Dinámica por Fugas de Salud Integral)
     fuga_txt = str(b_alertas).lower()
     modificador_estres = ""
-    if any(k in fuga_txt for k in ["burnout", "sobrecarga", "sueño", "fatiga"]):
+    if any(k in fuga_txt for k in ["burnout", "sobrecarga", "sueño", "fatiga", "insomnio"]):
         modificador_estres = " -incluso bajo altos niveles de fatiga o saturación operativa-"
     elif "procrastinación" in fuga_txt:
-        modificador_estres = " -a pesar de la tendencia o presión por postergar los entregables-"
+        modificador_estres = " -a pesar de la tendencia o presión latente por postergar los entregables clave-"
 
-    # 5. Construcción matemática simétrica del banco de reactivos (14 ítems)
+    # 4. Construcción matemática simétrica y balanceada del banco de reactivos (14 ítems)
     banco_alterno = {}
     for i in range(1, 15):
         if i % 2 != 0:
@@ -634,6 +642,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
             )
             
     return banco_alterno
+
 
 
 
