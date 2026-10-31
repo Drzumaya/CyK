@@ -746,6 +746,9 @@ def main():
 # =================================================================
 # PARTE 15: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
 # =================================================================
+                # =================================================================
+        # PARTE 15: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
+        # =================================================================
         st.divider()
         col_btn1, col_btn2 = st.columns(2)
         campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
@@ -792,7 +795,7 @@ def main():
                         if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): 
                             del st.session_state[k]
                             
-                                st.download_button(
+                st.download_button(
                     label=tx["btn_pdf"],
                     data=reporte_procesado,
                     file_name=f"Report_{idioma_sel}_{nombre_archivo}.pdf",
@@ -801,6 +804,7 @@ def main():
                 )
             else: 
                 st.info(tx["fields_msg"])
+
     else:
         tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
         st.balloons()
