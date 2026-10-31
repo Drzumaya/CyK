@@ -552,16 +552,72 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
         
     return analisis
 
+# =================================================================
+# ALGORITMO PSICOMÉTRICO ADAPTATIVO CON REGULARIZACIÓN DE PERFIL (EXPERTO)
+# =================================================================
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
-    fuga = str(b_alertas) if b_alertas else "OK"
+    
+    # 1. Extracción y normalización del contexto de la audiencia activa
+    audiencia = st.session_state.get("audiencia_activa", "Docentes")
+    
+    # 2. Diccionario de Modificadores de Cultura e Idiosincrasia por Audiencia
+    # Modificadores estructurados: (Jerga Operativa, Jerga Adaptativa / Ventana de Oportunidad)
+    modificadores_cultura = {
+        "Docentes": {
+            "reloj": "mi planeación didáctica y el avance del programa escolar",
+            "oportunidad": "el ritmo de aprendizaje de mis alumnos o una contingencia institucional"
+        },
+        "Estudiantes Universitarios": {
+            "reloj": "mi calendario de entregas, exámenes y horas de estudio",
+            "oportunidad": "un proyecto emergente de última hora o una convocatoria de beca/trabajo"
+        },
+        "🏭 Sector Secundario": {
+            "reloj": "los turnos de producción, cuotas de línea y tiempos del reloj",
+            "oportunidad": "una falla en maquinaria o un cuello de botella en los suministros"
+        },
+        "🍊 Salud Integral": {
+            "reloj": "mis rutinas diarias de alimentación, descanso y horarios fijos",
+            "oportunidad": "las necesidades inmediatas de mi cuerpo o un colapso de energía"
+        }
+    }
+    
+    # Fallback si el ponente escribe una audiencia personalizada en caliente
+    aud_key = audiencia if audiencia in modificadores_cultura else "Docentes"
+    modificadores = modificadores_cultura[aud_key]
+    
+    # 3. Vector de Alerta Psicológica (Regularización por Estrés Temporal)
+    # Si el participante o el histórico del grupo tiene registros de fuga temporal o mental...
+    fuga_txt = str(b_alertas).lower()
+    modificador_estres = ""
+    if "burnout" in fuga_txt or "sobrecarga" in fuga_txt or "falta de sueño" in fuga_txt:
+        modificador_estres = " -incluso bajo altos niveles de fatiga o saturación mental-"
+    elif "procrastinación" in fuga_txt:
+        modificador_estres = " -a pesar de la tendencia generalizada a postergar los entregables-"
+
+    # 4. Construcción y mutación matemática del banco de reactivos (14 ítems)
     banco_alterno = {}
     for i in range(1, 15):
         if i % 2 != 0:
-            banco_alterno[i] = tx_pool["c_pool"].format(geo=geo) + f" (Ref: {fuga[:12]})"
+            # Vectores Impares: Orientados a la Rigidez Cronos (Reloj)
+            base_string = "Como {audiencia}, planifico mis actividades operativas en {geo} siguiendo estrictamente {contexto_reloj}{estres}."
+            banco_alterno[i] = base_string.format(
+                audiencia=audiencia.lower(),
+                geo=geo,
+                contexto_reloj=modificadores["reloj"],
+                estres=modificador_estres
+            )
         else:
-            banco_alterno[i] = tx_pool["k_pool"].format(geo=geo)
+            # Vectores Pares: Orientados a la Adaptabilidad Kairós (Oportunidad)
+            base_string = "Para el perfil de {audiencia} en {geo}, la flexibilidad para reestructurar planes ante {contexto_oportunidad} es prioritario sobre el reloj."
+            banco_alterno[i] = base_string.format(
+                audiencia=audiencia.lower(),
+                geo=geo,
+                contexto_oportunidad=modificadores["oportunidad"]
+            )
+            
     return banco_alterno
+
 # =================================================================
 # PARTE 12: PUNTO DE ENTRADA CENTRAL, SESIONES E INTERCEPTOR DE TOKENS
 # =================================================================
@@ -743,12 +799,10 @@ def main():
                     format_func=lambda x: etiquetas_likert.get(x, str(x)),
                     key=f"dyn_r_{r_id}"
                 )
-# =================================================================
-# PARTE 15: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
-# =================================================================
-                # =================================================================
-        # PARTE 15: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
-        # =================================================================
+
+    # =================================================================
+    # PARTE 15: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
+    # =================================================================
         st.divider()
         col_btn1, col_btn2 = st.columns(2)
         campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
