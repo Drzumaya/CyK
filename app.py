@@ -685,21 +685,31 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 "Mi rendimiento en {aud} dentro de {geo} aumenta cuando puedo improvisar soluciones frente a {block}.",
 "Para la cultura de {aud} en {geo}, reaccionar de forma inmediata ante {block} define una alta madurez adaptativa."
 ]
-banco_alterno = {}
-c_idx = 0
-k_idx = 0
-for i in range(1, 11):
-if i % 2 != 0:
-banco_alterno[i] = k_templates[k_idx].format(
-aud=audiencia, geo=geo_limpio, block=oportunidad_blocks[k_idx % len(oportunidad_blocks)]
-)
-k_idx += 1
-else:
-banco_alterno[i] = c_templates[c_idx].format(
-aud=audiencia, geo=geo_limpio, block=reloj_blocks[c_idx % len(reloj_blocks)], estres=modificador_estres
-)
-c_idx += 1
-return banco_alterno
+    banco_alterno = {}
+    c_idx = 0
+    k_idx = 0
+
+    # ITERACIÓN MAESTRA SÍNCRONICA: 10 Reactivos Calibrados (Nones=Kairós, Pares=Cronos)
+    for i in range(1, 11):
+        if i % 2 != 0:
+            # IMPARES (NONES) = VECTORES KAIRÓS
+            banco_alterno[i] = k_templates[k_idx].format(
+                aud=audiencia,
+                geo=geo_limpio,
+                block=oportunidad_blocks[k_idx % len(oportunidad_blocks)]
+            )
+            k_idx += 1
+        else:
+            # PARES = VECTORES CRONOS
+            banco_alterno[i] = c_templates[c_idx].format(
+                aud=audiencia,
+                geo=geo_limpio,
+                block=reloj_blocks[c_idx % len(reloj_blocks)],
+                estres=modificador_estres
+            )
+            c_idx += 1
+            
+    return banco_alterno
 
 # =================================================================
 # PARTE 11: RENDERIZADO ISOMÓRFICO DEL FORMULARIO Y BATERÍA DE 10 ÍTEMS
