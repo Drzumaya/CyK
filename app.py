@@ -713,7 +713,7 @@ return banco_alterno
 
 
 ### 🍊 Parte 10.5 de 13: Pasarela Transaccional Independiente (Anti-Indentation Fix)
-```python
+
 # =================================================================
 # PARTE 10.5: PASARELA TRANSACCIONAL INDEPENDIENTE (ANTI-INDENTATION FIX)
 # =================================================================
