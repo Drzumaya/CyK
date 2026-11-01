@@ -77,13 +77,13 @@ DICCIONARIO_IDIOMAS = {
         "thanks_sub": "Has completado el diagnóstico. Reconocer nuestros vectores temporales es el inicio de una alta madurez.",
         "qr_title": "📱 Código QR Dinámico de Seguridad (Proyectar al Auditorio)", "qr_sub1": "1. Enfoca el código QR con la cámara de tu smartphone.",
         "qr_sub2": "2. Responderás directamente el software nativo adaptado a tu organización sin necesidad de registros externos.",
-        "gajos_data": {
+                "gajos_data": {
             "💪 Salud Física": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
             "🧠 Salud Mental": ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"],
             "❤️ Salud Emocional": ["Ansiedad o Estrés Agudo", "Irritabilidad Reactiva", "Desmotivación General", "Inestabilidad Anímica"],
             "👥 Salud Social": ["Aislamiento Voluntario", "Conflictos Interpersonales", "Falta de Red de Apoyo", "Falta de Límites Sanos"],
             "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Ansiedad Financiera"],
-            "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Impuntualidad Perpetua", "Falta de Descanso/Margen"],
+            "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Falta de Descanso/Margen", "Falta de Conocimiento y Gestión Balanceada Cronos y Kairos"],
             "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
         }
     },
@@ -754,7 +754,7 @@ def algoritmo_generar_gajos_salud(lang_key):
             "❤️ Salud Emocional": ["Enojo reactivo o rabietas", "Timidez extrema", "Llanto frecuente", "Inseguridad con amiguitos"],
             "👥 Salud Social": ["Peleas en el recreo", "Dificultad para compartir", "Aislamiento en los juegos", "No sigue reglas de grupo"],
             "💰 Salud Económica": ["No cuida sus útiles escolares", "Pide juguetes compulsivamente", "Maltrata su ropa o calzado", "Desperdicia la colación"],
-            "⏳ Salud Temporal": ["Le cuesta seguir horarios", "Procrastina su tarea por jugar", "Se le va el tiempo en pantallas", "Crisis al cambiar de actividad"],
+            "⏳ Salud Temporal": ["Procrastinacion Cronica", "Burnout o Sobrecarga", "Falta de Descanso/Margen","Desequilibrio en Gestion Cronos (Reloj) y Kairos (Oportunidad)"],
             "🙏 Salud Espiritual": ["Falta de asombro por la creación", "No asiste a actividades de fe", "Desconexión con valores básicos", "Desinterés por historias morales"]
         }
     elif any(k in aud_lower for k in ["adulto mayor", "anciano", "geriat", "abuelo", "jubilado"]):
@@ -764,7 +764,7 @@ def algoritmo_generar_gajos_salud(lang_key):
             "❤️ Salud Emocional": ["Sentimiento de soledad o tristeza", "Ansiedad por el futuro", "Apatía generalizada", "Irritabilidad por dolores"],
             "👥 Salud Social": ["Poco contacto con familiares", "Aislamiento vecinal", "Falta de una red de apoyo activa", "Pocas actividades grupales"],
             "💰 Salud Económica": ["Preocupación por pensión / jubilación", "Gastos excesivos en medicinas", "Falta de previsión médica extrema", "Dependencia financiera estresante"],
-            "⏳ Salud Temporal": ["Rutinas monótonas o vacías", "Sensación de tiempo estancado", "Falta de un horario dinámico", "Postergación de citas médicas"],
+            "⏳ Salud Temporal": ["Procrastinacion Cronica", "Burnout o Sobrecarga", "Falta de Descanso/Margen","Desequilibrio en Gestion Cronos (Reloj) y Kairos (Oportunidad)"],
             "🙏 Salud Espiritual": ["Pérdida de esperanza", "Desconexión con su comunidad de fe", "Miedo al final de la vida", "Falta de propósito en la vejez"]
         }
     elif any(k in aud_lower for k in ["medico", "doctor", "enfermer", "hospital", "clinica", "imss", "issste"]):
@@ -774,7 +774,7 @@ def algoritmo_generar_gajos_salud(lang_key):
             "❤️ Salud Emocional": ["Síndrome de Burnout agudo", "Irritabilidad con pacientes", "Desmotivación institucional", "Inestabilidad anímica por estrés"],
             "👥 Salud Social": ["Abandono de vida familiar", "Conflictos por guardias", "Falta de red de apoyo e interprofesional", "Límites débiles con el trabajo"],
             "💰 Salud Económica": ["Gastos reactivos por estrés", "Deudas por estilo de vida médico", "Falta de fondo de contingencia", "Ansiedad por ingresos institucionales"],
-            "⏳ Salud Temporal": ["Sobrecarga de turnos", "Falta crónica de tiempo libre", "Impuntualidad en citas personales", "Cero margen de descanso real"],
+            "⏳ Salud Temporal": ["Procrastinacion Cronica", "Burnout o Sobrecarga", "Falta de Descanso/Margen","Desequilibrio en Gestion Cronos (Reloj) y Kairos (Oportunidad)"],
             "🙏 Salud Espiritual": ["Desensibilización ante el sufrimiento", "Desconexión interna", "Pérdida del sentido de vocación", "Vacío existencial post-guardia"]
         }
     elif any(k in aud_lower for k in ["iasd", "iglesia", "adventista", "ministerio", "pastor", "clero", "fe"]):
@@ -784,7 +784,7 @@ def algoritmo_generar_gajos_salud(lang_key):
             "❤️ Salud Emocional": ["Desgaste por empatía extrema", "Estrés por expectativas del rebaño", "Desmotivación oculta", "Presión ministerial aguda"],
             "👥 Salud Social": ["Falta de privacidad familiar", "Conflictos en la junta de iglesia", "Ausencia de amigos de confianza", "Límites débiles entre casa e iglesia"],
             "💰 Salud Económica": ["Ansiedad por sustento familiar", "Administración deficiente de recursos", "Falta de fondo de emergencia", "Estrés presupuestal"],
-            "⏳ Salud Temporal": ["Activismo eclesiástico excesivo", "Invasión del tiempo de descanso", "Procrastinación por sobrecarga", "Falta de margen los fines de semana"],
+            "⏳ Salud Temporal": ["Procrastinacion Cronica", "Burnout o Sobrecarga", "Falta de Descanso/Margen","Desequilibrio en Gestion Cronos (Reloj) y Kairos (Oportunidad)"],
             "🙏 Salud Espiritual": ["Hacer el ministerio en fuerzas humanas", "Falta de devoción personal real", "Apatía ante la oración", "Pérdida de visión misionera"]
         }
     else:
@@ -850,7 +850,9 @@ def main():
         idioma_sel = "Español"
         tx = DICCIONARIO_IDIOMAS["Español"]
 
+        # EXTRACCIÓN HERMÉTICA: Busca en los Secrets de la nube; si no existe, usa un fallback de desarrollo temporal
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
+
     if not es_celular_del_publico:
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
