@@ -861,7 +861,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
         # INVOCACIÓN DE PASARELA TRANSACCIONAL (Alineado con el bloque 'if not st.session_state.flujo_finalizado')
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         
-    else:
+        else:
         # PANTALLA DE AGRADECIMIENTO (Se ejecuta cuando st.session_state.flujo_finalizado es True)
         nombre = ""
         whatsapp = ""
