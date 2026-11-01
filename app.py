@@ -686,8 +686,8 @@ k_templates = [
 "Para la cultura de {aud} en {geo}, reaccionar de forma inmediata ante {block} define una alta madurez adaptativa."
 ]
 banco_alterno = {}
-    c_idx = 0
-    k_idx = 0
+c_idx = 0
+k_idx = 0
 
     # ITERACIÓN MAESTRA SÍNCRONICA: 10 Reactivos Calibrados (Nones=Kairós, Pares=Cronos)
     for i in range(1, 11):
