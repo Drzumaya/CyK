@@ -809,7 +809,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                             st.session_state.guardado_exitoso = True
                             st.warning(tx["local_ok"])
                             
-                       with col_btn2:
+                with col_btn2:
             if st.session_state.guardado_exitoso and campos_completos:
                 grafica_base64 = None
                 if es_modo_likert:
