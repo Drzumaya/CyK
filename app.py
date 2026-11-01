@@ -532,137 +532,64 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
+
 # =================================================================
-# PARTE 10: MOTOR DE INFERENCIA PSICOMÉTRICO ADAPTATIVO MULTICAPA (IA-SIMULATED)
+# PARTE 10: MOTOR DE INFERENCIA PSICOMÉTRICO ADAPTATIVO MAESTRO PLANO
 # =================================================================
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
-    tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
-    
+    # 1. Inicialización de variables locales con 4 espacios exactos
     audiencia = st.session_state.get("audiencia_activa", "Docentes").strip()
     geo_limpio = str(geo).strip() if geo and str(geo).strip() != "Region" else "mi entorno operativo"
     aud_lower = audiencia.lower()
-    
-    if any(k in aud_lower for k in ["iasd", "iglesia", "adventista", "ministerio", "pastor", "clero", "fe", "espiritual", "templo", "relig"]):
-        reloj_blocks = [
-            "el cronograma de actividades de la iglesia y los programas de adoración",
-            "las responsabilidades ministeriales asignadas en mi rol espiritual",
-            "los horarios litúrgicos fijos y la agenda semanal del templo",
-            "la estructura de tiempos establecida para las reuniones de liderazgo eclesiástico",
-            "los planes de visitación fija y eventos comunitarios pautados"
-        ]
-        oportunidad_blocks = [
-            "anhelar una necesidad de atención pastoral urgente o crisis de un miembro",
-            "una ventana de oportunidad de servicio misionero imprevisto",
-            "la guía providencial o llamado directo de un tiempo kairos divino",
-            "un mover comunitario de auxilio social de carácter emergente",
-            "una conversación espiritual espontánea que demanda escucha profunda"
-        ]
-    elif any(k in aud_lower for k in ["docente", "profesor", "maestro", "escuela", "colegio", "aula", "didactica", "academia"]):
-        reloj_blocks = [
-            "mi planeación didáctica, el control de la clase y el programa escolar",
-            "los horarios de clase rígidos y las entregas administrativas de la academia",
-            "las juntas de consejo técnico y las agendas fijadas por el calendario escolar",
-            "el tiempo cronometrado asignado para las evaluaciones y exámenes",
-            "las bitácoras de seguimiento académico de la coordinación"
-        ]
-        oportunidad_blocks = [
-            "el ritmo de aprendizaje de mis alumnos o una duda crítica imprevista",
-            "una contingencia institucional o suspensión emergente en el campus",
-            "un espacio espontáneo de innovación o debate surgido en el aula",
-            "una necesidad de orientación psicopedagógica urgente de un estudiante",
-            "la oportunidad de implementar un proyecto integrador alterno en caliente"
-        ]
-    elif any(k in aud_lower for k in ["estudiante", "alumno", "universi", "prepa", "itap", "tec", "ingenieria", "licenciatura", "campus"]):
-        reloj_blocks = [
-            "mi calendario de entregas de proyectos y el horario semestral fijado",
-            "las fechas programadas de exámenes y mis bloques fijos de estudio diario",
-            "las horas asignadas de asistencia a clases y laboratorios del campus",
-            "las fechas límite de las plataformas institucionales y trámites de control",
-            "los horarios estrictos de entrega de trabajos en equipo establecidos"
-        ]
-        oportunidad_blocks = [
-            "un proyecto de investigación emergente o concurso estudiantil",
-            "una ventana de oportunidad de beca, intercambio o inserción laboral",
-            "una contingencia académica en el campus o un reto en equipo de última hora",
-            "la necesidad inmediata de asesoría con un profesor ante una dificultad de foco",
-            "una convocatoria de hackathon o evento extracurricular altamente rentable"
-        ]
-    elif any(k in aud_lower for k in ["telmex", "tel", "comunicac", "redes", "fibra", "soporte", "sistemas", "software", "dev", "ti"]):
-        reloj_blocks = [
-            "los cronogramas de despliegue y plazos de entrega técnica",
-            "los acuerdos de nivel de servicio (SLA) y las métricas de control de KPIs",
-            "los planes de mantenimiento preventivo y las ventanas fijas de actualización",
-            "los tickets de incidencia calendarizados y las pautas rígidas de monitoreo",
-            "los cortes rígidos de auditoría de red de fin de jornada"
-        ]
-        oportunidad_blocks = [
-            "una contingencia crítica en la infraestructura de la red o caída de fibra",
-            "un requerimiento emergente de ciberseguridad o ataque al servidor",
-            "una migración urgente de sistemas solicitada de imprevisto por un gran cliente",
-            "una alerta de falla en un nodo de distribución troncal",
-            "la resolución de un bug crítico reportado en producción en caliente"
-        ]
-    elif any(k in aud_lower for k in ["medico", "doctor", "enfermer", "hospital", "clinica", "salud", "quirurg", "imss", "issste"]):
-        reloj_blocks = [
-            "los turnos de guardia establecidos y el pase de visita calendarizado",
-            "el registro secuencial de expedientes clínicos y consultas programadas",
-            "los protocolos estrictos de atención médica basados en tiempos estándar",
-            "el cronograma administrativo de abasto de insumos médicos de la institución",
-            "los horarios asignados de entrega de guardia entre equipos de medicina"
-        ]
-        oportunidad_blocks = [
-            "una emergencia crítica de código rojo en el área de urgencias",
-            "la llegada de un paciente en estado de trauma severo",
-            "una complicación quirúrgica imprevista dentro del quirófano",
-            "un brote epidemiológico o cerco sanitario emergente en la unidad",
-            "un síncope de un interno hospitalizado que requiere RCP en el instante"
-        ]
-    elif any(k in aud_lower for k in ["sector secundario", "fabrica", "linea", "planta", "manufactu", "logistica", "almacen", "producc"]):
-        reloj_blocks = [
-            "los turnos de producción asignados y el ritmo del reloj de la línea",
-            "las cuotas métricas por hora fijadas para los estándares de ensamble",
-            "los cronogramas de mantenimiento de maquinaria y auditorías de calidad",
-            "los tiempos logísticos fijos de carga y descarga de contenedores",
-            "los reportes de inventario secuenciales exigidos por la gerencia"
-        ]
-        oportunidad_blocks = [
-            "una falla mecánica crítica o paro no programado de maquinaria",
-            "un desabasto o cuello de botella imprevisto en la cadena de suministros",
-            "un defecto de calidad detectado que requiere rediseño inmediato",
-            "un pedido prioritario especial de última hora introducido en la línea",
-            "un reacomodo de flujo por la ausencia emergente de un operador"
-        ]
-    elif any(k in aud_lower for k in ["banco", "financier", "contad", "admin", "comerc", "ventas", "ejecutiv", "empresa", "sa", "corpora"]):
-        reloj_blocks = [
-            "los cierres de mes contables y las auditorías fiscales rígidas",
-            "las metas de venta mensuales de la organización y KPIs de rentabilidad",
-            "la agenda estricta de juntas corporativas y reportes para inversionistas",
-            "los horarios de operaciones bancarias y flujos de tesorería controlados",
-            "los plazos estrictos de dispersión de nómina y pagos a proveedores"
-        ]
-        oportunidad_blocks = [
-            "una ventana de oportunidad de mercado frente a un movimiento competidor",
-            "una negociación directa de última hora con un prospecto de gran escala",
-            "una fluctuación drástica o contingencia en el tipo de cambio financiero",
-            "una reestructuración inmediata del capital ante una crisis corporativa",
-            "la propuesta de fusión o adquisición estratégica recibida de imprevisto"
-        ]
-    else:
-        reloj_blocks = [
-            "mi agenda estructurada diaria de tareas y el control del reloj",
-            "los hitos institucionales de largo plazo asignados por la dirección",
-            "los horarios rígidos de entrada, salida y entrega operativa de la jornada",
-            "el plan de trabajo estático diseñado al inicio de mi ciclo fiscal",
-            "el checklist rutinario de procesos inamovibles establecidos"
-        ]
-        oportunidad_blocks = [
-            "la aparición de una ventana de oportunidad o prioridad organizativa emergente",
-            "una reestructuración inmediata del plan ante eventos externos del entorno",
-            "una solicitud crítica y no programada que demanda atención en el instante",
-            "una contingencia operativa que amenaza la continuidad del flujo ordinario",
-            "un cambio normativo externo que exige una adaptación en caliente"
-        ]
 
+    # 2. Diccionario Maestro de Bloques Semánticos Planos
+    # Evita condicionales anidados que rompen la sangría del archivo
+    reloj_dict = {
+        "iasd": "el cronograma de actividades de la iglesia, los programas de adoración y las responsabilidades asignadas en mi rol espiritual",
+        "docente": "mi planeación didáctica, el control de la clase y el avance del programa escolar",
+        "estudiante": "mi calendario de entregas de proyectos, fechas de exámenes y horas de estudio en el semestre",
+        "telmex": "los cronogramas de despliegue, acuerdos de nivel de servicio (SLA) y métricas críticas de KPIs",
+        "medico": "los turnos de guardia establecidos, el registro de expedientes clínicos y los protocolos de atención",
+        "secundario": "los turnos de producción asignados, las cuotas métricas de línea y los estándares de calidad",
+        "banco": "los cierres de mes contables, las metas de venta de la organización y la agenda de juntas"
+    }
+
+    oportunidad_dict = {
+        "iasd": "una necesidad de atención pastoral urgente, una ventana de servicio misionero o la guía providencial de un tiempo kairos",
+        "docente": "el ritmo de aprendizaje de mis alumnos, una contingencia de la escuela o un espacio de debate en el aula",
+        "estudiante": "un proyecto de investigación emergente, una ventana de oportunidad de beca o una contingencia en el campus",
+        "telmex": "una contingencia crítica en la infraestructura de red, un requerimiento de ciberseguridad o una migración urgente",
+        "medico": "una emergencia crítica en el área de urgencias, la llegada de un paciente grave o una complicación en quirófano",
+        "secundario": "una falla crítica en la maquinaria de ensamble, un retraso de suministros o un rediseño de procesos",
+        "banco": "una ventana de oportunidad de mercado frente a la competencia o una negociación directa de última hora"
+    }
+
+    # 3. Clasificación Léxica Automática por Coincidencia de Palabras Clave
+    target_key = "default"
+    for k in ["iasd", "iglesia", "adventista", "ministerio", "pastor"]:
+        if k in aud_lower: target_key = "iasd"
+    for k in ["docente", "profesor", "maestro", "escuela", "colegio"]:
+        if k in aud_lower: target_key = "docente"
+    for k in ["estudiante", "alumno", "universi", "itap", "tec", "ingenieria"]:
+        if k in aud_lower: target_key = "estudiante"
+    for k in ["telmex", "tel", "comunicac", "redes", "fibra", "sistemas"]:
+        if k in aud_lower: target_key = "telmex"
+    for k in ["medico", "doctor", "enfermer", "hospital", "clinica", "salud"]:
+        if k in aud_lower: target_key = "medico"
+    for k in ["sector secundario", "fabrica", "planta", "manufactu", "producc"]:
+        if k in aud_lower: target_key = "secundario"
+    for k in ["banco", "financier", "admin", "comerc", "empresa", "sa", "corpora"]:
+        if k in aud_lower: target_key = "banco"
+
+    # Fallback de seguridad profesional si no coincide ningún patrón anterior
+    if target_key == "default":
+        r_block = "mi agenda estructurada diaria de trabajo, los hitos operativos asignados y los tiempos del reloj"
+        o_block = "una reestructuración inmediata de prioridades organizacionales o una ventana de oportunidad emergente"
+    else:
+        r_block = reloj_dict[target_key]
+        o_block = oportunidad_dict[target_key]
+
+    # 4. Inyección del Vector de Alerta Psicológica por Estrés
     fuga_txt = str(b_alertas).lower()
     modificador_estres = ""
     if any(k in fuga_txt for k in ["burnout", "sobrecarga", "sueño", "fatiga", "insomnio"]):
@@ -670,6 +597,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     elif "procrastinación" in fuga_txt:
         modificador_estres = " -a pesar de la tendencia o presión latente por postergar los entregables clave-"
 
+    # 5. Plantillas de Configuración de la Escala
     c_templates = [
         "Para el trabajo eficiente en {aud} dentro de {geo}, considero indispensable que mis tareas se coordinen basándose en {block}.",
         "Como miembro activo de {aud}, planifico mis jornadas en {geo} siguiendo estrictamente {block}{estres}.",
@@ -678,40 +606,30 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
         "Mi disciplina laboral en {aud} dentro de {geo} se refleja en el respeto irrestricto hacia {block}."
     ]
     
-k_templates = [
-"Para el perfil de {aud} en {geo}, la flexibilidad para reestructurar planes ante {block} es prioritario sobre el reloj.",
-"En las actividades de {aud} en {geo}, valoro más la agilidad para adaptarme ante {block} que aferrarme a un plan estático.",
-"Considero una ventaja competitiva para {aud} en {geo} el poder pausar tareas rutinarias si aparece {block}.",
-"Mi rendimiento en {aud} dentro de {geo} aumenta cuando puedo improvisar soluciones frente a {block}.",
-"Para la cultura de {aud} en {geo}, reaccionar de forma inmediata ante {block} define una alta madurez adaptativa."
-]
-    
+    k_templates = [
+        "Para el perfil de {aud} en {geo}, la flexibilidad para reestructurar planes ante {block} es prioritario sobre el reloj.",
+        "En las actividades de {aud} en {geo}, valoro más la agilidad para adaptarme ante {block} que aferrarme a un plan estático.",
+        "Considero una ventaja competitiva para {aud} en {geo} el poder pausar tareas rutinarias si aparece {block}.",
+        "Mi rendimiento en {aud} dentro de {geo} aumenta cuando puedo improvisar soluciones frente a {block}.",
+        "Para la cultura de {aud} en {geo}, reaccionar de forma inmediata ante {block} define una alta madurez adaptativa."
+    ]
+
+    # 6. Construcción Simétrica Estricta de 10 Reactivos (Nones=K, Pares=C)
     banco_alterno = {}
     c_idx = 0
     k_idx = 0
 
-    # ITERACIÓN MAESTRA SÍNCRONICA: 10 Reactivos Calibrados (Nones=Kairós, Pares=Cronos)
     for i in range(1, 11):
         if i % 2 != 0:
-            # IMPARES (NONES) = VECTORES KAIRÓS (Alineado a 12 espacios)
-            banco_alterno[i] = k_templates[k_idx].format(
-                aud=audiencia,
-                geo=geo_limpio,
-                block=oportunidad_blocks[k_idx % len(oportunidad_blocks)]
-            )
+            banco_alterno[i] = k_templates[k_idx].format(aud=audiencia, geo=geo_limpio, block=o_block)
             k_idx += 1
         else:
-            # PARES = VECTORES CRONOS (Alineado a 12 espacios)
-            banco_alterno[i] = c_templates[c_idx].format(
-                aud=audiencia,
-                geo=geo_limpio,
-                block=reloj_blocks[c_idx % len(reloj_blocks)],
-                estres=modificador_estres
-            )
+            banco_alterno[i] = c_templates[c_idx].format(aud=audiencia, geo=geo_limpio, block=r_block, estres=modificador_estres)
             c_idx += 1
-            
-    # ALINEACIÓN QUIRÚRGICA: Exactamente 4 espacios desde el margen izquierdo
+
+    # Retorno perfectamente alineado a la raíz de la función (4 espacios desde el margen izquierdo)
     return banco_alterno
+
 
 
 
