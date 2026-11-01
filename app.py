@@ -690,7 +690,7 @@ c_idx = 0
 k_idx = 0
 
     # ITERACIÓN MAESTRA SÍNCRONICA: 10 Reactivos Calibrados (Nones=Kairós, Pares=Cronos)
-    for i in range(1, 11):
+for i in range(1, 11):
         if i % 2 != 0:
             # IMPARES (NONES) = VECTORES KAIRÓS
             banco_alterno[i] = k_templates[k_idx].format(
