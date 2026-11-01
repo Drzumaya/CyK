@@ -686,12 +686,12 @@ k_templates = [
 "Para la cultura de {aud} en {geo}, reaccionar de forma inmediata ante {block} define una alta madurez adaptativa."
 ]
     
-banco_alterno = {}
-c_idx = 0
-k_idx = 0
+    banco_alterno = {}
+    c_idx = 0
+    k_idx = 0
 
     # ITERACIÓN MAESTRA SÍNCRONICA: 10 Reactivos Calibrados (Nones=Kairós, Pares=Cronos)
-for i in range(1, 11):
+    for i in range(1, 11):
         if i % 2 != 0:
             # IMPARES (NONES) = VECTORES KAIRÓS
             banco_alterno[i] = k_templates[k_idx].format(
@@ -711,7 +711,7 @@ for i in range(1, 11):
             c_idx += 1
             
     # SOLUCIÓN: El return debe tener exactamente 4 espacios desde el margen izquierdo
-        return banco_alterno
+    return banco_alterno
 
 
 ### 🍊 Parte 10.5 de 13: Pasarela Transaccional Independiente (Anti-Indentation Fix)
