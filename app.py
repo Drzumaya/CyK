@@ -791,6 +791,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 # =================================================================
 # PARTE 12: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
 # =================================================================
+            
         st.divider()
         col_btn1, col_btn2 = st.columns(2)
         campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
@@ -809,7 +810,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                             st.session_state.guardado_exitoso = True
                             st.warning(tx["local_ok"])
                             
-                with col_btn2:
+        with col_btn2:
             if st.session_state.guardado_exitoso and campos_completos:
                 grafica_base64 = None
                 if es_modo_likert:
@@ -846,6 +847,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                 )
             else: 
                 st.info(tx["fields_msg"])
+
     else:
         nombre = ""
         whatsapp = ""
