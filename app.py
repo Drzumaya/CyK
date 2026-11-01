@@ -1013,7 +1013,7 @@ def main():
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         
-    else:
+        else:
         nombre = ""
         whatsapp = ""
         tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
@@ -1024,11 +1024,15 @@ def main():
             st.markdown(tx_final["thanks_sub"])
             st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
         
+        # === INTERFAZ ASIMÉTRICA: BOTÓN DE REINICIO DE FLUJO PARA EL PONENTE ===
+        # Si NO es el celular del público (es la pantalla del ponente), habilitamos el botón de volver
         if not es_celular_del_publico:
             st.write("")
-            if st.button("🔄 Regresar al Diagnóstico Activo / Reset View", type="secondary", key="btn_reset_view_ponente"):
+            if st.button("🔄 Volver al Diagnóstico Principal / Reset View", type="primary", key="btn_global_reset_view_ponente"):
                 st.session_state.flujo_finalizado = False
+                st.session_state.guardado_exitoso = False
                 st.rerun()
+
 
     # RECONSTRUCCIÓN HISTÓRICA CON EXTRACCIÓN DIRECTA EN GOOGLE SHEETS
     if st.session_state.admin_autenticado and not es_celular_del_publico:
