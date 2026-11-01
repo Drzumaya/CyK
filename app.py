@@ -109,7 +109,7 @@ DICCIONARIO_IDIOMAS = {
             "🧠 Salud Mental": ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"],
             "❤️ Salud Emocional": ["Ansiedad o Estrés Agudo", "Irritabilidad Reactiva", "Desmotivación General", "Inestabilidad Anímica"],
             "👥 Salud Social": ["Aislamiento Voluntario", "Conflictos Interpersonales", "Falta de Red de Apoyo", "Falta de Límites Sanos"],
-            "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Ansiedad Financiera"],
+            "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Creación de Fuentes de Ingreso"],
             "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Falta de Descanso/Margen", "Falta de Conocimiento y Gestión Balanceada Cronos y Kairos"],
             "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
         }
@@ -780,7 +780,7 @@ def algoritmo_generar_gajos_salud(lang_key):
             "🧠 Salud Mental": ["Falta de atención en clases", "Pesadillas o miedos", "Exceso de pantallas / tablet", "Distracción constante"],
             "❤️ Salud Emocional": ["Enojo reactivo o rabietas", "Timidez extrema", "Llanto frecuente", "Inseguridad con amiguitos"],
             "👥 Salud Social": ["Peleas en el recreo", "Dificultad para compartir", "Aislamiento en los juegos", "No sigue reglas de grupo"],
-            "💰 Salud Económica": ["No cuida sus útiles escolares", "Pide juguetes compulsivamente", "Maltrata su ropa o calzado", "Desperdicia la colación"],
+            "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Creación de Fuentes de Ingreso"],
             "⏳ Salud Temporal": ["Procrastinacion Cronica", "Burnout o Sobrecarga", "Falta de Descanso/Margen","Desequilibrio en Gestion Cronos (Reloj) y Kairos (Oportunidad)"],
             "🙏 Salud Espiritual": ["Falta de asombro por la creación", "No asiste a actividades de fe", "Desconexión con valores básicos", "Desinterés por historias morales"]
         }
@@ -790,7 +790,7 @@ def algoritmo_generar_gajos_salud(lang_key):
             "🧠 Salud Mental": ["Olvidos recurrentes", "Niebla mental o confusión", "Falta de retos cognitivos", "Falta de concentración"],
             "❤️ Salud Emocional": ["Sentimiento de soledad o tristeza", "Ansiedad por el futuro", "Apatía generalizada", "Irritabilidad por dolores"],
             "👥 Salud Social": ["Poco contacto con familiares", "Aislamiento vecinal", "Falta de una red de apoyo activa", "Pocas actividades grupales"],
-            "💰 Salud Económica": ["Preocupación por pensión / jubilación", "Gastos excesivos en medicinas", "Falta de previsión médica extrema", "Dependencia financiera estresante"],
+            "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Creación de Fuentes de Ingreso"],
             "⏳ Salud Temporal": ["Procrastinacion Cronica", "Burnout o Sobrecarga", "Falta de Descanso/Margen","Desequilibrio en Gestion Cronos (Reloj) y Kairos (Oportunidad)"],
             "🙏 Salud Espiritual": ["Pérdida de esperanza", "Desconexión con su comunidad de fe", "Miedo al final de la vida", "Falta de propósito en la vejez"]
         }
@@ -800,7 +800,7 @@ def algoritmo_generar_gajos_salud(lang_key):
             "🧠 Salud Mental": ["Niebla mental por sobrecarga", "Pensamientos rumiativos de casos", "Apatía cognitiva por agotamiento", "Dificultad para mantener el foco"],
             "❤️ Salud Emocional": ["Síndrome de Burnout agudo", "Irritabilidad con pacientes", "Desmotivación institucional", "Inestabilidad anímica por estrés"],
             "👥 Salud Social": ["Abandono de vida familiar", "Conflictos por guardias", "Falta de red de apoyo e interprofesional", "Límites débiles con el trabajo"],
-            "💰 Salud Económica": ["Gastos reactivos por estrés", "Deudas por estilo de vida médico", "Falta de fondo de contingencia", "Ansiedad por ingresos institucionales"],
+            "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Creación de Fuentes de Ingreso"],
             "⏳ Salud Temporal": ["Procrastinacion Cronica", "Burnout o Sobrecarga", "Falta de Descanso/Margen","Desequilibrio en Gestion Cronos (Reloj) y Kairos (Oportunidad)"],
             "🙏 Salud Espiritual": ["Desensibilización ante el sufrimiento", "Desconexión interna", "Pérdida del sentido de vocación", "Vacío existencial post-guardia"]
         }
@@ -810,7 +810,7 @@ def algoritmo_generar_gajos_salud(lang_key):
             "🧠 Salud Mental": ["Saturación por consejería", "Cansancio mental teológico", "Niebla mental por multitarea", "Falta de foco en el estudio personal"],
             "❤️ Salud Emocional": ["Desgaste por empatía extrema", "Estrés por expectativas del rebaño", "Desmotivación oculta", "Presión ministerial aguda"],
             "👥 Salud Social": ["Falta de privacidad familiar", "Conflictos en la junta de iglesia", "Ausencia de amigos de confianza", "Límites débiles entre casa e iglesia"],
-            "💰 Salud Económica": ["Ansiedad por sustento familiar", "Administración deficiente de recursos", "Falta de fondo de emergencia", "Estrés presupuestal"],
+            "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Creación de Fuentes de Ingreso"],
             "⏳ Salud Temporal": ["Procrastinacion Cronica", "Burnout o Sobrecarga", "Falta de Descanso/Margen","Desequilibrio en Gestion Cronos (Reloj) y Kairos (Oportunidad)"],
             "🙏 Salud Espiritual": ["Hacer el ministerio en fuerzas humanas", "Falta de devoción personal real", "Apatía ante la oración", "Pérdida de visión misionera"]
         }
