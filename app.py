@@ -685,7 +685,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 "Mi rendimiento en {aud} dentro de {geo} aumenta cuando puedo improvisar soluciones frente a {block}.",
 "Para la cultura de {aud} en {geo}, reaccionar de forma inmediata ante {block} define una alta madurez adaptativa."
 ]
-    banco_alterno = {}
+       banco_alterno = {}
     c_idx = 0
     k_idx = 0
 
@@ -710,6 +710,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
             c_idx += 1
             
     return banco_alterno
+
 
 # =================================================================
 # PARTE 11: RENDERIZADO ISOMÓRFICO DEL FORMULARIO Y BATERÍA DE 10 ÍTEMS
