@@ -372,20 +372,24 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
             return False
     return False
 # =================================================================
-# PARTE 8: SANITIZADOR Y COMPILADOR DE REPORTES EN PDF (10 ÍTEMS SIMÉTRICOS)
+# PARTE 8: SANITIZADOR Y COMPILADOR DE REPORTES EN PDF CON TÍTULOS ASIMÉTRICOS
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
     diccionario_pdf = {
         "Español": {
-            "rep": "REPORTE DIAGNOSTICO DE MODELOS TEMPORALES", "part": "Participante:", "cont": "Contacto/WhatsApp:",
-            "fecha": "Fecha de Emision:", "vec": "VECTORES CRONOS Y KAIROS ADAPTATIVOS", "perf_s": "Perfil de Simbiosis Temporal Equilibrada (C&K)",
-            "perf_c": "Perfil Temporal Cronocentrico Puro (Rigido)", "perf_k": "Perfil Temporal Kairotico Puro (Adaptativo)"
+            "part": "Participante:", "cont": "Contacto/WhatsApp:",
+            "fecha": "Fecha de Emision:", "vec": "VECTORES CRONOS Y KAIROS ADAPTATIVOS", 
+            "perf_s": "Perfil de Simbiosis Temporal Equilibrada (C&K)",
+            "perf_c": "Perfil Temporal Cronocentrico Puro (Rigido)", 
+            "perf_k": "Perfil Temporal Kairotico Puro (Adaptativo)"
         },
         "Inglés": {
-            "rep": "DIAGNOSTIC REPORT OF TEMPORAL MODELS", "part": "Participant:", "cont": "Contact/WhatsApp:",
-            "fecha": "Date of Issue:", "vec": "ADAPTIVE CRONOS AND KAIROS VECTORS", "perf_s": "Balanced Temporal Symbiosis Profile (C&K)",
-            "perf_c": "Pure Chronocentric Temporal Profile (Rigid)", "perf_k": "Pure Kairotic Temporal Profile (Adaptive)"
+            "part": "Participant:", "cont": "Contact/WhatsApp:",
+            "fecha": "Date of Issue:", "vec": "ADAPTIVE CRONOS AND KAIROS VECTORS", 
+            "perf_s": "Balanced Temporal Symbiosis Profile (C&K)",
+            "perf_c": "Pure Chronocentric Temporal Profile (Rigid)", 
+            "perf_k": "Pure Kairotic Temporal Profile (Adaptive)"
         }
     }
     txt_str = str(texto)
@@ -400,14 +404,25 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    titulo_sano = limpiar_texto_pdf("rep", lang)
+    # 🍊 BLINDAJE ABSOLUTO ANTI-FUTURAS AUDIENCIAS:
+    # Si el título de la audiencia es la Salud Integral, se rotula como Mandarina.
+    # Cualquier otra tabla o audiencia futura (ITAP, TELMEX, etc.) se rotula AUTOMÁTICAMENTE como Cronos y Kairós.
+    if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
+        titulo_oficial = "DIAGNOSTICO DE LA SALUD INTEGRAL MODELO MANDARINA"
+        es_realmente_likert = False
+    else:
+        titulo_oficial = "DIAGNOSTICO DE LOS MODELOS TEMPORALES CRONOS Y KAIROS"
+        es_realmente_likert = True
+        
     nombre_sano = limpiar_texto_pdf(nombre_usuario, lang)
     whatsapp_sano = limpiar_texto_pdf(whatsapp_usuario, lang)
     
-    pdf.set_font("Helvetica", "B", 14)
-    pdf.set_text_color(230, 81, 0) 
-    pdf.cell(0, 10, titulo_sano, new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.set_font("Helvetica", "B", 10)
+    # Renderizado de Encabezado Institucional
+    pdf.set_font("Helvetica", "B", 13)
+    pdf.set_text_color(230, 81, 0) # Naranja Mandarina Core
+    pdf.cell(0, 10, titulo_oficial, new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.set_font("Helvetica", "B", 9)
     pdf.set_text_color(100, 100, 100)
     pdf.cell(0, 6, f"Jacob Zumaya Prianti (c) 2026 | Language: {lang}", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(5)
@@ -415,6 +430,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(8)
     
+    # Bloque de Datos Sociodemográficos Básicos
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
@@ -432,7 +448,9 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
-    if es_likert:
+    # Reemplazamos la evaluación de la bandera por la nueva variable sanitizada de control estricto
+    if es_realmente_likert:
+        # === BLOQUE DE RENDERIZADO MODELOS TEMPORALES C&K ===
         kairos_v = [resultados.get(f"R{i}", 3) for i in range(1, 11, 2)]
         cronos_v = [resultados.get(f"R{i}", 3) for i in range(2, 11, 2)]
         avg_cronos = sum(cronos_v) / 5
@@ -468,16 +486,40 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.set_text_color(217, 30, 24)
             pdf.cell(0, 6, limpiar_texto_pdf("perf_c", lang), new_x="LMARGIN", new_y="NEXT")
     else:
+        # === BLOQUE DE RENDERIZADO GAJOS SALUD INTEGRAL ===
         for dim_nombre, items in resultados.items():
             pdf.set_font("Helvetica", "B", 11)
             pdf.set_text_color(230, 81, 0)
             pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
-            puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if len(items) > 0 else "OK"
+            puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if len(items) > 0 else "SIN ALERTAS (OPTIMO)"
             pdf.set_font("Helvetica", "", 10)
             pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
+            pdf.multi_cell(0, 5, f"Alertas Detectadas: {puntos_str}\n")
+            
+        # Apartado de invitación de seguimiento clínico
+        pdf.ln(5)
+        pdf.set_draw_color(230, 81, 0)
+        pdf.set_fill_color(254, 243, 233)
+        pdf.rect(10, pdf.get_y(), 190, 25, "DF")
+        
+        pdf.set_y(pdf.get_y() + 2)
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_text_color(230, 81, 0)
+        pdf.cell(0, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
+        
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "I", 9.5)
+        pdf.set_text_color(60, 60, 60)
+        mensaje_apoyo = (
+            "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, "
+            "te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. "
+            "Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
+        )
+        pdf.multi_cell(186, 4.5, mensaje_apoyo)
             
     return bytes(pdf.output())
+
 # =================================================================
 # PARTE 9: MOTOR DE INVESTIGACIÓN SEMDEEP (CONVERGENCIA SVD DE 10 ÍTEMS)
 # =================================================================
