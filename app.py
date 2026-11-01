@@ -917,17 +917,20 @@ def main():
             resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
             resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
             
-            st.subheader(tx["sec3"])
+                        st.subheader(tx["sec3"])
             banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
             for r_id, enunciado_idioma in banco_mutado.items():
                 st.write(f"Reactivo {r_id}: {enunciado_idioma}")
                 etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
+                
+                # CORRECCIÓN QUIRÚRGICA: Se inyecta la lista explícita [1, 2, 3, 4, 5] en options
                 resultados_totales[f"R{r_id}"] = st.radio(
                     "Scale:",
-                    options=,
+                    options=[1, 2, 3, 4, 5],
                     format_func=lambda x: etiquetas_likert.get(x, str(x)),
                     key=f"dyn_r_{r_id}"
                 )
+
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         
