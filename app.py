@@ -23,7 +23,7 @@ import matplotlib.pyplot as plt
 # =================================================================
 # PARTE 2: CONSTANTES DE RED Y CONFIGURACIONES GENERALES
 # =================================================================
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
