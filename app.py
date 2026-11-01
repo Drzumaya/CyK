@@ -792,62 +792,74 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 # PARTE 12: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
 # =================================================================
             
-        st.divider()
-        col_btn1, col_btn2 = st.columns(2)
-        campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
-        
-        with col_btn1:
-            if st.button(tx["btn_save"], type="primary"):
-                if not campos_completos: 
-                    st.error(tx["err_fields"])
-                else:
-                    with st.spinner(tx["proc"]):
-                        exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
-                        if exito: 
-                            st.session_state.guardado_exitoso = True
-                            st.success("OK")
-                        else: 
-                            st.session_state.guardado_exitoso = True
-                            st.warning(tx["local_ok"])
-                            
-        with col_btn2:
-            if st.session_state.guardado_exitoso and campos_completos:
-                grafica_base64 = None
-                if es_modo_likert:
-                    try:
-                        kairos_v = [resultados_totales.get(f"R{i}", 3) for i in range(1, 11, 2)]
-                        cronos_v = [resultados_totales.get(f"R{i}", 3) for i in range(2, 11, 2)]
-                        fig, ax = plt.subplots(figsize=(4, 4))
-                        ax.axhspan(1, 3, 1, 3, color='#f2f1ef', alpha=0.5)
-                        ax.axhspan(3, 5, 3, 5, color='#e8f8f5', alpha=0.7)
-                        ax.scatter(sum(cronos_v)/5, sum(kairos_v)/5, color='#e65100', s=120)
-                        buf_g = BytesIO()
-                        plt.savefig(buf_g, format='png', bbox_inches='tight', dpi=100)
-                        buf_g.seek(0)
-                        grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_g.read()).decode('utf-8')}"
-                        plt.close(fig)
-                    except Exception: 
-                        pass
-                        
-                reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
-                nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
-                
-                def callback_finalizar():
-                    st.session_state.flujo_finalizado = True
-                    for k in list(st.session_state.keys()):
-                        if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): 
-                            del st.session_state[k]
-                            
-                st.download_button(
-                    label=tx["btn_pdf"],
-                    data=reporte_procesado,
-                    file_name=f"Report_{idioma_sel}_{nombre_archivo}.pdf",
-                    mime="application/pdf",
-                    on_click=callback_finalizar
-                )
-            else: 
-                st.info(tx["fields_msg"])
+            return banco_alterno
 
+# =================================================================
+# PARTE 10.5: PASARELA TRANSACCIONAL INDEPENDIENTE (ANTI-INDENTATION FIX)
+# =================================================================
+def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx):
+    st.divider()
+    col_btn1, col_btn2 = st.columns(2)
+    campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
+    
+    with col_btn1:
+        if st.button(tx["btn_save"], type="primary", key="btn_save_main_core"):
+            if not campos_completos: 
+                st.error(tx["err_fields"])
+            else:
+                with st.spinner(tx["proc"]):
+                    exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
+                    if exito: 
+                        st.session_state.guardado_exitoso = True
+                        st.success("OK")
+                    else: 
+                        st.session_state.guardado_exitoso = True
+                        st.warning(tx["local_ok"])
+                        
+    with col_btn2:
+        if st.session_state.guardado_exitoso and campos_completos:
+            grafica_base64 = None
+            if es_modo_likert:
+                try:
+                    kairos_v = [resultados_totales.get(f"R{i}", 3) for i in range(1, 11, 2)]
+                    cronos_v = [resultados_totales.get(f"R{i}", 3) for i in range(2, 11, 2)]
+                    fig, ax = plt.subplots(figsize=(4, 4))
+                    ax.axhspan(1, 3, 1, 3, color='#f2f1ef', alpha=0.5)
+                    ax.axhspan(3, 5, 3, 5, color='#e8f8f5', alpha=0.7)
+                    ax.scatter(sum(cronos_v)/5, sum(kairos_v)/5, color='#e65100', s=120)
+                    buf_g = BytesIO()
+                    plt.savefig(buf_g, format='png', bbox_inches='tight', dpi=100)
+                    buf_g.seek(0)
+                    grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_g.read()).decode('utf-8')}"
+                    plt.close(fig)
+                except Exception: 
+                    pass
+                    
+            reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
+            nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
+            
+            def callback_finalizar():
+                st.session_state.flujo_finalizado = True
+                for k in list(st.session_state.keys()):
+                    if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): 
+                        del st.session_state[k]
+                        
+            st.download_button(
+                label=tx["btn_pdf"],
+                data=reporte_procesado,
+                file_name=f"Report_{idioma_sel}_{nombre_archivo}.pdf",
+                mime="application/pdf",
+                on_click=callback_finalizar,
+                key="btn_download_user_pdf_report"
+            )
+        else: 
+            st.info(tx["fields_msg"])
+
+             # ... (Cierre de la batería de reactivos Likert o Gajos de bienestar anteriores)
+            
+        # INVOCACIÓN QUIRÚRGICA: Se renderizan los botones invocando a la función aislada externa
+        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
+        
     else:
         nombre = ""
         whatsapp = ""
@@ -964,6 +976,11 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                         )
                 except Exception as e:
                     st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
+
+# Guardia de ejecución principal para el ecosistema web de Streamlit
+if __name__ == "__main__":
+    main()
+
 
 
 
