@@ -685,7 +685,7 @@ k_templates = [
 "Mi rendimiento en {aud} dentro de {geo} aumenta cuando puedo improvisar soluciones frente a {block}.",
 "Para la cultura de {aud} en {geo}, reaccionar de forma inmediata ante {block} define una alta madurez adaptativa."
 ]
-    banco_alterno = {}
+banco_alterno = {}
     c_idx = 0
     k_idx = 0
 
