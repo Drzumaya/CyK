@@ -709,8 +709,7 @@ for i in range(1, 11):
             )
             c_idx += 1
 
-return banco_alterno
-
+    return banco_alterno
 
 ### 🍊 Parte 10.5 de 13: Pasarela Transaccional Independiente (Anti-Indentation Fix)
 
