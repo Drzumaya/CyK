@@ -946,7 +946,6 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                         if es_tabla_likert:
                             pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
                             pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-Usa el código con precaución.
 pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
 pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
 bytes_auditoria = pdf_auditoria.output()
