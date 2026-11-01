@@ -857,11 +857,14 @@ def main():
                 conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-    # Interceptor Temporal de accesos caducados
+        # Interceptor de caducidad temporal anti-duplicados (Ventana ampliada a 10 minutos)
     if token_actual and not st.session_state.admin_autenticado:
         acceso_bloqueado = False
         minuto_base = int(time.time() // 60)
-        tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(5)]
+        
+        # SOLUCIÓN: Genera una lista de los tokens válidos para los últimos 10 minutos
+        tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(10)]
+        
         if token_actual not in tokens_validos: 
             acceso_bloqueado = True
         else:
@@ -873,10 +876,12 @@ def main():
                         df_check = pd.DataFrame(registros)
                         if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]: 
                             acceso_bloqueado = True
-                except Exception: pass
+                except Exception: 
+                    pass
         if acceso_bloqueado:
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
+
 
     if not st.session_state.flujo_finalizado:
         idioma_sel = st.selectbox(
