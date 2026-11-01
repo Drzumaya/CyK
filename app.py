@@ -21,6 +21,33 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 # =================================================================
+# PARTE 1.5: INYECCIÓN DE ESTILOS CSS SÍNCRONOS ANTI-DESBORDAMIENTO
+# =================================================================
+# Obliga a los textos de las opciones a ajustarse en varias líneas sin cortarse con los marcos
+st.markdown(
+    """
+    <style>
+    /* Forzar salto de línea en los labels y opciones de radio botones */
+    .st_radio label, div[data-testid="stMarkdownContainer"] p, .stCheckbox label {
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+    /* Añadir un margen de seguridad interno a los contenedores con borde */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        padding: 6px 14px !important;
+    }
+    /* Evitar que las opciones horizontales de los radios colapsen entre sí */
+    div[row-data-id="stRadioHorizontal"] {
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# =================================================================
 # PARTE 2: CONSTANTES DE RED Y CONFIGURACIONES GENERALES
 # =================================================================
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
@@ -974,11 +1001,12 @@ def main():
                 st.write(f"Reactivo {r_id}: {enunciado_idioma}")
                 etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
                 
-                # CORRECCIÓN QUIRÚRGICA: Se inyecta la lista explícita [1, 2, 3, 4, 5] en options
+                # RESULTADOS TOTALES: Se inyecta la lista explícita [1, 2, 3, 4, 5] en options
                 resultados_totales[f"R{r_id}"] = st.radio(
-                    "Scale:",
+                    "Scale / Escala:",
                     options=[1, 2, 3, 4, 5],
                     format_func=lambda x: etiquetas_likert.get(x, str(x)),
+                    horizontal=False,  # <--- Cambiar a False para un despliegue vertical perfecto en celulares
                     key=f"dyn_r_{r_id}"
                 )
 
