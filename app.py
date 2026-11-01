@@ -853,16 +853,11 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
 
              # ... (Cierre de la batería de reactivos Likert o Gajos de bienestar anteriores)
             
-        # INVOCACIÓN QUIRÚRGICA: Se renderizan los botones invocando a la función aislada externa
+                # INVOCACIÓN DE PASARELA TRANSACCIONAL INDEPENDIENTE
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         
-                # ... (Aquí termina el ciclo 'for' que dibuja los reactivos Likert o Gajos)
-
-        # INVOCACIÓN DE PASARELA TRANSACCIONAL (Alineado con el bloque 'if not st.session_state.flujo_finalizado')
-        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
-        
-     else:
-        # PANTALLA DE AGRADECIMIENTO (Se ejecuta cuando st.session_state.flujo_finalizado es True)
+    else:
+        # PANTALLA DE AGRADECIMIENTO (Alineada exactamente a 4 espacios con su respectivo 'if')
         nombre = ""
         whatsapp = ""
         tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
