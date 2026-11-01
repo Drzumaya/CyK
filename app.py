@@ -1001,19 +1001,22 @@ def main():
                 st.write(f"Reactivo {r_id}: {enunciado_idioma}")
                 etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
                 
-                # RESULTADOS TOTALES: Se inyecta la lista explícita [1, 2, 3, 4, 5] en options
+                                # Renderizado de los radio botones Likert dentro del bucle anterior
                 resultados_totales[f"R{r_id}"] = st.radio(
                     "Scale / Escala:",
                     options=[1, 2, 3, 4, 5],
                     format_func=lambda x: etiquetas_likert.get(x, str(x)),
-                    horizontal=False,  # <--- Cambiar a False para un despliegue vertical perfecto en celulares
+                    horizontal=False,
                     key=f"dyn_r_{r_id}"
                 )
 
-
+        # INVOCACIÓN DE PASARELA TRANSACCIONAL INDEPENDIENTE
+        # (Debe ir exactamente a 8 espacios, dentro del bloque 'if not st.session_state.flujo_finalizado')
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         
-        else:
+    else:
+        # PANTALLA DE FINALIZACIÓN Y AGRADECIMIENTO
+        # (Debe ir exactamente a 4 espacios, alineado con su respectivo 'if')
         nombre = ""
         whatsapp = ""
         tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
@@ -1024,8 +1027,7 @@ def main():
             st.markdown(tx_final["thanks_sub"])
             st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
         
-        # === INTERFAZ ASIMÉTRICA: BOTÓN DE REINICIO DE FLUJO PARA EL PONENTE ===
-        # Si NO es el celular del público (es la pantalla del ponente), habilitamos el botón de volver
+        # Botón condicional de reinicio exclusivo para la pantalla del ponente
         if not es_celular_del_publico:
             st.write("")
             if st.button("🔄 Volver al Diagnóstico Principal / Reset View", type="primary", key="btn_global_reset_view_ponente"):
@@ -1033,8 +1035,7 @@ def main():
                 st.session_state.guardado_exitoso = False
                 st.rerun()
 
-
-    # RECONSTRUCCIÓN HISTÓRICA CON EXTRACCIÓN DIRECTA EN GOOGLE SHEETS
+    # MÓDULO CENTRAL AVANZADO: OFICINA DE INVESTIGACIÓN ALTA AUDITORÍA
     if st.session_state.admin_autenticado and not es_celular_del_publico:
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
@@ -1063,12 +1064,13 @@ def main():
                     if not todas_las_filas or len(todas_las_filas) < 2:
                         st.warning("⚠️ La tabla seleccionada no contiene registros o datos suficientes para la auditoría.")
                     else:
-                        encabezados = todas_las_filas
+                        encabezados = todas_las_filas[0]
                         datos_cuerpo = todas_las_filas[1:]
                         encabezados_unicos = []
                         for i, col in enumerate(encabezados):
                             nombre_col = col.strip() if col.strip() else f"Columna_{i}"
-                            if nombre_col in encabezados_unicos: nombre_col = f"{nombre_col}_{i}"
+                            if nombre_col in encabezados_unicos:
+                                nombre_col = f"{nombre_col}_{i}"
                             encabezados_unicos.append(nombre_col)
                         df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
                         st.success(f"¡Base de datos cargada exitosamente! Registros analizados: {len(df_doc)}")
@@ -1080,7 +1082,8 @@ def main():
                             if not es_tabla_likert:
                                 col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
                                 promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
-                                if promedios: st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
+                                if promedios: 
+                                    st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
                             else:
                                 r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
                                 if len(r_cols) >= 10:
@@ -1088,7 +1091,8 @@ def main():
                                     k_mean = np.mean(matriz_r[:, 0::2])
                                     c_mean = np.mean(matriz_r[:, 1::2])
                                     st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
-                                else: st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
+                                else:
+                                    st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
                         with col_graph2:
                             st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                             res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
