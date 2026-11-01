@@ -104,6 +104,7 @@ DICCIONARIO_IDIOMAS = {
         "kn2": "2. He leído sobre los modelos temporales Cronos y Kairos:", "kn3": "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairos:",
         "kn4": "4. El modelo temporal:", "kn5": "5. Hablar de modelos temporales es hablar de:",
         "sec3": "Sección III. Batería de Reactivos Intercalados Contextuales", "btn_save": "💾 Guardar y Procesar Diagnóstico", "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
+        "kn4_options": ["Se impone", "Se hereda", "No sé"],
         "likert_labels": {1: "1 - Totalmente en desacuerdo", 2: "2 - En desacuerdo", 3: "3 - Neutral", 4: "4 - De acuerdo", 5: "5 - Totalmente de acuerdo"},
         "c_pool": "Planifico mis actividades operativas en {geo} siguiendo estrictamente los tiempos del reloj.",
         "k_pool": "La flexibilidad para adaptar mis planes ante una ventana de oportunidad en {geo} es más importante.",
@@ -1002,7 +1003,7 @@ def main():
             resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
             resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
             resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
-            resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
+            resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se hereda", "No sé"], horizontal=True, key="kn_4")
             resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
             
             st.subheader(tx["sec3"])
