@@ -682,7 +682,6 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     ]
     
     k_templates = [
-Usa el código con precaución.
 "Para el perfil de {aud} en {geo}, la flexibilidad para reestructurar planes ante {block} es prioritario sobre el reloj.",
 "En las actividades de {aud} en {geo}, valoro más la agilidad para adaptarme ante {block} que aferrarme a un plan estático.",
 "Considero una ventaja competitiva para {aud} en {geo} el poder pausar tareas rutinarias si aparece {block}.",
