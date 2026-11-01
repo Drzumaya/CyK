@@ -787,12 +787,8 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                     format_func=lambda x: etiquetas_likert.get(x, str(x)),
                     key=f"dyn_r_{r_id}"
                 )
-
-# =================================================================
-# PARTE 12: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
-# =================================================================
             
-            return banco_alterno
+         
 
 # =================================================================
 # PARTE 10.5: PASARELA TRANSACCIONAL INDEPENDIENTE (ANTI-INDENTATION FIX)
@@ -860,7 +856,13 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
         # INVOCACIÓN QUIRÚRGICA: Se renderizan los botones invocando a la función aislada externa
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         
+                # ... (Aquí termina el ciclo 'for' que dibuja los reactivos Likert o Gajos)
+
+        # INVOCACIÓN DE PASARELA TRANSACCIONAL (Alineado con el bloque 'if not st.session_state.flujo_finalizado')
+        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
+        
     else:
+        # PANTALLA DE AGRADECIMIENTO (Se ejecuta cuando st.session_state.flujo_finalizado es True)
         nombre = ""
         whatsapp = ""
         tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
@@ -906,7 +908,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                     if not todas_las_filas or len(todas_las_filas) < 2:
                         st.warning("⚠️ La tabla seleccionada no contiene registros o datos suficientes para la auditoría.")
                     else:
-                        encabezados = todas_las_filas
+                        encabezados = todas_las_filas[0]
                         datos_cuerpo = todas_las_filas[1:]
                         encabezados_unicos = []
                         for i, col in enumerate(encabezados):
@@ -980,7 +982,3 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
 # Guardia de ejecución principal para el ecosistema web de Streamlit
 if __name__ == "__main__":
     main()
-
-
-
-
