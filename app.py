@@ -53,8 +53,18 @@ st.markdown(
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-ESTADOS_MEXICO = ["Chihuahua", "Sonora", "Sinaloa", "Nuevo León", "Jalisco", "Ciudad de México", "Veracruz"]
+# Catálogo oficial y alfabético de las 32 entidades federativas de México
+ESTADOS_MEXICO = [
+    "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", 
+    "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", 
+    "Durango", "Guanajuate", "Guerrero", "Hidalgo", "Jalisco", "México", 
+    "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", 
+    "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", 
+    "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
+]
+
 CONTINENTES = ["América del Norte", "Europa", "Asia", "África", "Oceanía"]
+
 
 # INICIALIZACIÓN ABSOLUTA EN EL ÁMBITO GLOBAL SUPERIOR (Evita AttributeError de raíz)
 if "audiencia_activa" not in st.session_state:
