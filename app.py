@@ -809,7 +809,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                             st.session_state.guardado_exitoso = True
                             st.warning(tx["local_ok"])
                             
-        with col_btn2:
+                with col_btn2:
             if st.session_state.guardado_exitoso and campos_completos:
                 grafica_base64 = None
                 if es_modo_likert:
@@ -863,6 +863,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                 st.session_state.flujo_finalizado = False
                 st.rerun()
 
+    # MÓDULO CENTRAL AVANZADO: OFICINA DE INVESTIGACIÓN ALTA AUDITORÍA
     if st.session_state.admin_autenticado and not es_celular_del_publico:
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
@@ -946,17 +947,19 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                         if es_tabla_likert:
                             pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
                             pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-bytes_auditoria = pdf_auditoria.output()
-st.download_button(
-label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
-data=bytes(bytes_auditoria),
-file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '')}{datetime.date.today()}.pdf",
-mime="application/pdf",
-key="btn_download_admin_pdf"
-)
-except Exception as e:
-st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")# Guardia de ejecución principal para el ecosistema web de Streamlit
-if __name__ == "__main__":
-    main()
+                            pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        bytes_auditoria = pdf_auditoria.output()
+                        
+                        st.download_button(
+                            label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
+                            data=bytes(bytes_auditoria),
+                            file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '_')}_{datetime.date.today()}.pdf",
+                            mime="application/pdf",
+                            key="btn_download_admin_pdf"
+                        )
+                except Exception as e:
+                    st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
+
