@@ -225,7 +225,7 @@ DICCIONARIO_IDIOMAS = {
         "err_fields": "Bitte füllen Sie alle Pflichtfelder aus.", "proc": "Analyse wird verarbeitet...", "local_ok": "Lokal gespeichert (Offline-Modus)",
         "fields_msg": "💡 Felder ausfüllen, um den sicheren Download zu aktivieren.", "thanks": "## 🍊 Vielen Dank für Ihre Teilnahme!",
         "thanks_sub": "Sie haben das Diagnoseprofil abgeschlossen. Das Erkennen zeitlicher Vektoren ist der Beginn hoher Reife.",
-        "qr_title": "📱 Dynamischer QR-Sicherheitscode (Auf Leinwand projizieren)", "qr_sub1": "1. Scannen Sie den QR-Code with Ihrer Smartphone-Kamera.",
+        "qr_title": "📱 Dynamischer QR-Sicherheitscode (Auf Leinwand projizieren)", "qr_sub1": "1. Scannen Sie den QR-Code mit Ihrer Smartphone-Kamera.",
         "qr_sub2": "2. Sie interagieren direkt mit unserer für Ihre Organisation angepassten Software.",
         "gajos_data": {
             "💪 Physische Gesundheit": ["Mangelhafte Ernährung", "Schlafmangel/Insomnie", "Chronisches Sitzen", "Körperliche Müdigkeit"],
@@ -251,12 +251,12 @@ DICCIONARIO_IDIOMAS = {
         "k_pool": "La flessibilità di adattare i miei piani di fronte a un'opportunità a {geo} è più importante dell'orologio.",
         "mand_title": "### 🍊 I Tuoi Spicchi di Benessere", "mand_subtitle": "Seleziona gli indicatori critici della tua salute olistica:",
         "err_fields": "Per favore, compila i campi obbligatori.", "proc": "Elaborazione dell'analisi...", "local_ok": "Salvato Localmente (Modalità Offline)",
-        "fields_msg": "💡 Compila i campi para sbloccare il download sicuro.", "thanks": "## 🍊 Grazie mille per la tua partecipazione!",
-        "thanks_sub": "Hai completato il perfil diagnostico. Riconoscere i propri vettori temporali costituisce l'inizio della maturità.",
-        "qr_title": "📱 Codice QR Dinamico di Sicurezza (Proietta al Pubblico)", "qr_sub1": "1. Inquadra il codice QR con la fotocamera dello smartphone.",
+        "fields_msg": "💡 Compila i campi per sbloccare il download sicuro.", "thanks": "## 🍊 Grazie mille per la tua partecipazione!",
+        "thanks_sub": "Hai completato il profilo diagnostico. Riconoscere i propri vettori temporali costituisce l'inizio della maturità.",
+        "qr_title": "📱 Codice QR Dinamico di Sicurezza (Proietta al Pubblico)", "qr_sub1": "1. Inquadra el codice QR con la fotocamera dello smartphone.",
         "qr_sub2": "2. Interagirai direttamente con l'applicazione nativa sviluppata per la tua organizzazione.",
         "gajos_data": {
-            "💪 Salute Fisica": ["Nutrizione Carente", "Mancanza di Sonno/Insonnia", "Sedentarietà\".Cronica", "Affaticamento Corporeo"],
+            "💪 Salute Fisica": ["Nutrizione Carente", "Mancanza di Sonno/Insonnia", "Sedentarietà Cronica", "Affaticamento Corporeo"],
             "🧠 Salute Mentale": ["Brain Fog", "Rumination", "Overload", "Cognitive Apathy"],
             "❤️ Salute Emotiva": ["Acute Anxiety", "Irritability", "General Demotivation", "Mood Instability"],
             "👥 Salute Sociale": ["Voluntary Isolation", "Interpersonal Conflicts", "Lack of Support Network", "Weak Boundaries"],
@@ -268,10 +268,10 @@ DICCIONARIO_IDIOMAS = {
     "Portugués": {
         "ctrl": "Dados de Controle", "nombre": "Nome Completo ou Registro *:", "wha": "Número de Telefone/WhatsApp *:",
         "sec1": "Seção I. Dados Demográficos e Geográficos", "edad": "1. Idade (Anos):", "genero": "2. Gênero:",
-        "nac": "3. Nationality *:", "orig": "4. Estado de Origem *:", "res": "5. Estado de Residência Actual *:",
+        "nac": "3. Nacionalidade *:", "orig": "4. Estado de Origem *:", "res": "5. Estado de Residência Atual *:",
         "pais": "4. Escreva seu País de Origem *:", "cont": "5. Selecione seu Continente de Origem *:", "rol": "6. Papel dentro da Igreja:",
         "sec2": "Seção II. Conhecimento sobre o Tema", "kn1": "1. Antes desta pesquisa, você já tinha ouvido falar sobre os Modelos Temporais Cronos e Kairos?",
-        "kn2": "2. Você já leu sobre os modelos temporais Cronos e Kairos?", "kn3": "3. Você já ensinou alguma vez sobre os modelos temporais Cronos e Kairos?",
+        "kn2": "2. Você ya leu sobre os modelos temporais Cronos e Kairos?", "kn3": "3. Você já ensinou alguma vez sobre os modelos temporais Cronos e Kairos?",
         "kn4": "4. O modelo temporal é:", "kn5": "5. Falar de modelos temporais é falar de:",
         "sec3": "Seção III. Escala Likert Contextual Intercalada", "btn_save": "💾 Salvar e Processar Diagnóstico", "btn_pdf": "BAIXAR RESULTADOS EM PDF 📥",
         "likert_labels": {1: "1 - Discordo totalmente", 2: "2 - Discordo", 3: "3 - Neutro", 4: "4 - Concordo", 5: "5 - Concordo totalmente"},
@@ -282,18 +282,19 @@ DICCIONARIO_IDIOMAS = {
         "fields_msg": "💡 Preencha os campos para habilitar o download seguro.", "thanks": "## 🍊 Muito obrigado por sua participação!",
         "thanks_sub": "Você completou o perfil diagnóstico. Reconhecer nossos vetores temporais marca o início da alta madureza.",
         "qr_title": "📱 Código QR Dinâmico de Segurança (Projetar para o Auditório)", "qr_sub1": "1. Foque o código QR com a câmera do seu smartphone.",
-        "qr_sub2": "2. Você interagirá directamente com o nosso software nativo adaptado para a sua organização.",
+        "qr_sub2": "2. Você interagirá diretamente com o nosso software nativo adaptado para a sua organização.",
         "gajos_data": {
-            "💪 Saúde Física": ["Nutrição Deficiente", "Falta de Sono/Insônia", "Sedentarismo Crônico", "Fatiga Corporal"],
+            "💪 Saúde Física": ["Nutrição Deficiente", "Falta de Sono/Insônia", "Sedentarismo Crônico", "Fadiga Corporal"],
             "🧠 Saúde Mental": ["Brain Fog", "Rumination", "Overload", "Cognitive Apathy"],
             "❤️ Saúde Emocional": ["Ansiedad Aguda", "Irritabilidad", "Desmotivación", "Inestabilidad"],
-            "👥 Saúde Social": ["Alemamento", "Interpersonal Conflicts", "Lack of Support Network", "Weak Boundaries"],
+            "👥 Saúde Social": ["Aislamiento", "Interpersonal Conflicts", "Lack of Support Network", "Weak Boundaries"],
             "💰 Saúde Econômica": ["Compulsive Spending", "Overwhelming Debt", "Lack of Emergency Fund", "Financial Anxiety"],
             "⏳ Saúde Temporal": ["Chronic Procrastination", "Burnout", "Perpetual Tardiness", "Lack of Margin"],
             "🙏 Saúde Espiritual": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Loss of Meaning"]
         }
     }
 }
+
 # =================================================================
 # PARTE 7: CONEXIÓN INTEGRAL A LAS API DE GOOGLE SHEETS Y AUTO-FUNDACIÓN
 # =================================================================
@@ -371,6 +372,7 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
         except Exception:
             return False
     return False
+
 # =================================================================
 # PARTE 8: SANITIZADOR Y COMPILADOR DE REPORTES EN PDF (10 ÍTEMS SIMÉTRICOS)
 # =================================================================
@@ -478,6 +480,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.multi_cell(0, 5, f"Alerts: {puntos_str}\n")
             
     return bytes(pdf.output())
+
 # =================================================================
 # PARTE 9: MOTOR DE INVESTIGACIÓN SEMDEEP (CONVERGENCIA SVD DE 10 ÍTEMS)
 # =================================================================
@@ -494,7 +497,6 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
                 
             matriz_datos = df[columnas_r].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
             
-            # Sincronización Invertida Exacta: Índices Nones = Kairós, Índices Pares = Cronos
             kairos_data = matriz_datos[:, 0::2]
             cronos_data = matriz_datos[:, 1::2]
             
@@ -518,22 +520,23 @@ def ejecutar_analisis_semdeep(df, es_likert=False):
             r_cuadrado = 1 - (np.sum((latent_impacto - X @ beta) ** 2) / np.sum((latent_impacto - np.mean(latent_impacto)) ** 2))
             
             analisis["status"] = "Convergencia Exitosa (SEMDeep Engine v2.6 - Matrix 10)"
-            analisis["beta_cronos_path"] = float(beta[1]) if len(beta) > 1 else 0.0
-            analisis["beta_kairos_path"] = float(beta[0]) if len(beta) > 0 else 0.0
+            analisis["beta_cronos_path"] = float(beta) if len(beta) > 1 else 0.0
+            analisis["beta_kairos_path"] = float(beta) if len(beta) > 0 else 0.0
             analisis["gof_r2_ajuste"] = max(0.0, float(r_cuadrado))
-            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos)[0, 1]) if len(df) > 1 else 0.0
+            analisis["covarianza_latente"] = float(np.corrcoef(latent_cronos, latent_kairos)) if len(df) > 1 else 0.0
         else:
             matriz_datos = df.iloc[:, 3:10].apply(pd.to_numeric, errors='coerce').fillna(0).to_numpy()
             c_centered = matriz_datos - np.mean(matriz_datos, axis=0)
             _, s, _ = np.linalg.svd(c_centered, full_matrices=False)
             s_cuadrado = s ** 2
             analisis["status"] = "Convergencia Lineal Exitosa (SVD Gajos)"
-            analisis["gof_r2_ajuste"] = float(s_cuadrado[0] / np.sum(s_cuadrado)) if len(s) > 0 else 0.0
+            analisis["gof_r2_ajuste"] = float(s_cuadrado / np.sum(s_cuadrado)) if len(s) > 0 else 0.0
     except Exception as e:
         analisis["status"] = f"Error en cálculo matricial: {str(e)}"
     return analisis
+
 # =================================================================
-# PARTE 10: MOTOR DE INFERENCIA PSICOMÉTRICO ADAPTATIVO MULTICAPA
+# PARTE 10: MOTOR DE INFERENCIA PSICOMÉTRICO ADAPTATIVO MULTICAPA (IA-SIMULATED)
 # =================================================================
 def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
@@ -628,13 +631,13 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
         oportunidad_blocks = [
             "una falla mecánica crítica o paro no programado de maquinaria",
             "un desabasto o cuello de botella imprevisto en la cadena de suministros",
-            "un defect de calidad detectado que requiere rediseño inmediato",
+            "un defecto de calidad detectado que requiere rediseño inmediato",
             "un pedido prioritario especial de última hora introducido en la línea",
             "un reacomodo de flujo por la ausencia emergente de un operador"
         ]
     elif any(k in aud_lower for k in ["banco", "financier", "contad", "admin", "comerc", "ventas", "ejecutiv", "empresa", "sa", "corpora"]):
         reloj_blocks = [
-            "los cierres de mes contables y las auditorías fiscales rígidas",
+            "los closures de mes contables y las auditorías fiscales rígidas",
             "las metas de venta mensuales de la organización y KPIs de rentabilidad",
             "la agenda estricta de juntas corporativas y reportes para inversionistas",
             "los horarios de operaciones bancarias y flujos de tesorería controlados",
@@ -679,37 +682,28 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
     ]
     
     k_templates = [
+Usa el código con precaución.
 "Para el perfil de {aud} en {geo}, la flexibilidad para reestructurar planes ante {block} es prioritario sobre el reloj.",
 "En las actividades de {aud} en {geo}, valoro más la agilidad para adaptarme ante {block} que aferrarme a un plan estático.",
 "Considero una ventaja competitiva para {aud} en {geo} el poder pausar tareas rutinarias si aparece {block}.",
 "Mi rendimiento en {aud} dentro de {geo} aumenta cuando puedo improvisar soluciones frente a {block}.",
 "Para la cultura de {aud} en {geo}, reaccionar de forma inmediata ante {block} define una alta madurez adaptativa."
 ]
-       banco_alterno = {}
-    c_idx = 0
-    k_idx = 0
-
-    # ITERACIÓN MAESTRA SÍNCRONICA: 10 Reactivos Calibrados (Nones=Kairós, Pares=Cronos)
-    for i in range(1, 11):
-        if i % 2 != 0:
-            # IMPARES (NONES) = VECTORES KAIRÓS
-            banco_alterno[i] = k_templates[k_idx].format(
-                aud=audiencia,
-                geo=geo_limpio,
-                block=oportunidad_blocks[k_idx % len(oportunidad_blocks)]
-            )
-            k_idx += 1
-        else:
-            # PARES = VECTORES CRONOS
-            banco_alterno[i] = c_templates[c_idx].format(
-                aud=audiencia,
-                geo=geo_limpio,
-                block=reloj_blocks[c_idx % len(reloj_blocks)],
-                estres=modificador_estres
-            )
-            c_idx += 1
-            
-    return banco_alterno
+banco_alterno = {}
+c_idx = 0
+k_idx = 0
+for i in range(1, 11):
+if i % 2 != 0:
+banco_alterno[i] = k_templates[k_idx].format(
+aud=audiencia, geo=geo_limpio, block=oportunidad_blocks[k_idx % len(oportunidad_blocks)]
+)
+k_idx += 1
+else:
+banco_alterno[i] = c_templates[c_idx].format(
+aud=audiencia, geo=geo_limpio, block=reloj_blocks[c_idx % len(reloj_blocks)], estres=modificador_estres
+)
+c_idx += 1
+return banco_alterno
 
 
 # =================================================================
