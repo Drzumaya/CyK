@@ -708,7 +708,6 @@ for i in range(1, 11):
                 estres=modificador_estres
             )
             c_idx += 1
-            
     return banco_alterno
 
 
