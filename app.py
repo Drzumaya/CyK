@@ -717,7 +717,7 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 
 
 # =================================================================
-# PARTE 11: RENDERIZADO ISOMÓRFICO DEL FORMULARIO Y BATERÍA DE 10 ÍTEMS
+# PARTE 11: RENDERIZADO ISOMÓRFICO DEL FORMULARIO Y CAPTURA DE DATOS
 # =================================================================
     if not st.session_state.flujo_finalizado:
         st.header(f"📋 {st.session_state.audiencia_activa}")
@@ -729,14 +729,65 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
         es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
         if not es_modo_likert:
-            # (Se omite el despliegue masivo del código de los gajos por brevedad; consulta el bloque completo en la referencia del sistema).
+            st.write(tx["mand_title"])
+            st.write(tx["mand_subtitle"])
+            gajos_dinamicos = tx.get("gajos_data", DICCIONARIO_IDIOMAS["Español"]["gajos_data"])
+            
+            for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
+                with st.container(border=True):
+                    st.markdown(f"#### {g_name}")
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
+                        cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
+                    with col2:
+                        cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
+                        cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
+                    resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
+                    
             if st.button("Procesar Alertas Base / Register Alerts"):
                 st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
                 st.success("OK. Context synchronized.")
         else:
-            # Configuración de modo Likert, demografía y reactivos dinámicos
-            banco_mutado = algoritmo_generar_reactivos_poliglotas("Region", st.session_state.alertas_mandarina_previas, idioma_sel)
-            # (Código de renderizado Likert integrado en el script principal)
+            st.subheader(tx["sec1"])
+            resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
+            resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
+            nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
+            resultados_totales["Nacionalidad"] = nacionalidad
+            geo_contexto = "Region"
+            
+            if nacionalidad == "Mexicana":
+                resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
+                resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
+                resultados_totales["País Origen"] = "México"
+                resultados_totales["Continente Extranjero"] = "América"
+                geo_contexto = str(resultados_totales["Estado Residencia"])
+            else:
+                resultados_totales["Estado Origen"] = "N/A"
+                resultados_totales["Estado Residencia"] = "N/A"
+                resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
+                resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
+                geo_contexto = str(resultados_totales["País Origen"])
+                
+            st.subheader(tx["sec2"])
+            resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
+            resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
+            resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
+            resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se nace", "No sé"], horizontal=True, key="kn_4")
+            resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
+            
+            st.subheader(tx["sec3"])
+            banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
+            for r_id, enunciado_idioma in banco_mutado.items():
+                st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+                etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
+                resultados_totales[f"R{r_id}"] = st.radio(
+                    "Scale:",
+                    options=[1, 2, 3, 4, 5],
+                    format_func=lambda x: etiquetas_likert.get(x, str(x)),
+                    key=f"dyn_r_{r_id}"
+                )
+
 # =================================================================
 # PARTE 12: ENVÍO DE DATOS, GENERACIÓN PDF Y OFICINA DE ALTA AUDITORÍA
 # =================================================================
@@ -760,20 +811,153 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
                             
         with col_btn2:
             if st.session_state.guardado_exitoso and campos_completos:
-                # Generación de reportes y descarga en PDF
-                pass
+                grafica_base64 = None
+                if es_modo_likert:
+                    try:
+                        kairos_v = [resultados_totales.get(f"R{i}", 3) for i in range(1, 11, 2)]
+                        cronos_v = [resultados_totales.get(f"R{i}", 3) for i in range(2, 11, 2)]
+                        fig, ax = plt.subplots(figsize=(4, 4))
+                        ax.axhspan(1, 3, 1, 3, color='#f2f1ef', alpha=0.5)
+                        ax.axhspan(3, 5, 3, 5, color='#e8f8f5', alpha=0.7)
+                        ax.scatter(sum(cronos_v)/5, sum(kairos_v)/5, color='#e65100', s=120)
+                        buf_g = BytesIO()
+                        plt.savefig(buf_g, format='png', bbox_inches='tight', dpi=100)
+                        buf_g.seek(0)
+                        grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_g.read()).decode('utf-8')}"
+                        plt.close(fig)
+                    except Exception: 
+                        pass
+                        
+                reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
+                nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
+                
+                def callback_finalizar():
+                    st.session_state.flujo_finalizado = True
+                    for k in list(st.session_state.keys()):
+                        if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): 
+                            del st.session_state[k]
+                            
+                st.download_button(
+                    label=tx["btn_pdf"],
+                    data=reporte_procesado,
+                    file_name=f"Report_{idioma_sel}_{nombre_archivo}.pdf",
+                    mime="application/pdf",
+                    on_click=callback_finalizar
+                )
             else: 
                 st.info(tx["fields_msg"])
     else:
+        nombre = ""
+        whatsapp = ""
+        tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
         st.balloons()
         st.success("### Process Completed! 🎉")
+        with st.container(border=True):
+            st.write(tx_final["thanks"])
+            st.markdown(tx_final["thanks_sub"])
+            st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
+        
+        if not es_celular_del_publico:
+            st.write("")
+            if st.button("🔄 Regresar al Diagnóstico Activo / Reset View", type="secondary", key="btn_reset_view_ponente"):
+                st.session_state.flujo_finalizado = False
+                st.rerun()
 
-    # Módulo avanzado de investigación y analítica para el ponente
     if st.session_state.admin_autenticado and not es_celular_del_publico:
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
         st.write("Módulo avanzado de modelado predictivo de variables latentes.")
+        
+        try:
+            if "gcp_service_account" in st.secrets:
+                secrets_dict = dict(st.secrets["gcp_service_account"])
+                if "private_key" in secrets_dict:
+                    secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+                client_back = gspread.service_account_from_dict(secrets_dict)
+                workbook_back = client_back.open(NOMBRE_HOJA_CALCULO)
+                lista_tablas_reales = [sh.title for sh in workbook_back.worksheets()]
+            else:
+                lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
+        except Exception:
+            lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
 
-# Guardia de ejecución principal para el ecosistema web de Streamlit
+        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", lista_tablas_reales)
+        
+        if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
+            sheet = conectar_google_sheets(tabla_analizar)
+            if sheet:
+                try:
+                    todas_las_filas = sheet.get_all_values()
+                    if not todas_las_filas or len(todas_las_filas) < 2:
+                        st.warning("⚠️ La tabla seleccionada no contiene registros o datos suficientes para la auditoría.")
+                    else:
+                        encabezados = todas_las_filas
+                        datos_cuerpo = todas_las_filas[1:]
+                        encabezados_unicos = []
+                        for i, col in enumerate(encabezados):
+                            nombre_col = col.strip() if col.strip() else f"Columna_{i}"
+                            if nombre_col in encabezados_unicos:
+                                nombre_col = f"{nombre_col}_{i}"
+                            encabezados_unicos.append(nombre_col)
+                        df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
+                        st.success(f"¡Base de datos cargada exitosamente! Registros analizados: {len(df_doc)}")
+                        es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
+                        
+                        col_graph1, col_graph2 = st.columns(2)
+                        with col_graph1:
+                            st.write("#### 📈 Distribución Descriptiva Global")
+                            if not es_tabla_likert:
+                                col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
+                                promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
+                                if promedios: 
+                                    st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
+                            else:
+                                r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
+                                if len(r_cols) >= 10:
+                                    matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                                    k_mean = np.mean(matriz_r[:, 0::2])
+                                    c_mean = np.mean(matriz_r[:, 1::2])
+                                    st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
+                                else:
+                                    st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
+                        with col_graph2:
+                            st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
+                            res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
+                            st.json(res_sem)
+
+                        st.markdown("---")
+                        st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
+                        
+                        pdf_auditoria = FPDF()
+                        pdf_auditoria.add_page()
+                        pdf_auditoria.set_font("Helvetica", "B", 14)
+                        pdf_auditoria.set_text_color(230, 81, 0)
+                        pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
+                        pdf_auditoria.set_font("Helvetica", "", 10)
+                        pdf_auditoria.set_text_color(100, 100, 100)
+                        pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+                        pdf_auditoria.ln(5)
+                        
+                        pdf_auditoria.set_font("Helvetica", "B", 11)
+                        pdf_auditoria.set_text_color(50, 50, 50)
+                        pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
+                        pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        if es_tabla_likert:
+                            pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                            pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+Usa el código con precaución.
+pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+bytes_auditoria = pdf_auditoria.output()
+st.download_button(
+label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
+data=bytes(bytes_auditoria),
+file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '')}{datetime.date.today()}.pdf",
+mime="application/pdf",
+key="btn_download_admin_pdf"
+)
+except Exception as e:
+st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")# Guardia de ejecución principal para el ecosistema web de Streamlit
 if __name__ == "__main__":
     main()
