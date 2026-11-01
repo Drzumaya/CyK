@@ -1009,39 +1009,45 @@ def main():
                         with col_graph2:
                             st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                             res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-st.json(res_sem)
-st.markdown("---")
-st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
-pdf_auditoria = FPDF()
-pdf_auditoria.add_page()
-pdf_auditoria.set_font("Helvetica", "B", 14)
-pdf_auditoria.set_text_color(230, 81, 0)
-pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
-pdf_auditoria.set_font("Helvetica", "", 10)
-pdf_auditoria.set_text_color(100, 100, 100)
-pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
-pdf_auditoria.ln(5)
-pdf_auditoria.set_font("Helvetica", "B", 11)
-pdf_auditoria.set_text_color(50, 50, 50)
-pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
-if es_tabla_likert:
-pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-bytes_auditoria = pdf_auditoria.output()
-st.download_button(
-label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
-data=bytes(bytes_auditoria),
-file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '')}{datetime.date.today()}.pdf",
-mime="application/pdf",
-key="btn_download_admin_pdf"
-)
-except Exception as e:
-st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
+                            st.json(res_sem)
 
-#Guardia de ejecución principal para el ecosistema web de Streamlit
+                        st.markdown("---")
+                        st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
+                        
+                        pdf_auditoria = FPDF()
+                        pdf_auditoria.add_page()
+                        pdf_auditoria.set_font("Helvetica", "B", 14)
+                        pdf_auditoria.set_text_color(230, 81, 0)
+                        pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
+                        pdf_auditoria.set_font("Helvetica", "", 10)
+                        pdf_auditoria.set_text_color(100, 100, 100)
+                        pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+                        pdf_auditoria.ln(5)
+                        
+                        pdf_auditoria.set_font("Helvetica", "B", 11)
+                        pdf_auditoria.set_text_color(50, 50, 50)
+                        pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
+                        pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        if es_tabla_likert:
+                            pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                            pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                            pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                        
+                        bytes_auditoria = pdf_auditoria.output()
+                        
+                        st.download_button(
+                            label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
+                            data=bytes(bytes_auditoria),
+                            file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '_')}_{datetime.date.today()}.pdf",
+                            mime="application/pdf",
+                            key="btn_download_admin_pdf"
+                        )
+                except Exception as e:
+                    st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
 
-if name == "main":
-main()
+# Guardia de ejecución principal para el ecosistema web de Streamlit
+if __name__ == "__main__":
+    main()
