@@ -711,7 +711,7 @@ for i in range(1, 11):
             c_idx += 1
             
     # SOLUCIÓN: El return debe tener exactamente 4 espacios desde el margen izquierdo
-return banco_alterno
+        return banco_alterno
 
 
 ### 🍊 Parte 10.5 de 13: Pasarela Transaccional Independiente (Anti-Indentation Fix)
