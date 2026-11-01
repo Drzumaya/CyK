@@ -697,10 +697,65 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.info(tx["fields_msg"])
 
 # =================================================================
-# PARTE 11: PUNTO DE ENTRADA CENTRAL, COMPONENTES INTERACTIVOS Y CONFIGURACIÓN QR
+# PARTE 11: MOTOR ONTOLÓGICO PARA ADAPTACIÓN DE SALUD INTEGRAL
+# =================================================================
+def algoritmo_generar_gajos_salud(lang_key):
+    tx_pool = DICCIONARIO_IDIOMAS.get(lang_key, DICCIONARIO_IDIOMAS["Español"])
+    audiencia = st.session_state.get("audiencia_activa", "Docentes").strip()
+    aud_lower = audiencia.lower()
+
+    # Mapeo ontológico de síntomas y lenguaje por ciclo de vida o profesión
+    if any(k in aud_lower for k in ["niño", "niña", "infant", "párvulo"]):
+        return {
+            "💪 Salud Física": ["Mala alimentación / dulces", "Poco sueño / berrinches", "Juegos muy sedentarios", "Cansancio al jugar"],
+            "🧠 Salud Mental": ["Falta de atención en clases", "Pesadillas o miedos", "Exceso de pantallas / tablet", "Distracción constante"],
+            "❤️ Salud Emocional": ["Enojo reactivo o rabietas", "Timidez extrema", "Llanto frecuente", "Inseguridad con amiguitos"],
+            "👥 Salud Social": ["Peleas en el recreo", "Dificultad para compartir", "Aislamiento en los juegos", "No sigue reglas de grupo"],
+            "💰 Salud Económica": ["No cuida sus útiles escolares", "Pide juguetes compulsivamente", "Maltrata su ropa o calzado", "Desperdicia la colación"],
+            "⏳ Salud Temporal": ["Le cuesta seguir horarios", "Procrastina su tarea por jugar", "Se le va el tiempo en pantallas", "Crisis al cambiar de actividad"],
+            "🙏 Salud Espiritual": ["Falta de asombro por la creación", "No asiste a actividades de fe", "Desconexión con valores básicos", "Desinterés por historias morales"]
+        }
+    elif any(k in aud_lower for k in ["adulto mayor", "anciano", "geriat", "abuelo", "jubilado"]):
+        return {
+            "💪 Salud Física": ["Nutrición baja en nutrientes", "Insomnio crónico", "Dolores articulares / sedentarismo", "Fatiga o debilidad muscular"],
+            "🧠 Salud Mental": ["Olvidos recurrentes", "Niebla mental o confusión", "Falta de retos cognitivos", "Falta de concentración"],
+            "❤️ Salud Emocional": ["Sentimiento de soledad o tristeza", "Ansiedad por el futuro", "Apatía generalizada", "Irritabilidad por dolores"],
+            "👥 Salud Social": ["Poco contacto con familiares", "Aislamiento vecinal", "Falta de una red de apoyo activa", "Pocas actividades grupales"],
+            "💰 Salud Económica": ["Preocupación por pensión / jubilación", "Gastos excesivos en medicinas", "Falta de previsión médica extrema", "Dependencia financiera estresante"],
+            "⏳ Salud Temporal": ["Rutinas monótonas o vacías", "Sensación de tiempo estancado", "Falta de un horario dinámico", "Postergación de citas médicas"],
+            "🙏 Salud Espiritual": ["Pérdida de esperanza", "Desconexión con su comunidad de fe", "Miedo al final de la vida", "Falta de propósito en la vejez"]
+        }
+    elif any(k in aud_lower for k in ["medico", "doctor", "enfermer", "hospital", "clinica", "imss", "issste"]):
+        return {
+            "💪 Salud Física": ["Alimentación a deshoras por guardias", "Privación crónica de sueño", "Sedentarismo administrativo", "Fatiga corporal extrema"],
+            "🧠 Salud Mental": ["Niebla mental por sobrecarga", "Pensamientos rumiativos de casos", "Apatía cognitiva por agotamiento", "Dificultad para mantener el foco"],
+            "❤️ Salud Emocional": ["Síndrome de Burnout agudo", "Irritabilidad con pacientes", "Desmotivación institucional", "Inestabilidad anímica por estrés"],
+            "👥 Salud Social": ["Abandono de vida familiar", "Conflictos por guardias", "Falta de red de apoyo e interprofesional", "Límites débiles con el trabajo"],
+            "💰 Salud Económica": ["Gastos reactivos por estrés", "Deudas por estilo de vida médico", "Falta de fondo de contingencia", "Ansiedad por ingresos institucionales"],
+            "⏳ Salud Temporal": ["Sobrecarga de turnos", "Falta crónica de tiempo libre", "Impuntualidad en citas personales", "Cero margen de descanso real"],
+            "🙏 Salud Espiritual": ["Desensibilización ante el sufrimiento", "Desconexión interna", "Pérdida del sentido de vocación", "Vacío existencial post-guardia"]
+        }
+    elif any(k in aud_lower for k in ["iasd", "iglesia", "adventista", "ministerio", "pastor", "clero", "fe"]):
+        return {
+            "💪 Salud Física": ["Alimentación desbalanceada en viajes", "Agotamiento físico por eventos", "Poco descanso nocturno", "Falta de ejercicio"],
+            "🧠 Salud Mental": ["Saturación por consejería", "Cansancio mental teológico", "Niebla mental por multitarea", "Falta de foco en el estudio personal"],
+            "❤️ Salud Emocional": ["Desgaste por empatía extrema", "Estrés por expectativas del rebaño", "Desmotivación oculta", "Presión ministerial aguda"],
+            "👥 Salud Social": ["Falta de privacidad familiar", "Conflictos en la junta de iglesia", "Ausencia de amigos de confianza", "Límites débiles entre casa e iglesia"],
+            "💰 Salud Económica": ["Ansiedad por sustento familiar", "Administración deficiente de recursos", "Falta de fondo de emergencia", "Estrés presupuestal"],
+            "⏳ Salud Temporal": ["Activismo eclesiástico excesivo", "Invasión del tiempo de descanso", "Procrastinación por sobrecarga", "Falta de margen los fines de semana"],
+            "🙏 Salud Espiritual": ["Hacer el ministerio en fuerzas humanas", "Falta de devoción personal real", "Apatía ante la oración", "Pérdida de visión misionera"]
+        }
+    else:
+        # Fallback general para Docentes, TELMEX, ITAP y Profesionales tradicionales
+        return tx_pool.get("gajos_data", DICCIONARIO_IDIOMAS["Español"]["gajos_data"])
+
+# =================================================================
+# PARTE 12: ORQUESTRACIÓN CENTRAL, RECUPERACIÓN HISTÓRICA Y QR DYNAMIC
 # =================================================================
 def main():
-    # Inicialización síncrona local de variables raíz
+    # Inicialización local de variables globales de red
+    global token_actual, es_celular_del_publico, url_con_token, token_tiempo
+
     minuto_actual = int(time.time() // 60)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
     
@@ -738,13 +793,11 @@ def main():
                         df_check = pd.DataFrame(registros)
                         if token_actual in [str(r.get(df_check.columns[-1], "")) for r in registros]: 
                             acceso_bloqueado = True
-                except Exception: 
-                    pass
+                except Exception: pass
         if acceso_bloqueado:
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-    # Capa de traducción i18n del formulario activo
     if not st.session_state.flujo_finalizado:
         idioma_sel = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
@@ -755,7 +808,6 @@ def main():
         idioma_sel = "Español"
         tx = DICCIONARIO_IDIOMAS["Español"]
 
-    # Consola administrativa lateral para el ponente en vivo
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     if not es_celular_del_publico:
         with st.sidebar:
@@ -766,17 +818,16 @@ def main():
                     if input_password == PASSWORD_SISTEMA:
                         st.session_state.admin_autenticado = True
                         st.rerun()
-                    else:
-                        st.error("Contraseña incorrecta.")
+                    else: st.error("Contraseña incorrecta.")
             else:
                 st.success("Modo Ponente Activo")
                 nueva_aud_txt = st.text_input("➕ Agregar Nueva Audiencia Personalizada:", key="add_new_aud_input").strip()
                 lista_audiencias_base = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-                if "audiencias_custom_list" not in st.session_state:
-                    st.session_state.audiences_custom_list = []
+                if "audiencias_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
                 if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiences_custom_list:
                     st.session_state.audiences_custom_list.append(nueva_aud_txt)
                     st.toast(f"Audiencia '{nueva_aud_txt}' añadida a la sesión", icon="🍊")
+                
                 lista_audiencias_completa = lista_audiencias_base + st.session_state.audiences_custom_list
                 seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias_completa, index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0)
                 if seleccion != st.session_state.audiencia_activa:
@@ -785,7 +836,7 @@ def main():
                         conectar_google_sheets(seleccion)
                     st.rerun()
 
-        # Proyección adaptativa libre de advertencias del código QR
+        # Proyección adaptativa del QR
         titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
         sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
         sub_qr2 = tx.get("qr_sub2", DICCIONARIO_IDIOMAS["Español"]["qr_sub2"])
@@ -803,8 +854,9 @@ def main():
                 st.write(f"### Audiencia Proyectada en Vivo: {st.session_state.audiencia_activa}")
                 st.write(sub_qr1)
                 st.write(sub_qr2)
+
 # =================================================================
-# PARTE 12: RENDERIZADO ISOMÓRFICO DEL FORMULARIO Y CAPTURA DE REACTIVOS
+# PARTE 13: FORMULARIO INTERACTIVO ADAPTADO Y RECONSTRUCCIÓN HISTÓRICA GENERAL
 # =================================================================
     if not st.session_state.flujo_finalizado:
         st.header(f"📋 {st.session_state.audiencia_activa}")
@@ -818,18 +870,20 @@ def main():
         if not es_modo_likert:
             st.write(tx["mand_title"])
             st.write(tx["mand_subtitle"])
-            gajos_dinamicos = tx.get("gajos_data", DICCIONARIO_IDIOMAS["Español"]["gajos_data"])
+            
+            # EJECUCIÓN DEL NUEVO MOTOR ADAPTATIVO ONTOLÓGICO PARA SALUD INTEGRAL
+            gajos_dinamicos = algoritmo_generar_gajos_salud(idioma_sel)
             
             for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
                     col1, col2 = st.columns(2)
                     with col1:
-                        cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
-                        cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
+                        cb0 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_0")
+                        cb1 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_1")
                     with col2:
-                        cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
-                        cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
+                        cb2 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_2")
+                        cb3 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_3")
                     resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                     
             if st.button("Procesar Alertas Base / Register Alerts", key="btn_register_alerts_gajos"):
@@ -870,16 +924,13 @@ def main():
                 etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
                 resultados_totales[f"R{r_id}"] = st.radio(
                     "Scale:",
-                    options=[1, 2, 3, 4, 5],
+                    options=,
                     format_func=lambda x: etiquetas_likert.get(x, str(x)),
                     key=f"dyn_r_{r_id}"
                 )
 
-        # Invocación limpia y desacoplada de la pasarela de botones para evitar desbordamientos de sangría
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
-# =================================================================
-# PARTE 13: PANTALLA DE CIERRE, MÓDULO DOCTORAL SEMDEEP Y GUARDIA MAIN
-# =================================================================
+        
     else:
         nombre = ""
         whatsapp = ""
@@ -897,7 +948,7 @@ def main():
                 st.session_state.flujo_finalizado = False
                 st.rerun()
 
-    # MÓDULO CENTRAL AVANZADO: OFICINA DE INVESTIGACIÓN ALTA AUDITORÍA
+    # RECONSTRUCCIÓN HISTÓRICA CON EXTRACCIÓN DIRECTA EN GOOGLE SHEETS
     if st.session_state.admin_autenticado and not es_celular_del_publico:
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
@@ -926,13 +977,12 @@ def main():
                     if not todas_las_filas or len(todas_las_filas) < 2:
                         st.warning("⚠️ La tabla seleccionada no contiene registros o datos suficientes para la auditoría.")
                     else:
-                        encabezados = todas_las_filas[0]
+                        encabezados = todas_las_filas
                         datos_cuerpo = todas_las_filas[1:]
                         encabezados_unicos = []
                         for i, col in enumerate(encabezados):
                             nombre_col = col.strip() if col.strip() else f"Columna_{i}"
-                            if nombre_col in encabezados_unicos:
-                                nombre_col = f"{nombre_col}_{i}"
+                            if nombre_col in encabezados_unicos: nombre_col = f"{nombre_col}_{i}"
                             encabezados_unicos.append(nombre_col)
                         df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
                         st.success(f"¡Base de datos cargada exitosamente! Registros analizados: {len(df_doc)}")
@@ -944,8 +994,7 @@ def main():
                             if not es_tabla_likert:
                                 col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
                                 promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
-                                if promedios: 
-                                    st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
+                                if promedios: st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
                             else:
                                 r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
                                 if len(r_cols) >= 10:
@@ -953,50 +1002,43 @@ def main():
                                     k_mean = np.mean(matriz_r[:, 0::2])
                                     c_mean = np.mean(matriz_r[:, 1::2])
                                     st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
-                                else:
-                                    st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
+                                else: st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
                         with col_graph2:
                             st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                             res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-                            st.json(res_sem)
+st.json(res_sem)
+st.markdown("---")
+st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
+pdf_auditoria = FPDF()
+pdf_auditoria.add_page()
+pdf_auditoria.set_font("Helvetica", "B", 14)
+pdf_auditoria.set_text_color(230, 81, 0)
+pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
+pdf_auditoria.set_font("Helvetica", "", 10)
+pdf_auditoria.set_text_color(100, 100, 100)
+pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+pdf_auditoria.ln(5)
+pdf_auditoria.set_font("Helvetica", "B", 11)
+pdf_auditoria.set_text_color(50, 50, 50)
+pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
+if es_tabla_likert:
+pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+bytes_auditoria = pdf_auditoria.output()
+st.download_button(
+label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
+data=bytes(bytes_auditoria),
+file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '')}{datetime.date.today()}.pdf",
+mime="application/pdf",
+key="btn_download_admin_pdf"
+)
+except Exception as e:
+st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
 
-                        st.markdown("---")
-                        st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
-                        
-                        pdf_auditoria = FPDF()
-                        pdf_auditoria.add_page()
-                        pdf_auditoria.set_font("Helvetica", "B", 14)
-                        pdf_auditoria.set_text_color(230, 81, 0)
-                        pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
-                        pdf_auditoria.set_font("Helvetica", "", 10)
-                        pdf_auditoria.set_text_color(100, 100, 100)
-                        pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
-                        pdf_auditoria.ln(5)
-                        
-                        pdf_auditoria.set_font("Helvetica", "B", 11)
-                        pdf_auditoria.set_text_color(50, 50, 50)
-                        pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
-                        pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
-                        
-                        if es_tabla_likert:
-                            pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-                            pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-                            pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-                        
-                        pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-                        
-                        bytes_auditoria = pdf_auditoria.output()
-                        
-                        st.download_button(
-                            label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
-                            data=bytes(bytes_auditoria),
-                            file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '_')}_{datetime.date.today()}.pdf",
-                            mime="application/pdf",
-                            key="btn_download_admin_pdf"
-                        )
-                except Exception as e:
-                    st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
+#Guardia de ejecución principal para el ecosistema web de Streamlit
 
-# Guardia de ejecución principal reglamentaria en el entorno de Python
-if __name__ == "__main__":
-    main()
+if name == "main":
+main()
