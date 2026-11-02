@@ -693,7 +693,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.caption("Complete los campos obligatorios para activar el canal WhatsApp.")
 
 # =================================================================
-# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES (BATCH)
+# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES (133 IDIOMAS)
 # =================================================================
 def algoritmo_generar_gajos_salud(codigo_idioma="es"):
     """
@@ -713,7 +713,7 @@ def algoritmo_generar_gajos_salud(codigo_idioma="es"):
             bloque_plano_a_traducir.append(clean_dim)
             bloque_plano_a_traducir.extend(sintomas)
             
-        # Un solo disparo de red para las 7 dimensiones y 28 síntomas
+        # Una sola petición por lote para las 7 dimensiones y 28 síntomas
         bloque_traducido = traducir_lote_neuronal_master(bloque_plano_a_traducir, codigo_idioma)
         
         gajos_traducidos = {}
@@ -735,7 +735,7 @@ def algoritmo_generar_gajos_salud(codigo_idioma="es"):
 
 def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, codigo_idioma="es"):
     """
-    Traduce en un solo lote la batería completa de reactivos C&K.
+    Traduce en un solo lote la batería completa de reactivos C&K de forma síncrona.
     """
     banco_base_es = [
         f"Capturo con gran agilidad oportunidades estrategicas en {contexto_geo}.",
