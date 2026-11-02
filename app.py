@@ -1092,7 +1092,13 @@ def main():
                     datos_sinteticos = []
                     for u in range(10):
                         row = [str(datetime.datetime.now()), f"Control_User_{u}", "+5200000000", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
-                        row +=  if u % 2 == 0 else 
+                        
+                        # CORRECCIÓN DEFINITIVA: Bloque condicional explícito e inmune a fallas de sintaxis
+                        if u % 2 == 0:
+                            row += [5, 4, 5, 4, 5, 2, 1, 2, 1, 2]  # Simulación de altas en un modelo y bajas en otro
+                        else:
+                            row += [2, 5, 1, 4, 2, 5, 4, 5, 4, 5]  # Simulación cruzada inversa para generar varianza real
+                            
                         row += ["Token_Control"]
                         datos_sinteticos.append(row)
                     df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
@@ -1150,7 +1156,7 @@ def main():
                         
                         def calcular_cronbach(matriz_items):
                             try:
-                                n_items = matriz_items.shape
+                                n_items = matriz_items.shape[1]
                                 if n_items <= 1: return 0.0
                                 varianzas_items = np.var(matriz_items, axis=0, ddof=1)
                                 varianza_total = np.var(np.sum(matriz_items, axis=1), ddof=1)
@@ -1206,6 +1212,7 @@ def main():
                     mime="application/pdf",
                     key="btn_download_admin_pdf"
                 )
+
 
 # Guardia de ejecución principal para el ecosistema web de Streamlit
 if __name__ == "__main__":
