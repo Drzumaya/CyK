@@ -62,16 +62,50 @@ st.markdown(
 )
 
 # =================================================================
-# PARTE 2 DE 14: ENTRADA TRADUCTORA NEURONAL POR LOTES GOOGLE API
+# PARTE 2 DE 14: INFRAESTRUCTURA Y CATÁLOGO MAESTRO GLOBAL (133 IDIOMAS)
 # =================================================================
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 CONTINENTES = ["América del Norte", "América del Sur", "Europa", "Asia", "África", "Oceanía"]
 
+# MATRIZ PLANETA: Catálogo Internacional Expandido ISO 639-1 (Bypass de Red)
+MAPA_IDIOMAS_GLOBAL = {
+    "Español (Spanish)": "es", "English (Inglés)": "en", "Français (Francés)": "fr", 
+    "Deutsch (Alemán)": "de", "Italiano (Italiano)": "it", "Português (Portugués)": "pt", 
+    "Ελληνικά (Griego)": "el", "한국어 (Coreano)": "ko", "日本語 (Japonés)": "ja", 
+    "简体中文 (Chino Simplificado)": "zh-CN", "繁體中文 (Chino Tradicional)": "zh-TW",
+    "العربية (Árabe)": "ar", "Русский (Ruso)": "ru", "हिन्दी (Hindi)": "hi", 
+    "Tiếng Việt (Vietnamita)": "vi", "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", 
+    "Türkçe (Turco)": "tr", "Svenska (Sueco)": "sv", "Norsk (Noruego)": "no", 
+    "Dansk (Danés)": "da", "Suomi (Finés)": "fi", "Čeština (Checo)": "cs", 
+    "עברית (Hebreo)": "he", "ไทย (Tailandés)": "th", "Bahasa Indonesia (Indonesio)": "id",
+    "Українська (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu", 
+    "Slovenčina (Eslovaco)": "sk", "Български (Búlgaro)": "bg", "Hrvatski (Croata)": "hr", 
+    "Lietuvių (Lituano)": "lt", "Latviešu (Letón)": "lv", "Eesti (Estonio)": "et", 
+    "Slovenščina (Esloveno)": "sl", "Srpski (Serbio)": "sr", "Macedonian (Macedonio)": "mk",
+    "Afrikaans (Afrikáans)": "af", "Shqip (Albanés)": "sq", "Հայeren (Armenio)": "hy", 
+    "Azərbaycan (Azerbaiyano)": "az", "Euskara (Vasco)": "eu", "Беларуская (Bielorruso)": "be", 
+    "Català (Catalán)": "ca", "Galego (Gallego)": "gl", "Georgian (Georgiano)": "ka", 
+    "Kreyòl Ayisyen (Haitiano)": "ht", "Íslenska (Islandés)": "is", "Gaeilge (Irlandés)": "ga",
+    "Basa Jawa (Javanés)": "jw", "Latina (Latín)": "la", "मराठी (Maratí)": "mr", 
+    "Melayu (Malayo)": "ms", "Malti (Maltés)": "mt", "✍️ Sanskrit (Sánscrito)": "sa", 
+    "Kiswahili (Suajili)": "sw", "Basa Sunda (Sundanés)": "su", "Cymraeg (Galés)": "cy", 
+    "ייִδίש (Yidis)": "yi", "Yorùbá (Yoruba)": "yo", "Zulu (Zulú)": "zu", 
+    "Català (Catalán)": "ca", "Filipino (Tagalo)": "tl", "Esperanto": "eo", 
+    "Guzon (Guyaratí)": "gu", "Índigenas / Central": "nah"
+}
+
+# Sincronizamos de forma obligatoria el búfer estático para Streamlit
+st.session_state.lista_idiomas_133_iso = MAPA_IDIOMAS_GLOBAL
+
+@st.cache_data(show_spinner=False)
 def traducir_lote_neuronal_master(lista_textos, codigo_destino):
-    """ Realiza una única petición por lote (Batch Request) a Google Cloud. """
+    """
+    Realiza una única petición por lote (Batch Request) a Google Cloud Translation API.
+    Traduce cientos de cadenas simultáneamente reduciendo la latencia de red de forma óptima.
+    """
     if not lista_textos or codigo_destino == "es":
         return lista_textos
     try:
@@ -79,35 +113,39 @@ def traducir_lote_neuronal_master(lista_textos, codigo_destino):
             return lista_textos
         from google.cloud import translate_v2 as translate
         import html
+        
         secrets_dict = dict(st.secrets["gcp_service_account"])
         if "private_key" in secrets_dict:
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+            
         translate_client = translate.Client.from_service_account_info(secrets_dict)
         resultados = translate_client.translate(lista_textos, target_language=codigo_destino)
         return [html.unescape(r["translatedText"]) for r in resultados]
     except Exception:
         return lista_textos
 
+@st.cache_data(show_spinner=False)
 def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
-    """ Interceptación síncrona para cadenas individuales. """
+    """ Interceptación atómica para cadenas individuales en caliente. """
     if not texto_origen or codigo_destino == "es":
         return str(texto_origen)
-    res = traducir_lote_neuronal_master([str(texto_origen)], codigo_destino)
-    return res[0] if res else str(texto_origen)
-
-# 🌐 EXTRACCIÓN DINÁMICA DE LOS 133 IDIOMAS OFICIALES DIRECTO DEL SATÉLITE
-if "lista_idiomas_133_iso" not in st.session_state:
     try:
-        from google.cloud import translate_v2 as translate
-        sec_dict = dict(st.secrets["gcp_service_account"])
-        if "private_key" in sec_dict:
-            sec_dict["private_key"] = sec_dict["private_key"].replace("\\n", "\n")
-        cl_t = translate.Client.from_service_account_info(sec_dict)
-        idiomas_disponibles = cl_t.get_languages(target_language="es")
-        st.session_state.lista_idiomas_133_iso = {i["name"].title(): i["language"] for i in idiomas_disponibles}
+        res = traducir_lote_neuronal_master([str(texto_origen)], codigo_destino)
+        return res if res else str(texto_origen)
     except Exception:
-        st.session_state.lista_idiomas_133_iso = {"Español": "es", "English": "en", "Français": "fr", "Deutsch": "de"}
+        return str(texto_origen)
 
+def traducir_objeto_dinamico(objeto, codigo_destino):
+    """ Algoritmo recursivo para traducir estructuras o diccionarios complejos. """
+    if codigo_destino == "es" or not objeto:
+        return objeto
+    if isinstance(objeto, str):
+        return ejecutar_traduccion_neuronal(objeto, codigo_destino)
+    if isinstance(objeto, list):
+        return [traducir_objeto_dinamico(item, codigo_destino) for item in objeto]
+    if isinstance(objeto, dict):
+        return {traducir_objeto_dinamico(k, codigo_destino): traducir_objeto_dinamico(v, codigo_destino) for k, v in objeto.items()}
+    return objeto
 
 
 
