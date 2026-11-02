@@ -1076,8 +1076,8 @@ def main():
                 st.progress(int(pct_cronos))
         else:
             st.info("La tabla de Salud Integral no escala vectores proporcionales C/K.")
-        # =================================================================
-        # PARTE 13: INSPECCIÓN CRUDA, COMPILACIÓN DOCTORAL Y GUARDIA MAIN (TRAMO 3)
+                # =================================================================
+        # PARTE 13: INSPECCIÓN CRUDA, COMPILACIÓN DOCTORAL Y GUARDIA MAIN (TRAMO 3 - FIXED)
         # =================================================================
         st.markdown("---")
         st.subheader(f"📊 Inspección de Base de Datos Cruda: {tabla_analizar}")
@@ -1087,6 +1087,10 @@ def main():
         st.markdown("---")
         if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
             if df_doc is not None and len(df_doc) >= 2:
+                # INSTANCIACIÓN PRIORITARIA: Se declara la variable al inicio del botón para erradicar el NameError de raíz
+                pdf_auditoria = FPDF()
+                pdf_auditoria.add_page()
+                
                 col_graph1, col_graph2 = st.columns(2)
                 with col_graph1:
                     st.write("#### 📈 Distribución Descriptiva Global")
@@ -1133,8 +1137,7 @@ def main():
                 st.markdown("---")
                 st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
                 
-                pdf_auditoria = FPDF()
-                pdf_auditoria.add_page()
+                # Configuración de estilos del PDF institucional
                 pdf_auditoria.set_font("Helvetica", "B", 14)
                 pdf_auditoria.set_text_color(230, 81, 0)
                 pdf_auditoria.cell(0, 10, "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO", new_x="LMARGIN", new_y="NEXT", align="C")
@@ -1212,7 +1215,7 @@ def main():
                 txt_nota = (
                     "Nota Cientifica de Validacion: Este reporte fue compiled empleando Descomposicion en Valores Singulares (SVD) "
                     "y Factorizacion Ortogonal de Matrices Centradas. En caso de procesar muestras de control simuladas de baja "
-                    "varianza, el R2 tendera de manera determinista a 1.000 y la covarianza a 1.000 como reflejo de simetria algebraica. "
+"varianza, el R2 tendera de manera determinista a 1.000 y la covarianza a 1.000 como reflejo de simetria algebraica. "
 "Para validez externa indexada, se recomienda contrastar estos coeficientes de ruta con muestras reales N > 30."
 )
 pdf_auditoria.multi_cell(0, 5, txt_nota)
@@ -1225,8 +1228,7 @@ mime="application/pdf",
 key="btn_download_admin_pdf_final_maestro"
 )
 
-# Guardia de ejecución principal reglamentaria en el entorno de Python
+Guardia de ejecución principal reglamentaria en el entorno de Python
 
 if name == "main":
     main()
-
