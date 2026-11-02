@@ -1204,8 +1204,8 @@ def main():
                 file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '')}{datetime.date.today()}.pdf",
                 mime="application/pdf",
                 key="btn_download_admin_pdf"
-                        )
-                        )
+                      )
+                       
                 except Exception as e:
                     st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
 
