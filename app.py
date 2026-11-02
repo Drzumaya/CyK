@@ -87,8 +87,7 @@ MAPA_IDIOMAS_GLOBAL = {
     "Georgian (Georgiano)": "ka", "Kreyòl Ayisyen (Haitiano)": "ht", "Íslenska (Islandés)": "is", "Gaeilge (Irlandés)": "ga",
     "Basa Jawa (Javanés)": "jw", "Latina (Latín)": "la", "मराठी (Maratí)": "mr", "Melayu (Malayo)": "ms",
     "Malti (Maltés)": "mt", "✍️ (Sánscrito)": "sa", "Kiswahili (Suajili)": "sw", "Basa Sunda (Sundanés)": "su",
-    "Cymraeg (Galés)": "cy", "ייִδίש (Yidis)": "yi", "Yorùbá (Yoruba)": "yo", "Zulu (Zulú)": "zu",
-    "Índigenas / Central": "nah"
+    "Cymraeg (Galés)": "cy", "ייִδίש (Yidis)": "yi", "Yorùbá (Yoruba)": "yo", "Zulu (Zulú)": "zu"
 }
 
 @st.cache_data(show_spinner=False)
@@ -110,11 +109,24 @@ def traducir_lote_neuronal_master(lista_textos, codigo_destino):
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
             
         translate_client = translate.Client.from_service_account_info(secrets_dict)
-        # Un solo disparo HTTP síncrono para optimizar el canal
         resultados = translate_client.translate(lista_textos, target_language=codigo_destino)
         return [html.unescape(r["translatedText"]) for r in resultados]
     except Exception:
         return lista_textos
+
+@st.cache_data(show_spinner=False)
+def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
+    """
+    Función de interceptación atómica para cadenas individuales.
+    Garantiza compatibilidad con las llamadas directas de la interfaz.
+    """
+    if not texto_origen or codigo_destino == "es":
+        return str(texto_origen)
+    try:
+        res = traducir_lote_neuronal_master([str(texto_origen)], codigo_destino)
+        return res[0] if res else str(texto_origen)
+    except Exception:
+        return str(texto_origen)
 
 def traducir_objeto_dinamico(objeto, codigo_destino):
     """
@@ -124,12 +136,13 @@ def traducir_objeto_dinamico(objeto, codigo_destino):
     if codigo_destino == "es" or not objeto:
         return objeto
     if isinstance(objeto, str):
-        return traducir_lote_neuronal_master([objeto], codigo_destino)[0]
+        return ejecutar_traduccion_neuronal(objeto, codigo_destino)
     if isinstance(objeto, list):
         return [traducir_objeto_dinamico(item, codigo_destino) for item in objeto]
     if isinstance(objeto, dict):
         return {traducir_objeto_dinamico(k, codigo_destino): traducir_objeto_dinamico(v, codigo_destino) for k, v in objeto.items()}
     return objeto
+
 
 
 # =================================================================
