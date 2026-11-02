@@ -62,7 +62,7 @@ st.markdown(
 )
 
 # =================================================================
-# PARTE 2 DE 14: INFRAESTRUCTURA DE TRADUCCIÓN NEURONAL GLOBAL ISO
+# PARTE 2 DE 14: INFRAESTRUCTURA DE TRADUCCIÓN NEURONAL POR LOTES ISO
 # =================================================================
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
@@ -79,47 +79,34 @@ MAPA_IDIOMAS_GLOBAL = {
     "Tiếng Việt (Vietnamita)": "vi", "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", "Türkçe (Turco)": "tr",
     "Svenska (Sueco)": "sv", "Norsk (Noruego)": "no", "Dansk (Danés)": "da", "Suomi (Finés)": "fi", 
     "Čeština (Checo)": "cs", "עברית (Hebreo)": "he", "ไทย (Tailandés)": "th", "Bahasa Indonesia (Indonesio)": "id",
-    "Українська (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu", "Slovenčina (Eslovaco)": "sk",
-    "Български (Búlgaro)": "bg", "Hrvatski (Croata)": "hr", "Lietuvių (Lituano)": "lt", "Latviešu (Letón)": "lv",
-    "Eesti (Estonio)": "et", "Slovenščina (Esloveno)": "sl", "Srpski (Serbio)": "sr", "Macedonian (Macedonio)": "mk"
+    "Ukrainska (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu", "Slovenčina (Eslovaco)": "sk"
 }
 
 @st.cache_data(show_spinner=False)
-def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
+def traducir_lote_neuronal_master(lista_textos, codigo_destino):
     """
-    Conecta con la API Neuronal de Google Cloud Translation de forma síncrona.
-    Mantiene caché interna en Streamlit para operar a costo cero ($0.00 USD).
+    Realiza una única petición por lote (Batch Request) a Google Cloud Translation.
+    Traduce cientos de cadenas simultáneamente reduciendo la latencia a milisegundos.
     """
-    if not texto_origen or codigo_destino == "es":
-        return str(texto_origen)
+    if codigo_destino == "es" or not lista_textos:
+        return lista_textos
     try:
         if "gcp_service_account" not in st.secrets:
-            return str(texto_origen)
+            return lista_textos
         from google.cloud import translate_v2 as translate
+        import html
+        
         secrets_dict = dict(st.secrets["gcp_service_account"])
         if "private_key" in secrets_dict:
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+            
         translate_client = translate.Client.from_service_account_info(secrets_dict)
-        resultado = translate_client.translate(str(texto_origen), target_language=codigo_destino)
-        import html
-        return html.unescape(resultado["translatedText"])
+        # Petición masiva en un solo hilo de red
+        resultados = translate_client.translate(lista_textos, target_language=codigo_destino)
+        return [html.unescape(r["translatedText"]) for r in resultados]
     except Exception:
-        return str(texto_origen)
+        return lista_textos
 
-def traducir_objeto_dinamico(objeto, codigo_destino):
-    """
-    Algoritmo recursivo de alta escuela. Traduce automáticamente cualquier tipo de dato
-    (cadenas, listas o diccionarios) al idioma destino bajo demanda de la API.
-    """
-    if codigo_destino == "es" or not objeto:
-        return objeto
-    if isinstance(objeto, str):
-        return ejecutar_traduccion_neuronal(objeto, codigo_destino)
-    if isinstance(objeto, list):
-        return [traducir_objeto_dinamico(item, codigo_destino) for item in objeto]
-    if isinstance(objeto, dict):
-        return {traducir_objeto_dinamico(k, codigo_destino): traducir_objeto_dinamico(v, codigo_destino) for k, v in objeto.items()}
-    return objeto
 
 # =================================================================
 # PARTE 3 DE 14: DICCIONARIO BASE DE LLAVES MAESTRAS SÍNCRONAS
@@ -450,107 +437,69 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
 
 
 # =================================================================
-# PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (TRAMO 1 - MULTILINGÜE)
-# =================================================================
-def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
-    """
-    Renderiza de manera exclusiva y asimétrica los gajos con alertas activas
-    bajo el formato y la jerarquía de tablas del estilo académico minimalista.
-    Sincroniza dinámicamente el glosario según el idioma activo del participante.
-    """
-    pdf.set_font(style="B", size=11)
-    pdf.set_text_color(50, 50, 50)
-    
-    # Selector de encabezado traducido
-    tit_alertas = "Vectores de Atención Crítica Detectados" if lang == "Español" else ("Critical Well-being Alerts Detected" if lang == "Inglés" else "Ανιχνεύθηκαν Κρίσιμες Ειδοποιήσεις Ευεξίας")
-    pdf.cell(190, 7, limpiar_texto_pdf(tit_alertas, lang), new_x="LMARGIN", new_y="NEXT")
-    pdf.ln(2)
-    
-    # Glosario Clínico Universal indexado por posición para romper la dependencia de cadenas fijas
-    glosario_clinico_universal = {
-        0: { # Física
-            "Español": {"sig": "Indica un desgaste en los pilares basicos de energia corporal, afectando la homeostasis debido a privacion de sueno, sedentarismo o nutricion deficiente.", "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activacion cardiovascular diaria."},
-            "Inglés": {"sig": "Indicates a depletion of core body energy pillars, affecting homeostasis due to sleep deprivation, sedentary lifestyle, or poor nutrition.", "rec": "Establish a non-negotiable sleep schedule, plan balanced snacks, and engage in at least 15 minutes of daily cardiovascular activation."},
-            "Griego": {"sig": "Υποδεικνύει εξάντληση των βασικών πυλώνων σωματικής ενέργειας, επηρεάζοντας την ομοιόσταση λόγω έλλειψης ύπνου ή κακής διατροφής.", "rec": "Καθιερώστε ένα αδιαπραγμάτευτο πρόγραμμα ύπνου, προγραμματίστε ισορροπημένα γεύματα και κάντε 15 λεπτά καρδιαγγειακής άσκησης καθημερινά."}
-        },
-        1: { # Mental
-            "Español": {"sig": "Representa una saturacion cognitiva severa, perdida de enfoque, niebla mental o procesamiento rumiativo de informacion que merma la agilidad mental.", "rec": "Aplica tecnicas de ayuno digital de pantallas, practica la focalizacion en una sola tarea a la vez y disena pausas de silencio mental entre jornadas."},
-            "Inglés": {"sig": "Represents severe cognitive overload, loss of focus, brain fog, or ruminative processing of information that reduces mental agility.", "rec": "Apply digital screen fasting techniques, practice single-task focus, and design mental silence breaks between work sessions."},
-            "Griego": {"sig": "Αντιπροσωπεύει σοβαρή γνωστική υπερφόρτωση, απώλεια εστίασης, πνευματική θολότητα ή μηρυκαστική επεξεργασία πληροφοριών.", "rec": "Εφαρμόστε τεχνικές ψηφιακής νηστείας από οθόνες, εξασκηθείτε στην εστίαση σε μία μόνο εργασία και σχεδιάστε διαλείμματα πνευματικής σιωπής."}
-        },
-        2: { # Emocional
-            "Español": {"sig": "Determina una desregulacion animica reactiva, estres agudo, ansiedad latente o el sindrome de desgaste por empatia extrema (Burnout).", "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiracion diafragmatica consciente y externaliza tus emociones con redes de confianza."},
-            "Inglés": {"sig": "Determines a reactive mood dysregulation, acute stress, latent anxiety, or extreme empathy burnout syndrome.", "rec": "Monitor your irritability triggers, implement conscious diaphragmatic breathing exercises, and externalize your emotions with trusted networks."},
-            "Griego": {"sig": "Καθορίζει μια αντιδραστική απορρύθμιση της διάθεσης, οξύ στρες, λανθάνον άγχος ή σύνδρομο ακραίας επαγγελματικής εξουθένωσης.", "rec": "Παρακολουθήστε τα ερεθίσματα ευερεθιστότητας, εφαρμόστε συνειδητές ασκήσεις διαφραγματικής αναπνοής και εξωτερικεύστε τα συναισθήματά σας."}
-        },
-        3: { # Social
-            "Español": {"sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinamicas interpersonales conflictivas provocadas por la ausencia de limites claros.", "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una activity recreativa inamovible con tu red de apoyo familiar."},
-            "Inglés": {"sig": "Denotes voluntary relational isolation or the development of conflicting interpersonal dynamics caused by the absence of clear boundaries.", "rec": "Learn to say 'no' assertively to protect your private spaces and schedule an unmovable recreational activity with your family support network."},
-            "Griego": {"sig": "Υποδηλώνει εκούσια σχεσιακή απομόνωση ή την ανάπτυξη συγκρουσιακών διαπροσωπικών δυναμικών λόγω απουσίας σαφών ορίων.", "rec": "Μάθετε να λέτε 'όχι' με διεκδικητικό τρόπο για να προστατεύσετε τους ιδιωτικούς σας χώρους και προγραμματίστε μια σταθερή ψυχαγωγική δραστηριότητα."}
-        },
-        4: { # Económica
-            "Español": {"sig": "Expresa vulnerabilidad financiera sistemica, estres presupuestal agudo debido a deudas desordenadas o falta de diversificacion en fuentes de ingresos.", "rec": "Automatiza la separacion de un fondo de contingencia basico, elimina gastos hormiga reactivos and evalua proyectos de emprendimiento alternos a corto plazo."},
-            "Inglés": {"sig": "Expresses systemic financial vulnerability, acute budgetary stress due to disorganized debts, or lack of income source diversification.", "rec": "Automate the separation of a basic contingency fund, eliminate reactive petty expenses, and evaluate alternative short-term business ventures."},
-            "Griego": {"sig": "Εκφράζει συστημική οικονομική ευπάθεια, έντονο δημοσιονομικό στρες λόγω άτακτων χρεών ή έλλειψη διαφοροποίησης των πηγών εισοδήματος.", "rec": "Αυτοματοποιήστε τον διαχωρισμό ενός βασικού ταμείου έκτακτης ανάγκης, εξαλείψτε τα περιττά έξοδα και αξιολογήστε εναλλακτικά επιχειρηματικά σχέδια."}
-        },
-        5: { # Temporal
-            "Español": {"sig": "Refleja desequilibrio critico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairos), desencadenando procrastinacion o sobrecarga de tareas.", "rec": "Usa tecnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."},
-            "Inglés": {"sig": "Reflects a critical imbalance between clock time (Chronos) and seizing opportunities (Kairos), triggering procrastination or task overload.", "rec": "Use fixed time blocking techniques for your unmovable deliveries, but intentionally reserve a 20% free margin in your daily schedule."},
-            "Griego": {"sig": "Αντικατοπτρίζει μια κρίσιμη ανισορροπία μεταξύ του χρόνου του ρολογιού (Κρόνος) και της σύλληψης ευκαιριών (Καιρός), προκαλώντας αναβλητικότητα.", "rec": "Χρησιμοποιήστε τεχνικές σταθερού αποκλεισμού χρόνου για τις παραδόσεις σας, αλλά κρατήστε σκόπιμα ένα ελεύθερο περιθώριο 20% στο καθημερινό σας πρόγραμμα."}
-        },
-        6: { # Espiritual
-            "Español": {"sig": "Manifiesta un vacio existencial latente, perdida del sentido de vocacion fundamental, desconexion interna o descuido de habitos devocionales basicos.", "rec": "Dedica los primeros minutos del dia a la meditacion, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."},
-            "Inglés": {"sig": "Manifests a latent existential emptiness, loss of the sense of core vocation, internal disconnection, or neglect of basic devotional habits.", "rec": "Dedicate the first minutes of the day to meditation, prayer, and values reflection, and intentionally reconnect with service activities."},
-            "Griego": {"sig": "Εκδηλώνει ένα λανθάνον υπαρξιακό κενό, απώλεια της αίσθησης της βασικής αποστολής, εσωτερική αποσύνδεση ή παραμέληση βασικών λατρευτικών συνηθειών.", "rec": "Αφιερώστε τα πρώτα λεπτά της ημέρας σε διαλογισμό, προσευχή και αναστοχασμό αξιών, και επανασυνδεθείτε σκόπιμα με δραστηριότητες προσφοράς."}
-        }
-    }
-
-# =================================================================
-# PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (NEURAL MULTILINGÜE)
+# PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (NEURAL BATCH)
 # =================================================================
 def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="es"):
     """
     Renderiza de manera exclusiva y asimétrica los gajos con alertas activas
-    bajo el formato del estilo académico minimalista herando la fuente TrueType.
+    bajo el formato del estilo académico minimalista empleando traducción por lotes.
     """
     pdf.set_font(style="B", size=11)
     pdf.set_text_color(50, 50, 50)
     
-    tit_alertas = ejecutar_traduccion_neuronal("Vectores de Atención Crítica Detectados", lang)
-    pdf.cell(190, 7, limpiar_texto_pdf(tit_alertas, lang), new_x="LMARGIN", new_y="NEXT")
+    # 1. TRADUCCIÓN COMPRENSIVA DE ELEMENTOS DE CONTROL
+    textos_control_es = [
+        "Vectores de Atencion Critica Detectados", "Dimension Evaluada", 
+        "Indicadores de vulnerabilidad reportados", "Significado del constructo", 
+        "Directriz de intervencion sugerida", "Canalizacion y Seguimiento de Caso",
+        "Nota Clinica. El ecosistema analizado se encuentra en un estado funcional optimo. No se registraron indicadores de riesgo."
+    ]
+    control_traducido = traducir_lote_neuronal_master(textos_control_es, lang)
+    
+    pdf.cell(190, 7, limpiar_texto_pdf(control_traducido[0], lang), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     
-    # Diccionario maestro de constructos clínicos originales en Español
     glosario_base = {
-        "💪 Salud Física": {"sig": "Indica un desgaste en los pilares básicos de energía corporal, afectando la homeostasis debido a privación de sueño, sedentarismo o nutrición deficiente.", "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activación cardiovascular diaria."},
-        "🧠 Salud Mental": {"sig": "Representa una saturación cognitiva severa, pérdida de enfoque, niebla mental o procesamiento rumiativo de información que merma la agilidad mental.", "rec": "Aplica técnicas de ayuno digital de pantallas, practica la focalización en una sola tarea a la vez y diseña pausas de silencio mental entre jornadas."},
-        "❤️ Salud Emocional": {"sig": "Determina una desregulación anímica reactiva, estrés agudo, ansiedad latente o el síndrome de desgaste por empatía extrema (Burnout).", "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiración diafragmática consciente y externaliza tus emociones con redes de confianza."},
-        "👥 Salud Social": {"sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinámicas interpersonales conflictivas provocadas por la ausencia de límites claros.", "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una actividad recreativa inamovible con tu red de apoyo familiar."},
-        "💰 Salud Económica": {"sig": "Expresa vulnerabilidad financiera sistémica, estrés presupuestal agudo debido a deudas desordenadas o falta de diversificación en fuentes de ingresos.", "rec": "Automatiza la separación de un fondo de contingencia básico, elimina gastos hormiga reactivos y evalúa proyectos de emprendimiento alternos a corto plazo."},
-        "⏳ Salud Temporal": {"sig": "Refleja desequilibrio crítico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairós), desencadenando procrastinación o sobrecarga de tareas.", "rec": "Usa técnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."},
-        "🙏 Salud Espiritual": {"sig": "Manifiesta un vacío existencial latente, pérdida del sentido de vocación fundamental, desconexión interna o descuido de hábitos devocionales básicos.", "rec": "Dedica los primeros minutos del día a la meditación, la oración y la reflexión de valores, y reconecta intencionalmente con actividades de servicio."}
+        "💪 Salud Física": {"sig": "Indica un desgaste en los pilares basicos de energia corporal, afectando la homeostasis debido a privacion de sueno, sedentarismo o nutricion deficiente.", "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activacion cardiovascular diaria."},
+        "🧠 Salud Mental": {"sig": "Representa una saturacion cognitiva severa, perdida de enfoque, niebla mental o procesamiento rumiativo de informacion que merma la agilidad mental.", "rec": "Aplica tecnicas de ayuno digital de pantallas, practica la focalizacion en una sola tarea a la vez y disena pausas de silencio mental entre jornadas."},
+        "❤️ Salud Emocional": {"sig": "Determina una desregulacion animica reactiva, estres agudo, ansiedad latente o el sindrome de desgaste por empatia extrema (Burnout).", "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiracion diafragmatica consciente y externaliza tus emociones con redes de confianza."},
+        "👥 Salud Social": {"sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinamicas interpersonales conflictivas provocadas por la ausencia de limites claros.", "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una activity recreativa inamovible con tu red de apoyo familiar."},
+        "💰 Salud Económica": {"sig": "Expresa vulnerabilidad financiera sistemica, estres presupuestal agudo debido a deudas desordenadas o falta de diversificacion en fuentes de ingresos.", "rec": "Automatiza la separacion de un fondo de contingencia basico, elimina gastos hormiga reactivos and evalua proyectos de emprendimiento alternos a corto plazo."},
+        "⏳ Salud Temporal": {"sig": "Refleja desequilibrio critico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairos), desencadenando procrastinacion o sobrecarga de tareas.", "rec": "Usa tecnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."},
+        "🙏 Salud Espiritual": {"sig": "Manifiesta un vacío existencial latente, perdida del sentido de vocacion fundamental, desconexion interna o descuido de habitos devocionales basicos.", "rec": "Dedica los primeros minutos del dia a la meditacion, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."}
     }
     
     gajos_dinamicos_traduccion = algoritmo_generar_gajos_salud(lang)
     algun_gajo_marcado = False
     
-    for idx_gajo, dim_original_name in enumerate(GAJOS_MANDARINA_ORIGINAL.keys()):
+    # Pre-empaquetado de todos los textos explicativos clínicos de los gajos activos para traducción en un solo bloque
+    bloque_explicativo_es = []
+    gajos_activos_claves = []
+    
+    for dim_original_name in GAJOS_MANDARINA_ORIGINAL.keys():
+        indices_alertas = resultados.get(dim_original_name, [])
+        if len(indices_alertas) > 0:
+            gajos_activos_claves.append(dim_original_name)
+            bloque_explicativo_es.append(glosario_base[dim_original_name]["sig"])
+            bloque_explicativo_es.append(glosario_base[dim_original_name]["rec"])
+            
+    # Un solo disparo de red para las explicaciones clínicas del reporte
+    bloque_explicativo_traducido = traducir_lote_neuronal_master(bloque_explicativo_es, lang)
+    
+    ptr_exp = 0
+    for dim_original_name in GAJOS_MANDARINA_ORIGINAL.keys():
         indices_alertas = resultados.get(dim_original_name, [])
         if len(indices_alertas) == 0: 
             continue
             
         algun_gajo_marcado = True
-        
-        # Traducción instantánea del bloque clínico semántico
+        idx_gajo = list(GAJOS_MANDARINA_ORIGINAL.keys()).index(dim_original_name)
         dim_traducida = list(gajos_dinamicos_traduccion.keys())[idx_gajo]
-        nodo_clinico = traducir_objeto_dinamico(glosario_base[dim_original_name], lang)
         
         pdf.set_x(10)
         pdf.set_font(style="B", size=10.5)
         pdf.set_text_color(50, 50, 50)
-        
-        lbl_dim = ejecutar_traduccion_neuronal("Dimensión Evaluada", lang)
-        pdf.cell(190, 6, limpiar_texto_pdf(f"{lbl_dim}: {dim_traducida}", lang), new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, limpiar_texto_pdf(f"{control_traducido[1]}: {dim_traducida}", lang), new_x="LMARGIN", new_y="NEXT")
         
         sintomas_origen_gajo = list(gajos_dinamicos_traduccion.values())[idx_gajo]
         sintomas_traducidos = [sintomas_origen_gajo[int(i)] for i in indices_alertas if int(i) < len(sintomas_origen_gajo)]
@@ -559,28 +508,28 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="es"):
         pdf.set_x(10)
         pdf.set_font(style="I", size=10)
         pdf.set_text_color(80, 80, 80)
+        pdf.multi_cell(190, 5, limpiar_texto_pdf(f"{control_traducido[2]}: {puntos_str}", lang), new_x="LMARGIN", new_y="NEXT")
         
-        lbl_ind = ejecutar_traduccion_neuronal("Indicadores de vulnerabilidad reportados", lang)
-        pdf.multi_cell(190, 5, limpiar_texto_pdf(f"{lbl_ind}: {puntos_str}", lang), new_x="LMARGIN", new_y="NEXT")
+        # Recuperamos la traducción del lote único
+        sig_traducida = bloque_explicativo_traducido[ptr_exp]
+        rec_traducida = bloque_explicativo_traducido[ptr_exp + 1]
+        ptr_exp += 2
         
         pdf.set_x(10)
         pdf.set_font(style="", size=9.5)
         pdf.set_text_color(60, 60, 60)
-        lbl_sig = ejecutar_traduccion_neuronal("Significado del constructo", lang)
-        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{lbl_sig}: {nodo_clinico['sig']}", lang), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{control_traducido[3]}: {sig_traducida}", lang), new_x="LMARGIN", new_y="NEXT")
         
         pdf.set_x(10)
         pdf.set_font(style="B", size=9.5)
         pdf.set_text_color(50, 50, 50)
-        lbl_rec = ejecutar_traduccion_neuronal("Directriz de intervención sugerida", lang)
-        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{lbl_rec}: {nodo_clinico['rec']}\n", lang), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{control_traducido[4]}: {rec_traducida}\n", lang), new_x="LMARGIN", new_y="NEXT")
                 
     if not algun_gajo_marcado:
         pdf.set_x(10)
         pdf.set_font(style="", size=10)
         pdf.set_text_color(40, 120, 60)
-        lbl_ok = ejecutar_traduccion_neuronal("Nota Clínica. El ecosistema analizado se encuentra en un estado funcional óptimo. No se registraron indicadores de riesgo.", lang)
-        pdf.multi_cell(190, 6, limpiar_texto_pdf(lbl_ok, lang), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 6, limpiar_texto_pdf(control_traducido[6], lang), new_x="LMARGIN", new_y="NEXT")
 
     # Cierre Institucional al pie de página
     pdf.ln(4)
@@ -589,21 +538,17 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="es"):
     pdf.set_x(10)
     pdf.set_font(style="B", size=10)
     pdf.set_text_color(50, 50, 50)
-    
-    lbl_segs = ejecutar_traduccion_neuronal("Canalización y Seguimiento de Caso", lang)
-    pdf.cell(190, 5, limpiar_texto_pdf(lbl_segs, lang), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(190, 5, limpiar_texto_pdf(control_traducido[5], lang), new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_x(10)
     pdf.set_font(style="I", size=9.5)
     pdf.set_text_color(80, 80, 80)
     
-    mensaje_apoyo_base = "El auto-reporte es el primer paso en la detección de vulnerabilidades institucionales. Si has registrado indicadores críticos en tus gajos de salud, se extiende una invitación cordial para contactar directamente al ponente para coordinar una consulta privada o asesoría personalizada para el diseño de planes de contencion oportuna."
-    mensaje_apoyo = ejecutar_traduccion_neuronal(mensaje_apoyo_base, lang)
+    mensaje_apoyo_base = "El auto-reporte es el primer paso en la deteccion de vulnerabilidades institucionales. Si has registrado indicadores criticos en tus gajos de salud, se extiende una invitacion cordial para contactar directamente al ponente para coordinar una consulta privada o asesoria personalizada para el diseno de planes de contencion oportuna."
+    mensaje_apoyo = traducir_lote_neuronal_master([mensaje_apoyo_base], lang)[0]
     pdf.multi_cell(190, 4.5, limpiar_texto_pdf(mensaje_apoyo, lang), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
-
-
 
 # =================================================================
 # PARTE 10 DE 14: PASARELA TRANSACCIONAL CON API GATEWAY DE WHATSAPP
@@ -757,29 +702,41 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.caption("Complete los campos obligatorios para activar el canal WhatsApp.")
 
 # =================================================================
-# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES
+# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES (BATCH)
 # =================================================================
 def algoritmo_generar_gajos_salud(codigo_idioma="es"):
     """
-    Traduce dinamicamente bajo demanda la estructura entera del Modelo Mandarina.
-    Mapea llaves y sintomas en caliente usando la API Neuronal de Google.
+    Traduce en un solo lote ordenado la estructura completa de la Mandarina.
+    Previene bloqueos de cuota e hilos caídos en Streamlit Cloud.
     """
     if not codigo_idioma or codigo_idioma == "es":
         return GAJOS_MANDARINA_ORIGINAL
         
-    gajos_traducidos = {}
     try:
-        for dim_es, sintomas_lista in GAJOS_MANDARINA_ORIGINAL.items():
-            # Traduce el nombre de la dimensión (ej. "💪 Salud Física" manteniendo el emoji aislado)
-            emoji_prefix = dim_es[0:2] if dim_es[0] in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"] else ""
-            clean_dim = dim_es.replace(emoji_prefix, "").strip()
+        llaves_originales = list(GAJOS_MANDARINA_ORIGINAL.keys())
+        bloque_plano_a_traducir = []
+        
+        # Aplanamos toda la ontología médica en un solo vector de texto
+        for dim, sintomas in GAJOS_MANDARINA_ORIGINAL.items():
+            clean_dim = dim.replace("💪", "").replace("🧠", "").replace("❤️", "").replace("👥", "").replace("💰", "").replace("⏳", "").replace("🙏", "").strip()
+            bloque_plano_a_traducir.append(clean_dim)
+            bloque_plano_a_traducir.extend(sintomas)
             
-            dim_traducida = ejecutar_traduccion_neuronal(clean_dim, codigo_idioma)
-            dim_final_key = f"{emoji_prefix} {dim_traducida}".strip()
+        # Un solo disparo de red para las 7 dimensiones y 28 síntomas
+        bloque_traducido = traducir_lote_neuronal_master(bloque_plano_a_traducir, codigo_idioma)
+        
+        gajos_traducidos = {}
+        ptr = 0
+        emojis = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]
+        
+        for idx, dim_or in enumerate(llaves_originales):
+            dim_traducida = bloque_traducido[ptr]
+            key_final = f"{emojis[idx]} {dim_traducida}"
+            ptr += 1
             
-            # Traduce secuencialmente cada síntoma de la lista
-            sintomas_traducidos = [ejecutar_traduccion_neuronal(sintoma, codigo_idioma) for sintoma in sintomas_lista]
-            gajos_traducidos[dim_final_key] = sintomas_traducidos
+            sintomas_traducidos = bloque_traducido[ptr : ptr + 4]
+            gajos_traducidos[key_final] = sintomas_traducidos
+            ptr += 4
             
         return gajos_traducidos
     except Exception:
@@ -787,32 +744,30 @@ def algoritmo_generar_gajos_salud(codigo_idioma="es"):
 
 def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, codigo_idioma="es"):
     """
-    Genera dinamicamente los 10 reactivos intercalados Cronos (Pares)
-    y Kairos (Impares) adaptandolos al contexto demografico mediante la API de Google.
+    Traduce en un solo lote la batería completa de reactivos C&K.
     """
-    banco_base_es = {
-        1: f"Capturo con gran agilidad oportunidades estrategicas en {contexto_geo}.",
-        2: "Estructuro visualmente mi agenda semanal sobre relojes exactos.",
-        3: "Siento que el tiempo fluye de forma organica al accionar metas clave.",
-        4: "Castigo estrictamente la impuntualidad en mi circulo profesional.",
-        5: "Leo con facilidad los cambios imprevistos como oportunidades criticas.",
-        6: "Gestiono mis metas laborales bajo check-lists rigidos e inamovibles.",
-        7: "Prefiero romper el itinerario si emerge una ventana personal util.",
-        8: "Prefiero el orden secuencial sobre las adaptaciones multi-tarea.",
-        9: "Experimento alta concentracion cuando el entorno presente se altera.",
-        10: "Separo de forma estricta las horas del reloj para sueno y produccion."
-    }
+    banco_base_es = [
+        f"Capturo con gran agilidad oportunidades estrategicas en {contexto_geo}.",
+        "Estructuro visualmente mi agenda semanal sobre relojes exactos.",
+        "Siento que el tiempo fluye de forma organica al accionar metas clave.",
+        "Castigo estrictamente la impuntualidad en mi circulo profesional.",
+        "Leo con facilidad los cambios imprevistos como oportunidades criticas.",
+        "Gestiono mis metas laborales bajo check-lists rigidos e inamovibles.",
+        "Prefiero romper el itinerario si emerge una ventana personal util.",
+        "Prefiero el orden secuencial sobre las adaptaciones multi-tarea.",
+        "Experimento alta concentracion cuando el entorno presente se altera.",
+        "Separo de forma estricta las horas del reloj para sueno y produccion."
+    ]
     
     if not codigo_idioma or codigo_idioma == "es":
-        return banco_base_es
+        return {i+1: v for i, v in enumerate(banco_base_es)}
         
-    # Traducción neuronal al vuelo de la batería psicométrica completa
     try:
-        return {r_id: ejecutar_traduccion_neuronal(enunciado, codigo_idioma) for r_id, enunciado in banco_base_es.items()}
+        reactivos_traducidos = traducir_lote_neuronal_master(banco_base_es, codigo_idioma)
+        return {i+1: v for i, v in enumerate(reactivos_traducidos)}
     except Exception:
-        return banco_base_es
+        return {i+1: v for i, v in enumerate(banco_base_es)}
 
-               
 
 
 # =================================================================
@@ -937,9 +892,14 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-       # =================================================================
-    # CAPA DE INTERCEPTACIÓN DE IDIOMA BASE NEURONAL MASTER
     # =================================================================
+    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR VECTOR DE LOTE ÚNICO
+    # =================================================================
+    if "idioma_previo" not in st.session_state:
+        st.session_state.idioma_previo = "es"
+    if "tx_traducido_cache" not in st.session_state:
+        st.session_state.tx_traducido_cache = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+
     if not st.session_state.flujo_finalizado:
         idioma_sel_visual = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
@@ -948,11 +908,23 @@ def main():
         )
         idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
         
-        # Traduce de forma masiva y recursiva todas las semillas de la interfaz
-        tx = {k: ejecutar_traduccion_neuronal(v, idioma_sel) for k, v in TEXTOS_BASE_ESPANOL.items()}
+        # Si el usuario cambió el idioma, se dispara la traducción por lote único de alto rendimiento
+        if idioma_sel != st.session_state.idioma_previo:
+            with st.spinner("Translating system interface... 🌐"):
+                llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+                valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+                
+                # Una sola petición para toda la pantalla
+                valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
+                st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+                st.session_state.idioma_previo = idioma_sel
+                st.rerun()
+                
+        tx = st.session_state.tx_traducido_cache
     else:
         idioma_sel = "es"
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+
 
 
     # =================================================================
