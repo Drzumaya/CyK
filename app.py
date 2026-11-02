@@ -1011,7 +1011,7 @@ def main():
 
 
 
-     # =================================================================
+         # =================================================================
     # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA E HISTORIAL (TRAMO 1)
     # =================================================================
     else:
@@ -1142,12 +1142,11 @@ def main():
                     row = [str(datetime.datetime.now()), f"Simulated_Markov_User_{u}", f"+52633100200{u}", sf, sm, se, "", "", "", "", f"Markov_Token_{u}"]
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-      else:
-            # CORRECCIÓN DE RAÍZ: Forzado estricto a string para evitar el AttributeError
+        else:
+            # 🍊 SOLUCIÓN SINTÁCTICA BLINDADA CON FORZADO STRING ANTI-ATTRIBUTEERROR
             encabezados = todas_las_filas[0]
             columnas_limpias = [str(c).strip() if str(c).strip() else f"C_{i}" for i, c in enumerate(encabezados)]
             df_doc = pd.DataFrame(todas_las_filas[1:], columns=columnas_limpias)
-
 
         # CRM de Búsqueda Individual
         st.markdown("---")
@@ -1173,6 +1172,7 @@ def main():
                         else:
                             st.markdown("**🚨 Alertas de Salud Activas:**")
                             st.write(f"`{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}`")
+
         # =================================================================
         # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 2)
         # =================================================================
