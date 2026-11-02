@@ -879,7 +879,7 @@ def main():
             whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
             st.divider()
             
-                       if not es_modo_likert:
+             if not es_modo_likert:
                 st.write(tx["mand_title"])
                 st.write(tx["mand_subtitle"])
                 
