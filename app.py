@@ -423,13 +423,14 @@ def limpiar_texto_pdf(texto, idioma="Español"):
 
 
 # =================================================================
-# PARTE 8: COMPILADOR PSICOMÉTRICO INDIVIDUAL CON SUGERENCIAS ASIMÉTRICAS
+# PARTE 8: SANITIZADOR Y COMPILADOR DE REPORTES INDIVIDUALES CON MANDARINA
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
+    # 1. Asignación asimétrica de títulos oficiales
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
         titulo_oficial = "DIAGNOSTICO DE LA SALUD INTEGRAL MODELO MANDARINA"
         es_realmente_likert = False
@@ -440,9 +441,9 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     nombre_sano = limpiar_texto_pdf(nombre_usuario, lang)
     whatsapp_sano = limpiar_texto_pdf(whatsapp_usuario, lang)
     
-    # Encabezado Institucional
+    # Renderizado de Encabezado Institucional
     pdf.set_font("Helvetica", "B", 13)
-    pdf.set_text_color(230, 81, 0)
+    pdf.set_text_color(230, 81, 0) # Naranja Mandarina
     pdf.cell(0, 10, titulo_oficial, new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font("Helvetica", "B", 9)
@@ -453,7 +454,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(8)
     
-    # Bloque Demográfico
+    # Bloque Sociodemográfico
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
@@ -471,8 +472,18 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
+    # Inyección Dinámica del Gráfico (Mandarina para Salud o Dispersión para C&K)
+    if img_grafica_base64:
+        try:
+            img_clean = img_grafica_base64.split(",")[-1]
+            img_data = BytesIO(base64.b64decode(img_clean))
+            pdf.image(img_data, x=60, w=90)
+            pdf.ln(6)
+        except Exception: 
+            pass
+
     if es_realmente_likert:
-        # === INFORME PSICOMÉTRICO INDIVIDUAL TEMPORAL C&K ===
+        # === BLOQUE MODELOS TEMPORALES C&K ===
         kairos_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         cronos_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_cronos = sum(cronos_v) / 5
@@ -483,15 +494,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.cell(0, 8, limpiar_texto_pdf("vec", lang), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         
-        # Inyección de la gráfica individual en el PDF
-        if img_grafica_base64:
-            try:
-                img_clean = img_grafica_base64.split(",")[-1]
-                img_data = BytesIO(base64.b64decode(img_clean))
-                pdf.image(img_data, x=60, w=90)
-                pdf.ln(4)
-            except Exception: pass
-                
         pdf.set_font("Helvetica", "", 11)
         pdf.cell(0, 6, f"- CRONOS SCORE: {avg_cronos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
         pdf.cell(0, 6, f"- KAIROS SCORE: {avg_kairos:.2f} / 5.00", new_x="LMARGIN", new_y="NEXT")
@@ -499,48 +501,54 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         
         diferencia = abs(avg_cronos - avg_kairos)
         pdf.set_font("Helvetica", "B", 11)
-        
-        # Explicación y Sugestiones Asimétricas C&K
         if diferencia <= 0.4:
             pdf.set_text_color(38, 166, 91)
             pdf.cell(0, 6, limpiar_texto_pdf("perf_s", lang), new_x="LMARGIN", new_y="NEXT")
             pdf.set_font("Helvetica", "I", 10)
             pdf.set_text_color(60, 60, 60)
-            pdf.multi_cell(0, 5, "Explicacion: Posees una mente bitemporal madura. Consigues balancear la precision metrico-secuencial (Cronos) con la flexibilidad adaptativa de ventanas de oportunidad (Kairos).\nSugestion: Sigue cultivando este balance. Utiliza agendas rigidas para la operacion basica, pero reserva intencionalmente un 20% de tu jornada libre de compromisos fijos para reaccionar ante eventos fortuitos de alta rentabilidad existencial.")
+            pdf.multi_cell(0, 5, "Explicacion: Balanceas la precision cronometrica con la agilidad adaptativa de ventanas de oportunidad.\nSugestion: Manten bloques fijos para tareas repetitivas y reserva un margen diario para imprevistos.")
         elif avg_kairos > avg_cronos:
             pdf.set_text_color(30, 139, 195)
             pdf.cell(0, 6, limpiar_texto_pdf("perf_k", lang), new_x="LMARGIN", new_y="NEXT")
             pdf.set_font("Helvetica", "I", 10)
             pdf.set_text_color(60, 60, 60)
-            pdf.multi_cell(0, 5, "Explicacion: Tu perfil opera bajo esquemas puramente kairoticos. Sobresales en reaccionar ante contingencias y capturar momentos optimos de accion, pero corres el riesgo de descuidar hitos administrativos o plazos rigidos.\nSugestion: Desarrolla anclajes operativos. Vincula alarmas digitales inamovibles o delegaciones solidas para tus entregas regulatorias, evitando que tu gran agilidad cognitiva degenere en una procrastinacion sistematica basada en el caos.")
+            pdf.multi_cell(0, 5, "Explicacion: Destacas capturando oportunidades en caliente, pero corres el riesgo de descuidar hitos administrativos organizacionales fijos.\nSugestion: Desarrolla anclajes operativos con alarmas digitales estrictas para tus entregas regulatorias.")
         else:
             pdf.set_text_color(217, 30, 24)
             pdf.cell(0, 6, limpiar_texto_pdf("perf_c", lang), new_x="LMARGIN", new_y="NEXT")
             pdf.set_font("Helvetica", "I", 10)
             pdf.set_text_color(60, 60, 60)
-            pdf.multi_cell(0, 5, "Explicacion: Presentas una fijacion cronocentrica pura. Eres altamente confiable, puntual y estructurado, pero experimentas altos niveles de ansiedad o frustracion psiquica extrema cuando los planes sufren alteraciones o ventanas imprevistas de cambio.\nSugestion: Entrena la tolerancia a la incertidumbre. Disena conscientemente simulacros de cambio en tu rutina semanal y practica deliberadamente pausar tu checklist inamovible frente a una emergencia humana o pastoral prioritaria.")
+            pdf.multi_cell(0, 5, "Explicacion: Posees una rigidez estructural alta. Experimentas estres cuando los checklists sufren alteraciones imprevistas.\nSugestion: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio.")
     else:
-        # === INFORME DE SALUD INTEGRAL MODELO MANDARINA ===
+        # === BLOQUE GAJOS SALUD INTEGRAL ===
+        pdf.set_font("Helvetica", "B", 12)
+        pdf.set_text_color(230, 81, 0)
+        pdf.cell(0, 8, "VECTORES DE ATENCION Y VULNERABILIDAD:", new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(2)
+        
         for dim_nombre, items in resultados.items():
             if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]: continue
             pdf.set_font("Helvetica", "B", 11)
             pdf.set_text_color(230, 81, 0)
             pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
-            puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if len(items) > 0 else "SIN ALERTAS (OPTIMO)"
+            
+            puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if len(items) > 0 else "OPTIMO (SIN ALERTAS ACTIVAS)"
             pdf.set_font("Helvetica", "", 10)
             pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(0, 5, f"Alertas Detectadas: {puntos_str}\n")
+            pdf.multi_cell(0, 5, f"Alertas registradas: {puntos_str}\n")
             
-        # Invitación Médica/Clínica de Acompañamiento
+        # Bloque Institucional de Acompañamiento
         pdf.ln(5)
         pdf.set_draw_color(230, 81, 0)
         pdf.set_fill_color(254, 243, 233)
         pdf.rect(10, pdf.get_y(), 190, 25, "DF")
+        
         pdf.set_y(pdf.get_y() + 2)
         pdf.set_x(12)
         pdf.set_font("Helvetica", "B", 10)
         pdf.set_text_color(230, 81, 0)
         pdf.cell(0, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
+        
         pdf.set_x(12)
         pdf.set_font("Helvetica", "I", 9.5)
         pdf.set_text_color(60, 60, 60)
@@ -548,7 +556,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.multi_cell(186, 4.5, mensaje_apoyo)
             
     return bytes(pdf.output())
-
 
 # =================================================================
 # PARTE 9: MOTOR DE INVESTIGACIÓN SEMDEEP (CONVERGENCIA SVD DE 10 ÍTEMS)
@@ -708,10 +715,74 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 ### 🍊 Parte 10.5 de 13: Pasarela Transaccional Independiente (Anti-Indentation Fix)
 
 # =================================================================
-# PARTE 10.5: PASARELA TRANSACCIONAL INDEPENDIENTE (ANTI-INDENTATION FIX)
+# PARTE 10.5: PASARELA TRANSACCIONAL INDEPENDIENTE CON DIAGRAMA DE GAJOS 
 # =================================================================
 def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx):
     st.divider()
+    
+    # Renderizado e interpretación gráfica de la Mandarina en Vivo para Salud Integral
+    grafica_base64 = None
+    
+    if not es_modo_likert and resultados_totales:
+        st.write("### 🍊 Visualizacion de tu Mandarina de Salud Integral")
+        st.write("Los gajos en **Rojo 🚨** representan dimensiones con alertas activas que requieren atencion inmediata:")
+        
+        col_gajos_maestro = {
+            "💪 Salud Física": "Salud Fisica (SF)",
+            "🧠 Salud Mental": "Salud Mental (SM)",
+            "❤️ Salud Emocional": "Salud Emocional (SE)",
+            "👥 Salud Social": "Salud Social (SS)",
+            "💰 Salud Económica": "Salud Economica (SECO)",
+            "⏳ Salud Temporal": "Salud Temporal (ST)",
+            "🙏 Salud Espiritual": "Salud Espiritual (SPI)"
+        }
+        
+        labels_grafica = []
+        colores_gajos = []
+        alertas_detectadas_recuento = 0
+        
+        # Evaluamos cada gajo para decidir su color en la mandarina
+        for g_visible, g_clave in col_gajos_maestro.items():
+            alertas_gajo = resultados_totales.get(g_visible, [])
+            labels_grafica.append(g_visible.replace(" ", "\n"))
+            
+            if len(alertas_gajo) > 0:
+                colores_gajos.append("#d91e24") # Rojo brillante: Alerta activa 🚨
+                alertas_detectadas_recuento += 1
+            else:
+                colores_gajos.append("#ff9800") # Naranja mandarina saludable 🍊
+                
+        # Construcción del vector gráfico con Matplotlib
+        try:
+            fig, ax = plt.subplots(figsize=(5, 5))
+            valores_simetricos = [1] * 7 # 7 gajos simétricos perfectos
+            
+            # Dibujamos los gajos de la mandarina
+            wedges, texts = ax.pie(
+                valores_simetricos, 
+                labels=labels_grafica, 
+                colors=colores_gajos, 
+                startangle=90, 
+                counterclock=False,
+                wedgeprops=dict(width=0.4, edgecolor='white', linewidth=3),
+                textprops=dict(size=9, weight="bold", color="#333333")
+            )
+            
+            ax.set_title("Ecosistema Mandarina de Bienestar", fontsize=12, weight="bold", color="#e65100")
+            
+            # Captura binaria en memoria para el PDF
+            buf_m = BytesIO()
+            plt.savefig(buf_m, format='png', bbox_inches='tight', dpi=130)
+            buf_m.seek(0)
+            grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_m.read()).decode('utf-8')}"
+            plt.close(fig)
+            
+            # Despliegue en la pantalla principal
+            st.image(buf_m.getvalue(), width=320)
+        except Exception as e:
+            st.warning(f"Aviso del motor grafico: {str(e)}")
+
+    st.write("")
     col_btn1, col_btn2 = st.columns(2)
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
     
@@ -724,29 +795,30 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                     exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
                     if exito: 
                         st.session_state.guardado_exitoso = True
-                        st.success("OK")
+                        st.success("¡Datos sincronizados con exito! Descarga tu PDF a la derecha.")
                     else: 
                         st.session_state.guardado_exitoso = True
                         st.warning(tx["local_ok"])
                         
     with col_btn2:
         if st.session_state.guardado_exitoso and campos_completos:
-            grafica_base64 = None
-            if es_modo_likert:
+            # Si estamos en modo Likert, generamos de forma regular la gráfica de dispersión C&K
+            if es_modo_likert and grafica_base64 is None:
                 try:
-                    kairos_v = [resultados_totales.get(f"R{i}", 3) for i in range(1, 11, 2)]
-                    cronos_v = [resultados_totales.get(f"R{i}", 3) for i in range(2, 11, 2)]
+                    kairos_v = [int(resultados_totales.get(f"R{i}", 3)) for i in range(1, 11, 2)]
+                    cronos_v = [int(resultados_totales.get(f"R{i}", 3)) for i in range(2, 11, 2)]
                     fig, ax = plt.subplots(figsize=(4, 4))
                     ax.axhspan(1, 3, 1, 3, color='#f2f1ef', alpha=0.5)
                     ax.axhspan(3, 5, 3, 5, color='#e8f8f5', alpha=0.7)
                     ax.scatter(sum(cronos_v)/5, sum(kairos_v)/5, color='#e65100', s=120)
+                    ax.set_xlim(1, 5)
+                    ax.set_ylim(1, 5)
                     buf_g = BytesIO()
                     plt.savefig(buf_g, format='png', bbox_inches='tight', dpi=100)
                     buf_g.seek(0)
                     grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_g.read()).decode('utf-8')}"
                     plt.close(fig)
-                except Exception: 
-                    pass
+                except Exception: pass
                     
             reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
             nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
@@ -755,18 +827,20 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                 st.session_state.flujo_finalizado = True
                 for k in list(st.session_state.keys()):
                     if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): 
-                        del st.session_state[k]
+                        try: del st.session_state[k]
+                        except Exception: pass
                         
             st.download_button(
                 label=tx["btn_pdf"],
                 data=reporte_procesado,
-                file_name=f"Report_{idioma_sel}_{nombre_archivo}.pdf",
+                file_name=f"Reporte_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
                 mime="application/pdf",
                 on_click=callback_finalizar,
                 key="btn_download_user_pdf_report"
             )
         else: 
             st.info(tx["fields_msg"])
+
 
 # =================================================================
 # PARTE 11: MOTOR ONTOLÓGICO PARA ADAPTACIÓN DE SALUD INTEGRAL
