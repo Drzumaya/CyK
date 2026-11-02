@@ -425,12 +425,14 @@ def limpiar_texto_pdf(texto, idioma="Español"):
 # =================================================================
 # PARTE 8: SANITIZADOR Y COMPILADOR CON ASISTENCIA Y RECOMENDACIONES C&K
 # =================================================================
+# =================================================================
+# PARTE 8: COMPILADOR DE REPORTES CON EXTRACTOR ASIMÉTRICO DE ALERTAS CRÍTICAS
+# =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # 1. Asignacion asimetrica de titulos oficiales blindados
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
         titulo_oficial = "DIAGNOSTICO DE LA SALUD INTEGRAL MODELO MANDARINA"
         es_realmente_likert = False
@@ -441,9 +443,9 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     nombre_sano = limpiar_texto_pdf(nombre_usuario, lang)
     whatsapp_sano = limpiar_texto_pdf(whatsapp_usuario, lang)
     
-    # Renderizado de Encabezado Institucional
+    # Encabezado Institucional
     pdf.set_font("Helvetica", "B", 13)
-    pdf.set_text_color(230, 81, 0) # Naranja Mandarina
+    pdf.set_text_color(230, 81, 0)
     pdf.cell(0, 10, titulo_oficial, new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font("Helvetica", "B", 9)
@@ -454,7 +456,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(8)
     
-    # Bloque Sociodemografico
+    # Bloque Sociodemográfico
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
@@ -472,18 +474,17 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
-    # Inyeccion Dinamica del Grafico
+    # Inyección de la Gráfica de la Mandarina o Matriz C&K
     if img_grafica_base64:
         try:
             img_clean = img_grafica_base64.split(",")[-1]
             img_data = BytesIO(base64.b64decode(img_clean))
             pdf.image(img_data, x=60, w=90)
             pdf.ln(6)
-        except Exception: 
-            pass
+        except Exception: pass
 
     if es_realmente_likert:
-        # === BLOQUE MODELOS TEMPORALES CRONOS Y KAIROS ===
+        # === BLOQUE MODELOS TEMPORALES C&K ===
         kairos_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         cronos_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_cronos = sum(cronos_v) / 5
@@ -520,68 +521,110 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.set_text_color(60, 60, 60)
             pdf.multi_cell(0, 5, "Explicacion: Posees una rigidez estructural alta. Experimentas estres cuando los checklists sufren alteraciones imprevistas.\nSugestion: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio.")
             
-        # 🛡️ INYECCIÓN DE RECOMENDACIONES Y SEGUIMIENTO PERSONALIZADO PARA C&K
         pdf.ln(6)
-        pdf.set_draw_color(30, 139, 195) # Azul institucional para control del tiempo
-        pdf.set_fill_color(240, 248, 255) # Fondo azul de control adaptativo
+        pdf.set_draw_color(30, 139, 195)
+        pdf.set_fill_color(240, 248, 255)
         pdf.rect(10, pdf.get_y(), 190, 26, "DF")
-        
         pdf.set_y(pdf.get_y() + 2)
         pdf.set_x(12)
         pdf.set_font("Helvetica", "B", 10)
         pdf.set_text_color(30, 139, 195)
         pdf.cell(0, 5, "RECOMENDACIONES GENERALES Y ASESORIA DIRECTA:", new_x="LMARGIN", new_y="NEXT")
-        
         pdf.set_x(12)
         pdf.set_font("Helvetica", "I", 9.5)
         pdf.set_text_color(60, 60, 60)
-        mensaje_tiempo = (
-            "Optimizar la simbiosis entre el tiempo metrico (Cronos) y el tiempo de oportunidad (Kairos) es vital para el exito "
-            "profesional y la reduccion de fatiga. Si tu perfil presenta una inclinacion polarizada o rigida, te sugerimos "
-            "acercarte directamente con el ponente para solicitar una consulta personalizada o asesoria estrategica. "
-            "Alinear tus vectores temporales potenciara de inmediato tu madurez operativa y tu rendimiento cognitivo integral."
-        )
+        mensaje_tiempo = "Optimizar la simbiosis entre el tiempo metrico (Cronos) y el tempo de oportunidad (Kairos) es vital para el exito profesional y la reduccion de fatiga. Si tu perfil presenta una inclinacion polarizada o rigida, te sugerimos acercarte directamente con el ponente para solicitar una consulta personalizada o asesoria estrategica. Alinear tus vectores temporales potenciara de inmediato tu madurez operativa y tu rendimiento cognitivo integral."
         pdf.multi_cell(186, 4.5, mensaje_tiempo)
         
     else:
-        # === BLOQUE GAJOS SALUD INTEGRAL ===
+        # === 🍊 BLOQUE OPTIMIZADO: GAJOS DE SALUD INTEGRAL CON ALERTAS FILTRADAS ===
         pdf.set_font("Helvetica", "B", 12)
         pdf.set_text_color(230, 81, 0)
-        pdf.cell(0, 8, "VECTORES DE ATENCION Y VULNERABILIDAD:", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(0, 8, "VECTORES DE ATENCION CRITICA DETECTADOS:", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         
+        # Diccionario ontológico de Significado y Recomendación por dimensión de fuga
+        glosario_clinico = {
+            "💪 Salud Física": {
+                "sig": "Indica un desgaste en los pilares basicos de energia corporal, afectando la homeostasis debido a privacion de sueno, sedentarismo o nutricion deficiente.",
+                "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activacion cardiovascular diaria."
+            },
+            "🧠 Salud Mental": {
+                "sig": "Representa una saturacion cognitiva severa, perdida de enfoque, niebla mental o procesamiento rumiativo de informacion que merma la agilidad mental.",
+                "rec": "Aplica tecnicas de ayuno digital de pantallas, practica la focalizacion en una sola tarea a la vez y disena pausas de silencio mental entre jornadas."
+            },
+            "❤️ Salud Emocional": {
+                "sig": "Determina una desregulacion animica reactiva, estres agudo, ansiedad latente o el sindrome de desgaste por empatia extrema (Burnout).",
+                "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiracion diafragmatica consciente y externaliza tus emociones con redes de confianza."
+            },
+            "👥 Salud Social": {
+                "sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinamicas interpersonales conflictivas provocadas por la ausencia de limites claros.",
+                "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una actividad recreativa inamovible con tu red de apoyo familiar."
+            },
+            "💰 Salud Económica": {
+                "sig": "Expresa vulnerabilidad financiera sistémica, estres presupuestal agudo debido a deudas desordenadas o falta de diversificacion en fuentes de ingresos.",
+                "rec": "Automatiza la separacion de un fondo de contingencia basico, elimina gastos hormiga reactivos y evalua proyectos de emprendimiento alternos a corto plazo."
+            },
+            "⏳ Salud Temporal": {
+                "sig": "Refleja desequilibrio critico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairos), desencadenando procrastinacion o sobrecarga de tareas.",
+                "rec": "Usa tecnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."
+            },
+            "🙏 Salud Espiritual": {
+                "sig": "Manifiesta un vacio existencial latente, perdida del sentido de vocacion fundamental, desconexion interna o descuido de habitos devocionales basicos.",
+                "rec": "Dedica los primeros minutos del dia a la meditación, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."
+            }
+        }
+        
+        algun_gajo_marcado = False
+        
         for dim_nombre, items in resultados.items():
-            if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]: continue
+            # Filtramos columnas que pertenezcan al perfil demográfico
+            if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]: 
+                continue
+            
+            # 🍊 OMISIÓN DINÁMICA: Si el gajo está en ceros (sin alertas), se salta por completo para ahorrar espacio
+            if len(items) == 0:
+                continue
+                
+            algun_gajo_marcado = True
+            
+            # Renderizado del Gajo Afectado
             pdf.set_font("Helvetica", "B", 11)
-            pdf.set_text_color(230, 81, 0)
-            pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
-            
-            puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items]) if len(items) > 0 else "OPTIMO (SIN ALERTAS ACTIVAS)"
-            pdf.set_font("Helvetica", "", 10)
-            pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(0, 5, f"Alertas registradas: {puntos_str}\n")
-            
-        # Bloque Institucional de Acompañamiento de Salud
-        pdf.ln(5)
-        pdf.set_draw_color(230, 81, 0)
-        pdf.set_fill_color(254, 243, 233)
-        pdf.rect(10, pdf.get_y(), 190, 25, "DF")
-        
-        pdf.set_y(pdf.get_y() + 2)
-        pdf.set_x(12)
-        pdf.set_font("Helvetica", "B", 10)
-        pdf.set_text_color(230, 81, 0)
-        pdf.cell(0, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
-        
-        pdf.set_x(12)
-        pdf.set_font("Helvetica", "I", 9.5)
-        pdf.set_text_color(60, 60, 60)
-        mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
-        pdf.multi_cell(186, 4.5, mensaje_apoyo)
-            
-    return bytes(pdf.output())
-
-
+pdf.set_text_color(217, 30, 24) # Rojo Alerta para resaltar el riesgo
+pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)} [ALERTA ACTIVA]", new_x="LMARGIN", new_y="NEXT")
+# Lista de síntomas sanitizados
+puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
+pdf.set_font("Helvetica", "B", 10)
+pdf.set_text_color(50, 50, 50)
+pdf.multi_cell(0, 5, f"Sintomas Detectados: {puntos_str}")
+# Inyección de Significado y Recomendación atómica desde el glosario
+if dim_nombre in glosario_clinico:
+pdf.set_font("Helvetica", "", 9.5)
+pdf.set_text_color(80, 80, 80)
+pdf.multi_cell(0, 4.5, f"Significado: {glosario_clinico[dim_nombre]['sig']}")
+pdf.set_font("Helvetica", "I", 9.5)
+pdf.set_text_color(30, 139, 195) # Texto de recomendación en azul constructivo
+pdf.multi_cell(0, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n")
+if not algun_gajo_marcado:
+pdf.set_font("Helvetica", "B", 11)
+pdf.set_text_color(38, 166, 91) # Verde de éxito absoluto
+pdf.multi_cell(0, 6, "FELICITACIONES: Tu ecosistema se encuentra en un estado OPTIMO. No se detectaron fugas ni alertas de vulnerabilidad en ninguno de tus gajos de salud.")
+# Bloque de Acompañamiento Clínico de Salud
+pdf.ln(4)
+pdf.set_draw_color(230, 81, 0)
+pdf.set_fill_color(254, 243, 233)
+pdf.rect(10, pdf.get_y(), 190, 25, "DF")
+pdf.set_y(pdf.get_y() + 2)
+pdf.set_x(12)
+pdf.set_font("Helvetica", "B", 10)
+pdf.set_text_color(230, 81, 0)
+pdf.cell(0, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
+pdf.set_x(12)
+pdf.set_font("Helvetica", "I", 9.5)
+pdf.set_text_color(60, 60, 60)
+mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
+pdf.multi_cell(186, 4.5, mensaje_apoyo)
+return bytes(pdf.output())
 
 # =================================================================
 # PARTE 9: MOTOR DE INVESTIGACIÓN SEMDEEP (CONVERGENCIA SVD DE 10 ÍTEMS)
