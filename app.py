@@ -1072,48 +1072,46 @@ def main():
 
         tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", lista_tablas_reales)
         
-    if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
+            if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
             sheet = conectar_google_sheets(tabla_analizar)
             df_doc = None
             es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
             
-            # INYECTOR DE DATOS SINTÉTICOS DE CONTROL (EVITA TABLAS VACÍAS)
-            try:
-                todas_las_filas = sheet.get_all_values() if sheet else []
-                if not todas_las_filas or len(todas_las_filas) < 2:
-                    st.info("💡 Tabla sin registros suficientes en producción. Generando matriz de control sintética para validación psicométrica...")
-                    if es_tabla_likert:
-                        columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
-                        datos_sinteticos = []
-                        for u in range(10):
-                            row = [str(datetime.datetime.now()), f"Control_User_{u}", "+5200000000", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
-                            if u % 2 == 0:
-                                row += [5, 4, 5, 4, 5, 4, 5, 4, 5, 4]
-                            else:
-                                row += [2, 5, 2, 5, 2, 5, 2, 5, 2, 5]
-                            row += ["Token_Control"]
-                            datos_sinteticos.append(row)
-                        df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-                    else:
-                        columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"]
-                        datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", "+52000", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_Control"] for u in range(5)]
-                        df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+            # 1. EXTRACCIÓN Y CONTROL DE MATRIZ DE ENTRADA
+            todas_las_filas = []
+            if sheet:
+                try:
+                    todas_las_filas = sheet.get_all_values()
+                except Exception:
+                    todas_las_filas = []
+                    
+            if not todas_las_filas or len(todas_las_filas) < 2:
+                st.info("💡 Tabla sin registros suficientes en producción. Generando matriz de control sintética para validación psicométrica...")
+                if es_tabla_likert:
+                    columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
+                    datos_sinteticos = []
+                    for u in range(10):
+                        row = [str(datetime.datetime.now()), f"Control_User_{u}", "+5200000000", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
+                        row +=  if u % 2 == 0 else 
+                        row += ["Token_Control"]
+                        datos_sinteticos.append(row)
+                    df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
                 else:
-                    encabezados = todas_las_filas[0]
-                    datos_cuerpo = todas_las_filas[1:]
-                    encabezados_unicos = []
-                    for i, col in enumerate(encabezados):
-                        nombre_col = col.strip() if col.strip() else f"Columna_{i}"
-                        if nombre_col in encabezados_unicos:
-                            nombre_col = f"{nombre_col}_{i}"
-                        encabezados_unicos.append(nombre_col)
-                    df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
-            except Exception as e:
-                st.warning(f"⚠️ Error de enlace. Usando matriz de contingencia autónoma: {str(e)}")
-                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
-                df_doc = pd.DataFrame([[str(datetime.datetime.now()), "User_Test", "00", "25", "Femenino", "Mexicana", "Sonora", "Sonora", "México", "América", "Líder", "Sí", "No", "No", "Se hereda", "Teología", 4,4,3,3,4,4,3,3,4,4, "T"] for _ in range(10)], columns=columnas_sinteticas)
+                    columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"]
+                    datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", "+52000", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_Control"] for u in range(5)]
+                    df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+            else:
+                encabezados = todas_las_filas
+                datos_cuerpo = todas_las_filas[1:]
+                encabezados_unicos = []
+                for i, col in enumerate(encabezados):
+                    nombre_col = col.strip() if col.strip() else f"Columna_{i}"
+                    if nombre_col in encabezados_unicos:
+                        nombre_col = f"{nombre_col}_{i}"
+                    encabezados_unicos.append(nombre_col)
+                df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
 
-            # PROCESAMIENTO MATRICIAL ESTADÍSTICO
+            # 2. PROCESAMIENTO ANALÍTICO GRÁFICO
             if df_doc is not None and len(df_doc) >= 2:
                 st.success(f"¡Matriz de datos analítica acoplada con éxito! Registros: {len(df_doc)}")
                 
@@ -1138,7 +1136,7 @@ def main():
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
                     
-                # RENDERIZADO EVALUATIVO DE FIABILIDAD (ALFA DE CRONBACH)
+                # 3. RENDERIZADO EVALUATIVO DEL ALFA DE CRONBACH
                 alpha_c, alpha_k = 0.0, 0.0
                 if es_tabla_likert:
                     st.markdown("---")
@@ -1152,7 +1150,7 @@ def main():
                         
                         def calcular_cronbach(matriz_items):
                             try:
-                                n_items = matriz_items.shape[1]
+                                n_items = matriz_items.shape
                                 if n_items <= 1: return 0.0
                                 varianzas_items = np.var(matriz_items, axis=0, ddof=1)
                                 varianza_total = np.var(np.sum(matriz_items, axis=1), ddof=1)
@@ -1171,7 +1169,7 @@ def main():
                             if alpha_k >= 0.70: st.success(f"🍃 Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Fiabilidad Alta)")
                             else: st.warning(f"⚠️ Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Ruido en Comprensión)")
 
-                # EXPORTACIÓN EJECUTIVA FINAL EN PDF
+                # 4. EXPORTACIÓN EJECUTIVA COMPLETA EN PDF
                 st.markdown("---")
                 st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
                 
@@ -1203,14 +1201,11 @@ def main():
                 
                 st.download_button(
                     label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
-                data=bytes(bytes_auditoria),
-                file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '')}{datetime.date.today()}.pdf",
-                mime="application/pdf",
-                key="btn_download_admin_pdf"
+                    data=bytes(bytes_auditoria),
+                    file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '_')}_{datetime.date.today()}.pdf",
+                    mime="application/pdf",
+                    key="btn_download_admin_pdf"
                 )
-                       
-                except Exception as e:
-                    st.error(f"❌ Error en la extracción de la base de datos de Google Sheets: {str(e)}")
 
 # Guardia de ejecución principal para el ecosistema web de Streamlit
 if __name__ == "__main__":
