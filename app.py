@@ -273,13 +273,12 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (APA CLEAN)
+# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR ASCII ESTRICTO
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
-    Purifica las cadenas de texto conservando la n, las tildes y dieresis.
-    Remueve de forma automatica emojis y simbolos graficos complejos
-    para evitar que aparezcan signos de interrogacion en el reporte.
+    Purifica las cadenas de texto removiendo de forma sistematica emojis.
+    Bandea y barre estrictamente acentos y enes para maxima compatibilidad core.
     """
     if not texto: 
         return ""
@@ -288,24 +287,22 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
         
-    # Remoción quirúrgica de emojis del Modelo Mandarina para proteger el búfer FPDF
+    # Remoción de emojis del Modelo Mandarina y Ponencia
     emojis_a_remover = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏", "🏭", "🍊"]
     for emj in emojis_a_remover:
         txt_str = txt_str.replace(emj, "")
         
-    # Diccionario de remapeo explicito de compatibilidad para fuentes core de FPDF
-    remapeo_glifos = {
-        'á': chr(225), 'é': chr(233), 'í': chr(237), 'ó': chr(243), 'ú': chr(250),
-        'Á': chr(193), 'É': 'E', 'Í': chr(205), 'Ó': chr(211), 'Ú': chr(218),
-        'ñ': chr(241), 'Ñ': chr(209), 'ü': chr(252), 'Ü': chr(220)
+    # Diccionario de equivalencias planas para barrido ortográfico estricto
+    equivalencias_ascii = {
+        'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
+        'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
+        'ñ': 'n', 'Ñ': 'N', 'ü': 'u', 'Ü': 'U'
     }
     
-    texto_corregido = "".join(remapeo_glifos.get(c, c) for c in txt_str)
+    texto_plano = "".join(equivalencias_ascii.get(c, c) for c in txt_str)
     
-    try:
-        return texto_corregido.encode("latin-1", errors="ignore").decode("latin-1").strip()
-    except Exception:
-        return texto_corregido.strip()
+    # Compilación final forzada a caracteres imprimibles estándar
+    return texto_plano.encode('ascii', 'ignore').decode('ascii').strip()
 
 
 
