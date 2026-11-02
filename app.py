@@ -844,7 +844,7 @@ def ejecutar_analisis_semdeep(dataframe, es_likert):
         return {"Error_Analitico": str(e), "R2": ".00"}
 
 # =================================================================
-# PARTE 13 DE 14: ORQUESTRACIÓN CENTRAL Y CONTROL POLÍGLOTA (TRAMO 1A)
+# PARTE 13 DE 14: INTERCEPTACIÓN NEURONAL DE ORIGEN (BLOQUE 1 DE 7)
 # =================================================================
 def main():
     # Inicialización local de variables globales de red y tiempo
@@ -873,11 +873,9 @@ def main():
                 secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
             client_t = translate.Client.from_service_account_info(secrets_dict)
             
-            # Descarga síncrona de la lista oficial de los 133 idiomas disponibles
             idiomas_disponibles = client_t.get_languages(target_language=st.session_state.idioma_activo_actual)
             st.session_state.lista_idiomas_133_iso = {i["name"].title(): i["language"] for i in idiomas_disponibles}
         except Exception:
-            # Fallback estructural de contingencia
             st.session_state.lista_idiomas_133_iso = {"Español": "es", "English": "en", "Français": "fr", "Deutsch": "de", "Italiano": "it", "Português": "pt", "한국어": "ko", "日本語": "ja", "العربية": "ar", "Русский": "ru"}
 
     idioma_url_codigo = st.query_params.get("lang", "es")
@@ -890,11 +888,11 @@ def main():
         st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
         st.session_state.idioma_previo_check = idioma_url_codigo
 
-    # Asignación de variables síncronas maestras locales
+    # Asignación de variables síncronas maestras
     tx = st.session_state.tx_traducido_cache
     idioma_sel = idioma_url_codigo
     # =================================================================
-    # PARTE 13 DE 14: AMARRE DE URL, INFRAESTRUCTURA DE RED Y SEGURIDAD (TRAMO 1B)
+    # PARTE 13 DE 14: ENLAZADO DE RED, SEGURIDAD Y CONSOLA (BLOQUE 2 DE 7)
     # =================================================================
     minuto_actual = int(time.time() // 60)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
@@ -940,9 +938,7 @@ def main():
         if acceso_bloqueado:
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
-    # =================================================================
-    # PARTE 13 DE 14: CONSOLE Y SELECCIÓN DE 133 IDIOMAS (TRAMO 2)
-    # =================================================================
+
     # Consola Lateral Unificada del Ponente
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     
@@ -983,7 +979,9 @@ def main():
                     with st.spinner("Inicializando entorno de datos..."):
                         conectar_google_sheets(seleccion)
                     st.rerun()
-
+    # =================================================================
+    # PARTE 13 DE 14: SELECTOR DE 133 IDIOMAS Y CÓDIGO QR (BLOQUE 3 DE 7)
+    # =================================================================
     # 📦 GATEWAY INTERNACIONAL DE CAPTURA ENTER CON LOS 133 IDIOMAS DINÁMICOS
     if not st.session_state.flujo_finalizado:
         mapa_133 = st.session_state.lista_idiomas_133_iso
@@ -1012,124 +1010,124 @@ def main():
                 st.query_params["lang"] = codigo_iso_seleccionado
                 st.session_state.idioma_activo_actual = codigo_iso_seleccionado
                 st.rerun()
-    # =================================================================
-    # PARTE 13 DE 14: PROYECTOR QR Y FORMULARIO DE CAPTURA (TRAMO 3)
-    # =================================================================
-    st.write("")
-    titulo_qr = tx.get("qr_title", TEXTOS_BASE_ESPANOL["qr_title"])
-    sub_qr1 = tx.get("qr_sub1", TEXTOS_BASE_ESPANOL["qr_sub1"])
-    sub_qr2 = tx.get("qr_sub2", TEXTOS_BASE_ESPANOL["qr_sub2"])
-    
-    with st.expander(titulo_qr, expanded=True):
-        col_qr1, col_qr2 = st.columns([1, 1.5])
-        with col_qr1:
-            qr = qrcode.QRCode(version=1, box_size=10, border=2)
-            qr.add_data(url_con_token)
-            qr.make(fit=True)
-            img_qr = qr.make_image(fill_color="#e65100", back_color="white")
-            buf = BytesIO()
-            img_qr.save(buf, format="PNG")
-            st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", use_container_width=True)
-        with col_qr2:
-            lbl_aud_proj = ejecutar_traduccion_neuronal("Audiencia Proyectada en Vivo", idioma_sel)
-            st.write(f"### {lbl_aud_proj}: {st.session_state.audiencia_activa}")
-            st.write(sub_qr1)
-            st.write(sub_qr2)
-            
-    st.write("")
-    lbl_tgl_form = ejecutar_traduccion_neuronal("📝 Mostrar Formulario de Captura en Pantalla Principal", idioma_sel)
-    mostrar_formulario = st.toggle(lbl_tgl_form, value=False, key="tgl_mostrar_formulario_main")
-    st.divider()
 
-    nombre = ""
-    whatsapp = ""
-    resultados_totales = {}
-    es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
-
-    # Capa visible del cuestionario políglota neuronal masivo
-    if mostrar_formulario:
-        st.header(f"📋 {st.session_state.audiencia_activa}")
-        nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
-        whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
-        st.divider()
+        st.write("")
+        titulo_qr = tx.get("qr_title", TEXTOS_BASE_ESPANOL["qr_title"])
+        sub_qr1 = tx.get("qr_sub1", TEXTOS_BASE_ESPANOL["qr_sub1"])
+        sub_qr2 = tx.get("qr_sub2", TEXTOS_BASE_ESPANOL["qr_sub2"])
         
-        if not es_modo_likert:
-            st.write(tx["mand_title"])
-            st.write(tx["mand_subtitle"])
-            
-            gajos_dinamicos = algoritmo_generar_gajos_salud(idioma_sel)
-            
-            for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
-                with st.container(border=True):
-                    st.markdown(f"#### {g_name}")
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
-                        cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
-                    with col2:
-                        cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
-                        cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
-                    resultados_totales[g_name] = [i for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
-                    
-            lbl_btn_reg = ejecutar_traduccion_neuronal("Procesar Alertas Base / Register Alerts", idioma_sel)
-            if st.button(lbl_btn_reg, key="btn_register_alerts_gajos"):
-                st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
-                st.success("OK. Context synchronized.")
-        else:
-            st.subheader(tx["sec1"])
-            resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
-            resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
-            nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
-            resultados_totales["Nacionalidad"] = nacionalidad
-            geo_contexto = "Region"
-            
-            if nacionalidad == "Mexicana":
-                resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
-                resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
-                resultados_totales["País Origen"] = "México"
-                resultados_totales["Continente Extranjero"] = "América"
-                geo_contexto = str(resultados_totales["Estado Residencia"])
-            else:
-                resultados_totales["Estado Origen"] = "N/A"
-                resultados_totales["Estado Residencia"] = "N/A"
-                resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
-                resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
-                geo_contexto = str(resultados_totales["País Origen"])
-                
-            st.subheader(tx["sec2"])
-            resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
-            resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
-            resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
-            
-            opciones_c4 = [tx.get("kn4_options_0", "Se impone"), tx.get("kn4_options_1", "Se hereda"), tx.get("kn4_options_2", "No sé")]
-            opciones_c5 = [tx.get("kn5_options_0", "Teología"), tx.get("kn5_options_1", "Cultura"), tx.get("kn5_options_2", "No sé")]
-            resultados_totales["C4_Origen"] = st.radio(tx["kn4"], opciones_c4, horizontal=True, key="kn_4")
-            resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], opciones_c5, horizontal=True, key="kn_5")
-            
-            lbl_bat = ejecutar_traduccion_neuronal("📋 BATERÍA DE REACTIVOS C&K", idioma_sel)
-            st.subheader(lbl_bat)
-            
-            banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
-            for r_id, enunciado_idioma in banco_mutado.items():
-                st.write(f"Reactivo {r_id}: {enunciado_idioma}")
-                resultados_totales[f"R{r_id}"] = st.radio(
-                    "Scale / Escala:",
-                    options=[1, 2, 3, 4, 5],
-                    format_func=lambda x: tx.get(f"likert_{x}", str(x)),
-                    horizontal=False,
-                    key=f"dyn_r_{r_id}"
-                )
+        with st.expander(titulo_qr, expanded=True):
+            col_qr1, col_qr2 = st.columns([1, 1.5])
+            with col_qr1:
+                qr = qrcode.QRCode(version=1, box_size=10, border=2)
+                qr.add_data(url_con_token)
+                qr.make(fit=True)
+                img_qr = qr.make_image(fill_color="#e65100", back_color="white")
+                buf = BytesIO()
+                img_qr.save(buf, format="PNG")
+                st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", use_container_width=True)
+            with col_qr2:
+                lbl_aud_proj = ejecutar_traduccion_neuronal("Audiencia Proyectada en Vivo", idioma_sel)
+                st.write(f"### {lbl_aud_proj}: {st.session_state.audiencia_activa}")
+                st.write(sub_qr1)
+                st.write(sub_qr2)
+        # =================================================================
+        # PARTE 13 DE 14: CUESTIONARIO COMPLETO Y FORMULARIO (BLOQUE 4 DE 7)
+        # =================================================================
+        st.write("")
+        lbl_tgl_form = ejecutar_traduccion_neuronal("📝 Mostrar Formulario de Captura en Pantalla Principal", idioma_sel)
+        mostrar_formulario = st.toggle(lbl_tgl_form, value=False, key="tgl_mostrar_formulario_main")
+        st.divider()
 
-    # Cierre y ejecución de botones transaccionales dentro del formulario activo
-        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
+        nombre = ""
+        whatsapp = ""
+        resultados_totales = {}
+        es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
+
+        # Capa visible del cuestionario políglota neuronal masivo
+        if mostrar_formulario:
+            st.header(f"📋 {st.session_state.audiencia_activa}")
+            nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
+            whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
+            st.divider()
+            
+            if not es_modo_likert:
+                st.write(tx["mand_title"])
+                st.write(tx["mand_subtitle"])
+                
+                gajos_dinamicos = algoritmo_generar_gajos_salud(idioma_sel)
+                
+                for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
+                    with st.container(border=True):
+                        st.markdown(f"#### {g_name}")
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
+                            cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
+                        with col2:
+                            cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
+                            cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
+                        resultados_totales[g_name] = [i for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
+                        
+                lbl_btn_reg = ejecutar_traduccion_neuronal("Procesar Alertas Base / Register Alerts", idioma_sel)
+                if st.button(lbl_btn_reg, key="btn_register_alerts_gajos"):
+                    st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
+                    st.success("OK. Context synchronized.")
+            # =================================================================
+            # PARTE 13 DE 14: BATERÍA DE REACTIVOS LIKERT C&K (BLOQUE 5 DE 7)
+            # =================================================================
+            else:
+                st.subheader(tx["sec1"])
+                resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
+                resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
+                nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
+                resultados_totales["Nacionalidad"] = nacionalidad
+                geo_contexto = "Region"
+                
+                if nacionalidad == "Mexicana":
+                    resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
+                    resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
+                    resultados_totales["País Origen"] = "México"
+                    resultados_totales["Continente Extranjero"] = "América"
+                    geo_contexto = str(resultados_totales["Estado Residencia"])
+                else:
+                    resultados_totales["Estado Origen"] = "N/A"
+                    resultados_totales["Estado Residencia"] = "N/A"
+                    resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
+                    resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
+                    geo_contexto = str(resultados_totales["País Origen"])
+                    
+                st.subheader(tx["sec2"])
+                resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
+                resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
+                resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
+                
+                opciones_c4 = [tx.get("kn4_options_0", "Se impone"), tx.get("kn4_options_1", "Se hereda"), tx.get("kn4_options_2", "No sé")]
+                opciones_c5 = [tx.get("kn5_options_0", "Teología"), tx.get("kn5_options_1", "Cultura"), tx.get("kn5_options_2", "No sé")]
+                resultados_totales["C4_Origen"] = st.radio(tx["kn4"], opciones_c4, horizontal=True, key="kn_4")
+                resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], opciones_c5, horizontal=True, key="kn_5")
+                
+                lbl_bat = ejecutar_traduccion_neuronal("📋 BATERÍA DE REACTIVOS C&K", idioma_sel)
+                st.subheader(lbl_bat)
+                
+                banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
+                for r_id, enunciado_idioma in banco_mutado.items():
+                    st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        "Scale / Escala:",
+                        options=[1, 2, 3, 4, 5],
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)),
+                        horizontal=False,
+                        key=f"dyn_r_{r_id}"
+                    )
+
+            renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         else:
-            # Mensaje informativo traducido si el ponente mantiene el formulario oculto
             lbl_info_hidden = ejecutar_traduccion_neuronal("💡 El formulario de captura local se encuentra oculto en esta pantalla.", idioma_sel)
             st.info(lbl_info_hidden)
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
-
     # =================================================================
-    # PARTE 14 DE 14: PANTALLA POST-DESCARGA E INFORME INDIVIDUAL (TRAMO 1 DE 3)
+    # PARTE 14 DE 14: PANTALLA POST-DESCARGA E INFORME INDIVIDUAL (TRAMO 14A)
     # =================================================================
     else:
         nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
@@ -1152,7 +1150,7 @@ def main():
                 
                 st.download_button(
                     label=tx_final.get("btn_pdf", "📥 DESCARGAR MI REPORTE EN PDF"),
-                    data=repor_final_binario if 'repor_final_binario' in locals() else reporte_final_binario,
+                    data=reporte_final_binario,
                     file_name=f"Reporte_Individual_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
                     mime="application/pdf",
                     use_container_width=True,
@@ -1169,9 +1167,8 @@ def main():
                 for k in ["nombre_usuario_persistente", "whatsapp_usuario_persistente", "resultados_usuario_persistente", "grafica_usuario_persistente", "es_modo_likert_persistente"]:
                     if k in st.session_state: del st.session_state[k]
                 st.rerun()
-
     # =================================================================
-    # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (TRAMO 2 DE 3)
+    # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (TRAMO 14B)
     # =================================================================
     # Módulo de Control de Oficina para el Ponente Autenticado
     if st.session_state.admin_autenticado and not es_celular_del_publico:
@@ -1261,8 +1258,7 @@ def main():
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
         else:
-            # 🍊 BLINDAJE DIMENSIONAL APA: Validación matemática para garantizar el encuadre exacto
-            encabezados = todas_las_filas[0]
+            encabezados = todas_las_filas if todas_las_filas else []
             columnas_limpias = [str(c).strip() if str(c).strip() else f"C_{i}" for i, c in enumerate(encabezados)]
             
             registros_limpios = []
@@ -1299,10 +1295,8 @@ def main():
                         else:
                             st.markdown("**🚨 Alertas de Salud Activas:**")
                             st.write(f"`{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}`")
-
-
         # =================================================================
-        # PARTE 14 DE 14: PROPORCIONES, DICTAMEN MACRO Y CIERRE (TRAMO 3 DE 3)
+        # PARTE 14 DE 14: PROPORCIONES, DICTAMEN MACRO Y CIERRE (TRAMO 14C)
         # =================================================================
         # Proporciones Globales de Audiencia
         st.markdown("---")
