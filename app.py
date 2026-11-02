@@ -958,14 +958,16 @@ def main():
     if not es_celular_del_publico:
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
-            if not st.session_state.admin_autenticado:
-                input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_unique")
+                if not st.session_state.admin_autenticado:
+                # CORRECCIÓN DE UNICIDAD CLAVE: Se modifica la key a "side_pwd_admin_master_unfailing_2026"
+                input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_master_unfailing_2026")
                 if st.button("Desbloquear Tableros", key="btn_desbloquear_unique"):
                     if input_password == PASSWORD_SISTEMA:
                         st.session_state.admin_autenticado = True
                         st.rerun()
                     else:
                         st.error("Contraseña incorrecta.")
+
             else:
                 st.success("Modo Ponente Activo")
                 if st.button("🚪 Cerrar Centro de Inteligencia", type="secondary", key="btn_close_admin_unique"):
