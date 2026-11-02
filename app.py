@@ -454,10 +454,10 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
 }
 }
 algun_gajo_marcado = False
-    for dim_nombre, items in resultados.items():
-    if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]:
+        for dim_nombre, items in resultados.items():
+     if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]:
 continue
-    if len(items) == 0:
+     if len(items) == 0:
 continue
 algun_gajo_marcado = True
 pdf.set_x(10)
@@ -469,7 +469,7 @@ pdf.set_x(10)
 pdf.set_font("Helvetica", "B", 10)
 pdf.set_text_color(50, 50, 50)
 pdf.multi_cell(190, 5, f"Sintomas Detectados: {puntos_str}", new_x="LMARGIN", new_y="NEXT")
-if dim_nombre in glosario_clinico:
+    if dim_nombre in glosario_clinico:
 pdf.set_x(10)
 pdf.set_font("Helvetica", "", 9.5)
 pdf.set_text_color(80, 80, 80)
@@ -478,7 +478,7 @@ pdf.set_x(10)
 pdf.set_font("Helvetica", "I", 9.5)
 pdf.set_text_color(30, 139, 195)
 pdf.multi_cell(190, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n", new_x="LMARGIN", new_y="NEXT")
-if not algun_gajo_marcado:
+    if not algun_gajo_marcado:
 pdf.set_x(10)
 pdf.set_font("Helvetica", "B", 11)
 pdf.set_text_color(38, 166, 91)
