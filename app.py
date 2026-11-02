@@ -958,7 +958,7 @@ def main():
     if not es_celular_del_publico:
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
-                if not st.session_state.admin_autenticado:
+            if not st.session_state.admin_autenticado:
                 # CORRECCIÓN DE UNICIDAD CLAVE: Se modifica la key a "side_pwd_admin_master_unfailing_2026"
                 input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_master_unfailing_2026")
                 if st.button("Desbloquear Tableros", key="btn_desbloquear_unique"):
