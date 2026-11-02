@@ -1286,30 +1286,43 @@ def main():
                 
             df_doc = pd.DataFrame(registros_limpios, columns=columnas_limpias)
 
-        # CRM de Búsqueda Individual
+        # CRM de Búsqueda Individual Blindado Neuronalmente por Índices Posicionales
         st.markdown("---")
         st.subheader("🔍 Buscador Exclusivo de Participantes (Atención y Consulta Privada)")
         c_busq = st.text_input("📝 Filtrar por Nombre o Teléfono Celular:", placeholder="Ej. Juan o +52...", key="crm_search_input").strip().lower()
         
-        if c_busq and df_doc is not None:
-            df_filtrado = df_doc[df_doc["Nombre"].str.lower().str.contains(c_busq) | df_doc["WhatsApp"].str.lower().str.contains(c_busq)]
+        if c_busq and df_doc is not None and not df_doc.empty:
+            # CORRECCIÓN DE RAÍZ: Extraemos dinámicamente el nombre real de las columnas 1 y 2 traducidas
+            col_nombre_dinamica = df_doc.columns[1] if len(df_doc.columns) > 1 else "Nombre"
+            col_whatsapp_dinamica = df_doc.columns[2] if len(df_doc.columns) > 2 else "WhatsApp"
+            col_timestamp_dinamica = df_doc.columns[0] if len(df_doc.columns) > 0 else "Timestamp"
+            
+            # Realizamos el filtrado sobre las llaves dinámicas mutadas por la API de Google
+            df_filtrado = df_doc[
+                df_doc[col_nombre_dinamica].astype(str).str.lower().str.contains(c_busq) | 
+                df_doc[col_whatsapp_dinamica].astype(str).str.lower().str.contains(c_busq)
+            ]
+            
             if df_filtrado.empty:
                 st.warning("❌ No se encontraron participantes registrados con esos criterios.")
             else:
                 st.success(f"🎯 Coincidencias encontradas: {len(df_filtrado)} registro(s)")
                 for _, row_p in df_filtrado.iterrows():
                     with st.container(border=True):
-                        st.markdown(f"### 👤 Participante: **{row_p['Nombre']}**")
-                        st.write(f"📱 **Enlace WhatsApp:** {row_p['WhatsApp']} | 📅 **Registro:** {row_p['Timestamp']}")
+                        st.markdown(f"### 👤 Participante: **{row_p[col_nombre_dinamica]}**")
+                        st.write(f"📱 **Enlace WhatsApp:** {row_p[col_whatsapp_dinamica]} | 📅 **Registro:** {row_p[col_timestamp_dinamica]}")
+                        
                         if es_tabla_likert:
-                            r_items = [pd.to_numeric(row_p[f"R{i}"], errors='coerce') for i in range(1, 11) if f"R{i}" in row_p]
-                            if len(r_items) >= 10:
-                                k_score = sum(r_items[0::2]) / 5
-                                c_score = sum(r_items[1::2]) / 5
+                            r_cols_p = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
+                            if len(r_cols_p) >= 10:
+                                k_score = sum([pd.to_numeric(row_p[c], errors='coerce') for i, c in enumerate(r_cols_p) if i % 2 == 0]) / 5
+                                c_score = sum([pd.to_numeric(row_p[c], errors='coerce') for i, c in enumerate(r_cols_p) if i % 2 != 0]) / 5
                                 st.markdown(f"**⏱️ Puntaje Cronos:** `{c_score:.2f}` | **🍃 Puntaje Kairós:** `{k_score:.2f}`")
                         else:
                             st.markdown("**🚨 Alertas de Salud Activas:**")
-                            st.write(f"`{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}`")
+                            # Extracción segura de síntomas por posición relacional
+                            alertas_detectadas = [str(row_p[c]) for c in df_doc.columns[3:10] if str(row_p[c]).strip()]
+                            st.write(f"`{' | '.join(alertas_detectadas) if alertas_detectadas else 'Sin Alertas'}`")
         # =================================================================
         # PARTE 14 DE 14: PROPORCIONES, DICTAMEN MACRO Y CIERRE (TRAMO 14C)
         # =================================================================
