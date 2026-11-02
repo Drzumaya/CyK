@@ -904,11 +904,13 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-         # =================================================================
-    # PARTE 13 DE 14: INTERCEPTACIÓN GLOBAL POR SESIÓN SÍNCRONA MASTER (TRAMO 1)
+       # =================================================================
+    # CONEXIÓN SINCRÓNICA DEL QR
     # =================================================================
-    # 1. Inicialización obligatoria e incondicional de los estados maestros de la sesión
-    idioma_url_codigo = st.query_params.get("lang", "es")
+    # La URL amarra el código ISO de la sesión actual (ej. &lang=en, &lang=ja, &lang=ko)
+    # Esto garantiza que el celular del público se abra directamente en el idioma que tú proyectas en el auditorio.
+    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={st.session_state.idioma_activo_actual}"
+
     
     if "tx_traducido_cache" not in st.session_state:
         st.session_state.tx_traducido_cache = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
