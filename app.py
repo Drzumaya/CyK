@@ -423,9 +423,6 @@ def limpiar_texto_pdf(texto, idioma="Español"):
 
 
 # =================================================================
-# PARTE 8: SANITIZADOR Y COMPILADOR CON ASISTENCIA Y RECOMENDACIONES C&K
-# =================================================================
-# =================================================================
 # PARTE 8: COMPILADOR DE REPORTES CON EXTRACTOR ASIMÉTRICO DE ALERTAS CRÍTICAS
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
@@ -784,12 +781,13 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 ### 🍊 Parte 10.5 de 13: Pasarela Transaccional Independiente (Anti-Indentation Fix)
 
 # =================================================================
-# PARTE 10.5: PASARELA TRANSACCIONAL INDEPENDIENTE CON DIAGRAMA DE GAJOS 
+# PARTE 10.5: PASARELA TRANSACCIONAL INDEPENDIENTE CON FLUJO DE CIERRE AUTOMÁTICO
 # =================================================================
 def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx):
     st.divider()
     grafica_base64 = None
     
+    # 1. Renderizado e interpretación gráfica de la Mandarina en Vivo para Salud Integral
     if not es_modo_likert and resultados_totales:
         st.write("### 🍊 Visualizacion de tu Mandarina de Salud Integral")
         
@@ -806,27 +804,30 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
         for g_visible, g_clave in col_gajos_maestro.items():
             alertas_gajo = resultados_totales.get(g_visible, [])
             labels_grafica.append(g_visible.replace(" ", "\n"))
-            if len(alertas_gajo) > 0: colores_gajos.append("#d91e24") # Rojo Alerta 🚨
-            else: colores_gajos.append("#ff9800") # Naranja Mandarina Óptimo 🍊
+            if len(alertas_gajo) > 0: 
+                colores_gajos.append("#d91e24") # Rojo Alerta 🚨
+            else: 
+                colores_gajos.append("#ff9800") # Naranja Mandarina Óptimo 🍊
                 
         try:
             fig, ax = plt.subplots(figsize=(4, 4))
-            valores_simetricos = [10] * 7
+            valores_simetricos = [1] * 7
             ax.pie(
                 valores_simetricos, labels=labels_grafica, colors=colores_gajos, startangle=90, counterclock=False,
                 wedgeprops=dict(width=0.4, edgecolor='white', linewidth=3),
                 textprops=dict(size=8, weight="bold")
             )
-            # GUARDADO CRÍTICO EN MEMORIA: Pasa directo al backend de FPDF sin romperse
             buf_m = BytesIO()
             plt.savefig(buf_m, format='png', bbox_inches='tight', dpi=100)
             buf_m.seek(0)
             grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_m.read()).decode('utf-8')}"
             plt.close(fig)
             st.image(buf_m.getvalue(), width=280)
-        except Exception: pass
+        except Exception: 
+            pass
 
-        col_btn1, col_btn2 = st.columns(2)
+    st.write("")
+    col_btn1, col_btn2 = st.columns(2)
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
     
     with col_btn1:
@@ -835,15 +836,15 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                 st.error(tx["err_fields"])
             else:
                 with st.spinner(tx["proc"]):
-                    # Registro síncrono en la nube de Google Sheets
-                    exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
+                    # Guardado en Google Sheets
+                    guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
                     st.session_state.guardado_exitoso = True
-                    st.toast("⚡ Datos procesados en el ecosistema.", icon="🍊")
-                    st.rerun() # Reinicia el hilo para sincronizar el buffer de descarga
+                    st.toast("⚡ Datos procesados con exito en la nube.", icon="🍊")
+                    st.rerun() # Sincroniza los hilos para desbloquear la descarga inmediatamente
                         
     with col_btn2:
-        # CORRECCIÓN DE RAÍZ: Permitimos la descarga instantánea si los campos básicos están validados
         if campos_completos:
+            # Construcción de gráfica secundaria para modelo C&K si aplica
             if es_modo_likert and grafica_base64 is None:
                 try:
                     kairos_v = [int(resultados_totales.get(f"R{i}", 3)) for i in range(1, 11, 2)]
@@ -855,21 +856,34 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                     buf_g.seek(0)
                     grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_g.read()).decode('utf-8')}"
                     plt.close(fig)
-                except Exception: pass
+                except Exception: 
+                    pass
             
-            # Compilación binaria en tiempo real del PDF con la mandarina integrada
+            # Compilación síncrona del PDF ejecutivo individual
             reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
             nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
             
+            # 🍊 DISPARADOR DEL AUTOMATISMO DE CIERRE:
+            # Al dar clic en descargar, mutamos el flujo a finalizado y barremos los estados previos
+            def callback_procesar_descarga_y_ocultar():
+                st.session_state.flujo_finalizado = True
+                st.session_state.guardado_exitoso = False
+                for k in list(st.session_state.keys()):
+                    if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")):
+                        try: del st.session_state[k]
+                        except Exception: pass
+
             st.download_button(
                 label=tx["btn_pdf"],
                 data=reporte_procesado,
-                file_name=f"Reporte_Mandarina_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
+                file_name=f"Reporte_Individual_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
                 mime="application/pdf",
-                key="btn_download_user_pdf_report_fixed"
+                on_click=callback_procesar_descarga_y_ocultar, # <--- Gatillo síncrono inyectado
+                key="btn_download_user_pdf_report_fixed_final"
             )
         else: 
             st.info(tx["fields_msg"])
+
 
 
 
