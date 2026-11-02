@@ -1072,24 +1072,26 @@ def main():
 
         tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", lista_tablas_reales)
         
-    if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
+            if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
             sheet = conectar_google_sheets(tabla_analizar)
             df_doc = None
             es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
             
-            # 🍊 INYECTOR DE DATOS SINTÉTICOS PARA AUDITORÍA SIN REGISTROS REALES
+            # 🍊 INYECTOR DE DATOS SINTÉTICOS PARA AUDITORÍA SIN REGISTROS REALES (FIXED)
             try:
                 todas_las_filas = sheet.get_all_values() if sheet else []
                 if not todas_las_filas or len(todas_las_filas) < 2:
                     st.info("💡 Tabla sin registros suficientes en producción. Generando matriz de control sintética para validación psicométrica...")
                     if es_tabla_likert:
-                        # Generamos una matriz balanceada de 10 usuarios de control para Cronos y Kairós
                         columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
                         datos_sinteticos = []
                         for u in range(10):
-                            row = [str(datetime.datetime.now()), f"Control_User_{u}", "+5200000000"] + ["30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
-                            # Respuestas variadas de control para evitar varianza cero
-                            row +=  if u % 2 == 0 else 
+                            row = [str(datetime.datetime.now()), f"Control_User_{u}", "+5200000000", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
+                            # CORRECCIÓN: Inyección explícita de respuestas Likert variadas (Kairós y Cronos intercalados)
+                            if u % 2 == 0:
+                                row += [4, 5, 4, 5, 4, 5, 4, 5, 4, 5]
+                            else:
+                                row += [3, 2, 3, 2, 3, 2, 3, 2, 3, 2]
                             row += ["Token_Control"]
                             datos_sinteticos.append(row)
                         df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
@@ -1098,7 +1100,7 @@ def main():
                         datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", "+52000", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_Control"] for u in range(5)]
                         df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
                 else:
-                    encabezados = todas_las_filas[0]
+                    encabezados = todas_las_filas
                     datos_cuerpo = todas_las_filas[1:]
                     encabezados_unicos = []
                     for i, col in enumerate(encabezados):
