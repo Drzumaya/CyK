@@ -949,10 +949,10 @@ def main():
 
 
 
-    # =================================================================
+        # =================================================================
     # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 1)
     # =================================================================
-     else:
+    else:
         nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
         whatsapp_p = st.session_state.get("whatsapp_usuario_persistente", "")
         resultados_p = st.session_state.get("resultados_usuario_persistente", {})
@@ -962,13 +962,12 @@ def main():
         tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
         
         st.balloons()
-        st.success("### ¡Diagnostico Procesado con Exito! 🎉")
+        st.success("### ¡Diagnóstico Procesado con Éxito! 🎉")
         
         with st.container(border=True):
             st.write(tx_final["thanks"])
             st.markdown(tx_final["thanks_sub"])
             
-            # El boton de descarga individual se renderiza fijamente aqui de forma segura
             if resultados_p:
                 reporte_final_binario = generar_pdf_diagnostico(nombre_p, whatsapp_p, resultados_p, st.session_state.audiencia_activa, es_likert_p, grafica_p, idioma_sel)
                 nombre_archivo = nombre_p.replace(' ', '_')
@@ -984,13 +983,11 @@ def main():
             
             st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
         
-        # Boton condicional de reinicio exclusivo para la pantalla del ponente
         if not es_celular_del_publico:
             st.write("")
-            if st.button("🔄 Volver al Diagnostico Principal / Reset View", type="primary", key="btn_global_reset_view_ponente"):
+            if st.button("🔄 Volver al Diagnóstico Principal / Reset View", type="primary", key="btn_global_reset_view_ponente"):
                 st.session_state.flujo_finalizado = False
                 st.session_state.guardado_exitoso = False
-                # Limpieza de cache intermedia
                 for k in ["nombre_usuario_persistente", "whatsapp_usuario_persistente", "resultados_usuario_persistente", "grafica_usuario_persistente", "es_modo_likert_persistente"]:
                     if k in st.session_state: del st.session_state[k]
                 st.rerun()
@@ -1030,11 +1027,10 @@ def main():
                 for u in range(10):
                     row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
                     
-                    # Poblado explícito de ítems Likert balanceados en espejo (pares Cronos / impares Kairós)
                     if u % 2 == 0: 
-                        row += [5, 2, 5, 1, 4, 2, 5, 1, 4, 2]
+                        row += [5, 2, 4, 1, 5, 2, 4, 1, 5, 3]
                     else: 
-                        row += [2, 5, 2, 5, 1, 5, 2, 4, 1, 5]
+                        row += [2, 5, 1, 4, 2, 5, 1, 4, 2, 3]
                         
                     row += [f"Token_{u}"]
                     datos_sinteticos.append(row)
@@ -1071,13 +1067,13 @@ def main():
                         else:
                             st.markdown("**🚨 Alertas de Salud Activas:**")
                             st.write(f"`{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}`")
-        # =================================================================
+
+               # =================================================================
         # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 2)
         # =================================================================
         # Proporciones Globales de Audiencia
         st.markdown("---")
         st.subheader("📊 Tabla de Distribución Proporcional de la Audiencia")
-        pct_cronos, pct_kairos, pct_empate = 50.0, 50.0, 0.0
         c_mean, k_mean = 3.0, 3.0
         
         if es_tabla_likert:
@@ -1176,3 +1172,4 @@ def main():
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
     main()
+
