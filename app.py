@@ -915,20 +915,25 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-    # Capa de interceptación de idioma base
+    # =================================================================
+    # CAPA DE INTERCEPTACIÓN DE IDIOMA BASE NEURONAL (CORREGIDA)
+    # =================================================================
     if not st.session_state.flujo_finalizado:
-                # Dentro de la Parte 13, Tramo 1:
         idioma_sel_visual = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
             list(MAPA_IDIOMAS_GLOBAL.keys()),
             key="sb_language_selector_main"
         )
-        idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual] # Obtiene el código ISO: "es", "en", "ko", etc.
-        tx = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
+        idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual] # Obtiene el código ISO nativo: "es", "en", "ko", etc.
+        
+        # Generación síncrona del diccionario de interfaz a través de la API Neuronal
+        # Traduce dinámicamente las semillas base de la Parte 3 bajo demanda
+        tx = {k: ejecutar_traduccion_neuronal(v, idioma_sel) for k, v in TEXTOS_BASE_ESPANOL.items()}
     else:
-        idioma_sel = "Español"
-        tx = DICCIONARIO_IDIOMAS["Español"]
-        # =================================================================
+        idioma_sel = "es" # Código ISO estándar de retorno
+        tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+
+    # =================================================================
     # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2 - POLYGLOT)
     # =================================================================
     # Consola Lateral Unificada del Ponente
