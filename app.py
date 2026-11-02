@@ -981,11 +981,14 @@ def main():
                         conectar_google_sheets(seleccion)
                     st.rerun()
 
-    # Único proyector de Código QR dinámico en pantalla principal
+       # Único proyector de Código QR dinámico en pantalla principal (Mecanismo Neuronal Blindado)
     if not st.session_state.flujo_finalizado:
-        titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
-        sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
-        sub_qr2 = tx.get("qr_sub2", DICCIONARIO_IDIOMAS["Español"]["qr_sub2"])
+        # Se extrae de forma segura desde el diccionario dinámico 'tx' generado por la API de Google
+        # El fallback recurre directamente al texto semilla en español si la API sufre latencia
+        titulo_qr = tx.get("qr_title", TEXTOS_BASE_ESPANOL["qr_title"])
+        sub_qr1 = tx.get("qr_sub1", TEXTOS_BASE_ESPANOL["qr_sub1"])
+        sub_qr2 = tx.get("qr_sub2", TEXTOS_BASE_ESPANOL["qr_sub2"])
+
         
         with st.expander(titulo_qr, expanded=True):
             col_qr1, col_qr2 = st.columns([1, 1.5])
