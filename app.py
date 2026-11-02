@@ -277,8 +277,8 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
-    Conserva la pureza ortografica original (tildes, enes, dieresis).
-    Remueve de forma sistematica emojis para limpiar el canal de impresion.
+    Conserva la pureza ortográfica original (tildes, eñes, diéresis) en UTF-8.
+    Remueve de forma sistemática emojis para limpiar el canal de impresión.
     """
     if not texto: 
         return ""
@@ -287,7 +287,7 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
         
-    # Remoción quirúrgica de emojis para proteger el búfer
+    # Remoción de emojis de la ponencia para proteger las celdas
     emojis_a_remover = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏", "🏭", "🍊"]
     for emj in emojis_a_remover:
         txt_str = txt_str.replace(emj, "")
@@ -302,13 +302,13 @@ def limpiar_texto_pdf(texto, idioma="Español"):
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     """
     Compila el archivo PDF ejecutivo individual para el participante.
-    Inyecta una fuente TrueType automatica para garantizar acentos perfectos y n.
+    Inyecta fuentes TrueType externas para garantizar acentos perfectos y eñes.
     """
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # 🍊 BLINDAJE DIGITAL INCONDICIONAL: Descarga e inyecta una tipografia con soporte UTF-8 completo en la nube
+    # 🍊 BLINDAJE ORTOGRÁFICO INCONDICIONAL: Descarga e inyecta tipografías con soporte UTF-8 completo en la nube
     try:
         url_fuente = "https://githubusercontent.com"
         url_fuente_bold = "https://githubusercontent.com"
@@ -319,7 +319,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.add_font("LiberationSans", "I", url_fuente_italic)
         font_family = "LiberationSans"
     except Exception:
-        # Fallback de emergencia a fuentes del sistema
+        # Fallback estructural del sistema
         font_family = "Helvetica"
         
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
@@ -332,7 +332,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     nombre_sano = limpiar_texto_pdf(nombre_usuario, lang)
     whatsapp_sano = limpiar_texto_pdf(whatsapp_usuario, lang)
     
-    # Encabezado Académico Sobrio (Jerarquía de Títulos con acentos habilitados)
+    # Encabezado Académico Sobrio (Jerarquía de Títulos APA)
     pdf.set_font(font_family, "B", 14)
     pdf.set_text_color(50, 50, 50) 
     pdf.cell(190, 10, limpiar_texto_pdf(titulo_oficial, lang), new_x="LMARGIN", new_y="NEXT", align="C")
@@ -347,8 +347,26 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(6)
     
-    # NOTA INTERNA DE SEGURIDAD: Actualizamos dinámicamente las llamadas de fuente inferiores
+    # Bloque de Datos de Identificación (Mesa Demográfica)
+    pdf.set_text_color(60, 60, 60)
     pdf.set_font(font_family, "B", 10)
+    pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
+    pdf.set_font(font_family, "", 10)
+    pdf.cell(145, 6, nombre_sano if nombre_sano else "Anónimo", new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_font(font_family, "B", 10)
+    pdf.cell(45, 6, limpiar_texto_pdf("cont_label", lang), new_x="RIGHT", new_y="TOP")
+    pdf.set_font(font_family, "", 10)
+    pdf.cell(145, 6, whatsapp_sano if whatsapp_sano else "N/A", new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_font(font_family, "B", 10)
+    pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
+    pdf.set_font(font_family, "", 10)
+    pdf.cell(145, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.ln(2)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    pdf.ln(6)
 
     if img_grafica_base64:
         try:
@@ -357,11 +375,12 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.image(img_data, x=65, w=80)
             pdf.ln(4)
             pdf.set_x(10)
-            pdf.set_font("Helvetica", "I", 9)
+            pdf.set_font(font_family, "I", 9)
             pdf.set_text_color(100, 100, 100)
             pdf.cell(190, 5, "Nota. Representación visual de la distribución factorial del participante.", new_x="LMARGIN", new_y="NEXT", align="C")
             pdf.ln(4)
-        except Exception: pass
+        except Exception: 
+            pass
 
     if es_realmente_likert:
         # === MÓDULO MODELOS TEMPORALES C&K ===
@@ -371,22 +390,22 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         avg_kairos = sum(kairos_v) / 5
         
         pdf.set_x(10)
-        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_font(font_family, "B", 11)
         pdf.set_text_color(50, 50, 50)
         pdf.cell(190, 7, "Resultados Descriptivos de Vectores Colectivos", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(1)
         
         pdf.set_x(10)
-        pdf.set_font("Helvetica", "", 10)
+        pdf.set_font(font_family, "", 10)
         pdf.cell(190, 5, f"Media Vector Cronos (Reloj): {avg_cronos:.2f}", new_x="LMARGIN", new_y="NEXT")
         pdf.cell(190, 5, f"Media Vector Kairós (Oportunidad): {avg_kairos:.2f}", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(4)
         
         diferencia = abs(avg_cronos - avg_kairos)
         pdf.set_x(10)
-        pdf.set_font("Helvetica", "B", 11)
+        pdf.set_font(font_family, "B", 11)
         pdf.cell(190, 6, "Interpretación de Constructo y Perfil Dominante", new_x="LMARGIN", new_y="NEXT")
-        pdf.set_font("Helvetica", "", 10)
+        pdf.set_font(font_family, "", 10)
         pdf.set_text_color(60, 60, 60)
         
         if diferencia <= 0.4:
@@ -400,18 +419,21 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.ln(4)
         pdf.set_x(10)
-        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_font(font_family, "B", 10)
         pdf.cell(190, 5, "Recomendaciones de Acompañamiento Metodológico", new_x="LMARGIN", new_y="NEXT")
-        pdf.set_font("Helvetica", "I", 9.5)
+        pdf.set_font(font_family, "I", 9.5)
         mensaje_tiempo = "Optimizar la simbiosis entre el tiempo métrico (Cronos) y el tempo de oportunidad (Kairós) es vital para reducir la fatiga cognitiva. Si tu perfil presenta una inclinación polarizada o rígida, se sugiere acudir directamente con el ponente para solicitar una consulta personalizada o asesoría estratégica. Alinear tus vectores temporales potenciará de inmediato tu rendimiento y madurez operativa."
         pdf.multi_cell(190, 4.5, mensaje_tiempo, new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         
     else:
+        # Invocación síncrona a la Parte 9
+        pdf.set_font(font_family, "", 10) # Deja la fuente TrueType activa para heredar glifos
         inyectar_bloque_salud_integral_apa(pdf, resultados, lang)
             
     return bytes(pdf.output())
+
 
 
 # =================================================================
@@ -422,7 +444,7 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
     Renderiza de manera exclusiva y asimétrica los gajos con alertas activas
     bajo el formato y la jerarquía de tablas del estilo académico minimalista.
     """
-    pdf.set_font("Helvetica", "B", 11)
+    pdf.set_font(style="B", size=11)
     pdf.set_text_color(50, 50, 50)
     pdf.cell(190, 7, "Vectores de Atencion Critica Detectados", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
@@ -468,30 +490,30 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
         algun_gajo_marcado = True
         
         pdf.set_x(10)
-        pdf.set_font("Helvetica", "B", 10.5)
+        pdf.set_font(style="B", size=11)
         pdf.set_text_color(50, 50, 50)
         pdf.cell(190, 6, f"Dimension Evaluada: {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
         
         puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
         pdf.set_x(10)
-        pdf.set_font("Helvetica", "I", 10)
+        pdf.set_font(style="B", size=11)
         pdf.set_text_color(80, 80, 80)
         pdf.multi_cell(190, 5, f"Indicadores de vulnerabilidad reportados: {puntos_str}", new_x="LMARGIN", new_y="NEXT")
         
         if dim_nombre in glosario_clinico:
             pdf.set_x(10)
-            pdf.set_font("Helvetica", "", 9.5)
+            pdf.set_font(style="B", size=11)
             pdf.set_text_color(60, 60, 60)
             pdf.multi_cell(190, 4.5, f"Significado del constructo: {limpiar_texto_pdf(glosario_clinico[dim_nombre]['sig'], lang)}", new_x="LMARGIN", new_y="NEXT")
             
             pdf.set_x(10)
-            pdf.set_font("Helvetica", "B", 9.5)
+            pdf.set_font(style="B", size=11)
             pdf.set_text_color(50, 50, 50)
             pdf.multi_cell(190, 4.5, f"Directriz de intervencion sugerida: {limpiar_texto_pdf(glosario_clinico[dim_nombre]['rec'], lang)}\n", new_x="LMARGIN", new_y="NEXT")
             
     if not algun_gajo_marcado:
         pdf.set_x(10)
-        pdf.set_font("Helvetica", "", 10)
+        pdf.set_font(style="B", size=11)
         pdf.set_text_color(40, 120, 60)
         pdf.multi_cell(190, 6, "Nota Clinica. El ecosistema analizado se encuentra en un estado funcional optimo. No se registraron indicadores de riesgo o fugas en ninguna de las dimensiones de bienestar integral.", new_x="LMARGIN", new_y="NEXT")
 
@@ -500,11 +522,11 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(4)
     pdf.set_x(10)
-    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_font(style="B", size=11)
     pdf.set_text_color(50, 50, 50)
     pdf.cell(190, 5, "Canalizacion y Seguimiento de Caso", new_x="LMARGIN", new_y="NEXT")
     pdf.set_x(10)
-    pdf.set_font("Helvetica", "I", 9.5)
+    pdf.set_font(style="B", size=11)
     pdf.set_text_color(80, 80, 80)
     mensaje_apoyo = "El auto-reporte es el primer paso en la deteccion de vulnerabilidades institucionales. Si has registrado indicadores criticos en tus gajos de salud, se extiende una invitacion cordial para contactar directamente al ponente para coordinar una consulta privada o asesoria personalizada para el diseno de planes de contencion oportuna."
     pdf.multi_cell(190, 4.5, mensaje_apoyo, new_x="LMARGIN", new_y="NEXT")
