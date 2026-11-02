@@ -45,7 +45,7 @@ st.markdown(
 # =================================================================
 # PARTE 2 DE 14: CONSTANTES DE RED Y CONFIGURACIONES GEOGRÁFICAS
 # =================================================================
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 # Catálogo oficial de las 32 entidades federativas de México
@@ -1001,11 +1001,17 @@ def main():
                 datos_sinteticos = []
                 for u in range(10):
                     row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
-                    if u % 2 == 0: row +=
-                    else: row +=
-                    row += ["Token_C"]
+                    
+                    # SOLUCIÓN: Poblado explícito de ítems Likert balanceados en espejo (pares Cronos / impares Kairós)
+                    if u % 2 == 0: 
+                        row += [5, 2, 4, 1, 5, 2, 4, 1, 5, 2] # Perfil con inclinación específica
+                    else: 
+                        row += [2, 5, 1, 4, 2, 5, 1, 4, 2, 5] # Perfil inverso balanceador
+                        
+                    row += [f"Token_{u}"]
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+
             else:
                 columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Detalle Alertas Temporal", "Token"]
                 datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "Fatiga", "", "Ansiedad", "", "", "Sobrecarga", "", "Burnout", "Token_C"] for u in range(5)]
