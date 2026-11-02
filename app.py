@@ -822,7 +822,7 @@ def algoritmo_generar_gajos_salud(lang_key):
         return tx_pool.get("gajos_data", DICCIONARIO_IDIOMAS["Español"]["gajos_data"])
 
 # =================================================================
-# PARTE 12: ORQUESTRACIÓN CENTRAL, RECUPERACIÓN HISTÓRICA Y QR DYNAMIC
+# PARTE 12: ORQUESTRACIÓN CENTRAL, RECUPERACIÓN HISTÓRICA Y CONSOLE
 # =================================================================
 def main():
     # Inicialización local de variables globales de red
@@ -849,12 +849,10 @@ def main():
                 conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-        # Interceptor de caducidad temporal anti-duplicados (Ventana ampliada a 10 minutos)
+    # Interceptor de caducidad temporal anti-duplicados (Ventana de 10 minutos)
     if token_actual and not st.session_state.admin_autenticado:
         acceso_bloqueado = False
         minuto_base = int(time.time() // 60)
-        
-        # SOLUCIÓN: Genera una lista de los tokens válidos para los últimos 10 minutos
         tokens_validos = [hashlib.md5(f"mandarina_secret_{minuto_base - i}".encode()).hexdigest()[:8] for i in range(10)]
         
         if token_actual not in tokens_validos: 
@@ -874,20 +872,65 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-
-       # =================================================================
-    # PARTE 12: ORQUESTRACIÓN INTERACTIVA, IDIOMA, QR Y CONTROL DE VISIBILIDAD
-    # =================================================================
+    # 1. CAPA DE INTERCEPTACIÓN DE IDIOMA BASE
     if not st.session_state.flujo_finalizado:
-        # 1. CAPA DE LOCALIZACIÓN POLÍGLOTA I18N
         idioma_sel = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
             ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"],
             key="sb_language_selector_main"
         )
         tx = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
-        
-        # 2. PROYECTOR DE CÓDIGO QR DINÁMICO REFORZADO (VENTANA 10 MINUTOS)
+    else:
+        idioma_sel = "Español"
+        tx = DICCIONARIO_IDIOMAS["Español"]
+
+    # 2. CONSOLA LATERAL DE ATENCION AL PONENTE
+    PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
+    
+    if not es_celular_del_publico:
+        with st.sidebar:
+            st.markdown("## 🔐 Control del Ponente")
+            if not st.session_state.admin_autenticado:
+                input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_unique")
+                if st.button("Desbloquear Tableros", key="btn_desbloquear_unique"):
+                    if input_password == PASSWORD_SISTEMA:
+                        st.session_state.admin_autenticado = True
+                        st.rerun()
+                    else:
+                        st.error("Contraseña incorrecta.")
+            else:
+                st.success("Modo Ponente Activo")
+                if st.button("🚪 Cerrar Centro de Inteligencia", type="secondary", key="btn_close_admin_unique"):
+                    st.session_state.admin_autenticado = False
+                    st.rerun()
+                    
+                nueva_aud_txt = st.text_input("➕ Agregar Nueva Audiencia Personalizada:", key="add_new_aud_unique").strip()
+                lista_audiencias_base = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
+                
+                if "audiencias_custom_list" not in st.session_state: 
+                    st.session_state.audiencias_custom_list = []
+                
+                if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiencias_custom_list:
+                    st.session_state.audiencias_custom_list.append(nueva_aud_txt)
+                    st.toast(f"Audiencia '{nueva_aud_txt}' añadida", icon="🍊")
+                
+                lista_audiencias_completa = lista_audiencias_base + st.session_state.audiences_custom_list
+                
+                seleccion = st.selectbox(
+                    "Audiencia Actual en Vivo:", 
+                    lista_audiencias_completa, 
+                    index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0, 
+                    key="sb_select_audience_unique"
+                )
+                
+                if seleccion != st.session_state.audiencia_activa:
+                    st.session_state.audiencia_activa = seleccion
+                    with st.spinner("Inicializando entorno de datos..."):
+                        conectar_google_sheets(seleccion)
+                    st.rerun()
+
+    # 3. ÚNICO PROYECTOR DE CÓDIGO QR DINÁMICO EN LA PANTALLA PRINCIPAL
+    if not st.session_state.flujo_finalizado:
         titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
         sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
         sub_qr2 = tx.get("qr_sub2", DICCIONARIO_IDIOMAS["Español"]["qr_sub2"])
@@ -909,12 +952,11 @@ def main():
                 
         st.write("")
         
-        # 3. INTERRUPTOR DE VISIBILIDAD ON-DEMAND PARA EL FORMULARIO
+        # 4. PALANCA DE VISIBILIDAD DE CONTENIDO
         mostrar_formulario = st.toggle("📝 Mostrar Formulario de Captura en Pantalla Principal", value=False, key="tgl_mostrar_formulario_main")
-        
         st.divider()
 
-        # CONDICIONAL DE DESPLIEGUE: El formulario emerge solo si se activa la palanca
+        # Condicional de apertura del cuestionario
         if mostrar_formulario:
             st.header(f"📋 {st.session_state.audiencia_activa}")
             nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
@@ -924,72 +966,6 @@ def main():
             resultados_totales = {}
             es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
-
-    
-    PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
-    
-    if not es_celular_del_publico:
-        with st.sidebar:
-            st.markdown("## 🔐 Control del Ponente")
-            if not st.session_state.admin_autenticado:
-                input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_unique")
-                if st.button("Desbloquear Tableros", key="btn_desbloquear_unique"):
-                    if input_password == PASSWORD_SISTEMA:
-                        st.session_state.admin_autenticado = True
-                        st.rerun()
-                    else:
-                        st.error("Contraseña incorrecta.")
-            else:
-                st.success("Modo Ponente Activo")
-                
-                # BOTÓN DE CIERRE INSTANTÁNEO DEL CENTRO DE INTELIGENCIA
-                if st.button("🚪 Cerrar Centro de Inteligencia", type="secondary", key="btn_close_admin_unique"):
-                    st.session_state.admin_autenticado = False
-                    st.rerun()
-                    
-                nueva_aud_txt = st.text_input("➕ Agregar Nueva Audiencia Personalizada:", key="add_new_aud_unique").strip()
-                lista_audiencias_base = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-                
-                if "audiencias_custom_list" not in st.session_state: 
-                    st.session_state.audiencias_custom_list = []
-                
-                if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiencias_custom_list:
-                    st.session_state.audiencias_custom_list.append(nueva_aud_txt)
-                    st.toast(f"Audiencia '{nueva_aud_txt}' añadida", icon="🍊")
-                
-                lista_audiencias_completa = lista_audiencias_base + st.session_state.audiencias_custom_list
-                
-                seleccion = st.selectbox(
-                    "Audiencia Actual en Vivo:", 
-                    lista_audiencias_completa, 
-                    index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0, 
-                    key="sb_select_audience_unique"
-                )
-                
-                if seleccion != st.session_state.audiencia_activa:
-                    st.session_state.audiencia_activa = seleccion
-                    with st.spinner("Inicializando entorno de datos..."):
-                        conectar_google_sheets(seleccion)
-                    st.rerun()
-
-        # Proyección adaptativa del QR
-        titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
-        sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
-        sub_qr2 = tx.get("qr_sub2", DICCIONARIO_IDIOMAS["Español"]["qr_sub2"])
-        with st.expander(titulo_qr, expanded=True):
-            col1, col2 = st.columns([1, 1.5])
-            with col1:
-                qr = qrcode.QRCode(version=1, box_size=10, border=2)
-                qr.add_data(url_con_token)
-                qr.make(fit=True)
-                img_qr = qr.make_image(fill_color="#e65100", back_color="white")
-                buf = BytesIO()
-                img_qr.save(buf, format="PNG")
-                st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", width='stretch')
-            with col2:
-                st.write(f"### Audiencia Proyectada en Vivo: {st.session_state.audiencia_activa}")
-                st.write(sub_qr1)
-                st.write(sub_qr2)
 
         # =================================================================
     # PARTE 13: CENTRO DE INTELIGENCIA Y EXTRACTOR DE HISTORIAL (TRAMO 1)
