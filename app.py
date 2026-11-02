@@ -273,12 +273,13 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (REMAPPING)
+# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (APA CLEAN)
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
     Purifica las cadenas de texto conservando la n, las tildes y dieresis.
-    Fuerza el remapeo de glifos a caracteres nativos ISO-8859-1 (Latin-1).
+    Remueve de forma automatica emojis y simbolos graficos complejos
+    para evitar que aparezcan signos de interrogacion en el reporte.
     """
     if not texto: 
         return ""
@@ -286,6 +287,11 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
+        
+    # Remoción quirúrgica de emojis del Modelo Mandarina para proteger el búfer FPDF
+    emojis_a_remover = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏", "🏭", "🍊"]
+    for emj in emojis_a_remover:
+        txt_str = txt_str.replace(emj, "")
         
     # Diccionario de remapeo explicito de compatibilidad para fuentes core de FPDF
     remapeo_glifos = {
@@ -297,9 +303,10 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     texto_corregido = "".join(remapeo_glifos.get(c, c) for c in txt_str)
     
     try:
-        return texto_corregido.encode("latin-1", errors="replace").decode("latin-1")
+        return texto_corregido.encode("latin-1", errors="ignore").decode("latin-1").strip()
     except Exception:
-        return texto_corregido
+        return texto_corregido.strip()
+
 
 
 # =================================================================
