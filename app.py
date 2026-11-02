@@ -1084,10 +1084,10 @@ def main():
         st.write("Tabla completa de respuestas del auditorio sincronizada en vivo:")
         st.dataframe(df_doc, use_container_width=True)
 
-        st.markdown("---")
+               st.markdown("---")
         if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
             if df_doc is not None and len(df_doc) >= 2:
-                # INSTANCIACIÓN PRIORITARIA: Se declara la variable al inicio del botón para erradicar el NameError de raíz
+                # INSTANCIACIÓN EN LA RAÍZ DEL BOTÓN: Garantiza que el PDF exista para cualquier flujo (Likert o Salud)
                 pdf_auditoria = FPDF()
                 pdf_auditoria.add_page()
                 
@@ -1137,7 +1137,7 @@ def main():
                 st.markdown("---")
                 st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
                 
-                # Configuración de estilos del PDF institucional
+                # Configuración institucional y metadatos del PDF
                 pdf_auditoria.set_font("Helvetica", "B", 14)
                 pdf_auditoria.set_text_color(230, 81, 0)
                 pdf_auditoria.cell(0, 10, "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO", new_x="LMARGIN", new_y="NEXT", align="C")
@@ -1215,20 +1215,21 @@ def main():
                 txt_nota = (
                     "Nota Cientifica de Validacion: Este reporte fue compiled empleando Descomposicion en Valores Singulares (SVD) "
                     "y Factorizacion Ortogonal de Matrices Centradas. En caso de procesar muestras de control simuladas de baja "
-"varianza, el R2 tendera de manera determinista a 1.000 y la covarianza a 1.000 como reflejo de simetria algebraica. "
-"Para validez externa indexada, se recomienda contrastar estos coeficientes de ruta con muestras reales N > 30."
-)
-pdf_auditoria.multi_cell(0, 5, txt_nota)
-bytes_auditoria = pdf_auditoria.output()
-st.download_button(
-label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_analizar})",
-data=bytes(bytes_auditoria),
-file_name=f"Dictamen_Doctoral_{tabla_analizar.replace(' ', '_')}.pdf",
-mime="application/pdf",
-key="btn_download_admin_pdf_final_maestro"
-)
+                    "varianza, el R2 tendera de manera determinista a 1.000 y la covarianza a 1.000 como reflejo de simetria algebraica. "
+                    "Para validez externa indexada, se recomienda contrastar estos coeficientes de ruta con muestras reales N > 30."
+                )
+                pdf_auditoria.multi_cell(0, 5, txt_nota)
+                
+                bytes_auditoria = pdf_auditoria.output()
+                st.download_button(
+                    label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_analizar})",
+                    data=bytes(bytes_auditoria),
+                file_name=f"Dictamen_Doctoral_{tabla_analizar.replace(' ', '_')}.pdf",
+                mime="application/pdf",
+                key="btn_download_admin_pdf_final_maestro"
+                )
 
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 
 if name == "main":
-    main()
+main()
