@@ -1296,17 +1296,20 @@ def main():
                 )
 
 # =================================================================
-# INYECTOR COMPILADOR: RECONOCIMIENTO HONORÍFICO DINÁMICO (FIX Ñ & ACCENTS)
+# INYECTOR COMPILADOR: RECONOCIMIENTO HONORÍFICO DINÁMICO (PÁGINA ÚNICA)
 # =================================================================
 def generar_reconocimiento_honorifico_dinamico():
     """
     Compila y exporta el Reconocimiento Honorífico Oficial en PDF.
     Automatiza la fecha real de descarga y centra la rúbrica presidencial del Dr.
-    Garantiza acentos y eñes impecables mediante inyección de bytes nativos.
+    Ajustado geométricamente a una sola página A4 horizontal (Landscape).
     """
     pdf = FPDF(orientation="L", unit="mm", format="A4")
     pdf.core_fonts_encoding = "cp1252"
     pdf.add_page()
+    
+    # Desactivamos el salto de página automático para evitar desbordamientos accidentales
+    pdf.set_auto_page_break(auto=False)
     
     # 1. PALETA CROMÁTICA INSTITUCIONAL (Dorado Satinado Académico)
     ORO_SATINADO = (212, 175, 55)   
@@ -1321,17 +1324,15 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.rect(13, 13, 271, 184)
     
     # 3. CABECERA INSTITUCIONAL
-    pdf.ln(18)
+    pdf.ln(15) # Compactado de 18 a 15
     pdf.set_font("Helvetica", "B", 13)
     pdf.set_text_color(*GRIS_GRAFITO)
     
-    # "ASOCIACIÓN CIVIL" - Remapeo seguro de la Ó
     tit_ac = f"ASOCIACI{chr(211)}N CIVIL JACOB ZUMAYA PRIANTI"
     pdf.cell(277, 7, tit_ac, new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font("Helvetica", "I", 9.5)
     pdf.set_text_color(*GRIS_MITAD)
-    # "Acreditación"
     sub_ac = f"Consejo Directivo de Alta Acreditaci{chr(243)}n Tecnol{chr(243)}gica y Ciencias del Comportamiento"
     pdf.cell(277, 5, sub_ac, new_x="LMARGIN", new_y="NEXT", align="C")
     
@@ -1340,7 +1341,7 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.set_draw_color(*ORO_SATINADO)
     pdf.set_line_width(0.6)
     pdf.line(118, pdf.get_y(), 178, pdf.get_y())
-    pdf.ln(10)
+    pdf.ln(8) # Compactado de 10 a 8
     
     # 4. DECLARACIÓN DEL LAUREADO
     pdf.set_font("Times", "I", 14)
@@ -1350,38 +1351,32 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(2)
     pdf.set_font("Times", "B", 26)
     pdf.set_text_color(*ORO_SATINADO) 
-    # "HONORÍFICO"
     tit_hon = f"RECONOCIMIENTO HONOR{chr(205)}FICO"
     pdf.cell(277, 14, tit_hon, new_x="LMARGIN", new_y="NEXT", align="C")
     
-    pdf.ln(4)
+    pdf.ln(3) # Compactado de 4 a 3
     pdf.set_font("Times", "I", 14)
     pdf.set_text_color(*GRIS_GRAFITO)
-    # "Máxima Distinción e Ingeniería"
     sub_laur = f"Con el grado de M{chr(225)}xima Distinci{chr(243)}n en Ciencia e Ingenier{chr(237)}a de Software al:"
     pdf.cell(277, 8, sub_laur, new_x="LMARGIN", new_y="NEXT", align="C")
     
     # 5. NOMBRE DEL GALARDONADO (DR. JACOB ZUMAYA PRIANTI)
-    pdf.ln(4)
+    pdf.ln(3) # Compactado de 4 a 3
     pdf.set_font("Times", "B", 24)
     pdf.set_text_color(*GRIS_GRAFITO)
     pdf.cell(277, 12, "Dr. Jacob Zumaya Prianti", new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.ln(2)
     pdf.line(98, pdf.get_y(), 198, pdf.get_y())
-    pdf.ln(8)
+    pdf.ln(6) # Compactado de 8 a 6
     
     # 6. TEXTO DEL DICTAMEN DE MÉRITO (C&K + MARKOV + SVD)
     pdf.set_font("Helvetica", "", 10.5)
     pdf.set_text_color(*GRIS_GRAFITO)
     
-    # "diseño, fundamentación, psicométrico"
     linea1 = f"Por el dise{chr(241)}o, fundamentaci{chr(243)}n y despliegue transaccional del ecosistema psicom{chr(233)}trico global"
-    # "integración asimétrica"
     linea2 = f"Mandarina & C&K Analytics, logrando un hito de vanguardia en la integraci{chr(243)}n asim{chr(233)}trica"
-    # "estocásticos, reducción"
     linea3 = f"de modelos temporales mediante procesos estoc{chr(225)}sticos de Markov y reducci{chr(243)}n dimensional SVD."
-    # "precisión, científico"
     linea4 = f"Su aporte eleva la precisi{chr(243)}n anal{chr(237)}tica institucional a la frontera del conocimiento cient{chr(237)}fico."
     
     pdf.cell(277, 5.5, linea1, new_x="LMARGIN", new_y="NEXT", align="C")
@@ -1390,11 +1385,10 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.cell(277, 5.5, linea4, new_x="LMARGIN", new_y="NEXT", align="C")
     
     # 7. AUTOMATIZACIÓN CRONOLÓGICA DE LA FECHA DE DESCARGA
-    pdf.ln(12)
+    pdf.ln(8) # Compactado de 12 a 8
     pdf.set_font("Helvetica", "I", 9.5)
     pdf.set_text_color(*GRIS_MITAD)
     
-    # "año"
     meses_es = {1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 5: "mayo", 6: "junio", 7: "julio", 8: "agosto", 9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"}
     fecha_hoy = datetime.date.today()
     dia_txt = str(fecha_hoy.day)
@@ -1404,8 +1398,8 @@ def generar_reconocimiento_honorifico_dinamico():
     texto_fecha_dinamica = f"Dado en la sede oficial del Consejo Directivo a los {dia_txt} d{chr(237)}as del mes de {mes_txt} del a{chr(241)}o {anio_txt}."
     pdf.cell(277, 5, texto_fecha_dinamica, new_x="LMARGIN", new_y="NEXT", align="C")
     
-    # 8. MAQUETACIÓN CENTRAL DE LA RÚBRICA PRESIDENCIAL
-    pdf.ln(22)
+    # 8. MAQUETACIÓN CENTRAL DE LA RÚBRICA PRESIDENCIAL COMPACTADA
+    pdf.ln(12) # Reducción drástica de 22 a 12 para forzar página única
     y_firma_central = pdf.get_y()
     
     # Línea de firma centrada de 70mm de longitud
@@ -1421,7 +1415,6 @@ def generar_reconocimiento_honorifico_dinamico():
     
     pdf.set_font("Helvetica", "", 8.5)
     pdf.set_text_color(*GRIS_MITAD)
-    # "PRESIDENTE"
     pdf.set_x(113.5)
     pdf.cell(70, 4, "PRESIDENTE DEL CONSEJO DIRECTIVO", align="C", new_x="LMARGIN", new_y="NEXT")
     
@@ -1429,6 +1422,7 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.cell(70, 4, "Jacob Zumaya Prianti A.C.", align="C")
     
     return bytes(pdf.output())
+
 
 
 # Guardia de ejecución principal reglamentaria en el entorno de Python
