@@ -905,7 +905,7 @@ def main():
                 if st.button("Procesar Alertas Base / Register Alerts", key="btn_register_alerts_gajos"):
                     st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
                     st.success("OK. Context synchronized.")
-               else:
+       else:
                 st.subheader(tx["sec1"])
                 resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
                 resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
