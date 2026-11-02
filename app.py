@@ -273,12 +273,12 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (LATIN-1 NATIVO)
+# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (REMAPPING)
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
-    Purifica las cadenas de texto conservando la n y todos los acentos.
-    Mapea de forma directa a la codificacion latin-1 nativa de FPDF.
+    Purifica las cadenas de texto conservando la n, las tildes y dieresis.
+    Fuerza el remapeo de glifos a caracteres nativos ISO-8859-1 (Latin-1).
     """
     if not texto: 
         return ""
@@ -287,9 +287,19 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
         
-    # Remapeo directo de compatibilidad de fuentes core
-    return txt_str.encode("latin-1", errors="replace").decode("latin-1")
-
+    # Diccionario de remapeo explicito de compatibilidad para fuentes core de FPDF
+    remapeo_glifos = {
+        'á': chr(225), 'é': chr(233), 'í': chr(237), 'ó': chr(243), 'ú': chr(250),
+        'Á': chr(193), 'É': 'E', 'Í': chr(205), 'Ó': chr(211), 'Ú': chr(218),
+        'ñ': chr(241), 'Ñ': chr(209), 'ü': chr(252), 'Ü': chr(220)
+    }
+    
+    texto_corregido = "".join(remapeo_glifos.get(c, c) for c in txt_str)
+    
+    try:
+        return texto_corregido.encode("latin-1", errors="replace").decode("latin-1")
+    except Exception:
+        return texto_corregido
 
 
 # =================================================================
