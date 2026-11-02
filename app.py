@@ -913,8 +913,8 @@ def main():
         tx = DICCIONARIO_IDIOMAS["Español"]
 
     # 2. CONSOLA LATERAL DE ATENCION AL PONENTE
-     # =================================================================
-    CONSOLA LATERAL UNIFICADA (SANACIÓN DE KEYERROR)
+    # =================================================================
+    # CONSOLA LATERAL UNIFICADA (SANACIÓN DE KEYERROR)
     # =================================================================
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     
