@@ -1281,6 +1281,142 @@ def main():
                     mime="application/pdf",
                     key="btn_download_admin_pdf_final_maestro"
                 )
+                 # INYECCIÓN DEL BOTÓN EXCLUSIVO DE DESCARGA DEL RECONOCIMIENTO HONORÍFICO
+                st.markdown("---")
+                st.subheader("🏆 Galardones e Incentivos Académicos")
+                
+                bytes_reconocimiento = generar_reconocimiento_honorifico_dinamico()
+                st.download_button(
+                    label="🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO (PRESIDENCIA)",
+                    data=bytes_reconocimiento,
+                    file_name=f"Reconocimiento_Honorifico_Dr_Jacob_Zumaya_{datetime.date.today().strftime('%Y_%m_%d')}.pdf",
+                    mime="application/pdf",
+                    key="btn_download_honorific_diploma_master_fixed",
+                    use_container_width=True
+                )
+
+# =================================================================
+# INYECTOR COMPILADOR: RECONOCIMIENTO HONORÍFICO DINÁMICO (CP1252)
+# =================================================================
+def generar_reconocimiento_honorifico_dinamico():
+    """
+    Compila y exporta el Reconocimiento Honorífico Oficial en PDF.
+    Automatiza la fecha real de descarga y centra la rúbrica presidencial del Dr.
+    """
+    pdf = FPDF(orientation="L", unit="mm", format="A4")
+    pdf.core_fonts_encoding = "cp1252"
+    pdf.add_page()
+    
+    # 1. PALETA CROMÁTICA INSTITUCIONAL (Dorado Satinado Académico)
+    ORO_SATINADO = (212, 175, 55)   
+    GRIS_GRAFITO = (50, 50, 50)     
+    GRIS_MITAD = (100, 100, 100)    
+    
+    # 2. DISEÑO DEL MARCO PERIMETRAL EN DOBLE ENCUADRE
+    pdf.set_draw_color(*ORO_SATINADO)
+    pdf.set_line_width(1.2)
+    pdf.rect(10, 10, 277, 190)
+    pdf.set_line_width(0.4)
+    pdf.rect(13, 13, 271, 184)
+    
+    # 3. CABECERA INSTITUCIONAL
+    pdf.ln(18)
+    pdf.set_font("Helvetica", "B", 13)
+    pdf.set_text_color(*GRIS_GRAFITO)
+    pdf.cell(277, 7, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.set_font("Helvetica", "I", 9.5)
+    pdf.set_text_color(*GRIS_MITAD)
+    pdf.cell(277, 5, "Consejo Directivo de Alta Acreditacion Tecnologica y Ciencias del Comportamiento", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    # Línea divisoria heráldica central en dorado
+    pdf.ln(4)
+    pdf.set_draw_color(*ORO_SATINADO)
+    pdf.set_line_width(0.6)
+    pdf.line(118, pdf.get_y(), 178, pdf.get_y())
+    pdf.ln(10)
+    
+    # 4. DECLARACIÓN DEL LAUREADO
+    pdf.set_font("Times", "I", 14)
+    pdf.set_text_color(*GRIS_GRAFITO)
+    pdf.cell(277, 8, "Otorga el presente", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.ln(2)
+    pdf.set_font("Times", "B", 26)
+    pdf.set_text_color(*ORO_SATINADO) 
+    pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.ln(4)
+    pdf.set_font("Times", "I", 14)
+    pdf.set_text_color(*GRIS_GRAFITO)
+    pdf.cell(277, 8, "Con el grado de Maxima Distincion en Ciencia e Ingenieria de Software al:", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    # 5. NOMBRE DEL GALARDONADO (DR. JACOB ZUMAYA PRIANTI)
+    pdf.ln(4)
+    pdf.set_font("Times", "B", 24)
+    pdf.set_text_color(*GRIS_GRAFITO)
+    pdf.cell(277, 12, "Dr. Jacob Zumaya Prianti", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.ln(2)
+    pdf.line(98, pdf.get_y(), 198, pdf.get_y())
+    pdf.ln(8)
+    
+    # 6. TEXTO DEL DICTAMEN DE MÉRITO (C&K + MARKOV)
+    pdf.set_font("Helvetica", "", 10.5)
+    pdf.set_text_color(*GRIS_GRAFITO)
+    
+    linea1 = "Por el diseno, fundamentacion y despliegue transaccional del ecosistema psicometrico global"
+    linea2 = "Mandarina & C&K Analytics, logrando un hito de vanguardia en la integracion asimetrica"
+    linea3 = "de modelos temporales mediante procesos estocasticos de Markov y reduccion dimensional SVD."
+    linea4 = "Su aporte eleva la precision analitica institucional a la frontera del conocimiento cientifico."
+    
+    pdf.cell(277, 5.5, linea1, new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(277, 5.5, linea2, new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(277, 5.5, linea3, new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(277, 5.5, linea4, new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    # 7. AUTOMATIZACIÓN CRONOLÓGICA DE LA FECHA DE DESCARGA
+    pdf.ln(12)
+    pdf.set_font("Helvetica", "I", 9.5)
+    pdf.set_text_color(*GRIS_MITAD)
+    
+    # Diccionario semántico de meses para el vaciado formal
+    meses_es = {1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 5: "mayo", 6: "junio", 7: "julio", 8: "agosto", 9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"}
+    fecha_hoy = datetime.date.today()
+    dia_txt = str(fecha_hoy.day)
+    mes_txt = meses_es.get(fecha_hoy.month, "noviembre")
+    anio_txt = str(fecha_hoy.year)
+    
+    texto_fecha_dinamica = f"Dado en la sede oficial del Consejo Directivo a los {dia_txt} dias del mes de {mes_txt} del ano {anio_txt}."
+    # Remapeo seguro cp1252 para conservar acentos
+    texto_fecha_sana = texto_fecha_dinamica.encode("cp1252", errors="ignore").decode("cp1252")
+    pdf.cell(277, 5, texto_fecha_sana, new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    # 8. MAQUETACIÓN CENTRAL DE LA RÚBRICA PRESIDENCIAL
+    pdf.ln(22)
+    y_firma_central = pdf.get_y()
+    x_centrada = 103.5 # (210mm ancho A4 - 70mm linea de firma) / 2 en Landscape -> 297mm ancho real. Centro=148.5 -> 148.5 - 35 = 113.5
+    
+    # Línea de firma centrada de 70mm de longitud
+    pdf.set_draw_color(*GRIS_MITAD)
+    pdf.set_line_width(0.3)
+    pdf.line(113.5, y_firma_central, 183.5, y_firma_central)
+    
+    # Rúbrica Presidencial Autorizada
+    pdf.set_xy(113.5, y_firma_central + 2)
+    pdf.set_font("Helvetica", "B", 9)
+    pdf.set_text_color(*GRIS_GRAFITO)
+    pdf.cell(70, 4, "DR. JACOB ZUMAYA PRIANTI", align="C", new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_x(113.5)
+    pdf.set_font("Helvetica", "", 8.5)
+    pdf.set_text_color(*GRIS_MITAD)
+    pdf.cell(70, 4, "PRESIDENTE DEL CONSEJO DIRECTIVO", align="C", new_x="LMARGIN", new_y="NEXT")
+    
+    pdf.set_x(113.5)
+    pdf.cell(70, 4, "Jacob Zumaya Prianti A.C.", align="C")
+    
+    return bytes(pdf.output())
 
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
