@@ -942,17 +942,18 @@ def main():
                 st.write(sub_qr1)
                 st.write(sub_qr2)
 
-    # =================================================================
-    # PARTE 12.5: CONSOLA LATERAL CON INTERRUPTOR DE CIERRE ABSOLUTO (CORREGIDO)
+        # =================================================================
+    # PARTE 12.5: CONSOLA LATERAL CON INTERRUPTOR DE CIERRE ABSOLUTO (FIXED)
     # =================================================================
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     if not es_celular_del_publico:
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
             if not st.session_state.admin_autenticado:
-                # SOLUCIÓN: Cambiar la llave a 'side_pwd_admin_master' para evitar duplicados en Streamlit
                 input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_master")
-                if st.button("Desbloquear Tableros"):
+                
+                # SOLUCIÓN QUIRÚRGICA: Se inyecta una llave única global para evitar la duplicación de ID en Streamlit
+                if st.button("Desbloquear Tableros", key="btn_desbloquear_tableros_master"):
                     if input_password == PASSWORD_SISTEMA:
                         st.session_state.admin_autenticado = True
                         st.rerun()
