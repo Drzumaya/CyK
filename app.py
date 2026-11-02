@@ -1070,7 +1070,7 @@ def main():
         except Exception:
             lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
 
-                tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
+            tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
         
         # 1. CÓDIGO DE EXTRACCIÓN AUTOMÁTICA EN SEGUNDO PLANO (Carga el dataframe raíz)
         sheet = conectar_google_sheets(tabla_analizar)
