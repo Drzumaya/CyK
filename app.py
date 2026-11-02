@@ -728,6 +728,16 @@ def main():
     # Inicialización local de variables globales de red
     global token_actual, es_celular_del_publico, url_con_token, token_tiempo
 
+    # 🍊 BLINDAJE ESTRUCTURAL INCONDICIONAL DE VARIABLES DE SESIÓN (PREVIENE EL KEYERROR)
+    if "audiencia_activa" not in st.session_state:
+        st.session_state.audiencia_activa = "🍊 Salud Integral"
+    if "admin_autenticado" not in st.session_state:
+        st.session_state.admin_autenticado = False
+    if "flujo_finalizado" not in st.session_state:
+        st.session_state.flujo_finalizado = False
+    if "guardado_exitoso" not in st.session_state:
+        st.session_state.guardado_exitoso = False
+
     minuto_actual = int(time.time() // 60)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
     
@@ -739,20 +749,12 @@ def main():
     if es_celular_del_publico and diag_tipo_url:
         st.session_state.audiencia_activa = diag_tipo_url
 
+    # Ahora esta línea corre de forma segura, garantizando que 'audiencia_activa' siempre exista
     url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
     # Instanciación síncrona inicial de estructuras físicas en la nube
     if "estructuras_inicializadas" not in st.session_state:
         lista_inicializar = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-        if "audiencia_activa" not in st.session_state:
-            st.session_state.audiencia_activa = "🍊 Salud Integral"
-        if "admin_autenticado" not in st.session_state:
-            st.session_state.admin_autenticado = False
-        if "flujo_finalizado" not in st.session_state:
-            st.session_state.flujo_finalizado = False
-        if "guardado_exitoso" not in st.session_state:
-            st.session_state.guardado_exitoso = False
-            
         with st.spinner("Instanciando matriz de datos políglota... 🍊"):
             for tabla in lista_inicializar:
                 conectar_google_sheets(tabla)
