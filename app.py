@@ -954,8 +954,8 @@ def main():
 
 
 
-      # =================================================================
-    # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2 - NEURAL POLYGLOT)
+     # =================================================================
+    # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2 - NEURAL POLYGLOT RECTIFICADO)
     # =================================================================
     # Consola Lateral Unificada del Ponente
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
@@ -991,7 +991,7 @@ def main():
                 
                 seleccion = st.selectbox(
                     "Audiencia Actual en Vivo:", 
-                    lista_audiences_completa, 
+                    lista_audiencias_completa, 
                     index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0, 
                     key="sb_select_audience_unique"
                 )
@@ -1101,7 +1101,7 @@ def main():
                     st.write(f"Reactivo {r_id}: {enunciado_idioma}")
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Scale / Escala:",
-                        options=,
+                        options=[1, 2, 3, 4, 5],
                         format_func=lambda x: tx.get(f"likert_{x}", str(x)),
                         horizontal=False,
                         key=f"dyn_r_{r_id}"
@@ -1112,7 +1112,6 @@ def main():
         else:
             st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla.")
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
-        
     # =================================================================
     # PARTE 14 DE 14: PANTALLA POST-DESCARGA POLÍGLOTA (TRAMO 1)
     # =================================================================
