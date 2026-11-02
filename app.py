@@ -1232,4 +1232,4 @@ def main():
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 
 if name == "main":
-main()
+    main()
