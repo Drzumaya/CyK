@@ -1153,7 +1153,7 @@ def main():
 
         tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales, key="sb_tabla_analizar_master_office")
         
-                sheet = conectar_google_sheets(tabla_analizar)
+        sheet = conectar_google_sheets(tabla_analizar)
         df_doc = None
         es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
         todas_las_filas = []
