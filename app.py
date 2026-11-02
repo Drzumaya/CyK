@@ -879,22 +879,27 @@ def main():
             whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
             st.divider()
             
-            if not es_modo_likert:
+                       if not es_modo_likert:
                 st.write(tx["mand_title"])
                 st.write(tx["mand_subtitle"])
                 
+                # Ejecución del motor adaptativo ontológico de Salud Integral
                 gajos_dinamicos = algoritmo_generar_gajos_salud(idioma_sel)
                 
                 for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
                     with st.container(border=True):
                         st.markdown(f"#### {g_name}")
                         col1, col2 = st.columns(2)
+                        
+                        # CORRECCIÓN DE RAÍZ: Indexación unívoca secuencial de los 4 síntomas de cada dimensión
                         with col1:
-                            cb0 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_0")
-                            cb1 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_1")
+                            cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
+                            cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
                         with col2:
-                            cb2 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_2")
-                            cb3 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_3")
+                            cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
+                            cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
+                            
+                        # Empaquetado vectorial limpio de respuestas afirmativas
                         resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                         
                 if st.button("Procesar Alertas Base / Register Alerts", key="btn_register_alerts_gajos"):
