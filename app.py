@@ -470,105 +470,148 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
 
 
 # =================================================================
-# PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (TRAMO 1)
+# PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (TRAMO 1 - MULTILINGÜE)
 # =================================================================
 def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
     """
     Renderiza de manera exclusiva y asimétrica los gajos con alertas activas
     bajo el formato y la jerarquía de tablas del estilo académico minimalista.
-    Hereda síncronamente la fuente TrueType Unicode activa del documento.
+    Sincroniza dinámicamente el glosario según el idioma activo del participante.
     """
-    # Configuramos pesos y tamaños heredando la tipografía Unicode activa
     pdf.set_font(style="B", size=11)
     pdf.set_text_color(50, 50, 50)
-    pdf.cell(190, 7, "Vectores de Atención Crítica Detectados", new_x="LMARGIN", new_y="NEXT")
+    
+    # Selector de encabezado traducido
+    tit_alertas = "Vectores de Atención Crítica Detectados" if lang == "Español" else ("Critical Well-being Alerts Detected" if lang == "Inglés" else "Ανιχνεύθηκαν Κρίσιμες Ειδοποιήσεις Ευεξίας")
+    pdf.cell(190, 7, limpiar_texto_pdf(tit_alertas, lang), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     
-    glosario_clinico = {
-        "💪 Salud Física": {
-            "sig": "Indica un desgaste en los pilares básicos de energía corporal, afectando la homeostasis debido a privación de sueño, sedentarismo o nutrición deficiente.",
-            "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activación cardiovascular diaria."
+    # Glosario Clínico Universal indexado por posición para romper la dependencia de cadenas fijas
+    glosario_clinico_universal = {
+        0: { # Física
+            "Español": {"sig": "Indica un desgaste en los pilares basicos de energia corporal, afectando la homeostasis debido a privacion de sueno, sedentarismo o nutricion deficiente.", "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activacion cardiovascular diaria."},
+            "Inglés": {"sig": "Indicates a depletion of core body energy pillars, affecting homeostasis due to sleep deprivation, sedentary lifestyle, or poor nutrition.", "rec": "Establish a non-negotiable sleep schedule, plan balanced snacks, and engage in at least 15 minutes of daily cardiovascular activation."},
+            "Griego": {"sig": "Υποδεικνύει εξάντληση των βασικών πυλώνων σωματικής ενέργειας, επηρεάζοντας την ομοιόσταση λόγω έλλειψης ύπνου ή κακής διατροφής.", "rec": "Καθιερώστε ένα αδιαπραγμάτευτο πρόγραμμα ύπνου, προγραμματίστε ισορροπημένα γεύματα και κάντε 15 λεπτά καρδιαγγειακής άσκησης καθημερινά."}
         },
-        "🧠 Salud Mental": {
-            "sig": "Representa una saturación cognitiva severa, pérdida de enfoque, niebla mental o procesamiento rumiativo de información que merma la agilidad mental.",
-            "rec": "Aplica técnicas de ayuno digital de pantallas, practica la focalización en una sola tarea a la vez y diseña pausas de silencio mental entre jornadas."
+        1: { # Mental
+            "Español": {"sig": "Representa una saturacion cognitiva severa, perdida de enfoque, niebla mental o procesamiento rumiativo de informacion que merma la agilidad mental.", "rec": "Aplica tecnicas de ayuno digital de pantallas, practica la focalizacion en una sola tarea a la vez y disena pausas de silencio mental entre jornadas."},
+            "Inglés": {"sig": "Represents severe cognitive overload, loss of focus, brain fog, or ruminative processing of information that reduces mental agility.", "rec": "Apply digital screen fasting techniques, practice single-task focus, and design mental silence breaks between work sessions."},
+            "Griego": {"sig": "Αντιπροσωπεύει σοβαρή γνωστική υπερφόρτωση, απώλεια εστίασης, πνευματική θολότητα ή μηρυκαστική επεξεργασία πληροφοριών.", "rec": "Εφαρμόστε τεχνικές ψηφιακής νηστείας από οθόνες, εξασκηθείτε στην εστίαση σε μία μόνο εργασία και σχεδιάστε διαλείμματα πνευματικής σιωπής."}
         },
-        "❤️ Salud Emocional": {
-            "sig": "Determina una desregulación anímica reactiva, estrés agudo, ansiedad la tente o el síndrome de desgaste por empatía extrema (Burnout).",
-            "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiración diafragmática consciente y externaliza tus emociones con redes de confianza."
+        2: { # Emocional
+            "Español": {"sig": "Determina una desregulacion animica reactiva, estres agudo, ansiedad latente o el sindrome de desgaste por empatia extrema (Burnout).", "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiracion diafragmatica consciente y externaliza tus emociones con redes de confianza."},
+            "Inglés": {"sig": "Determines a reactive mood dysregulation, acute stress, latent anxiety, or extreme empathy burnout syndrome.", "rec": "Monitor your irritability triggers, implement conscious diaphragmatic breathing exercises, and externalize your emotions with trusted networks."},
+            "Griego": {"sig": "Καθορίζει μια αντιδραστική απορρύθμιση της διάθεσης, οξύ στρες, λανθάνον άγχος ή σύνδρομο ακραίας επαγγελματικής εξουθένωσης.", "rec": "Παρακολουθήστε τα ερεθίσματα ευερεθιστότητας, εφαρμόστε συνειδητές ασκήσεις διαφραγματικής αναπνοής και εξωτερικεύστε τα συναισθήματά σας."}
         },
-        "👥 Salud Social": {
-            "sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinámicas interpersonales conflictivas provocadas por la ausencia de límites claros.",
-            "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una actividad recreativa inamovible con tu red de apoyo familiar."
+        3: { # Social
+            "Español": {"sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinamicas interpersonales conflictivas provocadas por la ausencia de limites claros.", "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una activity recreativa inamovible con tu red de apoyo familiar."},
+            "Inglés": {"sig": "Denotes voluntary relational isolation or the development of conflicting interpersonal dynamics caused by the absence of clear boundaries.", "rec": "Learn to say 'no' assertively to protect your private spaces and schedule an unmovable recreational activity with your family support network."},
+            "Griego": {"sig": "Υποδηλώνει εκούσια σχεσιακή απομόνωση ή την ανάπτυξη συγκρουσιακών διαπροσωπικών δυναμικών λόγω απουσίας σαφών ορίων.", "rec": "Μάθετε να λέτε 'όχι' με διεκδικητικό τρόπο για να προστατεύσετε τους ιδιωτικούς σας χώρους και προγραμματίστε μια σταθερή ψυχαγωγική δραστηριότητα."}
         },
-        "💰 Salud Económica": {
-            "sig": "Expresa vulnerabilidad financiera sistémica, estrés presupuestal agudo debido a deudas desordenadas o falta de diversificación en fuentes de ingresos.",
-            "rec": "Automatiza la separación de un fondo de contingencia básico, elimina gastos hormiga reactivos y evalúa proyectos de emprendimiento alternos a corto plazo."
+        4: { # Económica
+            "Español": {"sig": "Expresa vulnerabilidad financiera sistemica, estres presupuestal agudo debido a deudas desordenadas o falta de diversificacion en fuentes de ingresos.", "rec": "Automatiza la separacion de un fondo de contingencia basico, elimina gastos hormiga reactivos and evalua proyectos de emprendimiento alternos a corto plazo."},
+            "Inglés": {"sig": "Expresses systemic financial vulnerability, acute budgetary stress due to disorganized debts, or lack of income source diversification.", "rec": "Automate the separation of a basic contingency fund, eliminate reactive petty expenses, and evaluate alternative short-term business ventures."},
+            "Griego": {"sig": "Εκφράζει συστημική οικονομική ευπάθεια, έντονο δημοσιονομικό στρες λόγω άτακτων χρεών ή έλλειψη διαφοροποίησης των πηγών εισοδήματος.", "rec": "Αυτοματοποιήστε τον διαχωρισμό ενός βασικού ταμείου έκτακτης ανάγκης, εξαλείψτε τα περιττά έξοδα και αξιολογήστε εναλλακτικά επιχειρηματικά σχέδια."}
         },
-        "⏳ Salud Temporal": {
-            "sig": "Refleja desequilibrio crítico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairós), desencadenando procrastinación o sobrecarga de tareas.",
-            "rec": "Usa técnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."
+        5: { # Temporal
+            "Español": {"sig": "Refleja desequilibrio critico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairos), desencadenando procrastinacion o sobrecarga de tareas.", "rec": "Usa tecnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."},
+            "Inglés": {"sig": "Reflects a critical imbalance between clock time (Chronos) and seizing opportunities (Kairos), triggering procrastination or task overload.", "rec": "Use fixed time blocking techniques for your unmovable deliveries, but intentionally reserve a 20% free margin in your daily schedule."},
+            "Griego": {"sig": "Αντικατοπτρίζει μια κρίσιμη ανισορροπία μεταξύ του χρόνου του ρολογιού (Κρόνος) και της σύλληψης ευκαιριών (Καιρός), προκαλώντας αναβλητικότητα.", "rec": "Χρησιμοποιήστε τεχνικές σταθερού αποκλεισμού χρόνου για τις παραδόσεις σας, αλλά κρατήστε σκόπιμα ένα ελεύθερο περιθώριο 20% στο καθημερινό σας πρόγραμμα."}
         },
-        "🙏 Salud Espiritual": {
-            "sig": "Manifiesta un vacío existencial latente, pérdida del sentido de vocación fundamental, desconexión interna o descuido de hábitos devocionales básicos.",
-            "rec": "Dedica los primeros minutos del día a la meditación, la oración y la reflexión de valores, y reconecta intencionalmente con actividades de servicio."
+        6: { # Espiritual
+            "Español": {"sig": "Manifiesta un vacio existencial latente, perdida del sentido de vocacion fundamental, desconexion interna o descuido de habitos devocionales basicos.", "rec": "Dedica los primeros minutos del dia a la meditacion, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."},
+            "Inglés": {"sig": "Manifests a latent existential emptiness, loss of the sense of core vocation, internal disconnection, or neglect of basic devotional habits.", "rec": "Dedicate the first minutes of the day to meditation, prayer, and values reflection, and intentionally reconnect with service activities."},
+            "Griego": {"sig": "Εκδηλώνει ένα λανθάνον υπαρξιακό κενό, απώλεια της αίσθησης της βασικής αποστολής, εσωτερική αποσύνδεση ή παραμέληση βασικών λατρευτικών συνηθειών.", "rec": "Αφιερώστε τα πρώτα λεπτά της ημέρας σε διαλογισμό, προσευχή και αναστοχασμό αξιών, και επανασυνδεθείτε σκόπιμα με δραστηριότητες προσφοράς."}
         }
     }
+
+        # =================================================================
+    # PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (TRAMO 2 - POLYGLOT)
     # =================================================================
-    # PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (TRAMO 2)
-    # =================================================================
+    # Matriz estática indexada para emparejar la llave del session_state con su posición analítica
+    mapa_posicional_gajos = ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"]
+    
     algun_gajo_marcado = False
-    for dim_nombre, items in resultados.items():
-        if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]: 
-            continue
+    for idx_gajo, dim_original_name in enumerate(mapa_posicional_gajos):
+        items = resultados.get(dim_original_name, [])
         if len(items) == 0: 
             continue
             
         algun_gajo_marcado = True
         
+        # Extraemos el glosario adaptativo en el idioma destino (Fallback a Español)
+        nodo_idioma = glosario_clinico_universal.get(idx_gajo, {}).get(lang, glosario_clinico_universal[idx_gajo]["Español"])
+        
+        # Determinación de títulos de dimensión traducidos para el reporte PDF
+        gajos_titulos_traduccion = {
+            "Español": ["Salud Fisica", "Salud Mental", "Salud Emocional", "Salud Social", "Salud Economica", "Salud Temporal", "Salud Espiritual"],
+            "Inglés": ["Physical Health", "Mental Health", "Emotional Health", "Social Health", "Economic Health", "Temporal Health", "Spiritual Health"],
+            "Griego": ["Σωματική Υγεία", "Ψυχική Υγεία", "Συναισθηματική Υγεία", "Κοινωνική Υγεία", "Οικονομική Υγεία", "Χρονική Υγεία", "Πνευματική Υγεία"]
+        }
+        
+        dim_traducida = gajos_titulos_traduccion.get(lang, gajos_titulos_traduccion["Español"])[idx_gajo]
+        
         pdf.set_x(10)
         pdf.set_font(style="B", size=10.5)
         pdf.set_text_color(50, 50, 50)
-        pdf.cell(190, 6, f"Dimensión Evaluada: {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
+        
+        lbl_dim = "Dimension Evaluada" if lang == "Español" else ("Dimension Assessed" if lang == "Inglés" else "Αξιολογημένη Διάσταση")
+        pdf.cell(190, 6, limpiar_texto_pdf(f"{lbl_dim}: {dim_traducida}", lang), new_x="LMARGIN", new_y="NEXT")
         
         puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
         pdf.set_x(10)
         pdf.set_font(style="I", size=10)
         pdf.set_text_color(80, 80, 80)
-        pdf.multi_cell(190, 5, f"Indicadores de vulnerabilidad reportados: {puntos_str}", new_x="LMARGIN", new_y="NEXT")
         
-        if dim_nombre in glosario_clinico:
-            pdf.set_x(10)
-            pdf.set_font(style="", size=9.5)
-            pdf.set_text_color(60, 60, 60)
-            pdf.multi_cell(190, 4.5, f"Significado del constructo: {glosario_clinico[dim_nombre]['sig']}", new_x="LMARGIN", new_y="NEXT")
-            
-            pdf.set_x(10)
-            pdf.set_font(style="B", size=9.5)
-            pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(190, 4.5, f"Directriz de intervención sugerida: {glosario_clinico[dim_nombre]['rec']}\n", new_x="LMARGIN", new_y="NEXT")
-            
+        lbl_ind = "Indicadores de vulnerabilidad reportados" if lang == "Español" else ("Reported vulnerability indicators" if lang == "Inglés" else "Αναφερόμενοι δείκτες τρωτότητας")
+        pdf.multi_cell(190, 5, limpiar_texto_pdf(f"{lbl_ind}: {puntos_str}", lang), new_x="LMARGIN", new_y="NEXT")
+        
+        # Inyección del constructo clínico y directriz de intervención 100% traducidos
+        pdf.set_x(10)
+        pdf.set_font(style="", size=9.5)
+        pdf.set_text_color(60, 60, 60)
+        lbl_sig = "Significado del constructo" if lang == "Español" else ("Meaning of the construct" if lang == "Inglés" else "Σημασία της έννοιας")
+        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{lbl_sig}: {nodo_idioma['sig']}", lang), new_x="LMARGIN", new_y="NEXT")
+        
+        pdf.set_x(10)
+        pdf.set_font(style="B", size=9.5)
+        pdf.set_text_color(50, 50, 50)
+        lbl_rec = "Directriz de intervencion sugerida" if lang == "Español" else ("Suggested intervention guideline" if lang == "Inglés" else "Προτεινόμενη κατευθυντήρια γραμμή παρέμβασης")
+        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{lbl_rec}: {nodo_idioma['rec']}\n", lang), new_x="LMARGIN", new_y="NEXT")
+                
     if not algun_gajo_marcado:
         pdf.set_x(10)
         pdf.set_font(style="", size=10)
         pdf.set_text_color(40, 120, 60)
-        pdf.multi_cell(190, 6, "Nota Clínica. El ecosistema analizado se encuentra en un estado funcional óptimo. No se registraron indicadores de riesgo o fugas en ninguna de las dimensiones de bienestar integral.", new_x="LMARGIN", new_y="NEXT")
+        lbl_ok = "Nota Clinica. El ecosistema analizado se encuentra en un estado funcional optimo." if lang == "Español" else ("Clinical Note: The analyzed ecosystem is in an optimal functional state." if lang == "Inglés" else "Κλινικό Σημείωμα: Το αναλυόμενο οικοσύστημα βρίσκεται σε βέλτιστη λειτουργική κατάσταση.")
+        pdf.multi_cell(190, 6, limpiar_texto_pdf(lbl_ok, lang), new_x="LMARGIN", new_y="NEXT")
 
-    # Cierre Académico Estilo Nota al pie de manuscrito científico
+    # Cierre Institucional Políglota Estilo Nota al pie de manuscrito científico
     pdf.ln(4)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(4)
     pdf.set_x(10)
     pdf.set_font(style="B", size=10)
     pdf.set_text_color(50, 50, 50)
-    pdf.cell(190, 5, "Canalización y Seguimiento de Caso", new_x="LMARGIN", new_y="NEXT")
+    
+    lbl_segs = "Canalizacion y Seguimiento de Caso" if lang == "Español" else ("Case Referral and Follow-up" if lang == "Inglés" else "Παραπομπή και Παρακολούθηση Υπόθεσης")
+    pdf.cell(190, 5, limpiar_texto_pdf(lbl_segs, lang), new_x="LMARGIN", new_y="NEXT")
+    
     pdf.set_x(10)
     pdf.set_font(style="I", size=9.5)
     pdf.set_text_color(80, 80, 80)
-    mensaje_apoyo = "El auto-reporte es el primer paso en la detección de vulnerabilidades institucionales. Si has registrado indicadores críticos en tus gajos de salud, se extiende una invitación cordial para contactar directamente al ponente para coordinar una consulta privada o asesoría personalizada para el diseño de planes de contención oportuna."
-    pdf.multi_cell(190, 4.5, mensaje_apoyo, new_x="LMARGIN", new_y="NEXT")
+    
+    if lang == "Inglés":
+        mensaje_apoyo = "Self-reporting is the first step in detecting institutional vulnerabilities. If you have registered critical indicators in your health dimensions, a cordial invitation is extended to contact the speaker directly to coordinate a private consultation or personalized advice for timely containment plans."
+    elif lang == "Griego":
+        mensaje_apoyo = "Η αυτοαναφορά είναι το πρώτο βήμα για τον εντοπισμό θεσμικών τρωτών σημείων. Εάν έχετε καταγράψει κρίσιμους δείκτες στις διαστάσεις της υγείας σας, απευθύνεται θερμή πρόσκληση να επικοινωνήσετε απευθείας με τον ομιλητή για τον συντονισμό μιας ιδιωτικής επίσκεψης."
+    else:
+        mensaje_apoyo = "El auto-reporte es el primer paso en la deteccion de vulnerabilidades institucionales. Si has registrado indicadores criticos en tus gajos de salud, se extiende una invitacion cordial para contactar directamente al ponente para coordinar una consulta privada o asesoria personalizada para el diseno de planes de contencion oportuna."
+        
+    pdf.multi_cell(190, 4.5, limpiar_texto_pdf(mensaje_apoyo, lang), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+
 
 # =================================================================
 # PARTE 10 DE 14: PASARELA TRANSACCIONAL CON API GATEWAY DE WHATSAPP
