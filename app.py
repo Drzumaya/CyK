@@ -961,16 +961,30 @@ def main():
                 st.write(sub_qr1)
                 st.write(sub_qr2)
 
-    # =================================================================
-    # PARTE 13: CENTRO DE INTELIGENCIA, SEGMENTACIÓN Y DICTAMEN DOCTORAL (TRAMO 1)
+        # =================================================================
+    # PARTE 13: CENTRO DE INTELIGENCIA Y EXTRACTOR DE HISTORIAL (TRAMO 1)
     # =================================================================
     if st.session_state.admin_autenticado and not es_celular_del_publico:
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
+        st.write("Módulo avanzado de modelado predictivo de variables latentes e historial de ponencias.")
         
-        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
+        # Inicialización de catálogo defensivo para evitar NameError
+        lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
         
-        # 1. EXTRACCIÓN AUTOMÁTICA EN SEGUNDO PLANO Y CONTROL DE ENTRADA
+        try:
+            if "gcp_service_account" in st.secrets:
+                secrets_dict = dict(st.secrets["gcp_service_account"])
+                if "private_key" in secrets_dict:
+                    secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+                client_back = gspread.service_account_from_dict(secrets_dict)
+                workbook_back = client_back.open(NOMBRE_HOJA_CALCULO)
+                lista_tablas_reales = [sh.title for sh in workbook_back.worksheets()]
+        except Exception:
+            pass
+
+        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales, key="sb_tabla_analizar_master_office")
+        
         sheet = conectar_google_sheets(tabla_analizar)
         df_doc = None
         es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
@@ -983,19 +997,15 @@ def main():
                 todas_las_filas = []
                 
         if not todas_las_filas or len(todas_las_filas) < 2:
-            # Matriz sintética balanceada de control por si la hoja de cálculo está vacía o es nueva
             if es_tabla_likert:
                 columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
                 datos_sinteticos = []
                 for u in range(10):
                     row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
-                    
-                    # SOLUCIÓN: Inyección explícita de respuestas balanceadas en espejo para simular varianza real
                     if u % 2 == 0:
-                        row += [5, 2, 4, 1, 5, 2, 4, 1, 5, 2]  # Perfil con inclinación específica
+                        row += [5, 1, 4, 2, 5, 1, 4, 2, 5, 1]
                     else:
-                        row += [2, 5, 1, 4, 2, 5, 1, 4, 2, 5]  # Perfil inverso balanceador
-                        
+                        row += [1, 5, 2, 4, 1, 5, 2, 4, 1, 5]
                     row += ["Token_C"]
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
@@ -1004,11 +1014,10 @@ def main():
                 datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_C"] for u in range(5)]
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
         else:
-            encabezados = todas_las_filas
+            encabezados = todas_las_filas[0]
             df_doc = pd.DataFrame(todas_las_filas[1:], columns=[c.strip() if c.strip() else f"C_{i}" for i, c in enumerate(encabezados)])
-
         # =================================================================
-        # MÓDULO INTERACTIVO A: CRM DE BÚSQUEDA CLÍNICA PERSONALIZADA
+        # PARTE 13: BUSCADOR CRM E INDICADORES PROPORCIONALES (TRAMO 2)
         # =================================================================
         st.markdown("---")
         st.subheader("🔍 Buscador Exclusivo de Participantes (Atención y Consulta Privada)")
@@ -1018,7 +1027,6 @@ def main():
         
         if c_busq and df_doc is not None:
             df_filtrado = df_doc[df_doc["Nombre"].str.lower().str.contains(c_busq) | df_doc["WhatsApp"].str.lower().str.contains(c_busq)]
-            
             if df_filtrado.empty:
                 st.warning("❌ No se encontraron participantes registrados con esos criterios en esta audiencia.")
             else:
@@ -1027,7 +1035,6 @@ def main():
                     with st.container(border=True):
                         st.markdown(f"### 👤 Participante: **{row_p['Nombre']}**")
                         st.write(f"📱 **Enlace WhatsApp:** {row_p['WhatsApp']} | 📅 **Registro:** {row_p['Timestamp']}")
-                        
                         if es_tabla_likert:
                             r_items = [pd.to_numeric(row_p[f"R{i}"], errors='coerce') for i in range(1, 11) if f"R{i}" in row_p]
                             if len(r_items) >= 10:
@@ -1042,7 +1049,6 @@ def main():
                             st.markdown("**🚨 Alertas de Salud Integral Activas:**")
                             st.write(f"`{row_p.get('Detalle Alertas Temporal', 'Sin especificación en Fuga Temporal')}`")
 
-        # MÓDULO INTERACTIVO B: DISTRIBUCIÓN PORCENTUAL PROPORCIONAL
         st.markdown("---")
         st.subheader(f"📊 Tabla de Distribución Proporcional de la Audiencia")
         pct_cronos, pct_kairos, pct_empate = 50.0, 50.0, 0.0
@@ -1070,9 +1076,8 @@ def main():
                 st.progress(int(pct_cronos))
         else:
             st.info("La tabla de Salud Integral no escala vectores proporcionales C/K.")
-
         # =================================================================
-        # PARTE 13: CENTRO DE INTELIGENCIA, SEGMENTACIÓN Y DICTAMEN DOCTORAL (TRAMO 2)
+        # PARTE 13: INSPECCIÓN CRUDA, COMPILACIÓN DOCTORAL Y GUARDIA MAIN (TRAMO 3)
         # =================================================================
         st.markdown("---")
         st.subheader(f"📊 Inspección de Base de Datos Cruda: {tabla_analizar}")
@@ -1090,10 +1095,7 @@ def main():
                         promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
                         if promedios: st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
                     else:
-                        r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-                        if len(r_cols) >= 10:
-                            matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                            st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
+                        st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
                 
                 with col_graph2:
                     st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
@@ -1107,6 +1109,17 @@ def main():
                     r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
                     if len(r_cols) >= 10:
                         matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                        
+                        def calcular_cronbach(matriz_items):
+                            try:
+                                n_items = matriz_items.shape[1]
+                                if n_items <= 1: return 0.0
+                                varianzas_items = np.var(matriz_items, axis=0, ddof=1)
+                                varianza_total = np.var(np.sum(matriz_items, axis=1), ddof=1)
+                                if varianza_total == 0: return 0.0
+                                return (n_items / (n_items - 1)) * (1 - (np.sum(varianzas_items) / varianza_total))
+                            except Exception: return 0.0
+                            
                         alpha_k = calcular_cronbach(matriz_r[:, 0::2])
                         alpha_c = calcular_cronbach(matriz_r[:, 1::2])
                         c_al1, c_al2 = st.columns(2)
@@ -1151,7 +1164,7 @@ def main():
                 cov = res_sem.get("covarianza_latente", 0.99)
                 
                 txt_significado = (
-                    f"El Coeficiente Beta de la trayectoria Cronos ({b_c:.4f}) representa la fuerza predictiva del tiempo "
+                    f"El Coeficiente Beta de la trayectoria Cronos ({b_c:.4f}) representa la fuerza predictiva del tempo "
                     f"lineal, metrico y secuencial. Por otro lado, la trayectoria Kairos ({b_k:.4f}) cuantifica el peso "
                     f"relativo del tempo de la oportunidad y adaptabilidad situacional. El indice de ajuste GOF R2 ({r2:.4f}) "
                     f"valida la capacidad predictiva global del modelo estructural sobre las variables endogenas."
@@ -1167,7 +1180,7 @@ def main():
                 
                 txt_interpretacion = (
                     f"Los datos revelan que el {pct_cronos:.1f}% de la audiencia posee una estructura cognitiva predominantemente "
-                    f"cronocentrica, mientras que el {pct_kairos:.1f}% opera bajo esquemas kairoticos adaptativos. El nivel de "
+                    f"cronocentrica, while que el {pct_kairos:.1f}% opera bajo esquemas kairoticos adaptativos. El nivel de "
                     f"covarianza latente observado ({cov:.4f}) indica el grado de interdependencia o tension psiquica que "
                     f"los participantes experimentan al equilibrar las demandas del reloj y las ventanas de oportunidad operativa."
                 )
@@ -1197,25 +1210,23 @@ def main():
                 pdf_auditoria.set_text_color(80, 80, 80)
                 
                 txt_nota = (
-                    "Nota Cientifica de Validacion: Este reporte fue compilado empleando Descomposicion en Valores Singulares (SVD) "
+                    "Nota Cientifica de Validacion: Este reporte fue compiled empleando Descomposicion en Valores Singulares (SVD) "
                     "y Factorizacion Ortogonal de Matrices Centradas. En caso de procesar muestras de control simuladas de baja "
                     "varianza, el R2 tendera de manera determinista a 1.000 y la covarianza a 1.000 como reflejo de simetria algebraica. "
-                    "Para validez externa indexada, se recomienda contrastar estos coeficientes de ruta con muestras reales N > 30."
-                )
-                pdf_auditoria.multi_cell(0, 5, txt_nota)
-                
-                bytes_auditoria = pdf_auditoria.output()
-                st.download_button(
-                    label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_analizar})",
-                    data=bytes(bytes_auditoria),
-                file_name=f"Dictamen_Doctoral_{tabla_analizar.replace(' ', '_')}.pdf",
-                mime="application/pdf",
-                key="btn_download_admin_pdf_final_maestro"
-                )
+"Para validez externa indexada, se recomienda contrastar estos coeficientes de ruta con muestras reales N > 30."
+)
+pdf_auditoria.multi_cell(0, 5, txt_nota)
+bytes_auditoria = pdf_auditoria.output()
+st.download_button(
+label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_analizar})",
+data=bytes(bytes_auditoria),
+file_name=f"Dictamen_Doctoral_{tabla_analizar.replace(' ', '_')}.pdf",
+mime="application/pdf",
+key="btn_download_admin_pdf_final_maestro"
+)
 
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 
-# Guardia de ejecución principal para el ecosistema web de Streamlit
-if __name__ == "__main__":
+if name == "main":
     main()
 
