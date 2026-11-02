@@ -1070,65 +1070,97 @@ def main():
         except Exception:
             lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
 
-        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", lista_tablas_reales)
+                tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
         
-        if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
-            sheet = conectar_google_sheets(tabla_analizar)
-            df_doc = None
-            es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
-            
-            # 1. EXTRACCIÓN Y CONTROL DE MATRIZ DE ENTRADA
-            todas_las_filas = []
-            if sheet:
-                try:
-                    todas_las_filas = sheet.get_all_values()
-                except Exception:
-                    todas_las_filas = []
-                    
-            if not todas_las_filas or len(todas_las_filas) < 2:
-                st.info("💡 Tabla sin registros suficientes en producción. Generando matriz de control sintética para validación psicométrica...")
-                if es_tabla_likert:
-                    columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
-                    datos_sinteticos = []
-                    for u in range(10):
-                        row = [str(datetime.datetime.now()), f"Control_User_{u}", "+5200000000", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
-                        
-                        # CORRECCIÓN DEFINITIVA: Bloque condicional explícito e inmune a fallas de sintaxis
-                        if u % 2 == 0:
-                            row += [5, 4, 5, 4, 5, 2, 1, 2, 1, 2]  # Simulación de altas en un modelo y bajas en otro
-                        else:
-                            row += [2, 5, 1, 4, 2, 5, 4, 5, 4, 5]  # Simulación cruzada inversa para generar varianza real
-                            
-                        row += ["Token_Control"]
-                        datos_sinteticos.append(row)
-                    df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-                else:
-                    columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"]
-                    datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", "+52000", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_Control"] for u in range(5)]
-                    df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-            else:
-                encabezados = todas_las_filas
-                datos_cuerpo = todas_las_filas[1:]
-                encabezados_unicos = []
-                for i, col in enumerate(encabezados):
-                    nombre_col = col.strip() if col.strip() else f"Columna_{i}"
-                    if nombre_col in encabezados_unicos:
-                        nombre_col = f"{nombre_col}_{i}"
-                    encabezados_unicos.append(nombre_col)
-                df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
-
-            # 2. PROCESAMIENTO ANALÍTICO GRÁFICO
-            if df_doc is not None and len(df_doc) >= 2:
-                st.success(f"¡Matriz de datos analítica acoplada con éxito! Registros: {len(df_doc)}")
+        # 1. CÓDIGO DE EXTRACCIÓN AUTOMÁTICA EN SEGUNDO PLANO (Carga el dataframe raíz)
+        sheet = conectar_google_sheets(tabla_analizar)
+        df_doc = None
+        es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
+        todas_las_filas = []
+        
+        if sheet:
+            try:
+                todas_las_filas = sheet.get_all_values()
+            except Exception:
+                todas_las_filas = []
                 
+        if not todas_las_filas or len(todas_las_filas) < 2:
+            # Matriz sintética balanceada de control por si la hoja de cálculo está vacía
+            columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"] if es_tabla_likert else ["Timestamp", "Nombre", "WhatsApp", "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"]
+            datos_sinteticos = [
+                [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"] + ( if u % 2 == 0 else ) + ["Token_C"] for u in range(10)
+            ] if es_tabla_likert else [
+                [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_C"] for u in range(5)
+            ]
+            df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+        else:
+            encabezados = todas_las_filas
+            datos_cuerpo = todas_las_filas[1:]
+            encabezados_unicos = []
+            for i, col in enumerate(encabezados):
+                nombre_col = col.strip() if col.strip() else f"Columna_{i}"
+                if nombre_col in encabezados_unicos: nombre_col = f"{nombre_col}_{i}"
+                encabezados_unicos.append(nombre_col)
+            df_doc = pd.DataFrame(datos_cuerpo, columns=encabezados_unicos)
+
+        # =================================================================
+        # MÓDULO INTERACTIVO A: CRM DE BÚSQUEDA CLÍNICA PERSONALIZADA
+        # =================================================================
+        st.markdown("---")
+        st.subheader("🔍 Buscador Exclusivo de Participantes (Atención y Consulta Privada)")
+        st.write("Introduce el nombre o WhatsApp del asistente para extraer su perfil psicométrico de forma inmediata:")
+        
+        c_busq = st.text_input("📝 Filtrar por Nombre o Teléfono Celular:", placeholder="Ej. Juan o +52...", key="crm_search_input").strip().lower()
+        
+        if c_busq and df_doc is not None:
+            # Filtrado por coincidencia parcial en columnas Nombre o WhatsApp
+            df_filtrado = df_doc[df_doc["Nombre"].str.lower().str.contains(c_busq) | df_doc["WhatsApp"].str.lower().str.contains(c_busq)]
+            
+            if df_filtrado.empty:
+                st.warning("❌ No se encontraron participantes registrados con esos criterios en esta audiencia.")
+            else:
+                st.success(f"🎯 Coincidencias encontradas: {len(df_filtrado)} registro(s)")
+                for _, row_p in df_filtrado.iterrows():
+                    with st.container(border=True):
+                        st.markdown(f"### 👤 Participante: **{row_p['Nombre']}**")
+                        st.write(f"📱 **Enlace WhatsApp:** {row_p['WhatsApp']} | 📅 **Registro:** {row_p['Timestamp']}")
+                        
+                        if es_tabla_likert:
+                            # Cálculo analítico de vectores individuales sobre la marcha
+                            r_items = [pd.to_numeric(row_p[f"R{i}"], errors='coerce') for i in range(1, 11) if f"R{i}" in row_p]
+                            if len(r_items) >= 10:
+                                k_score = sum(r_items[0::2]) / 5
+                                c_score = sum(r_items[1::2]) / 5
+                                st.markdown(f"**⏱️ Puntaje Cronos (Reloj):** `{c_score:.2f} / 5.00` | **🍃 Puntaje Kairós (Oportunidad):** `{k_score:.2f} / 5.00`")
+                                dif = abs(c_score - k_score)
+                                if dif <= 0.4: st.info("Simbiosis Temporal Equilibrada (C&K) ⚖️")
+                                elif k_score > c_score: st.info("Perfil Adaptativo Kairotico Puro 🌊")
+                                else: st.info("Perfil Rigido Cronocentrico Puro ⏳")
+                        else:
+                            st.markdown("**🚨 Alertas de Salud Integral Activas:**")
+                            st.write(f"`{row_p.get('Detalle Alertas Temporal', 'Sin especificación en Fuga Temporal')}`")
+
+        # =================================================================
+        # MÓDULO INTERACTIVO B: VISUALIZADOR CRUDO DE AUDIENCIA EN TIEMPO REAL
+        # =================================================================
+        st.markdown("---")
+        st.subheader(f"📊 Inspección de Base de Datos Cruda: {tabla_analizar}")
+        st.write("Tabla completa de respuestas del auditorio sincronizada en vivo:")
+        st.dataframe(df_doc, use_container_width=True)
+
+        # =================================================================
+        # MÓDULO INTERACTIVO C: AUDITORÍA MACRO-ESTADÍSTICA SEMDEEP (BOTÓN)
+        # =================================================================
+        st.markdown("---")
+        if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
+            if df_doc is not None and len(df_doc) >= 2:
                 col_graph1, col_graph2 = st.columns(2)
                 with col_graph1:
                     st.write("#### 📈 Distribución Descriptiva Global")
                     if not es_tabla_likert:
                         col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
                         promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
-                        if promedios: 
-                            st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
+                        if promedios: st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
                     else:
                         r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
                         if len(r_cols) >= 10:
@@ -1142,12 +1174,10 @@ def main():
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
                     
-                # 3. RENDERIZADO EVALUATIVO DEL ALFA DE CRONBACH
                 alpha_c, alpha_k = 0.0, 0.0
                 if es_tabla_likert:
                     st.markdown("---")
                     st.write("#### 🔬 Fiabilidad y Consistencia Interna del Instrumento en Vivo")
-                    
                     r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
                     if len(r_cols) >= 10:
                         matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
@@ -1156,7 +1186,7 @@ def main():
                         
                         def calcular_cronbach(matriz_items):
                             try:
-                                n_items = matriz_items.shape[1]
+                                n_items = matriz_items.shape
                                 if n_items <= 1: return 0.0
                                 varianzas_items = np.var(matriz_items, axis=0, ddof=1)
                                 varianza_total = np.var(np.sum(matriz_items, axis=1), ddof=1)
@@ -1175,7 +1205,6 @@ def main():
                             if alpha_k >= 0.70: st.success(f"🍃 Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Fiabilidad Alta)")
                             else: st.warning(f"⚠️ Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Ruido en Comprensión)")
 
-                # 4. EXPORTACIÓN EJECUTIVA COMPLETA EN PDF
                 st.markdown("---")
                 st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
                 
@@ -1188,30 +1217,26 @@ def main():
                 pdf_auditoria.set_text_color(100, 100, 100)
                 pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
                 pdf_auditoria.ln(5)
-                
                 pdf_auditoria.set_font("Helvetica", "B", 11)
                 pdf_auditoria.set_text_color(50, 50, 50)
                 pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
-                pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
-                
-                if es_tabla_likert:
-                    pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-                    pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-                    pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-                    pdf_auditoria.cell(0, 6, f"- Alfa Cronbach Cronos: {alpha_c:.4f}", new_x="LMARGIN", new_y="NEXT")
-                    pdf_auditoria.cell(0, 6, f"- Alfa Cronbach Kairos: {alpha_k:.4f}", new_x="LMARGIN", new_y="NEXT")
-                
-                pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-                
-                bytes_auditoria = pdf_auditoria.output()
-                
-                st.download_button(
-                    label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
-                    data=bytes(bytes_auditoria),
-                    file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '_')}_{datetime.date.today()}.pdf",
-                    mime="application/pdf",
-                    key="btn_download_admin_pdf"
-                )
+pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
+if es_tabla_likert:
+pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Alfa Cronbach Cronos: {alpha_c:.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Alfa Cronbach Kairos: {alpha_k:.4f}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+bytes_auditoria = pdf_auditoria.output()
+st.download_button(
+label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
+data=bytes(bytes_auditoria),
+file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '')}{datetime.date.today()}.pdf",
+mime="application/pdf",
+key="btn_download_admin_pdf"
+)
+
 
 
 # Guardia de ejecución principal para el ecosistema web de Streamlit
