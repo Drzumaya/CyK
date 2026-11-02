@@ -63,7 +63,7 @@ st.markdown(
 # =================================================================
 # PARTE 2 DE 14: CONSTANTES DE RED, PASARELA GOOGLE TRANSLATION API Y GEOGRAFÍA
 # =================================================================
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
 ESTADOS_MEXICO = [
