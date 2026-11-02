@@ -1452,10 +1452,6 @@ def main():
             use_container_width=True
         )
 
-# Guardia de ejecución principal reglamentaria en el entorno de Python
-if __name__ == "__main__":
-    main()
-
 
 # =================================================================
 # INYECTOR COMPILADOR: RECONOCIMIENTO HONORÍFICO DINÁMICO (PÁGINA ÚNICA)
