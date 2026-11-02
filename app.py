@@ -1070,9 +1070,9 @@ def main():
         except Exception:
             lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
 
-            tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
+                    tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
         
-        # 1. CÓDIGO DE EXTRACCIÓN AUTOMÁTICA EN SEGUNDO PLANO (Carga el dataframe raíz)
+        # 1. EXTRACCIÓN AUTOMÁTICA EN SEGUNDO PLANO Y CONTROL DE ENTRADA
         sheet = conectar_google_sheets(tabla_analizar)
         df_doc = None
         es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
@@ -1085,16 +1085,25 @@ def main():
                 todas_las_filas = []
                 
         if not todas_las_filas or len(todas_las_filas) < 2:
-            # Matriz sintética balanceada de control por si la hoja de cálculo está vacía
-            columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"] if es_tabla_likert else ["Timestamp", "Nombre", "WhatsApp", "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"]
-            datos_sinteticos = [
-                [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"] + ( if u % 2 == 0 else ) + ["Token_C"] for u in range(10)
-            ] if es_tabla_likert else [
-                [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_C"] for u in range(5)
-            ]
-            df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+            # Matriz sintética balanceada de control por si la hoja de cálculo está vacía o es nueva
+            if es_tabla_likert:
+                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
+                datos_sinteticos = []
+                for u in range(10):
+                    row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
+                    if u % 2 == 0:
+                        row += [5, 4, 5, 4, 5, 1, 2, 1, 2, 1]
+                    else:
+                        row += [1, 2, 1, 2, 1, 5, 4, 5, 4, 5]
+                    row += ["Token_C"]
+                    datos_sinteticos.append(row)
+                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+            else:
+                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"]
+                datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_C"] for u in range(5)]
+                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
         else:
-            encabezados = todas_las_filas
+            encabezados = todas_las_filas[0]
             datos_cuerpo = todas_las_filas[1:]
             encabezados_unicos = []
             for i, col in enumerate(encabezados):
@@ -1113,7 +1122,6 @@ def main():
         c_busq = st.text_input("📝 Filtrar por Nombre o Teléfono Celular:", placeholder="Ej. Juan o +52...", key="crm_search_input").strip().lower()
         
         if c_busq and df_doc is not None:
-            # Filtrado por coincidencia parcial en columnas Nombre o WhatsApp
             df_filtrado = df_doc[df_doc["Nombre"].str.lower().str.contains(c_busq) | df_doc["WhatsApp"].str.lower().str.contains(c_busq)]
             
             if df_filtrado.empty:
@@ -1126,7 +1134,6 @@ def main():
                         st.write(f"📱 **Enlace WhatsApp:** {row_p['WhatsApp']} | 📅 **Registro:** {row_p['Timestamp']}")
                         
                         if es_tabla_likert:
-                            # Cálculo analítico de vectores individuales sobre la marcha
                             r_items = [pd.to_numeric(row_p[f"R{i}"], errors='coerce') for i in range(1, 11) if f"R{i}" in row_p]
                             if len(r_items) >= 10:
                                 k_score = sum(r_items[0::2]) / 5
@@ -1186,7 +1193,7 @@ def main():
                         
                         def calcular_cronbach(matriz_items):
                             try:
-                                n_items = matriz_items.shape
+                                n_items = matriz_items.shape[1]
                                 if n_items <= 1: return 0.0
                                 varianzas_items = np.var(matriz_items, axis=0, ddof=1)
                                 varianza_total = np.var(np.sum(matriz_items, axis=1), ddof=1)
@@ -1207,19 +1214,18 @@ def main():
 
                 st.markdown("---")
                 st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
-                
-                pdf_auditoria = FPDF()
-                pdf_auditoria.add_page()
-                pdf_auditoria.set_font("Helvetica", "B", 14)
-                pdf_auditoria.set_text_color(230, 81, 0)
-                pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
-                pdf_auditoria.set_font("Helvetica", "", 10)
-                pdf_auditoria.set_text_color(100, 100, 100)
-                pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
-                pdf_auditoria.ln(5)
-                pdf_auditoria.set_font("Helvetica", "B", 11)
-                pdf_auditoria.set_text_color(50, 50, 50)
-                pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria = FPDF()
+pdf_auditoria.add_page()
+pdf_auditoria.set_font("Helvetica", "B", 14)
+pdf_auditoria.set_text_color(230, 81, 0)
+pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
+pdf_auditoria.set_font("Helvetica", "", 10)
+pdf_auditoria.set_text_color(100, 100, 100)
+pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+pdf_auditoria.ln(5)
+pdf_auditoria.set_font("Helvetica", "B", 11)
+pdf_auditoria.set_text_color(50, 50, 50)
+pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
 pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
 if es_tabla_likert:
 pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
