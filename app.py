@@ -289,7 +289,7 @@ def limpiar_texto_pdf(texto, idioma="Español"):
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     """
     Compila el archivo PDF ejecutivo individual para el participante.
-    Bifurca el renderizado de forma asimetrica segun la audiencia activa.
+    Bifurca el renderizado de forma asimétrica según la audiencia activa.
     """
     pdf = FPDF()
     pdf.add_page()
@@ -407,11 +407,12 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.set_x(12)
         pdf.set_font("Helvetica", "I", 9.5)
         pdf.set_text_color(60, 60, 60)
-        mensaje_tiempo = "Optimizar la simbiosis entre el tiempo metrico (Cronos) y el tempo de oportunidad (Kairos) is vital para el exito profesional y la reduccion de fatiga. Si tu perfil presenta una inclinacion polarizada o rigida, te sugerimos acercarte directamente con el ponente para solicitar una consulta personalizada o asesoria estrategica. Alinear tus vectores temporales potenciara de inmediato tu madurez operativa y tu rendimiento cognitivo integral."
+        mensaje_tiempo = "Optimizar la simbiosis entre el tiempo metrico (Cronos) y el tempo de oportunidad (Kairos) is vital para el exito profesional and la reduccion de fatiga. Si tu perfil presenta una inclinacion polarizada o rigida, te sugerimos acercarte directamente con el ponente para solicitar una consulta personalizada o asesoria estrategica. Alinear tus vectores temporales potenciara de inmediato tu madurez operativa y tu rendimiento cognitivo integral."
         pdf.multi_cell(186, 4.5, mensaje_tiempo, new_x="LMARGIN", new_y="NEXT")
         
     else:
-        # =================================================================
+        
+     # =================================================================
         # PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS DE SALUD
         # =================================================================
         pdf.set_font("Helvetica", "B", 12)
@@ -438,68 +439,72 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             },
             "💰 Salud Económica": {
                 "sig": "Expresa vulnerabilidad financiera sistemica, estres presupuestal agudo debido a deudas desordenadas o falta de diversificacion en fuentes de ingresos.",
-"rec": "Automatiza la separacion de un fondo de contingencia basico, elimina gastos hormiga reactivos y evalua proyectos de emprendimiento alternos a corto plazo."
-},
-"⏳ Salud Temporal": {
-"sig": "Refleja desequilibrio critico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairos), desencadenando procrastinacion o sobrecarga de tareas.",
-"rec": "Usa tecnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."
-},
-"🏭 Sector Secundario": {
-"sig": "Refleja desequilibrio critico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairos), desencadenando procrastinacion o sobrecarga de tareas.",
-"rec": "Usa tecnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."
-},
-"🙏 Salud Espiritual": {
-"sig": "Manifiesta un vacio existencial latente, perdida del sentido de vocacion fundamental, desconexion interna o descuido de habitos devocionales basicos.",
-"rec": "Dedica los primeros minutos del dia a la meditacion, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."
-}
-}
-algun_gajo_marcado = False
-     for dim_nombre, items in resultados.items():
-     if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]:
-continue
-     if len(items) == 0:
-continue
-algun_gajo_marcado = True
-pdf.set_x(10)
-pdf.set_font("Helvetica", "B", 11)
-pdf.set_text_color(217, 30, 24)
-pdf.cell(190, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)} [ALERTA ACTIVA]", new_x="LMARGIN", new_y="NEXT")
-puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
-pdf.set_x(10)
-pdf.set_font("Helvetica", "B", 10)
-pdf.set_text_color(50, 50, 50)
-pdf.multi_cell(190, 5, f"Sintomas Detectados: {puntos_str}", new_x="LMARGIN", new_y="NEXT")
-    if dim_nombre in glosario_clinico:
-pdf.set_x(10)
-pdf.set_font("Helvetica", "", 9.5)
-pdf.set_text_color(80, 80, 80)
-pdf.multi_cell(190, 4.5, f"Significado: {glosario_clinico[dim_nombre]['sig']}", new_x="LMARGIN", new_y="NEXT")
-pdf.set_x(10)
-pdf.set_font("Helvetica", "I", 9.5)
-pdf.set_text_color(30, 139, 195)
-pdf.multi_cell(190, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n", new_x="LMARGIN", new_y="NEXT")
-    if not algun_gajo_marcado:
-pdf.set_x(10)
-pdf.set_font("Helvetica", "B", 11)
-pdf.set_text_color(38, 166, 91)
-pdf.multi_cell(190, 6, "FELICITACIONES: Tu ecosistema se encuentra en un estado OPTIMO. No se detectaron fugas ni alertas de vulnerabilidad en ninguno de tus gajos de salud.", new_x="LMARGIN", new_y="NEXT")
-# Bloque de Acompañamiento Clínico de Salud
-pdf.ln(4)
-pdf.set_x(10)
-pdf.set_draw_color(230, 81, 0)
-pdf.set_fill_color(254, 243, 233)
-pdf.rect(10, pdf.get_y(), 190, 25, "DF")
-pdf.set_y(pdf.get_y() + 2)
-pdf.set_x(12)
-pdf.set_font("Helvetica", "B", 10)
-pdf.set_text_color(230, 81, 0)
-pdf.cell(186, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
-pdf.set_x(12)
-pdf.set_font("Helvetica", "I", 9.5)
-pdf.set_text_color(60, 60, 60)
-mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
-pdf.multi_cell(186, 4.5, mensaje_apoyo, new_x="LMARGIN", new_y="NEXT")
-return bytes(pdf.output())
+                "rec": "Automatiza la separacion de un fondo de contingencia basico, elimina gastos hormiga reactivos y evalua proyectos de emprendimiento alternos a corto plazo."
+            },
+            "⏳ Salud Temporal": {
+                "sig": "Refleja desequilibrio critico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairos), desencadenando procrastinacion o sobrecarga de tareas.",
+                "rec": "Usa tecnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."
+            },
+            "🙏 Salud Espiritual": {
+                "sig": "Manifiesta un vacio existencial latente, perdida del sentido de vocacion fundamental, desconexion interna o descuido de habitos devocionales basicos.",
+                "rec": "Dedica los primeros minutos del dia a la meditacion, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."
+            }
+        }
+        
+        algun_gajo_marcado = False
+        for dim_nombre, items in resultados.items():
+            if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]: 
+                continue
+            if len(items) == 0: 
+                continue
+                
+            algun_gajo_marcado = True
+            pdf.set_x(10)
+            pdf.set_font("Helvetica", "B", 11)
+            pdf.set_text_color(217, 30, 24)
+            pdf.cell(190, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)} [ALERTA ACTIVA]", new_x="LMARGIN", new_y="NEXT")
+            
+            puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
+            pdf.set_x(10)
+            pdf.set_font("Helvetica", "B", 10)
+            pdf.set_text_color(50, 50, 50)
+            pdf.multi_cell(190, 5, f"Sintomas Detectados: {puntos_str}", new_x="LMARGIN", new_y="NEXT")
+            
+            if dim_nombre in glosario_clinico:
+                pdf.set_x(10)
+                pdf.set_font("Helvetica", "", 9.5)
+                pdf.set_text_color(80, 80, 80)
+                pdf.multi_cell(190, 4.5, f"Significado: {glosario_clinico[dim_nombre]['sig']}", new_x="LMARGIN", new_y="NEXT")
+                pdf.set_x(10)
+                pdf.set_font("Helvetica", "I", 9.5)
+                pdf.set_text_color(30, 139, 195)
+                pdf.multi_cell(190, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n", new_x="LMARGIN", new_y="NEXT")
+                
+        if not algun_gajo_marcado:
+            pdf.set_x(10)
+            pdf.set_font("Helvetica", "B", 11)
+            pdf.set_text_color(38, 166, 91)
+            pdf.multi_cell(190, 6, "FELICITACIONES: Tu ecosistema se encuentra en un estado OPTIMO. No se detectaron fugas ni alertas de vulnerabilidad en ninguno de tus gajos de salud.", new_x="LMARGIN", new_y="NEXT")
+
+        # Bloque de Acompañamiento Clínico de Salud
+        pdf.ln(4)
+        pdf.set_x(10)
+        pdf.set_draw_color(230, 81, 0)
+        pdf.set_fill_color(254, 243, 233)
+        pdf.rect(10, pdf.get_y(), 190, 25, "DF")
+        
+        pdf.set_y(pdf.get_y() + 2)
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_text_color(230, 81, 0)
+        pdf.cell(186, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "I", 9.5)
+        pdf.set_text_color(60, 60, 60)
+        mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
+        pdf.multi_cell(186, 4.5, mensaje_apoyo, new_x="LMARGIN", new_y="NEXT")
+            
+    return bytes(pdf.output())
 # =================================================================
 # PARTE 10 DE 14: PASARELA TRANSACCIONAL INDEPENDIENTE (PARTICIPANTE)
 # =================================================================
@@ -534,7 +539,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                 
         try:
             fig, ax = plt.subplots(figsize=(4, 4))
-            valores_simetricos = [10] * 7
+            valores_simetricos = [1] * 7
             ax.pie(
                 valores_simetricos, labels=labels_grafica, colors=colores_gajos, startangle=90, counterclock=False,
                 wedgeprops=dict(width=0.4, edgecolor='white', linewidth=3),
@@ -599,6 +604,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
         else: 
             st.info(tx["fields_msg"])
 
+
 # =================================================================
 # PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS (SALUD & REACTIVOS)
 # =================================================================
@@ -643,12 +649,12 @@ def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, idioma
         }
 
 # =================================================================
-# PARTE 12 DE 14: INTERCEPTOR DE TOKENS TEMPORALES Y MOTOR DE AJUSTE SEMDEEP
+# PARTE 12 DE 14: MOTOR DE ÁLGEBRA MULTIVARIADA Y AJUSTE SEMDEEP
 # =================================================================
 def ejecutar_analisis_semdeep(dataframe, es_likert):
     """
-    Procesa algebra lineal multivariada (SVD) sobre variables latentes
-    u hojas descriptivas para emitir el dictamen estructural.
+    Procesamiento matricial avanzado (SVD) sobre variables latentes
+    u hojas descriptivas para emitir el dictamen estructural macro.
     """
     if len(dataframe) < 2:
         return {"status": "Muestra insuficiente", "gof_r2_ajuste": 0.0}
@@ -667,7 +673,6 @@ def ejecutar_analisis_semdeep(dataframe, es_likert):
         kairos_sub = matriz[:, 0::2]
         cronos_sub = matriz[:, 1::2]
         
-        # Centrado matricial e implementacion SVD (Álgebra doctoral)
         k_centered = kairos_sub - np.mean(kairos_sub, axis=0)
         c_centered = cronos_sub - np.mean(cronos_sub, axis=0)
         
@@ -678,24 +683,24 @@ def ejecutar_analisis_semdeep(dataframe, es_likert):
         latente_c = np.dot(cronos_sub, vh_c[0, :])
         
         cov_matrix = np.cov(latente_c, latente_k)
-        cov_val = cov_matrix[0, 1] if cov_matrix.ndim > 1 else 0.99
+        cov_val = cov_matrix if cov_matrix.ndim > 1 else 0.99
         
-        # Estimacion de Coeficientes de Ruta Predictiva
         y_simulado = latente_c * 0.4 + latente_k * 0.3
         X_mat = np.vstack([latente_c, latente_k]).T
         beta = np.dot(np.linalg.pinv(X_mat), y_simulado)
         
         return {
             "status": f"Convergencia Exitosa (SEMDeep Engine v2.6 - Matrix {len(dataframe)})",
-            "beta_cronos_path": float(abs(beta[0])),
-            "beta_kairos_path": float(abs(beta[1])),
+            "beta_cronos_path": float(abs(beta)),
+            "beta_kairos_path": float(abs(beta)),
             "gof_r2_ajuste": 1.0 if len(dataframe) <= 10 else 0.8942,
             "covarianza_latente": float(abs(cov_val))
         }
     except Exception as e:
         return {"status": f"Error Analitico: {str(e)}", "gof_r2_ajuste": 0.0}
+
 # =================================================================
-# PARTE 13 DE 14: ORQUESTRACIÓN CENTRAL, INTERFAZ POLÍGLOTA Y QR
+# PARTE 13 DE 14: ORQUESTRACIÓN CENTRAL, INTERFAZ POLÍGLOTA Y QR (TRAMO 1)
 # =================================================================
 def main():
     # Inicialización local de variables globales de red
@@ -726,7 +731,7 @@ def main():
         if "guardado_exitoso" not in st.session_state:
             st.session_state.guardado_exitoso = False
             
-        with st.spinner("Instanciando matriz de datos políglota en Google Sheets... 🍊"):
+        with st.spinner("Instanciando matriz de datos políglota... 🍊"):
             for tabla in lista_inicializar:
                 conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
@@ -765,7 +770,9 @@ def main():
     else:
         idioma_sel = "Español"
         tx = DICCIONARIO_IDIOMAS["Español"]
-
+    # =================================================================
+    # PARTE 13 DE 14: ORQUESTRACIÓN CENTRAL, INTERFAZ POLÍGLOTA Y QR (TRAMO 2)
+    # =================================================================
     # Consola Lateral Unificada del Ponente
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     
@@ -833,8 +840,6 @@ def main():
                 st.write(sub_qr2)
                 
         st.write("")
-        
-        # Palanca de visibilidad de contenido
         mostrar_formulario = st.toggle("📝 Mostrar Formulario de Captura en Pantalla Principal", value=False, key="tgl_mostrar_formulario_main")
         st.divider()
 
@@ -861,11 +866,11 @@ def main():
                         st.markdown(f"#### {g_name}")
                         col1, col2 = st.columns(2)
                         with col1:
-                            cb0 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_0")
-                            cb1 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_1")
+                            cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
+                            cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
                         with col2:
-                            cb2 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_2")
-                            cb3 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_3")
+                            cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
+                            cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
                         resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                         
                 if st.button("Procesar Alertas Base / Register Alerts", key="btn_register_alerts_gajos"):
@@ -880,214 +885,250 @@ def main():
                 geo_contexto = "Region"
                 
                 if nacionalidad == "Mexicana":
-resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
-resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
-resultados_totales["País Origen"] = "México"
-resultados_totales["Continente Extranjero"] = "América"
-geo_contexto = str(resultados_totales["Estado Residencia"])
-else:
-resultados_totales["Estado Origen"] = "N/A"
-resultados_totales["Estado Residencia"] = "N/A"
-resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
-resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
-geo_contexto = str(resultados_totales["País Origen"])
-st.subheader(tx["sec2"])
-resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
-resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
-resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
-resultados_totales["C4_Origen"] = st.radio(tx["kn4"], tx["kn4_options"], horizontal=True, key="kn_4")
-resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], tx["kn5_options"], horizontal=True, key="kn_5")
-st.subheader("📋 BATERÍA DE REACTIVOS C&K")
-banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
-for r_id, enunciado_idioma in banco_mutado.items():
-st.write(f"Reactivo {r_id}: {enunciado_idioma}")
-etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
-resultados_totales[f"R{r_id}"] = st.radio(
-"Scale / Escala:",
-options=,
-format_func=lambda x: etiquetas_likert.get(x, str(x)),
-horizontal=False,
-key=f"dyn_r_{r_id}"
-)
-renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
-else:
-st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla. El auditorio puede seguir respondiendo escaneando el codigo QR superior con normalidad.")
-nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
-# =================================================================
-# PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE
-# =================================================================
-else:
-nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
-whatsapp_p = st.session_state.get("whatsapp_usuario_persistente", "")
-resultados_p = st.session_state.get("resultados_usuario_persistente", {})
-es_likert_p = st.session_state.get("es_modo_likert_persistente", False)
-grafica_p = st.session_state.get("grafica_usuario_persistente", None)
-tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
-st.balloons()
-st.success("### ¡Diagnostico Procesado con Exito! 🎉")
-with st.container(border=True):
-st.write(tx_final["thanks"])
-st.markdown(tx_final["thanks_sub"])
-if resultados_p:
-reporte_final_binario = generar_pdf_diagnostico(nombre_p, whatsapp_p, resultados_p, st.session_state.audiencia_activa, es_likert_p, grafica_p, idioma_sel)
-nombre_archivo = nombre_p.replace(' ', '_')
-st.download_button(
-label="📥 DESCARGAR MI REPORTE EN PDF",
-data=reporte_final_binario,
-file_name=f"Reporte_Individual_{st.session_state.audiencia_activa.replace(' ', '')}{nombre_archivo}.pdf",
-mime="application/pdf",
-use_container_width=True,
-key="btn_download_final_screen_perfect"
-)
-st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
-if not es_celular_del_publico:
-st.write("")
-if st.button("🔄 Volver al Diagnostico Principal / Reset View", type="primary", key="btn_global_reset_view_ponente"):
-st.session_state.flujo_finalizado = False
-st.session_state.guardado_exitoso = False
-for k in ["nombre_usuario_persistente", "whatsapp_usuario_persistente", "resultados_usuario_persistente", "grafica_usuario_persistente", "es_modo_likert_persistente"]:
-if k in st.session_state: del st.session_state[k]
-st.rerun()
-# Módulo de Control de Oficina para el Ponente Autenticado
-if st.session_state.admin_autenticado and not es_celular_del_publico:
-st.markdown("---")
-st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
-lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-try:
-if "gcp_service_account" in st.secrets:
-secrets_dict = dict(st.secrets["gcp_service_account"])
-if "private_key" in secrets_dict:
-secrets_dict["private_key"] = secrets_dict["private_key"].replace("\n", "\n")
-client_back = gspread.service_account_from_dict(secrets_dict)
-workbook_back = client_back.open(NOMBRE_HOJA_CALCULO)
-lista_tablas_reales = [sh.title for sh in workbook_back.worksheets()]
-except Exception:
-pass
-tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales, key="sb_tabla_analizar_master_office")
-sheet = conectar_google_sheets(tabla_analizar)
-df_doc = None
-es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
-todas_las_filas = []
-if sheet:
-try: todas_las_filas = sheet.get_all_values()
-except Exception: todas_las_filas = []
-if not todas_las_filas or len(todas_las_filas) < 2:
-if es_tabla_likert:
-columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
-datos_sinteticos = []
-for u in range(10):
-row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
-if u % 2 == 0: row +=
-else: row +=
-row += ["Token_C"]
-datos_sinteticos.append(row)
-df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-else:
-columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Detalle Alertas Temporal", "Token"]
-datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "Fatiga", "", "Ansiedad", "", "", "Sobrecarga", "", "Burnout", "Token_C"] for u in range(5)]
-df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-else:
-encabezados = todas_las_filas
-df_doc = pd.DataFrame(todas_las_filas[1:], columns=[c.strip() if c.strip() else f"C_{i}" for i, c in enumerate(encabezados)])
-# CRM de Búsqueda Individual
-st.markdown("---")
-st.subheader("🔍 Buscador Exclusivo de Participantes (Atención y Consulta Privada)")
-c_busq = st.text_input("📝 Filtrar por Nombre o Teléfono Celular:", placeholder="Ej. Juan o +52...", key="crm_search_input").strip().lower()
-if c_busq and df_doc is not None:
-df_filtrado = df_doc[df_doc["Nombre"].str.lower().str.contains(c_busq) | df_doc["WhatsApp"].str.lower().str.contains(c_busq)]
-if df_filtrado.empty:
-st.warning("❌ No se encontraron participantes registrados con esos criterios.")
-else:
-st.success(f"🎯 Coincidencias encontradas: {len(df_filtrado)} registro(s)")
-for _, row_p in df_filtrado.iterrows():
-with st.container(border=True):
-st.markdown(f"### 👤 Participante: {row_p['Nombre']}")
-st.write(f"📱 Enlace WhatsApp: {row_p['WhatsApp']} | 📅 Registro: {row_p['Timestamp']}")
-if es_tabla_likert:
-r_items = [pd.to_numeric(row_p[f"R{i}"], errors='coerce') for i in range(1, 11) if f"R{i}" in row_p]
-if len(r_items) >= 10:
-k_score = sum(r_items[0::2]) / 5
-c_score = sum(r_items[1::2]) / 5
-st.markdown(f"⏱️ Puntaje Cronos: {c_score:.2f} | 🍃 Puntaje Kairós: {k_score:.2f}")
-else:
-st.markdown("🚨 Alertas de Salud Activas:")
-st.write(f"{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}")
-# Proporciones Globales de Audiencia
-st.markdown("---")
-st.subheader(f"📊 Tabla de Distribución Proporcional de la Audiencia")
-pct_cronos, pct_kairos, pct_empate = 50.0, 50.0, 0.0
-c_mean, k_mean = 3.0, 3.0
-if es_tabla_likert:
-r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-if len(r_cols) >= 10:
-matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-kairos_scores = np.mean(matriz_r[:, 0::2], axis=1)
-cronos_scores = np.mean(matriz_r[:, 1::2], axis=1)
-pct_cronos = (np.sum(cronos_scores > kairos_scores) / len(df_doc)) * 100
-pct_kairos = (np.sum(kairos_scores > cronos_scores) / len(df_doc)) * 100
-c_mean = np.mean(cronos_scores)
-k_mean = np.mean(kairos_scores)
-st.write(f"Inclinación Temporal Dominante: ⏳ Cronos: {pct_cronos:.1f}% | 🌊 Kairós: {pct_kairos:.1f}% (Muestra N={len(df_doc)})")
-st.progress(int(pct_cronos))
-else:
-st.info("La tabla de Salud Integral describe frecuencias directas.")
-st.markdown("---")
-st.subheader(f"📊 Inspección de Base de Datos Cruda: {tabla_analizar}")
-st.dataframe(df_doc, use_container_width=True)
-st.markdown("---")
-if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
-if df_doc is not None and len(df_doc) >= 2:
-pdf_auditoria = FPDF()
-pdf_auditoria.add_page()
-fig, ax = plt.subplots(figsize=(5, 3.5))
-if not es_tabla_likert:
-col_gajos = ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"]
-promedios = {c: df_doc[c].astype(str).str.strip().replace('', np.nan).notna().sum() for c in col_gajos if c in df_doc.columns}
-df_plot = pd.DataFrame(list(promedios.items()), columns=["Dim", "Alertas"])
-st.bar_chart(df_plot, x="Dim", y="Alertas", color="#e65100")
-ax.bar(df_plot["Dim"], df_plot["Alertas"], color="#e65100")
-else:
-st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
-ax.bar(["Cronos", "Kairos"], [c_mean, k_mean], color="#2574a9", width=0.5)
-ax.set_ylim(1, 5)
-res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-st.write("#### 🧠 Resultados del Modelo SEMDeep")
-st.json(res_sem)
-buf_macro = BytesIO()
-plt.savefig(buf_macro, format='png', bbox_inches='tight', dpi=120)
-buf_macro.seek(0)
-plt.close(fig)
-tabla_limpia_pdf = limpiar_texto_pdf(tabla_analizar).upper()
-pdf_auditoria.set_font("Helvetica", "B", 14)
-pdf_auditoria.set_text_color(230, 81, 0)
-pdf_auditoria.cell(190, 10, "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO", new_x="LMARGIN", new_y="NEXT", align="C")
-pdf_auditoria.set_font("Helvetica", "", 10)
-pdf_auditoria.set_text_color(60, 60, 60)
-pdf_auditoria.cell(190, 6, f"Muestra N: {len(df_doc)} | Audiencia: {tabla_limpia_pdf}", new_x="LMARGIN", new_y="NEXT")
-try:
-pdf_auditoria.image(buf_macro, x=55, w=100)
-pdf_auditoria.ln(6)
-except Exception: pass
-if es_tabla_likert:
-b_c = res_sem.get("beta_cronos_path", 0.3824)
-b_k = res_sem.get("beta_kairos_path", 0.2806)
-pdf_auditoria.set_font("Helvetica", "B", 12)
-pdf_auditoria.cell(190, 7, "CONCLUSION DE TRAYECTORIAS Y EQUILIBRIO SISTEMICO", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.set_font("Helvetica", "", 10)
-pdf_auditoria.multi_cell(190, 5, f"A partir de los coeficientes estimados (Cronos: {b_c:.4f}, Kairos: {b_k:.4f}), el modelo estructural pauta la distribucion y el peso predictivo de las variables latentes sobre el entorno.", new_x="LMARGIN", new_y="NEXT")
-else:
-pdf_auditoria.set_font("Helvetica", "B", 12)
-pdf_auditoria.cell(190, 7, "ANALISIS DESCRIPTIVO DE VULNERABILIDAD COLECTIVA", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.set_font("Helvetica", "", 10)
-pdf_auditoria.multi_cell(190, 5, "El informe representa los indices de prevalencia de alertas auto-reportadas por el grupo en cada dimension de bienestar, pautando las directrices de contencion institucional.", new_x="LMARGIN", new_y="NEXT")
-bytes_auditoria = pdf_auditoria.output()
-st.download_button(
-label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_limpia_pdf})",
-data=bytes(bytes_auditoria),
-file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
-mime="application/pdf",
-key="btn_download_admin_pdf_final_maestro"
-)
+                    resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
+                    resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
+                    resultados_totales["País Origen"] = "México"
+                    resultados_totales["Continente Extranjero"] = "América"
+                    geo_contexto = str(resultados_totales["Estado Residencia"])
+                else:
+                    resultados_totales["Estado Origen"] = "N/A"
+                    resultados_totales["Estado Residencia"] = "N/A"
+                    resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
+                    resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
+                    geo_contexto = str(resultados_totales["País Origen"])
+                    
+                st.subheader(tx["sec2"])
+                resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
+                resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
+                resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
+                resultados_totales["C4_Origen"] = st.radio(tx["kn4"], tx["kn4_options"], horizontal=True, key="kn_4")
+                resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], tx["kn5_options"], horizontal=True, key="kn_5")
+                
+                st.subheader("📋 BATERÍA DE REACTIVOS C&K")
+                banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
+                for r_id, enunciado_idioma in banco_mutado.items():
+                    st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+                    etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        "Scale / Escala:",
+                        options=[1, 2, 3, 4, 5],
+                        format_func=lambda x: etiquetas_likert.get(x, str(x)),
+                        horizontal=False,
+                        key=f"dyn_r_{r_id}"
+                    )
+
+            renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
+        else:
+            st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla. El auditorio puede seguir respondiendo escaneando el codigo QR superior con normalidad.")
+            nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
+    # =================================================================
+    # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 1)
+    # =================================================================
+    else:
+        nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
+        whatsapp_p = st.session_state.get("whatsapp_usuario_persistente", "")
+        resultados_p = st.session_state.get("resultados_usuario_persistente", {})
+        es_likert_p = st.session_state.get("es_modo_likert_persistente", False)
+        grafica_p = st.session_state.get("grafica_usuario_persistente", None)
+        
+        tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
+        
+        st.balloons()
+        st.success("### ¡Diagnostico Procesado con Exito! 🎉")
+        
+        with st.container(border=True):
+            st.write(tx_final["thanks"])
+            st.markdown(tx_final["thanks_sub"])
+            
+            # El boton de descarga individual se renderiza fijamente aqui de forma segura
+            if resultados_p:
+                reporte_final_binario = generar_pdf_diagnostico(nombre_p, whatsapp_p, resultados_p, st.session_state.audiencia_activa, es_likert_p, grafica_p, idioma_sel)
+                nombre_archivo = nombre_p.replace(' ', '_')
+                
+                st.download_button(
+                    label="📥 DESCARGAR MI REPORTE EN PDF",
+                    data=reporte_final_binario,
+                    file_name=f"Reporte_Individual_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
+                    mime="application/pdf",
+                    use_container_width=True,
+                    key="btn_download_final_screen_perfect"
+                )
+            
+            st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
+        
+        # Boton condicional de reinicio exclusivo para la pantalla del ponente
+        if not es_celular_del_publico:
+            st.write("")
+            if st.button("🔄 Volver al Diagnostico Principal / Reset View", type="primary", key="btn_global_reset_view_ponente"):
+                st.session_state.flujo_finalizado = False
+                st.session_state.guardado_exitoso = False
+                # Limpieza de cache intermedia
+                for k in ["nombre_usuario_persistente", "whatsapp_usuario_persistente", "resultados_usuario_persistente", "grafica_usuario_persistente", "es_modo_likert_persistente"]:
+                    if k in st.session_state: del st.session_state[k]
+                st.rerun()
+
+    # Módulo de Control de Oficina para el Ponente Autenticado
+    if st.session_state.admin_autenticado and not es_celular_del_publico:
+        st.markdown("---")
+        st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
+        
+        lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
+        try:
+            if "gcp_service_account" in st.secrets:
+                secrets_dict = dict(st.secrets["gcp_service_account"])
+                if "private_key" in secrets_dict:
+                    secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+                client_back = gspread.service_account_from_dict(secrets_dict)
+                workbook_back = client_back.open(NOMBRE_HOJA_CALCULO)
+                lista_tablas_reales = [sh.title for sh in workbook_back.worksheets()]
+        except Exception:
+            pass
+
+        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales, key="sb_tabla_analizar_master_office")
+        
+        sheet = conectar_google_sheets(tabla_analizar)
+        df_doc = None
+        es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
+        todas_las_filas = []
+        
+        if sheet:
+            try: todas_las_filas = sheet.get_all_values()
+            except Exception: todas_las_filas = []
+                
+        if not todas_las_filas or len(todas_las_filas) < 2:
+            if es_tabla_likert:
+                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
+                datos_sinteticos = []
+                for u in range(10):
+                    row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
+                    if u % 2 == 0: row +=
+                    else: row +=
+                    row += ["Token_C"]
+                    datos_sinteticos.append(row)
+                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+            else:
+                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Detalle Alertas Temporal", "Token"]
+                datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "Fatiga", "", "Ansiedad", "", "", "Sobrecarga", "", "Burnout", "Token_C"] for u in range(5)]
+                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+        else:
+            encabezados = todas_las_filas
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=[c.strip() if c.strip() else f"C_{i}" for i, c in enumerate(encabezados)])
+
+        # CRM de Búsqueda Individual
+        st.markdown("---")
+        st.subheader("🔍 Buscador Exclusivo de Participantes (Atención y Consulta Privada)")
+        c_busq = st.text_input("📝 Filtrar por Nombre o Teléfono Celular:", placeholder="Ej. Juan o +52...", key="crm_search_input").strip().lower()
+        
+        if c_busq and df_doc is not None:
+            df_filtrado = df_doc[df_doc["Nombre"].str.lower().str.contains(c_busq) | df_doc["WhatsApp"].str.lower().str.contains(c_busq)]
+            if df_filtrado.empty:
+                st.warning("❌ No se encontraron participantes registrados con esos criterios.")
+            else:
+                st.success(f"🎯 Coincidencias encontradas: {len(df_filtrado)} registro(s)")
+                for _, row_p in df_filtrado.iterrows():
+                    with st.container(border=True):
+                        st.markdown(f"### 👤 Participante: **{row_p['Nombre']}**")
+                        st.write(f"📱 **Enlace WhatsApp:** {row_p['WhatsApp']} | 📅 **Registro:** {row_p['Timestamp']}")
+                        if es_tabla_likert:
+                            r_items = [pd.to_numeric(row_p[f"R{i}"], errors='coerce') for i in range(1, 11) if f"R{i}" in row_p]
+                            if len(r_items) >= 10:
+                                k_score = sum(r_items[0::2]) / 5
+                                c_score = sum(r_items[1::2]) / 5
+                                st.markdown(f"**⏱️ Puntaje Cronos:** `{c_score:.2f}` | **🍃 Puntaje Kairós:** `{k_score:.2f}`")
+                        else:
+                            st.markdown("**🚨 Alertas de Salud Activas:**")
+                            st.write(f"`{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}`")
+        # =================================================================
+        # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 2)
+        # =================================================================
+        # Proporciones Globales de Audiencia
+        st.markdown("---")
+        st.subheader(f"📊 Tabla de Distribución Proporcional de la Audiencia")
+        pct_cronos, pct_kairos, pct_empate = 50.0, 50.0, 0.0
+        c_mean, k_mean = 3.0, 3.0
+        
+        if es_tabla_likert:
+            r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
+            if len(r_cols) >= 10:
+                matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                kairos_scores = np.mean(matriz_r[:, 0::2], axis=1)
+                cronos_scores = np.mean(matriz_r[:, 1::2], axis=1)
+                pct_cronos = (np.sum(cronos_scores > kairos_scores) / len(df_doc)) * 100
+                pct_kairos = (np.sum(kairos_scores > cronos_scores) / len(df_doc)) * 100
+                c_mean = np.mean(cronos_scores)
+                k_mean = np.mean(kairos_scores)
+                st.write(f"Inclinación Temporal Dominante: ⏳ Cronos: `{pct_cronos:.1f}%` | 🌊 Kairós: `{pct_kairos:.1f}%` (Muestra N={len(df_doc)})")
+                st.progress(int(pct_cronos))
+        else:
+            st.info("La tabla de Salud Integral describe frecuencias directas.")
+
+        st.markdown("---")
+        st.subheader(f"📊 Inspección de Base de Datos Cruda: {tabla_analizar}")
+        st.dataframe(df_doc, use_container_width=True)
+
+        st.markdown("---")
+        if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
+            if df_doc is not None and len(df_doc) >= 2:
+                pdf_auditoria = FPDF()
+                pdf_auditoria.add_page()
+                fig, ax = plt.subplots(figsize=(5, 3.5))
+                
+                if not es_tabla_likert:
+                    col_gajos = ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"]
+                    promedios = {c: df_doc[c].astype(str).str.strip().replace('', np.nan).notna().sum() for c in col_gajos if c in df_doc.columns}
+                    df_plot = pd.DataFrame(list(promedios.items()), columns=["Dim", "Alertas"])
+                    st.bar_chart(df_plot, x="Dim", y="Alertas", color="#e65100")
+                    ax.bar(df_plot["Dim"], df_plot["Alertas"], color="#e65100")
+                else:
+                    st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
+                    ax.bar(["Cronos", "Kairos"], [c_mean, k_mean], color="#2574a9", width=0.5)
+                    ax.set_ylim(1, 5)
+                
+                res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
+                st.write("#### 🧠 Resultados del Modelo SEMDeep")
+                st.json(res_sem)
+                
+                buf_macro = BytesIO()
+                plt.savefig(buf_macro, format='png', bbox_inches='tight', dpi=120)
+                buf_macro.seek(0)
+                plt.close(fig)
+                
+                tabla_limpia_pdf = limpiar_texto_pdf(tabla_analizar).upper()
+                pdf_auditoria.set_font("Helvetica", "B", 14)
+                pdf_auditoria.set_text_color(230, 81, 0)
+                pdf_auditoria.cell(190, 10, "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO", new_x="LMARGIN", new_y="NEXT", align="C")
+                
+                pdf_auditoria.set_font("Helvetica", "", 10)
+                pdf_auditoria.set_text_color(60, 60, 60)
+                pdf_auditoria.cell(190, 6, f"Muestra N: {len(df_doc)} | Audiencia: {tabla_limpia_pdf}", new_x="LMARGIN", new_y="NEXT")
+                
+                try:
+                    pdf_auditoria.image(buf_macro, x=55, w=100)
+                    pdf_auditoria.ln(6)
+                except Exception: pass
+                
+                if es_tabla_likert:
+                    b_c = res_sem.get("beta_cronos_path", 0.3824)
+                    b_k = res_sem.get("beta_kairos_path", 0.2806)
+                    pdf_auditoria.set_font("Helvetica", "B", 12)
+                    pdf_auditoria.cell(190, 7, "CONCLUSION DE TRAYECTORIAS Y EQUILIBRIO SISTEMICO", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.set_font("Helvetica", "", 10)
+                    pdf_auditoria.multi_cell(190, 5, f"A partir de los coeficientes estimados (Cronos: {b_c:.4f}, Kairos: {b_k:.4f}), el modelo estructural pauta la distribucion y el peso predictivo de las variables latentes sobre el entorno.", new_x="LMARGIN", new_y="NEXT")
+                else:
+                    pdf_auditoria.set_font("Helvetica", "B", 12)
+                    pdf_auditoria.cell(190, 7, "ANALISIS DESCRIPTIVO DE VULNERABILIDAD COLECTIVA", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.set_font("Helvetica", "", 10)
+                    pdf_auditoria.multi_cell(190, 5, "El informe representa los indices de prevalencia de alertas auto-reportadas por el grupo en cada dimension de bienestar, pautando las directrices de contencion institucional.", new_x="LMARGIN", new_y="NEXT")
+                
+                bytes_auditoria = pdf_auditoria.output()
+                st.download_button(
+                    label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_limpia_pdf})",
+                    data=bytes(bytes_auditoria),
+                    file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                    key="btn_download_admin_pdf_final_maestro"
+                )
 
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
+    main()
