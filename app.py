@@ -850,7 +850,7 @@ def main():
     # Inicialización local de variables globales de red y tiempo
     global token_actual, es_celular_del_publico, url_con_token, token_tiempo
 
-    # Blindaje estructural incondicional de variables de sesión
+    # 🍊 BLINDAJE DE INICIALIZACIÓN ABSOLUTO ANTI-KEYERROR
     if "audiencia_activa" not in st.session_state:
         st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state:
@@ -859,6 +859,11 @@ def main():
         st.session_state.flujo_finalizado = False
     if "guardado_exitoso" not in st.session_state:
         st.session_state.guardado_exitoso = False
+    if "idioma_activo_actual" not in st.session_state:
+        # Detecta si ya hay un idioma en los parámetros de la URL, si no, usa español
+        st.session_state.idioma_activo_actual = st.query_params.get("lang", "es")
+    if "tx_traducido_cache" not in st.session_state:
+        st.session_state.tx_traducido_cache = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
 
     minuto_actual = int(time.time() // 60)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
@@ -871,7 +876,8 @@ def main():
     if es_celular_del_publico and diag_tipo_url:
         st.session_state.audiencia_activa = diag_tipo_url
 
-    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
+    # Construcción de URL 100% segura: Ambas llaves de sesión ya han sido validadas en el renglón de arriba
+    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={st.session_state.idioma_activo_actual}"
 
     # Instanciación síncrona inicial de estructuras físicas en la nube
     if "estructuras_inicializadas" not in st.session_state:
@@ -880,6 +886,7 @@ def main():
             for tabla in lista_inicializar:
                 conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
+
 
     # Interceptor de caducidad temporal anti-duplicados (Ventana de 10 minutos)
     if token_actual and not st.session_state.admin_autenticado:
