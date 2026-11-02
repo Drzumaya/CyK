@@ -595,14 +595,14 @@ pdf.set_font("Helvetica", "B", 10)
 pdf.set_text_color(50, 50, 50)
 pdf.multi_cell(0, 5, f"Sintomas Detectados: {puntos_str}")
 # Inyección de Significado y Recomendación atómica desde el glosario
-if dim_nombre in glosario_clinico:
+    if dim_nombre in glosario_clinico:
 pdf.set_font("Helvetica", "", 9.5)
 pdf.set_text_color(80, 80, 80)
 pdf.multi_cell(0, 4.5, f"Significado: {glosario_clinico[dim_nombre]['sig']}")
 pdf.set_font("Helvetica", "I", 9.5)
 pdf.set_text_color(30, 139, 195) # Texto de recomendación en azul constructivo
 pdf.multi_cell(0, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n")
-if not algun_gajo_marcado:
+    if not algun_gajo_marcado:
 pdf.set_font("Helvetica", "B", 11)
 pdf.set_text_color(38, 166, 91) # Verde de éxito absoluto
 pdf.multi_cell(0, 6, "FELICITACIONES: Tu ecosistema se encuentra en un estado OPTIMO. No se detectaron fugas ni alertas de vulnerabilidad en ninguno de tus gajos de salud.")
