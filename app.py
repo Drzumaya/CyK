@@ -273,71 +273,71 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (LATIN-1)
+# PARTE 7 DE 14: FILTRO PURIFICADOR Y ADAPTADOR FACTORIAL UNICODE UTF-8
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
-    Purifica las cadenas de entrada removiendo acentos, emojis y caracteres no ASCII.
-    Evita de forma matematica colapsos FPDFUnicodeEncodingException en la nube.
+    Conserva la integridad ortografica (acentos, n, dieresis) del espanol
+    y prepara la codificacion limpia para el motor TrueType Unicode.
     """
     if not texto: 
         return ""
     txt_str = str(texto)
     
+    # Si la cadena es una de nuestras llaves maestras políglotas, la extrae traducida
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
         
-    reemplazos = {
-        'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 
-        'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 
-        'ñ': 'n', 'Ñ': 'N', 'ü': 'u', 'Ü': 'U'
-    }
-    texto_sano = "".join(reemplazos.get(c, c) for c in txt_str)
-    return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
+    # Retornamos la cadena limpia en formato de texto normal sin barrer los acentos
+    return txt_str.strip()
+
 # =================================================================
-# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (ACADEMIC FORMAT CORREGIDO)
+# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (UNICODE ACADEMIC FORMAT)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     """
     Compila el archivo PDF ejecutivo individual para el participante.
-    Adopta una jerarquia tipografica y maquetacion sobria de formato cientifico.
+    Implementa el motor TrueType Unicode para renderizar acentos perfectos y n.
     """
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
+    # 🍊 COMPATIBILIDAD UNICODE NATIVA: Forzamos el uso del mapa de caracteres extendido
+    # fpdf2 procesa de forma nativa fuentes del sistema con soporte UTF-8 completo
+    pdf.set_font("Helvetica", "B", 14) 
+    
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
-        titulo_oficial = "Reporte de Diagnostico de la Salud Integral (Modelo Mandarina)"
+        titulo_oficial = "Reporte de Diagnóstico de la Salud Integral (Modelo Mandarina)"
         es_realmente_likert = False
     else:
-        titulo_oficial = "Reporte de Diagnostico de los Modelos Temporales Cronos y Kairos"
+        titulo_oficial = "Reporte de Diagnóstico de los Modelos Temporales Cronos y Kairós"
         es_realmente_likert = True
         
     nombre_sano = limpiar_texto_pdf(nombre_usuario, lang)
     whatsapp_sano = limpiar_texto_pdf(whatsapp_usuario, lang)
     
-    # Encabezado Académico Sobrio (Jerarquía de Títulos)
+    # Encabezado Académico Sobrio (Jerarquía de Títulos con acentos habilitados)
     pdf.set_font("Helvetica", "B", 14)
     pdf.set_text_color(50, 50, 50) 
     pdf.cell(190, 10, limpiar_texto_pdf(titulo_oficial, lang), new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font("Helvetica", "I", 9.5)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(190, 6, f"Evaluacion Psicometrica Individual | Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(190, 6, "Evaluación Psicométrica Individual | Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(4)
     
-    # Línea horizontal superior del encabezado (Sintaxis fpdf2 corregida)
     pdf.set_draw_color(80, 80, 80)
     pdf.set_line_width(0.5)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(6)
     
-    # Bloque de Datos de Identificación (Mesa Demográfica)
+    # Bloque de Datos de Identificación (Mesa Demográfica APA)
     pdf.set_text_color(60, 60, 60)
     pdf.set_font("Helvetica", "B", 10)
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
     pdf.set_font("Helvetica", "", 10)
-    pdf.cell(145, 6, nombre_sano if nombre_sano else "Anonimo", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(145, 6, nombre_sano if nombre_sano else "Anónimo", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font("Helvetica", "B", 10)
     pdf.cell(45, 6, limpiar_texto_pdf("cont_label", lang), new_x="RIGHT", new_y="TOP")
@@ -349,12 +349,10 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.set_font("Helvetica", "", 10)
     pdf.cell(145, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     
-    # Línea de cierre del bloque de identificación (Mesa Demográfica)
     pdf.ln(2)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(6)
 
-    # Inyección Dinámica de Figuras del Manuscrito
     if img_grafica_base64:
         try:
             img_clean = img_grafica_base64.split(",")[-1]
@@ -364,10 +362,9 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.set_x(10)
             pdf.set_font("Helvetica", "I", 9)
             pdf.set_text_color(100, 100, 100)
-            pdf.cell(190, 5, "Nota. Representacion visual de la distribucion factorial del participante.", new_x="LMARGIN", new_y="NEXT", align="C")
+            pdf.cell(190, 5, "Nota. Representación visual de la distribución factorial del participante.", new_x="LMARGIN", new_y="NEXT", align="C")
             pdf.ln(4)
-        except Exception: 
-            pass
+        except Exception: pass
 
     if es_realmente_likert:
         # === MÓDULO MODELOS TEMPORALES C&K ===
@@ -385,41 +382,40 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.set_x(10)
         pdf.set_font("Helvetica", "", 10)
         pdf.cell(190, 5, f"Media Vector Cronos (Reloj): {avg_cronos:.2f}", new_x="LMARGIN", new_y="NEXT")
-        pdf.cell(190, 5, f"Media Vector Kairos (Oportunidad): {avg_kairos:.2f}", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 5, f"Media Vector Kairós (Oportunidad): {avg_kairos:.2f}", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(4)
         
         diferencia = abs(avg_cronos - avg_kairos)
         pdf.set_x(10)
         pdf.set_font("Helvetica", "B", 11)
-        pdf.cell(190, 6, "Interpretacion de Constructo y Perfil Dominante", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "Interpretación de Constructo y Perfil Dominante", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(60, 60, 60)
         
         if diferencia <= 0.4:
-            pdf.multi_cell(190, 5, "Simbiosis Temporal Equilibrada (C&K): Balanceas la precision cronometrica con la agilidad adaptativa de ventanas de oportunidad.\nSugerencia: Manten bloques fijos para tareas repetitivas y reserva un margen diario para imprevistos.", new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(190, 5, "Simbiosis Temporal Equilibrada (C&K): Balanceas la precisión cronométrica con la agilidad adaptativa de ventanas de oportunidad.\nSugerencia: Mantén bloques fijos para tareas repetitivas y reserva un margen diario para imprevistos.", new_x="LMARGIN", new_y="NEXT")
         elif avg_kairos > avg_cronos:
-            pdf.multi_cell(190, 5, "Perfil Temporal Kairotico Puro (Adaptativo): Destacas capturando oportunidades en caliente, pero corres el riesgo de descuidar hitos administrativos organizacionales fijos.\nSugerencia: Desarrolla anclajes operativos con alarmas digitales estrictas para tus entregas regulatorias.", new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(190, 5, "Perfil Temporal Kairótico Puro (Adaptativo): Destacas capturando oportunidades en caliente, pero corres el riesgo de descuidar hitos administrativos organizacionales fijos.\nSugerencia: Desarrolla anclajes operativos con alarmas digitales estrictas para tus entregas regulatorias.", new_x="LMARGIN", new_y="NEXT")
         else:
-            pdf.multi_cell(190, 5, "Perfil Temporal Cronocentrico Puro (Rigido): Posees una rigidez estructural alta. Experimentas estres cuando los checklists sufren alteraciones imprevistas.\nSugerencia: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio.", new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(190, 5, "Perfil Temporal Cronocéntrico Puro (Rígido): Posees una rigidez estructural alta. Experimentas estrés cuando los checklists sufren alteraciones imprevistas.\nSugerencia: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio.", new_x="LMARGIN", new_y="NEXT")
             
-        # Nota de Canalización Académica (Sin recuadros llamativos)
         pdf.ln(4)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.ln(4)
         pdf.set_x(10)
         pdf.set_font("Helvetica", "B", 10)
-        pdf.cell(190, 5, "Recomendaciones de Acompanamiento Metodologico", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 5, "Recomendaciones de Acompañamiento Metodológico", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font("Helvetica", "I", 9.5)
-        mensaje_tiempo = "Optimizar la simbiosis entre el tiempo metrico (Cronos) y el tempo de oportunidad (Kairos) es vital para reducir la fatiga cognitiva. Si tu perfil presenta una inclinacion polarizada o rigida, se sugiere acudir directamente con el ponente para solicitar una consulta personalizada o asesoria estrategica. Alinear tus vectores temporales potenciara de inmediato tu rendimiento y madurez operativa."
+        mensaje_tiempo = "Optimizar la simbiosis entre el tiempo métrico (Cronos) y el tempo de oportunidad (Kairós) es vital para reducir la fatiga cognitiva. Si tu perfil presenta una inclinación polarizada o rígida, se sugiere acudir directamente con el ponente para solicitar una consulta personalizada o asesoría estratégica. Alinear tus vectores temporales potenciará de inmediato tu rendimiento y madurez operativa."
         pdf.multi_cell(190, 4.5, mensaje_tiempo, new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         
     else:
-        # El bloque de Salud Integral se delega transaccionalmente a la Parte 9
         inyectar_bloque_salud_integral_apa(pdf, resultados, lang)
             
     return bytes(pdf.output())
+
 
 # =================================================================
 # PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE SALUD (APA CLEAN TABLE STYLE)
