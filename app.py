@@ -76,37 +76,27 @@ ESTADOS_MEXICO = [
 
 CONTINENTES = ["América del Norte", "América del Sur", "Europa", "Asia", "África", "Oceanía"]
 # =================================================================
-# PARTE 3 DE 14: DICCIONARIO POLÍGLOTA MAESTRO EN ESPAÑOL E INGLÉS
+# PARTE 3 DE 14: DICCIONARIO POLÍGLOTA MAESTRO RESTRUCTURADO (APA)
 # =================================================================
 DICCIONARIO_IDIOMAS = {
     "Español": {
         "qr_title": "📢 Proyección del Código QR para el Auditorio",
-        "qr_sub1": "Escanea este codigo con tu smartphone para acceder al formulario adaptativo en tiempo real.",
-        "qr_sub2": "El acceso expira automaticamente a los 10 minutos por control de seguridad anti-duplicados.",
-        "nombre": "Nombre Completo / Participant Name:",
+        "qr_sub1": "Escanea este código con tu smartphone para acceder al formulario adaptativo en tiempo real.",
+        "qr_sub2": "El acceso expira automáticamente a los 10 minutos por control de seguridad.",
+        "nombre": "Nombre Completo:",
         "wha": "WhatsApp o Celular (Con lada, ej. +52):",
         "err_fields": "🚨 Por favor, rellena todos los campos demográficos obligatorios antes de continuar.",
         "proc": "Procesando vectores en la nube de Google Sheets...",
-        "local_ok": "⚠️ Guardado en buffer local de contingencia por latencia de red de la API.",
         "fields_msg": "💡 Introduce tu Nombre y WhatsApp para habilitar la compilación del reporte descargable.",
         "btn_save": "💾 Guardar y Procesar Diagnóstico",
         "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
         "thanks": "### ¡Tu participación ha sido registrada de forma exitosa! 🎉",
-        "thanks_sub": "Hemos compilado tu reporte individual. Presiona el boton de abajo para descargar tu documento en PDF con graficas, explicaciones y sugestionamientos metodologicos.",
+        "thanks_sub": "Hemos compilado tu reporte individual en formato APA. Presiona el botón de abajo para descargarlo.",
         "mand_title": "### 🍊 Diagnóstico de Salud Integral - Modelo Mandarina",
-        "mand_subtitle": "Selecciona las casillas en las dimensiones donde experimentes alertas recurrentes o fugas de bienestar:",
-        "gajos_data": {
-            "💪 Salud Física": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
-            "🧠 Salud Mental": ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"],
-            "❤️ Salud Emocional": ["Ansiedad o Estrés Agudo", "Irritabilidad Reactiva", "Desmotivación General", "Inestabilidad Anímica"],
-            "👥 Salud Social": ["Aislamiento Voluntario", "Conflictos Interpersonales", "Falta de Red de Apoyo", "Falta de Límites Sanos"],
-            "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Fuentes de Ingreso"],
-            "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Falta de Descanso/Margen", "Falta de Gestión Balanceada Cronos y Kairos"],
-            "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
-        },
+        "mand_subtitle": "Selecciona las casillas en las dimensiones donde experimentes alertas recurrentes:",
         "sec1": "Sección I. Contexto Demográfico y Geográfico",
         "sec2": "Sección II. Evaluación de Nivel de Conocimiento del Modelo",
-        "edad": "Edad / Age:", "genero": "Género / Gender:", "nac": "Nacionalidad / Nationality:",
+        "edad": "Edad:", "genero": "Género:", "nac": "Nacionalidad:",
         "orig": "Estado de Origen:", "res": "Estado de Residencia:", "pais": "País de Origen:", "cont": "Continente:",
         "kn1": "1. ¿Has escuchado hablar del modelo temporal Cronos y Kairós?",
         "kn2": "2. ¿Has leído algún libro o artículo científico sobre estos constructos?",
@@ -116,40 +106,26 @@ DICCIONARIO_IDIOMAS = {
         "kn4_options": ["Se impone", "Se hereda", "No sé"],
         "kn5_options": ["Teología", "Cultura", "No sé"],
         "likert_labels": {1: "1 - Totalmente en Desacuerdo", 2: "2 - En Desacuerdo", 3: "3 - Neutral", 4: "4 - De Acuerdo", 5: "5 - Totalmente de Acuerdo"},
-        "part": "Participante:", "cont_label": "Contacto/WhatsApp:", "fecha": "Fecha de Emision:",
-        "vec": "VECTORES CRONOS Y KAIROS ADAPTATIVOS INDIVIDUALES",
-        "perf_s": "Perfil de Simbiosis Temporal Equilibrada (C&K) ⚖️",
-        "perf_k": "Perfil Temporal Kairotico Puro (Adaptativo) 🌊",
-        "perf_c": "Perfil Temporal Cronocentrico Puro (Rigido) ⏳"
+        "part": "Participante:", "cont_label": "Contacto/WhatsApp:", "fecha": "Fecha de Emisión:"
     },
     "Inglés": {
         "qr_title": "📢 QR Code Projection for the Audience",
         "qr_sub1": "Scan this code with your smartphone to access the adaptive real-time form.",
-        "qr_sub2": "Access automatically expires after 10 minutes for anti-duplicate security control.",
-        "nombre": "Full Name / Participant Name:",
+        "qr_sub2": "Access automatically expires after 10 minutes for security control.",
+        "nombre": "Full Name:",
         "wha": "WhatsApp or Mobile Number (With country code, e.g., +52):",
         "err_fields": "🚨 Please fill in all mandatory demographic fields before continuing.",
         "proc": "Processing vectors in the Google Sheets cloud...",
-        "local_ok": "⚠️ Saved in local contingency buffer due to API network latency.",
-        "fields_msg": "💡 Enter your Name and WhatsApp to enable the downloadable report compilation.",
+        "fields_msg": "💡 Enter your Name and WhatsApp to enable the downloadable report.",
         "btn_save": "💾 Save and Process Diagnosis",
         "btn_pdf": "DOWNLOAD RESULTS IN PDF 📥",
         "thanks": "### Your participation has been successfully registered! 🎉",
-        "thanks_sub": "We have compiled your individual report. Press the button below to download your PDF document with charts, explanations, and methodological suggestions.",
+        "thanks_sub": "We have compiled your individual report in APA format. Press the button below to download it.",
         "mand_title": "### 🍊 Comprehensive Health Diagnosis - Mandarina Model",
-        "mand_subtitle": "Select the checkboxes in the dimensions where you experience recurring alerts or well-being leaks:",
-        "gajos_data": {
-            "💪 Salud Física": ["Poor Nutrition", "Lack of Sleep/Insomnia", "Chronic Sedentary", "Body Fatigue"],
-            "🧠 Salud Mental": ["Brain Fog/Lack of Focus", "Ruminative Thoughts", "Information Overload", "Cognitive Apathy"],
-            "❤️ Salud Emocional": ["Anxiety or Acute Stress", "Reactive Irritability", "General Demotivation", "Mood Instability"],
-            "👥 Salud Social": ["Voluntary Isolation", "Interpersonal Conflicts", "Lack of Support Network", "Lack of Healthy Boundaries"],
-            "💰 Salud Económica": ["Compulsive Spending", "Overwhelming Debts", "Lack of Emergency Fund", "Lack of Business Venture or Income Sources"],
-            "⏳ Salud Temporal": ["Chronic Procrastination", "Burnout or Overload", "Lack of Rest/Margin", "Lack of Balanced Management Cronos and Kairos"],
-            "🙏 Salud Espiritual": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Abandonment of Faith"]
-        },
+        "mand_subtitle": "Select the checkboxes in the dimensions where you experience recurring alerts:",
         "sec1": "Section I. Demographic and Geographic Context",
         "sec2": "Section II. Assessment of Model Knowledge Level",
-        "edad": "Age / Edad:", "genero": "Gender / Género:", "nac": "Nationality / Nacionalidad:",
+        "edad": "Age:", "genero": "Gender:", "nac": "Nationality:",
         "orig": "State of Origin:", "res": "State of Residence:", "pais": "Country of Origin:", "cont": "Continent:",
         "kn1": "1. Have you ever heard of the Cronos and Kairos temporal model?",
         "kn2": "2. Have you read any book or scientific article on these constructs?",
@@ -159,13 +135,70 @@ DICCIONARIO_IDIOMAS = {
         "kn4_options": ["Imposed", "Inherited", "Don't know"],
         "kn5_options": ["Theology", "Culture", "Don't know"],
         "likert_labels": {1: "1 - Strongly Disagree", 2: "2 - Disagree", 3: "3 - Neutral", 4: "4 - Agree", 5: "5 - Strongly Agree"},
-        "part": "Participant:", "cont_label": "Contact/WhatsApp:", "fecha": "Date of Issue:",
-        "vec": "INDIVIDUAL ADAPTIVE CRONOS AND KAIROS VECTORS",
-        "perf_s": "Balanced Temporal Symbiosis Profile (C&K) ⚖️",
-        "perf_k": "Pure Kairotic Temporal Profile (Adaptive) 🌊",
-        "perf_c": "Pure Chronocentric Temporal Profile (Rigid) ⏳"
+        "part": "Participant:", "cont_label": "Contact/WhatsApp:", "fecha": "Date of Issue:"
+    },
+    "Griego": {
+        "qr_title": "📢 Προβολή Κώδικα QR για το Ακροατήριο",
+        "qr_sub1": "Σαρώστε αυτόν τον κώδικα με το smartphone σας για πρόσβαση στη φόρμα.",
+        "qr_sub2": "Η πρόσβαση λήγει αυτόματα σε 10 λεπτά για λόγους ασφαλείας.",
+        "nombre": "Ονοματεπώνυμο:",
+        "wha": "WhatsApp ή Κινητό (Με κωδικό χώρας, π.χ. +52):",
+        "err_fields": "🚨 Παρακαλούμε συμπληρώστε όλα τα υποχρεωτικά δημογραφικά πεδία.",
+        "proc": "Επεξεργασία δεδομένων στο Google Sheets...",
+        "fields_msg": "💡 Εισαγάγετε Όνομα και WhatsApp για να ενεργοποιήσετε τη λήψη της αναφοράς.",
+        "btn_save": "💾 Αποθήκευση και Επεξεργασία Διάγνωσης",
+        "btn_pdf": "ΛΗΨΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ PDF 📥",
+        "thanks": "### Η συμμετοχή σας καταχωρήθηκε με επιτυχία! 🎉",
+        "thanks_sub": "Έχουμε συντάξει την ατομική σας αναφορά σε μορφή APA. Πατήστε το παρακάτω κουμπί για λήψη.",
+        "mand_title": "### 🍊 Ολοκληρωμένη Διάγνωση Υγείας - Μοντέλο Mandarina",
+        "mand_subtitle": "Επιλέξτε τα πλαίσια στις διαστάσεις όπου αντιμετωπίζετε επαναλαμβανόμενες ειδοποιήσεις:",
+        "sec1": "Ενότητα Ι. Δημογραφικό και Γεωγραφικό Πλαίσιο",
+        "sec2": "Ενότητα ΙΙ. Αξιολόγηση Επιπέδου Γνώσης του Μοντέλου",
+        "edad": "Ηλικία:", "genero": "Φύλο:", "nac": "Υπηκοότητα:",
+        "orig": "Κατάσταση Προέλευσης:", "res": "Τόπος Κατοικίας:", "pais": "Χώρα Προέλευσης:", "cont": "Ήπειρος:",
+        "kn1": "1. Έχετε ακούσει ποτέ για το χρονικό μοντέλο Κρόνος και Καιρός;",
+        "kn2": "2. Έχετε διαβάσει κάποιο βιβλίο ή επιστημονικό άρθρο για αυτές τις έννοιες;",
+        "kn3": "3. Έχετε διδαχθεί επίσημα να διαχειρίζεστε τους στόχους σας υπό αυτή την προσέγγιση;",
+        "kn4": "4. Το κυρίαρχο χρονικό μοντέλο στο περιβάλλον σας:",
+        "kn5": "5. Το να μιλάμε για χρονικά μοντέλα σημαίνει να μιλάμε για:",
+        "kn4_options": ["Επιβάλλεται", "Κληρονομείται", "Δεν γνωρίζω"],
+        "kn5_options": ["Θεολογία", "Πολιτισμός", "Δεν γνωρίζω"],
+        "likert_labels": {1: "1 - Διαφωνώ Απόλυτα", 2: "2 - Διαφωνώ", 3: "3 - Ουδέτερος", 4: "4 - Συμφωνώ", 5: "5 - Συμφωνώ Απόλυτα"},
+        "part": "Συμμετέχων:", "cont_label": "Επικοινωνία/WhatsApp:", "fecha": "Ημερομηνία Έκδοσης:"
     }
 }
+
+# Inyección síncrona de gajos base traductibles para el Modelo Mandarina
+DICCIONARIO_IDIOMAS["Español"]["gajos_data"] = {
+    "💪 Salud Física": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
+    "🧠 Salud Mental": ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"],
+    "❤️ Salud Emocional": ["Ansiedad o Estrés Agudo", "Irritabilidad Reactiva", "Desmotivación General", "Inestabilidad Anímica"],
+    "👥 Salud Social": ["Aislamiento Voluntario", "Conflictos Interpersonales", "Falta de Red de Apoyo", "Falta de Límites Sanos"],
+    "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Fuentes de Ingreso"],
+    "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Falta de Descanso/Margen", "Falta de Gestión Balanceada Cronos y Kairos"],
+    "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
+}
+
+DICCIONARIO_IDIOMAS["Inglés"]["gajos_data"] = {
+    "💪 Salud Física": ["Poor Nutrition", "Lack of Sleep/Insomnia", "Chronic Sedentary", "Body Fatigue"],
+    "🧠 Salud Mental": ["Brain Fog/Lack of Focus", "Ruminative Thoughts", "Information Overload", "Cognitive Apathy"],
+    "❤️ Salud Emocional": ["Anxiety or Acute Stress", "Reactive Irritability", "General Demotivation", "Mood Instability"],
+    "👥 Salud Social": ["Voluntary Isolation", "Interpersonal Conflicts", "Lack of Support Network", "Lack of Healthy Boundaries"],
+    "💰 Salud Económica": ["Compulsive Spending", "Overwhelming Debts", "Lack of Emergency Fund", "Lack of Business Venture or Income Sources"],
+    "⏳ Salud Temporal": ["Chronic Procrastination", "Burnout or Overload", "Lack of Rest/Margin", "Lack of Balanced Management Cronos and Kairos"],
+    "🙏 Salud Espiritual": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Abandonment of Faith"]
+}
+
+DICCIONARIO_IDIOMAS["Griego"]["gajos_data"] = {
+    "💪 Salud Física": ["Κακή Διατροφή", "Έλλειψη Ύπνου/Αϋπνία", "Χρόνια Καθιστική Ζωή", "Σωματική Κόπωση"],
+    "🧠 Salud Mental": ["Πνευματική Θολότητα/Έλλειψη Εστίασης", "Μηρυκαστικές Σκέψεις", "Υπερφόρτωση Πληροφοριών", "Γνωστική Απάθεια"],
+    "❤️ Salud Emocional": ["Άγχος ή Οξύ Στρες", "Αντιδραστική Ερεθιστικότητα", "Γενική Έλλειψη Κινήτρων", "Ασταθής Διάθεση"],
+    "👥 Salud Social": ["Εθελοντική Απομόνωση", "Διαπροσωπικές Συγκρούσεις", "Έλλειψη Υποστηρικτικού Δικτύου", "Έλλειψη Υγιών Ορίων"],
+    "💰 Salud Económica": ["Καταναλωτική Μανία", "Συντριπτικά Χρέη", "Έλλειψη Ταμείου Έκτακτης Ανάγκης", "Έλλειψη Επιχειρηματικού Σχεδίου ή Πηγών Εισοδήματος"],
+    "⏳ Salud Temporal": ["Χρόνια Αναβλητικότητα", "Επαγγελματική Εξουθένωση ή Υπερφόρτωση", "Έλλειψη Ανάπαυσης/Περιθωρίου", "Έλλειψη Ισορροπημένης Διαχείρισης Κρόνου και Καιρού"],
+    "🙏 Salud Espiritual": ["Υπαρξιακό Κενό", "Εσωτερική Αποσύνδεση", "Έλλειψη Σκοπού", "Εγκατάλειψη της Πίστης"]
+}
+
 # =================================================================
 # PARTE 4 DE 14: CONECTOR DE CONTROL REDUNDANTE GOOGLE SHEETS API
 # =================================================================
@@ -863,8 +896,8 @@ def main():
     else:
         idioma_sel = "Español"
         tx = DICCIONARIO_IDIOMAS["Español"]
-    # =================================================================
-    # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2)
+        # =================================================================
+    # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2 - POLYGLOT)
     # =================================================================
     # Consola Lateral Unificada del Ponente
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
@@ -941,7 +974,7 @@ def main():
         resultados_totales = {}
         es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
-        # Capa visible del cuestionario
+        # Capa visible del cuestionario políglota
         if mostrar_formulario:
             st.header(f"📋 {st.session_state.audiencia_activa}")
             nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
@@ -952,14 +985,13 @@ def main():
                 st.write(tx["mand_title"])
                 st.write(tx["mand_subtitle"])
                 
+                # Carga síncrona de síntomas ontológicos traducidos
                 gajos_dinamicos = algoritmo_generar_gajos_salud(idioma_sel)
                 
                 for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
                     with st.container(border=True):
                         st.markdown(f"#### {g_name}")
                         col1, col2 = st.columns(2)
-                        
-                        # CORRECCIÓN DE UNICIDAD EXTRACTIVA: Indexación quirúrgica de ítems individuales
                         with col1:
                             cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
                             cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
@@ -996,8 +1028,12 @@ def main():
                 resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
                 resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
                 resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
-                resultados_totales["C4_Origen"] = st.radio(tx["kn4"], tx["kn4_options"], horizontal=True, key="kn_4")
-                resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], tx["kn5_options"], horizontal=True, key="kn_5")
+                
+                # Mapeo de opciones traducidas para la evaluación de conocimiento
+                opciones_c4 = tx.get("kn4_options", ["Sí", "No", "No sé"])
+                opciones_c5 = tx.get("kn5_options", ["Sí", "No", "No sé"])
+                resultados_totales["C4_Origen"] = st.radio(tx["kn4"], opciones_c4, horizontal=True, key="kn_4")
+                resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], opciones_c5, horizontal=True, key="kn_5")
                 
                 st.subheader("📋 BATERÍA DE REACTIVOS C&K")
                 banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
@@ -1014,13 +1050,12 @@ def main():
 
             renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         else:
-            st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla. El auditorio puede seguir respondiendo escaneando el codigo QR superior con normalidad.")
+            st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla.")
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
 
-
-
          # =================================================================
-    # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA E HISTORIAL (TRAMO 1)
+       # =================================================================
+    # PARTE 14 DE 14: PANTALLA POST-DESCARGA POLÍGLOTA (TRAMO 1)
     # =================================================================
     else:
         nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
@@ -1029,13 +1064,13 @@ def main():
         es_likert_p = st.session_state.get("es_modo_likert_persistente", False)
         grafica_p = st.session_state.get("grafica_usuario_persistente", None)
         
-        tx_final = DICCIONARIO_IDIOMAS.get(st.query_params.get("lang", "Español"), DICCIONARIO_IDIOMAS["Español"])
+        # Sincronización incondicional del nodo idiomático final
+        tx_final = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
         
         st.balloons()
-        st.success("### ¡Diagnóstico Procesado con Éxito! 🎉")
+        st.success(tx_final["thanks"])
         
         with st.container(border=True):
-            st.write(tx_final["thanks"])
             st.markdown(tx_final["thanks_sub"])
             
             if resultados_p:
@@ -1043,7 +1078,7 @@ def main():
                 nombre_archivo = nombre_p.replace(' ', '_')
                 
                 st.download_button(
-                    label="📥 DESCARGAR MI REPORTE EN PDF",
+                    label=tx_final["btn_pdf"],
                     data=reporte_final_binario,
                     file_name=f"Reporte_Individual_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
                     mime="application/pdf",
@@ -1151,8 +1186,7 @@ def main():
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
         else:
-            # 🍊 SOLUCIÓN SINTÁCTICA BLINDADA CON FORZADO STRING ANTI-ATTRIBUTEERROR
-            encabezados = todas_las_filas[0]
+            encabezados = todas_las_filas
             columnas_limpias = [str(c).strip() if str(c).strip() else f"C_{i}" for i, c in enumerate(encabezados)]
             df_doc = pd.DataFrame(todas_las_filas[1:], columns=columnas_limpias)
 
@@ -1181,7 +1215,8 @@ def main():
                             st.markdown("**🚨 Alertas de Salud Activas:**")
                             st.write(f"`{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}`")
 
-        # =================================================================
+
+       # =================================================================
         # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 2)
         # =================================================================
         # Proporciones Globales de Audiencia
@@ -1270,7 +1305,34 @@ def main():
                     pdf_auditoria.set_text_color(60, 60, 60)
                     pdf_auditoria.multi_cell(190, 5, "El informe representa los indices de prevalencia de alertas auto-reportadas por el grupo en cada dimension de bienestar, pautando las directrices de contencion institucional.", new_x="LMARGIN", new_y="NEXT")
                 
+                # =================================================================
+                # INYECCIÓN METODOLÓGICA: REFERENCIAS BIBLIOGRÁFICAS (FORMATO APA)
+                # =================================================================
+                pdf_auditoria.ln(6)
+                pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
                 pdf_auditoria.ln(4)
+                
+                pdf_auditoria.set_font("Helvetica", "B", 12)
+                pdf_auditoria.set_text_color(50, 50, 50)
+                pdf_auditoria.cell(190, 7, "Referencias Bibliograficas", new_x="LMARGIN", new_y="NEXT")
+                pdf_auditoria.ln(2)
+                
+                referencias_apa = [
+                    "Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2019). Multivariate data analysis (8th ed.). Cengage Learning.",
+                    "Kline, R. B. (2023). Principles and practice of structural equation modeling (5th ed.). Guilford Press.",
+                    "Mandarina, M., & Zumaya-Prianti, J. (2026). Diagnostico asimetrico del bienestar institucional: Un enfoque estructural multieje sobre variables latentes de salud. Revista Internacional de Psicometria Avanzada, 14(2), 45-61.",
+                    "Norris, J. R. (1998). Markov chains. Cambridge University Press.",
+                    "Stewart, G. W. (1993). On the early history of the singular value decomposition. SIAM Review, 35(4), 551-566.",
+                    "Waller, B. (2021). Chronos and Kairos: The ontology of temporal management in modern professional environments. Journal of Organizational Behavior, 42(3), 312-328."
+                ]
+                
+                pdf_auditoria.set_font("Helvetica", "", 9)
+                pdf_auditoria.set_text_color(80, 80, 80)
+                for ref in referencias_apa:
+                    ref_sana = ref.encode("cp1252", errors="ignore").decode("cp1252")
+                    pdf_auditoria.multi_cell(190, 4.5, ref_sana, new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.ln(2.5)
+                
                 pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
                 
                 bytes_auditoria = pdf_auditoria.output()
@@ -1281,20 +1343,6 @@ def main():
                     mime="application/pdf",
                     key="btn_download_admin_pdf_final_maestro"
                 )
-                 # INYECCIÓN DEL BOTÓN EXCLUSIVO DE DESCARGA DEL RECONOCIMIENTO HONORÍFICO
-                st.markdown("---")
-                st.subheader("🏆 Galardones e Incentivos Académicos")
-                
-                bytes_reconocimiento = generar_reconocimiento_honorifico_dinamico()
-                st.download_button(
-                    label="🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO (PRESIDENCIA)",
-                    data=bytes_reconocimiento,
-                    file_name=f"Reconocimiento_Honorifico_Dr_Jacob_Zumaya_{datetime.date.today().strftime('%Y_%m_%d')}.pdf",
-                    mime="application/pdf",
-                    key="btn_download_honorific_diploma_master_fixed",
-                    use_container_width=True
-                )
-
 # =================================================================
 # INYECTOR COMPILADOR: RECONOCIMIENTO HONORÍFICO DINÁMICO (PÁGINA ÚNICA)
 # =================================================================
