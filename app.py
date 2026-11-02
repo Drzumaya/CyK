@@ -1121,7 +1121,7 @@ def main():
                 )
 
     # Cierre y ejecución de botones transaccionales dentro del formulario activo
-            renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
+        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         else:
             # Mensaje informativo traducido si el ponente mantiene el formulario oculto
             lbl_info_hidden = ejecutar_traduccion_neuronal("💡 El formulario de captura local se encuentra oculto en esta pantalla.", idioma_sel)
