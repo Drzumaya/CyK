@@ -1072,7 +1072,7 @@ def main():
 
         tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica:", lista_tablas_reales)
         
-     if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
+    if st.button("📊 Ejecutar Auditoría Estadística de Nivel Doctoral", type="primary"):
             sheet = conectar_google_sheets(tabla_analizar)
             df_doc = None
             es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
