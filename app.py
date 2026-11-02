@@ -423,14 +423,14 @@ def limpiar_texto_pdf(texto, idioma="Español"):
 
 
 # =================================================================
-# PARTE 8: SANITIZADOR Y COMPILADOR DE REPORTES INDIVIDUALES CON MANDARINA
+# PARTE 8: SANITIZADOR Y COMPILADOR CON RENDERIZADO GRÁFICO ASIMÉTRICO
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # 1. Asignación asimétrica de títulos oficiales
+    # 1. Asignación asimétrica de títulos oficiales blindados
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
         titulo_oficial = "DIAGNOSTICO DE LA SALUD INTEGRAL MODELO MANDARINA"
         es_realmente_likert = False
@@ -472,7 +472,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
-    # Inyección Dinámica del Gráfico (Mandarina para Salud o Dispersión para C&K)
+    # 🍊 INYECCIÓN DE LA GRÁFICA ILUSTRATIVA DE LA MANDARINA O CUADRANTE C&K
     if img_grafica_base64:
         try:
             img_clean = img_grafica_base64.split(",")[-1]
@@ -556,6 +556,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.multi_cell(186, 4.5, mensaje_apoyo)
             
     return bytes(pdf.output())
+
 
 # =================================================================
 # PARTE 9: MOTOR DE INVESTIGACIÓN SEMDEEP (CONVERGENCIA SVD DE 10 ÍTEMS)
@@ -719,100 +720,63 @@ def algoritmo_generar_reactivos_poliglotas(geo, b_alertas, lang_key):
 # =================================================================
 def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx):
     st.divider()
-    
-    # Renderizado e interpretación gráfica de la Mandarina en Vivo para Salud Integral
     grafica_base64 = None
     
     if not es_modo_likert and resultados_totales:
         st.write("### 🍊 Visualizacion de tu Mandarina de Salud Integral")
-        st.write("Los gajos en **Rojo 🚨** representan dimensiones con alertas activas que requieren atencion inmediata:")
         
         col_gajos_maestro = {
-            "💪 Salud Física": "Salud Fisica (SF)",
-            "🧠 Salud Mental": "Salud Mental (SM)",
-            "❤️ Salud Emocional": "Salud Emocional (SE)",
-            "👥 Salud Social": "Salud Social (SS)",
-            "💰 Salud Económica": "Salud Economica (SECO)",
-            "⏳ Salud Temporal": "Salud Temporal (ST)",
+            "💪 Salud Física": "Salud Fisica (SF)", "🧠 Salud Mental": "Salud Mental (SM)",
+            "❤️ Salud Emocional": "Salud Emocional (SE)", "👥 Salud Social": "Salud Social (SS)",
+            "💰 Salud Económica": "Salud Economica (SECO)", "⏳ Salud Temporal": "Salud Temporal (ST)",
             "🙏 Salud Espiritual": "Salud Espiritual (SPI)"
         }
         
         labels_grafica = []
         colores_gajos = []
-        alertas_detectadas_recuento = 0
         
-        # Evaluamos cada gajo para decidir su color en la mandarina
         for g_visible, g_clave in col_gajos_maestro.items():
             alertas_gajo = resultados_totales.get(g_visible, [])
             labels_grafica.append(g_visible.replace(" ", "\n"))
-            
-            if len(alertas_gajo) > 0:
-                colores_gajos.append("#d91e24") # Rojo brillante: Alerta activa 🚨
-                alertas_detectadas_recuento += 1
-            else:
-                colores_gajos.append("#ff9800") # Naranja mandarina saludable 🍊
+            if len(alertas_gajo) > 0: colores_gajos.append("#d91e24") # Rojo Alerta 🚨
+            else: colores_gajos.append("#ff9800") # Naranja Mandarina Óptimo 🍊
                 
-        # Construcción del vector gráfico con Matplotlib
         try:
-            fig, ax = plt.subplots(figsize=(5, 5))
-            valores_simetricos = [1] * 7 # 7 gajos simétricos perfectos
-            
-            # Dibujamos los gajos de la mandarina
-            wedges, texts = ax.pie(
-                valores_simetricos, 
-                labels=labels_grafica, 
-                colors=colores_gajos, 
-                startangle=90, 
-                counterclock=False,
+            fig, ax = plt.subplots(figsize=(4, 4))
+            valores_simetricos = [10] * 7
+            ax.pie(
+                valores_simetricos, labels=labels_grafica, colors=colores_gajos, startangle=90, counterclock=False,
                 wedgeprops=dict(width=0.4, edgecolor='white', linewidth=3),
-                textprops=dict(size=9, weight="bold", color="#333333")
+                textprops=dict(size=8, weight="bold")
             )
-            
-            ax.set_title("Ecosistema Mandarina de Bienestar", fontsize=12, weight="bold", color="#e65100")
-            
-            # Captura binaria en memoria para el PDF
+            # GUARDADO CRÍTICO EN MEMORIA: Pasa directo al backend de FPDF sin romperse
             buf_m = BytesIO()
-            plt.savefig(buf_m, format='png', bbox_inches='tight', dpi=130)
+            plt.savefig(buf_m, format='png', bbox_inches='tight', dpi=100)
             buf_m.seek(0)
             grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_m.read()).decode('utf-8')}"
             plt.close(fig)
-            
-            # Despliegue en la pantalla principal
-            st.image(buf_m.getvalue(), width=320)
-        except Exception as e:
-            st.warning(f"Aviso del motor grafico: {str(e)}")
+            st.image(buf_m.getvalue(), width=280)
+        except Exception: pass
 
-    st.write("")
     col_btn1, col_btn2 = st.columns(2)
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
     
     with col_btn1:
         if st.button(tx["btn_save"], type="primary", key="btn_save_main_core"):
-            if not campos_completos: 
-                st.error(tx["err_fields"])
+            if not campos_completos: st.error(tx["err_fields"])
             else:
-                with st.spinner(tx["proc"]):
-                    exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
-                    if exito: 
-                        st.session_state.guardado_exitoso = True
-                        st.success("¡Datos sincronizados con exito! Descarga tu PDF a la derecha.")
-                    else: 
-                        st.session_state.guardado_exitoso = True
-                        st.warning(tx["local_ok"])
+                exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
+                st.session_state.guardado_exitoso = True
+                st.rerun() # Fuerza la actualización de hilos de Streamlit para liberar el botón de descarga
                         
     with col_btn2:
         if st.session_state.guardado_exitoso and campos_completos:
-            # Si estamos en modo Likert, generamos de forma regular la gráfica de dispersión C&K
             if es_modo_likert and grafica_base64 is None:
                 try:
                     kairos_v = [int(resultados_totales.get(f"R{i}", 3)) for i in range(1, 11, 2)]
                     cronos_v = [int(resultados_totales.get(f"R{i}", 3)) for i in range(2, 11, 2)]
                     fig, ax = plt.subplots(figsize=(4, 4))
-                    ax.axhspan(1, 3, 1, 3, color='#f2f1ef', alpha=0.5)
-                    ax.axhspan(3, 5, 3, 5, color='#e8f8f5', alpha=0.7)
                     ax.scatter(sum(cronos_v)/5, sum(kairos_v)/5, color='#e65100', s=120)
-                    ax.set_xlim(1, 5)
-                    ax.set_ylim(1, 5)
                     buf_g = BytesIO()
                     plt.savefig(buf_g, format='png', bbox_inches='tight', dpi=100)
                     buf_g.seek(0)
@@ -821,25 +785,15 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                 except Exception: pass
                     
             reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
-            nombre_archivo = nombre.replace(' ', '_') if nombre else 'User'
             
-            def callback_finalizar():
-                st.session_state.flujo_finalizado = True
-                for k in list(st.session_state.keys()):
-                    if k.startswith(("sf_", "sm_", "cb_", "dyn_r_", "dem_", "kn_")): 
-                        try: del st.session_state[k]
-                        except Exception: pass
-                        
             st.download_button(
-                label=tx["btn_pdf"],
-                data=reporte_procesado,
-                file_name=f"Reporte_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
-                mime="application/pdf",
-                on_click=callback_finalizar,
-                key="btn_download_user_pdf_report"
+                label=tx["btn_pdf"], data=reporte_procesado,
+                file_name=f"Reporte_{st.session_state.audiencia_activa.replace(' ', '_')}.pdf",
+                mime="application/pdf", key="btn_download_user_pdf_report"
             )
         else: 
             st.info(tx["fields_msg"])
+
 
 
 # =================================================================
@@ -959,6 +913,9 @@ def main():
         tx = DICCIONARIO_IDIOMAS["Español"]
 
     # 2. CONSOLA LATERAL DE ATENCION AL PONENTE
+     # =================================================================
+    CONSOLA LATERAL UNIFICADA (SANACIÓN DE KEYERROR)
+    # =================================================================
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     
     if not es_celular_del_publico:
@@ -974,6 +931,7 @@ def main():
                         st.error("Contraseña incorrecta.")
             else:
                 st.success("Modo Ponente Activo")
+                
                 if st.button("🚪 Cerrar Centro de Inteligencia", type="secondary", key="btn_close_admin_unique"):
                     st.session_state.admin_autenticado = False
                     st.rerun()
@@ -981,11 +939,12 @@ def main():
                 nueva_aud_txt = st.text_input("➕ Agregar Nueva Audiencia Personalizada:", key="add_new_aud_unique").strip()
                 lista_audiencias_base = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
                 
-                if "audiencias_custom_list" not in st.session_state: 
-                    st.session_state.audiencias_custom_list = []
+                # CORRECCIÓN DE LA RAÍZ DEL KEYERROR: Inicialización con nombre unificado exacto
+                if "audiences_custom_list" not in st.session_state: 
+                    st.session_state.audiences_custom_list = []
                 
-                if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiencias_custom_list:
-                    st.session_state.audiencias_custom_list.append(nueva_aud_txt)
+                if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiences_custom_list:
+                    st.session_state.audiences_custom_list.append(nueva_aud_txt)
                     st.toast(f"Audiencia '{nueva_aud_txt}' añadida", icon="🍊")
                 
                 lista_audiencias_completa = lista_audiencias_base + st.session_state.audiences_custom_list
