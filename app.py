@@ -875,17 +875,55 @@ def main():
             st.stop()
 
 
+       # =================================================================
+    # PARTE 12: ORQUESTRACIÓN INTERACTIVA, IDIOMA, QR Y CONTROL DE VISIBILIDAD
+    # =================================================================
     if not st.session_state.flujo_finalizado:
+        # 1. CAPA DE LOCALIZACIÓN POLÍGLOTA I18N
         idioma_sel = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
-            ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"]
+            ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"],
+            key="sb_language_selector_main"
         )
         tx = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
-    else:
-        idioma_sel = "Español"
-        tx = DICCIONARIO_IDIOMAS["Español"]
+        
+        # 2. PROYECTOR DE CÓDIGO QR DINÁMICO REFORZADO (VENTANA 10 MINUTOS)
+        titulo_qr = tx.get("qr_title", DICCIONARIO_IDIOMAS["Español"]["qr_title"])
+        sub_qr1 = tx.get("qr_sub1", DICCIONARIO_IDIOMAS["Español"]["qr_sub1"])
+        sub_qr2 = tx.get("qr_sub2", DICCIONARIO_IDIOMAS["Español"]["qr_sub2"])
+        
+        with st.expander(titulo_qr, expanded=True):
+            col_qr1, col_qr2 = st.columns([1, 1.5])
+            with col_qr1:
+                qr = qrcode.QRCode(version=1, box_size=10, border=2)
+                qr.add_data(url_con_token)
+                qr.make(fit=True)
+                img_qr = qr.make_image(fill_color="#e65100", back_color="white")
+                buf = BytesIO()
+                img_qr.save(buf, format="PNG")
+                st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", use_container_width=True)
+            with col_qr2:
+                st.write(f"### Audiencia Proyectada en Vivo: {st.session_state.audiencia_activa}")
+                st.write(sub_qr1)
+                st.write(sub_qr2)
+                
+        st.write("")
+        
+        # 3. INTERRUPTOR DE VISIBILIDAD ON-DEMAND PARA EL FORMULARIO
+        mostrar_formulario = st.toggle("📝 Mostrar Formulario de Captura en Pantalla Principal", value=False, key="tgl_mostrar_formulario_main")
+        
+        st.divider()
 
-        # EXTRACCIÓN HERMÉTICA: Busca en los Secrets de la nube; si no existe, usa un fallback de desarrollo temporal
+        # CONDICIONAL DE DESPLIEGUE: El formulario emerge solo si se activa la palanca
+        if mostrar_formulario:
+            st.header(f"📋 {st.session_state.audiencia_activa}")
+            nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
+            whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
+            st.divider()
+            
+            resultados_totales = {}
+            es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
+
 
     
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
