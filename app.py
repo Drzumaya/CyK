@@ -1040,13 +1040,13 @@ def main():
                     with st.spinner("Inicializando entorno de datos..."):
                         conectar_google_sheets(seleccion)
                     st.rerun()
-        # =================================================================
-    # PARTE 13 DE 14: GATEWAY MULTILINGÜE SÍNCRONO DIRECTO Y QR (BLOQUE 3 DE 4)
+          # =================================================================
+    # PARTE 13 DE 14: GATEWAY MULTILINGÜE DIRECTO CON PROGRAMACIÓN FORZADA (BLOQUE 3 DE 4)
     # =================================================================
     if not st.session_state.flujo_finalizado:
         mapa_133 = st.session_state.lista_idiomas_133_iso
         nombre_visual_invertido = {v: k for k, v in mapa_133.items()}
-        opcion_visual_defecto = nombre_visual_invertido.get(idioma_sel, "Español")
+        opcion_visual_defecto = nombre_visual_invertido.get(idioma_sel, "Español (Spanish)")
         lista_opciones_visuales = list(mapa_133.keys())
 
         with st.container(border=True):
@@ -1063,11 +1063,25 @@ def main():
             
             lbl_btn_submit = ejecutar_traduccion_neuronal("🔄 TRANSLATE ENTIRE SYSTEM / TRADUCIR TODO EL SISTEMA", idioma_sel)
             
-            # Botón tradicional directo: Fuerza la reescritura de la URL y limpia el caché al instante
+            # 🚀 PROGRAMACIÓN CRÍTICA DEL BOTÓN: Inyección síncrona en caliente
             if st.button(lbl_btn_submit, type="primary", key="btn_execute_neural_translation_trigger"):
                 codigo_iso_seleccionado = mapa_133[idioma_sel_visual]
+                
+                # 1. Forzamos la escritura inmediata en la barra del navegador
                 st.query_params["lang"] = codigo_iso_seleccionado
                 st.session_state.idioma_activo_actual = codigo_iso_seleccionado
+                
+                # 2. SE ADICIONA: Llamada inmediata y almacenamiento en caché ANTES del rerun
+                with st.spinner("Translating system variables... 🌐"):
+                    llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+                    valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+                    valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, codigo_iso_seleccionado)
+                    
+                    # Guardamos los textos traducidos en la sesión de forma persistente
+                    st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+                    st.session_state.idioma_previo_check = codigo_iso_seleccionado
+                
+                # 3. Forzamos el reinicio absoluto con la memoria ya traducida
                 st.rerun()
 
         st.write("")
