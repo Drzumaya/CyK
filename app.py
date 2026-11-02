@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 from fpdf import FPDF
 
+
+
 # Configuración estructural de la página web en producción
 st.set_page_config(
     page_title="Informe Psicometrico - Modelos Temporales y Salud Integral",
@@ -59,12 +61,11 @@ st.markdown(
     unsafe_allow_html=True
 )
 # =================================================================
-# PARTE 2 DE 14: CONSTANTES DE RED Y CONFIGURACIONES GEOGRÁFICAS
+# PARTE 2 DE 14: CONSTANTES DE RED, PASARELA GOOGLE TRANSLATION API Y GEOGRAFÍA
 # =================================================================
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
+URL_PRODUCCION = "https://streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-# Catálogo oficial exhaustivo de las 32 entidades federativas de México
 ESTADOS_MEXICO = [
     "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", 
     "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", 
@@ -73,131 +74,86 @@ ESTADOS_MEXICO = [
     "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", 
     "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
 ]
-
 CONTINENTES = ["América del Norte", "América del Sur", "Europa", "Asia", "África", "Oceanía"]
-# =================================================================
-# PARTE 3 DE 14: DICCIONARIO POLÍGLOTA MAESTRO RESTRUCTURADO (APA)
-# =================================================================
-DICCIONARIO_IDIOMAS = {
-    "Español": {
-        "qr_title": "📢 Proyección del Código QR para el Auditorio",
-        "qr_sub1": "Escanea este código con tu smartphone para acceder al formulario adaptativo en tiempo real.",
-        "qr_sub2": "El acceso expira automáticamente a los 10 minutos por control de seguridad.",
-        "nombre": "Nombre Completo:",
-        "wha": "WhatsApp o Celular (Con lada, ej. +52):",
-        "err_fields": "🚨 Por favor, rellena todos los campos demográficos obligatorios antes de continuar.",
-        "proc": "Procesando vectores en la nube de Google Sheets...",
-        "fields_msg": "💡 Introduce tu Nombre y WhatsApp para habilitar la compilación del reporte descargable.",
-        "btn_save": "💾 Guardar y Procesar Diagnóstico",
-        "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
-        "thanks": "### ¡Tu participación ha sido registrada de forma exitosa! 🎉",
-        "thanks_sub": "Hemos compilado tu reporte individual en formato APA. Presiona el botón de abajo para descargarlo.",
-        "mand_title": "### 🍊 Diagnóstico de Salud Integral - Modelo Mandarina",
-        "mand_subtitle": "Selecciona las casillas en las dimensiones donde experimentes alertas recurrentes:",
-        "sec1": "Sección I. Contexto Demográfico y Geográfico",
-        "sec2": "Sección II. Evaluación de Nivel de Conocimiento del Modelo",
-        "edad": "Edad:", "genero": "Género:", "nac": "Nacionalidad:",
-        "orig": "Estado de Origen:", "res": "Estado de Residencia:", "pais": "País de Origen:", "cont": "Continente:",
-        "kn1": "1. ¿Has escuchado hablar del modelo temporal Cronos y Kairós?",
-        "kn2": "2. ¿Has leído algún libro o artículo científico sobre estos constructos?",
-        "kn3": "3. ¿Te han enseñado formalmente a gestionar tus metas bajo este enfoque?",
-        "kn4": "4. El modelo temporal dominante en tu entorno:",
-        "kn5": "5. Hablar de modelos temporales es hablar de:",
-        "kn4_options": ["Se impone", "Se hereda", "No sé"],
-        "kn5_options": ["Teología", "Cultura", "No sé"],
-        "likert_labels": {1: "1 - Totalmente en Desacuerdo", 2: "2 - En Desacuerdo", 3: "3 - Neutral", 4: "4 - De Acuerdo", 5: "5 - Totalmente de Acuerdo"},
-        "part": "Participante:", "cont_label": "Contacto/WhatsApp:", "fecha": "Fecha de Emisión:"
-    },
-    "Inglés": {
-        "qr_title": "📢 QR Code Projection for the Audience",
-        "qr_sub1": "Scan this code with your smartphone to access the adaptive real-time form.",
-        "qr_sub2": "Access automatically expires after 10 minutes for security control.",
-        "nombre": "Full Name:",
-        "wha": "WhatsApp or Mobile Number (With country code, e.g., +52):",
-        "err_fields": "🚨 Please fill in all mandatory demographic fields before continuing.",
-        "proc": "Processing vectors in the Google Sheets cloud...",
-        "fields_msg": "💡 Enter your Name and WhatsApp to enable the downloadable report.",
-        "btn_save": "💾 Save and Process Diagnosis",
-        "btn_pdf": "DOWNLOAD RESULTS IN PDF 📥",
-        "thanks": "### Your participation has been successfully registered! 🎉",
-        "thanks_sub": "We have compiled your individual report in APA format. Press the button below to download it.",
-        "mand_title": "### 🍊 Comprehensive Health Diagnosis - Mandarina Model",
-        "mand_subtitle": "Select the checkboxes in the dimensions where you experience recurring alerts:",
-        "sec1": "Section I. Demographic and Geographic Context",
-        "sec2": "Section II. Assessment of Model Knowledge Level",
-        "edad": "Age:", "genero": "Gender:", "nac": "Nationality:",
-        "orig": "State of Origin:", "res": "State of Residence:", "pais": "Country of Origin:", "cont": "Continent:",
-        "kn1": "1. Have you ever heard of the Cronos and Kairos temporal model?",
-        "kn2": "2. Have you read any book or scientific article on these constructs?",
-        "kn3": "3. Have you been formally taught to manage your goals under this approach?",
-        "kn4": "4. The dominant temporal model in your environment:",
-        "kn5": "5. Talking about temporal models is talking about:",
-        "kn4_options": ["Imposed", "Inherited", "Don't know"],
-        "kn5_options": ["Theology", "Culture", "Don't know"],
-        "likert_labels": {1: "1 - Strongly Disagree", 2: "2 - Disagree", 3: "3 - Neutral", 4: "4 - Agree", 5: "5 - Strongly Agree"},
-        "part": "Participant:", "cont_label": "Contact/WhatsApp:", "fecha": "Date of Issue:"
-    },
-    "Griego": {
-        "qr_title": "📢 Προβολή Κώδικα QR για το Ακροατήριο",
-        "qr_sub1": "Σαρώστε αυτόν τον κώδικα με το smartphone σας για πρόσβαση στη φόρμα.",
-        "qr_sub2": "Η πρόσβαση λήγει αυτόματα σε 10 λεπτά για λόγους ασφαλείας.",
-        "nombre": "Ονοματεπώνυμο:",
-        "wha": "WhatsApp ή Κινητό (Με κωδικό χώρας, π.χ. +52):",
-        "err_fields": "🚨 Παρακαλούμε συμπληρώστε όλα τα υποχρεωτικά δημογραφικά πεδία.",
-        "proc": "Επεξεργασία δεδομένων στο Google Sheets...",
-        "fields_msg": "💡 Εισαγάγετε Όνομα και WhatsApp για να ενεργοποιήσετε τη λήψη της αναφοράς.",
-        "btn_save": "💾 Αποθήκευση και Επεξεργασία Διάγνωσης",
-        "btn_pdf": "ΛΗΨΗ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ΣΕ PDF 📥",
-        "thanks": "### Η συμμετοχή σας καταχωρήθηκε με επιτυχία! 🎉",
-        "thanks_sub": "Έχουμε συντάξει την ατομική σας αναφορά σε μορφή APA. Πατήστε το παρακάτω κουμπί για λήψη.",
-        "mand_title": "### 🍊 Ολοκληρωμένη Διάγνωση Υγείας - Μοντέλο Mandarina",
-        "mand_subtitle": "Επιλέξτε τα πλαίσια στις διαστάσεις όπου αντιμετωπίζετε επαναλαμβανόμενες ειδοποιήσεις:",
-        "sec1": "Ενότητα Ι. Δημογραφικό και Γεωγραφικό Πλαίσιο",
-        "sec2": "Ενότητα ΙΙ. Αξιολόγηση Επιπέδου Γνώσης του Μοντέλου",
-        "edad": "Ηλικία:", "genero": "Φύλο:", "nac": "Υπηκοότητα:",
-        "orig": "Κατάσταση Προέλευσης:", "res": "Τόπος Κατοικίας:", "pais": "Χώρα Προέλευσης:", "cont": "Ήπειρος:",
-        "kn1": "1. Έχετε ακούσει ποτέ για το χρονικό μοντέλο Κρόνος και Καιρός;",
-        "kn2": "2. Έχετε διαβάσει κάποιο βιβλίο ή επιστημονικό άρθρο για αυτές τις έννοιες;",
-        "kn3": "3. Έχετε διδαχθεί επίσημα να διαχειρίζεστε τους στόχους σας υπό αυτή την προσέγγιση;",
-        "kn4": "4. Το κυρίαρχο χρονικό μοντέλο στο περιβάλλον σας:",
-        "kn5": "5. Το να μιλάμε για χρονικά μοντέλα σημαίνει να μιλάμε για:",
-        "kn4_options": ["Επιβάλλεται", "Κληρονομείται", "Δεν γνωρίζω"],
-        "kn5_options": ["Θεολογία", "Πολιτισμός", "Δεν γνωρίζω"],
-        "likert_labels": {1: "1 - Διαφωνώ Απόλυτα", 2: "2 - Διαφωνώ", 3: "3 - Ουδέτερος", 4: "4 - Συμφωνώ", 5: "5 - Συμφωνώ Απόλυτα"},
-        "part": "Συμμετέχων:", "cont_label": "Επικοινωνία/WhatsApp:", "fecha": "Ημερομηνία Έκδοσης:"
-    }
+
+# Catálogo Maestro ISO: Mapeo de despliegue visual hacia códigos de lenguaje universales
+MAPA_IDIOMAS_GLOBAL = {
+    "Español": "es", "English (Inglés)": "en", "Français (Francés)": "fr", 
+    "Deutsch (Alemán)": "de", "Italiano (Italiano)": "it", "Português (Portugués)": "pt",
+    "Ελληνικά (Griego)": "el", "한국어 (Coreano)": "ko", "日本語 (Japonés)": "ja", 
+    "中文 (Chino)": "zh-CN", "العربية (Árabe)": "ar", "Русский (Ruso)": "ru",
+    "Tagalog (Tagalo)": "tl", "हिन्दी (Hindi)": "hi", "Tiếng Việt (Vietnamita)": "vi"
 }
 
-# Inyección síncrona de gajos base traductibles para el Modelo Mandarina
-DICCIONARIO_IDIOMAS["Español"]["gajos_data"] = {
+@st.cache_data(show_spinner=False)
+def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
+    """
+    Conecta de forma síncrona con la API Neuronal de Google Cloud Translation.
+    Emplea las credenciales seguras de la cuenta de servicio y optimiza mediante caché local.
+    """
+    if not texto_origen or codigo_destino == "es":
+        return str(texto_origen)
+    try:
+        if "gcp_service_account" not in st.secrets:
+            return str(texto_origen)
+            
+        from google.cloud import translate_v2 as translate
+        secrets_dict = dict(st.secrets["gcp_service_account"])
+        if "private_key" in secrets_dict:
+            secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+            
+        translate_client = translate.Client.from_service_account_info(secrets_dict)
+        resultado = translate_client.translate(str(texto_origen), target_language=codigo_destino)
+        return resultado["translatedText"]
+    except Exception:
+        # Fallback defensivo: si la API se satura o carece de red, entrega el texto base en español
+        return str(texto_origen)
+
+# =================================================================
+# PARTE 3 DE 14: DICCIONARIO BASE DE LLAVES MAESTRAS SÍNCRONAS
+# =================================================================
+# Cadenas de anclaje para la interfaz dinámica. Servirán como semillas para la traducción neuronal.
+TEXTOS_BASE_ESPANOL = {
+    "qr_title": "📢 Proyección del Código QR para el Auditorio",
+    "qr_sub1": "Escanea este código con tu smartphone para acceder al formulario adaptativo en tiempo real.",
+    "qr_sub2": "El acceso expira automáticamente a los 10 minutos por control de seguridad anti-duplicados.",
+    "nombre": "Nombre Completo / Participant Name:",
+    "wha": "WhatsApp o Celular (Con lada, ej. +52):",
+    "err_fields": "🚨 Por favor, rellena todos los campos demográficos obligatorios antes de continuar.",
+    "proc": "Procesando vectores en la nube de Google Sheets...",
+    "fields_msg": "💡 Introduce tu Nombre y WhatsApp para habilitar la compilación del reporte descargable.",
+    "btn_save": "💾 Guardar y Procesar Diagnóstico",
+    "btn_pdf": "DESCARGAR RESULTADOS EN PDF 📥",
+    "thanks": "### ¡Tu participación ha sido registrada de forma exitosa! 🎉",
+    "thanks_sub": "Hemos compilado tu reporte individual. Presiona el botón de abajo para descargar tu documento en PDF con gráficas, explicaciones y sugestionamientos metodológicos.",
+    "mand_title": "### 🍊 Diagnóstico de Salud Integral - Modelo Mandarina",
+    "mand_subtitle": "Selecciona las casillas en las dimensiones donde experimentes alertas recurrentes o fugas de bienestar:",
+    "sec1": "Sección I. Contexto Demográfico y Geográfico",
+    "sec2": "Sección II. Evaluación de Nivel de Conocimiento del Modelo",
+    "edad": "Edad / Age:", "genero": "Género / Gender:", "nac": "Nacionalidad / Nationality:",
+    "orig": "Estado de Origen:", "res": "Estado de Residencia:", "pais": "País de Origen:", "cont": "Continente:",
+    "kn1": "1. ¿Has escuchado hablar del modelo temporal Cronos y Kairós?",
+    "kn2": "2. ¿Has leído algún libro o artículo científico sobre estos constructos?",
+    "kn3": "3. ¿Te han enseñado formalmente a gestionar tus metas bajo este enfoque?",
+    "kn4": "4. El modelo temporal dominante en tu entorno:",
+    "kn5": "5. Hablar de modelos temporales es hablar de:",
+    "kn4_options_0": "Se impone", "kn4_options_1": "Se hereda", "kn4_options_2": "No sé",
+    "kn5_options_0": "Teología", "kn5_options_1": "Cultura", "kn5_options_2": "No sé",
+    "part": "Participante:", "cont_label": "Contacto/WhatsApp:", "fecha": "Fecha de Emisión:",
+    "likert_1": "1 - Totalmente en Desacuerdo", "likert_2": "2 - En Desacuerdo", "likert_3": "3 - Neutral", "likert_4": "4 - De Acuerdo", "likert_5": "5 - Totalmente de Acuerdo"
+}
+
+# Estructura ontológica original inmutable de la Mandarina (Base para traducción bajo demanda)
+GAJOS_MANDARINA_ORIGINAL = {
     "💪 Salud Física": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
     "🧠 Salud Mental": ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"],
     "❤️ Salud Emocional": ["Ansiedad o Estrés Agudo", "Irritabilidad Reactiva", "Desmotivación General", "Inestabilidad Anímica"],
     "👥 Salud Social": ["Aislamiento Voluntario", "Conflictos Interpersonales", "Falta de Red de Apoyo", "Falta de Límites Sanos"],
     "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Fuentes de Ingreso"],
-    "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Falta de Descanso/Margen", "Falta de Gestión Balanceada Cronos y Kairos"],
+    "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Falta de Descanso/Margen", "Falta de Gestión Balanceada Cronos y Kairós"],
     "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
 }
 
-DICCIONARIO_IDIOMAS["Inglés"]["gajos_data"] = {
-    "💪 Salud Física": ["Poor Nutrition", "Lack of Sleep/Insomnia", "Chronic Sedentary", "Body Fatigue"],
-    "🧠 Salud Mental": ["Brain Fog/Lack of Focus", "Ruminative Thoughts", "Information Overload", "Cognitive Apathy"],
-    "❤️ Salud Emocional": ["Anxiety or Acute Stress", "Reactive Irritability", "General Demotivation", "Mood Instability"],
-    "👥 Salud Social": ["Voluntary Isolation", "Interpersonal Conflicts", "Lack of Support Network", "Lack of Healthy Boundaries"],
-    "💰 Salud Económica": ["Compulsive Spending", "Overwhelming Debts", "Lack of Emergency Fund", "Lack of Business Venture or Income Sources"],
-    "⏳ Salud Temporal": ["Chronic Procrastination", "Burnout or Overload", "Lack of Rest/Margin", "Lack of Balanced Management Cronos and Kairos"],
-    "🙏 Salud Espiritual": ["Existential Emptiness", "Internal Disconnection", "Lack of Purpose", "Abandonment of Faith"]
-}
-
-DICCIONARIO_IDIOMAS["Griego"]["gajos_data"] = {
-    "💪 Salud Física": ["Κακή Διατροφή", "Έλλειψη Ύπνου/Αϋπνία", "Χρόνια Καθιστική Ζωή", "Σωματική Κόπωση"],
-    "🧠 Salud Mental": ["Πνευματική Θολότητα/Έλλειψη Εστίασης", "Μηρυκαστικές Σκέψεις", "Υπερφόρτωση Πληροφοριών", "Γνωστική Απάθεια"],
-    "❤️ Salud Emocional": ["Άγχος ή Οξύ Στρες", "Αντιδραστική Ερεθιστικότητα", "Γενική Έλλειψη Κινήτρων", "Ασταθής Διάθεση"],
-    "👥 Salud Social": ["Εθελοντική Απομόνωση", "Διαπροσωπικές Συγκρούσεις", "Έλλειψη Υποστηρικτικού Δικτύου", "Έλλειψη Υγιών Ορίων"],
-    "💰 Salud Económica": ["Καταναλωτική Μανία", "Συντριπτικά Χρέη", "Έλλειψη Ταμείου Έκτακτης Ανάγκης", "Έλλειψη Επιχειρηματικού Σχεδίου ή Πηγών Εισοδήματος"],
-    "⏳ Salud Temporal": ["Χρόνια Αναβλητικότητα", "Επαγγελματική Εξουθένωση ή Υπερφόρτωση", "Έλλειψη Ανάπαυσης/Περιθωρίου", "Έλλειψη Ισορροπημένης Διαχείρισης Κρόνου και Καιρού"],
-    "🙏 Salud Espiritual": ["Υπαρξιακό Κενό", "Εσωτερική Αποσύνδεση", "Έλλειψη Σκοπού", "Εγκατάλειψη της Πίστης"]
-}
 
 # =================================================================
 # PARTE 4 DE 14: CONECTOR DE CONTROL REDUNDANTE GOOGLE SHEETS API
@@ -306,21 +262,22 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE UTF-8 REAL
+# PARTE 7 DE 14: FILTRO SANITIZADOR UNIVERSAL PARA EMISIÓN UTF-8
 # =================================================================
-def limpiar_texto_pdf(texto, idioma="Español"):
+def limpiar_texto_pdf(texto, idioma_codigo="es"):
     """
-    Conserva la pureza ortográfica original (tildes, eñes, diéresis) en UTF-8.
-    Remueve de forma sistemática emojis para limpiar el canal de impresión.
+    Sanitiza las cadenas traduciéndolas bajo demanda a través de la API Neuronal.
+    Preserva el flujo UTF-8 intacto para compatibilidad con fuentes multilingües globales.
     """
     if not texto: 
         return ""
     txt_str = str(texto)
     
-    if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
-        txt_str = traducir_texto_dinamico(txt_str, idioma)
+    # Si la cadena es una semilla de interfaz, se auto-traduce dinámicamente antes de imprimirse
+    if txt_str in TEXTOS_BASE_ESPANOL:
+        txt_str = ejecutar_traduccion_neuronal(TEXTOS_BASE_ESPANOL[txt_str], idioma_codigo)
         
-    # Remoción de emojis de la ponencia para proteger las celdas
+    # Remoción de emojis de control web para limpiar las celdas vectoriales del PDF
     emojis_a_remover = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏", "🏭", "🍊"]
     for emj in emojis_a_remover:
         txt_str = txt_str.replace(emj, "")
@@ -329,50 +286,53 @@ def limpiar_texto_pdf(texto, idioma="Español"):
 
 
 
+
 # =================================================================
-# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (TRUE TYPE UNICODE FORMAT)
+# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL UNIVERSAL (NOTO SANS UTF-8)
 # =================================================================
-def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
+def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang_code="es"):
     """
     Compila el archivo PDF ejecutivo individual para el participante.
-    Inyecta fuentes TrueType externas para garantizar acentos perfectos y eñes.
+    Inyecta dinámicamente Noto Sans de Google Fonts para soportar cualquier idioma del mundo.
     """
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # 🍊 BLINDAJE ORTOGRÁFICO INCONDICIONAL: Descarga e inyecta tipografías con soporte UTF-8 completo en la nube
+    # 🍊 INYECCIÓN TIPOGRÁFICA TRANBCONTINENTAL: Carga fuentes con soporte completo de glifos orientales, árabes y latinos
     try:
-        url_fuente = "https://githubusercontent.com"
-        url_fuente_bold = "https://githubusercontent.com"
-        url_fuente_italic = "https://githubusercontent.com"
+        url_noto = "https://githubusercontent.com"
+        url_noto_bold = "https://githubusercontent.com"
+        url_noto_italic = "https://githubusercontent.com"
         
-        pdf.add_font("LiberationSans", "", url_fuente)
-        pdf.add_font("LiberationSans", "B", url_fuente_bold)
-        pdf.add_font("LiberationSans", "I", url_fuente_italic)
-        font_family = "LiberationSans"
+        pdf.add_font("NotoSansUniversal", "", url_noto)
+        pdf.add_font("NotoSansUniversal", "B", url_noto_bold)
+        pdf.add_font("NotoSansUniversal", "I", url_noto_italic)
+        font_family = "NotoSansUniversal"
     except Exception:
-        # Fallback estructural del sistema
-        font_family = "Helvetica"
+        font_family = "Helvetica" # Fallback de emergencia
         
+    # Traducción en caliente del título del manuscrito según el tipo de audiencia activa
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
-        titulo_oficial = "Reporte de Diagnóstico de la Salud Integral (Modelo Mandarina)"
+        base_title = "Reporte de Diagnóstico de la Salud Integral (Modelo Mandarina)"
         es_realmente_likert = False
     else:
-        titulo_oficial = "Reporte de Diagnóstico de los Modelos Temporales Cronos y Kairós"
+        base_title = "Reporte de Diagnóstico de los Modelos Temporales Cronos y Kairós"
         es_realmente_likert = True
         
-    nombre_sano = limpiar_texto_pdf(nombre_usuario, lang)
-    whatsapp_sano = limpiar_texto_pdf(whatsapp_usuario, lang)
+    titulo_oficial = ejecutar_traduccion_neuronal(base_title, lang_code)
+    nombre_sano = nombre_usuario
+    whatsapp_sano = whatsapp_usuario
     
-    # Encabezado Académico Sobrio (Jerarquía de Títulos APA)
+    # Encabezado Académico Sobrio APA
     pdf.set_font(font_family, "B", 14)
     pdf.set_text_color(50, 50, 50) 
-    pdf.cell(190, 10, limpiar_texto_pdf(titulo_oficial, lang), new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(190, 10, titulo_oficial, new_x="LMARGIN", new_y="NEXT", align="C")
     
+    sub_academic = ejecutar_traduccion_neuronal("Evaluación Psicométrica Individual | Jacob Zumaya Prianti (c) 2026", lang_code)
     pdf.set_font(font_family, "I", 9.5)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(190, 6, "Evaluación Psicométrica Individual | Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(190, 6, sub_academic, new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(4)
     
     pdf.set_draw_color(80, 80, 80)
@@ -380,20 +340,20 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(6)
     
-    # Bloque de Datos de Identificación (Mesa Demográfica)
+    # Mesa Demográfica Colectiva traducida bajo demanda
     pdf.set_text_color(60, 60, 60)
     pdf.set_font(font_family, "B", 10)
-    pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
+    pdf.cell(45, 6, limpiar_texto_pdf("part", lang_code), new_x="RIGHT", new_y="TOP")
     pdf.set_font(font_family, "", 10)
-    pdf.cell(145, 6, nombre_sano if nombre_sano else "Anónimo", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(145, 6, str(nombre_sano) if nombre_sano else "Anónimo", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font(font_family, "B", 10)
-    pdf.cell(45, 6, limpiar_texto_pdf("cont_label", lang), new_x="RIGHT", new_y="TOP")
+    pdf.cell(45, 6, limpiar_texto_pdf("cont_label", lang_code), new_x="RIGHT", new_y="TOP")
     pdf.set_font(font_family, "", 10)
-    pdf.cell(145, 6, whatsapp_sano if whatsapp_sano else "N/A", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(145, 6, str(whatsapp_sano) if whatsapp_sano else "N/A", new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_font(font_family, "B", 10)
-    pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang), new_x="RIGHT", new_y="TOP")
+    pdf.cell(45, 6, limpiar_texto_pdf("fecha", lang_code), new_x="RIGHT", new_y="TOP")
     pdf.set_font(font_family, "", 10)
     pdf.cell(145, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     
@@ -410,13 +370,13 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.set_x(10)
             pdf.set_font(font_family, "I", 9)
             pdf.set_text_color(100, 100, 100)
-            pdf.cell(190, 5, "Nota. Representación visual de la distribución factorial del participante.", new_x="LMARGIN", new_y="NEXT", align="C")
+            nota_fig = ejecutar_traduccion_neuronal("Nota. Representación visual de la distribución factorial del participante.", lang_code)
+            pdf.cell(190, 5, nota_fig, new_x="LMARGIN", new_y="NEXT", align="C")
             pdf.ln(4)
-        except Exception: 
-            pass
+        except Exception: pass
 
     if es_realmente_likert:
-        # === MÓDULO MODELOS TEMPORALES C&K ===
+        # === MÓDULO MODELOS TEMPORALES C&K NEURONAL ===
         kairos_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         cronos_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_cronos = sum(cronos_v) / 5
@@ -425,48 +385,55 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.set_x(10)
         pdf.set_font(font_family, "B", 11)
         pdf.set_text_color(50, 50, 50)
-        pdf.cell(190, 7, "Resultados Descriptivos de Vectores Colectivos", new_x="LMARGIN", new_y="NEXT")
+        lbl_desc = ejecutar_traduccion_neuronal("Resultados Descriptivos de Vectores Colectivos", lang_code)
+        pdf.cell(190, 7, lbl_desc, new_x="LMARGIN", new_y="NEXT")
         pdf.ln(1)
         
         pdf.set_x(10)
         pdf.set_font(font_family, "", 10)
-        pdf.cell(190, 5, f"Media Vector Cronos (Reloj): {avg_cronos:.2f}", new_x="LMARGIN", new_y="NEXT")
-        pdf.cell(190, 5, f"Media Vector Kairós (Oportunidad): {avg_kairos:.2f}", new_x="LMARGIN", new_y="NEXT")
+        lbl_mc = ejecutar_traduccion_neuronal("Media Vector Cronos (Reloj):", lang_code)
+        lbl_mk = ejecutar_traduccion_neuronal("Media Vector Kairós (Oportunidad):", lang_code)
+        pdf.cell(190, 5, f"{lbl_mc} {avg_cronos:.2f}", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 5, f"{lbl_mk} {avg_kairos:.2f}", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(4)
         
         diferencia = abs(avg_cronos - avg_kairos)
         pdf.set_x(10)
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "Interpretación de Constructo y Perfil Dominante", new_x="LMARGIN", new_y="NEXT")
+        lbl_interp = ejecutar_traduccion_neuronal("Interpretación de Constructo y Perfil Dominante", lang_code)
+        pdf.cell(190, 6, lbl_interp, new_x="LMARGIN", new_y="NEXT")
         pdf.set_font(font_family, "", 10)
         pdf.set_text_color(60, 60, 60)
         
         if diferencia <= 0.4:
-            pdf.multi_cell(190, 5, "Simbiosis Temporal Equilibrada (C&K): Balanceas la precisión cronométrica con la agilidad adaptativa de ventanas de oportunidad.\nSugerencia: Mantén bloques fijos para tareas repetitivas y reserva un margen diario para imprevistos.", new_x="LMARGIN", new_y="NEXT")
+            txt_p = "Simbiosis Temporal Equilibrada (C&K): Balanceas la precisión cronométrica con la agilidad adaptativa de ventanas de oportunidad.\nSugerencia: Mantén bloques fijos para tareas repetitivas y reserva un margen diario para imprevistos."
         elif avg_kairos > avg_cronos:
-            pdf.multi_cell(190, 5, "Perfil Temporal Kairótico Puro (Adaptativo): Destacas capturando oportunidades en caliente, pero corres el riesgo de descuidar hitos administrativos organizacionales fijos.\nSugerencia: Desarrolla anclajes operativos con alarmas digitales estrictas para tus entregas regulatorias.", new_x="LMARGIN", new_y="NEXT")
+            txt_p = "Perfil Temporal Kairótico Puro (Adaptativo): Destacas capturando oportunidades en caliente, pero corres el riesgo de descuidar hitos administrativos organizacionales fijos.\nSugerencia: Desarrolla anclajes operativos con alarmas digitales estrictas para tus entregas regulatorias."
         else:
-            pdf.multi_cell(190, 5, "Perfil Temporal Cronocéntrico Puro (Rígido): Posees una rigidez estructural alta. Experimentas estrés cuando los checklists sufren alteraciones imprevistas.\nSugerencia: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio.", new_x="LMARGIN", new_y="NEXT")
+            txt_p = "Perfil Temporal Cronocéntrico Puro (Rígido): Posees una rigidez estructural alta. Experimentas estrés cuando los checklists sufren alteraciones imprevistas.\nSugerencia: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio."
+            
+        pdf.multi_cell(190, 5, ejecutar_traduccion_neuronal(txt_p, lang_code), new_x="LMARGIN", new_y="NEXT")
             
         pdf.ln(4)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.ln(4)
         pdf.set_x(10)
         pdf.set_font(font_family, "B", 10)
-        pdf.cell(190, 5, "Recomendaciones de Acompañamiento Metodológico", new_x="LMARGIN", new_y="NEXT")
+        lbl_recom = ejecutar_traduccion_neuronal("Recomendaciones de Acompañamiento Metodológico", lang_code)
+        pdf.cell(190, 5, lbl_recom, new_x="LMARGIN", new_y="NEXT")
+        
         pdf.set_font(font_family, "I", 9.5)
         mensaje_tiempo = "Optimizar la simbiosis entre el tiempo métrico (Cronos) y el tempo de oportunidad (Kairós) es vital para reducir la fatiga cognitiva. Si tu perfil presenta una inclinación polarizada o rígida, se sugiere acudir directamente con el ponente para solicitar una consulta personalizada o asesoría estratégica. Alinear tus vectores temporales potenciará de inmediato tu rendimiento y madurez operativa."
-        pdf.multi_cell(190, 4.5, mensaje_tiempo, new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 4.5, ejecutar_traduccion_neuronal(mensaje_tiempo, lang_code), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         
     else:
-        # Invocación síncrona a la Parte 9
-        pdf.set_font(font_family, "", 10) # Deja la fuente TrueType activa para heredar glifos
-        inyectar_bloque_salud_integral_apa(pdf, resultados, lang)
+        # El bloque de Salud Integral se delega transaccionalmente a la Parte 9 (Ahora 100% neuronal)
+        pdf.set_font(font_family, "", 10)
+        inyectar_bloque_salud_integral_apa(pdf, resultados, lang_code)
             
     return bytes(pdf.output())
-
 
 
 # =================================================================
@@ -772,6 +739,10 @@ def algoritmo_generar_gajos_salud(idioma="Español"):
     Retorna la matriz adaptativa ontologica de alertas de Salud Integral
     segun el diccionario poliglota maestro cargado.
     """
+     # Dentro de la Parte 11, forzamos la traducción neuronal bajo demanda de los enunciados:
+        enunciado_traducido = ejecutar_traduccion_neuronal(enunciado_base_espanol, idioma_sel)
+        st.write(f"Reactivo {r_id}: {enunciado_traducido}")
+
     tx_gajos = DICCIONARIO_IDIOMAS.get(idioma, DICCIONARIO_IDIOMAS["Español"])
     return tx_gajos["gajos_data"]
 
@@ -819,6 +790,8 @@ def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, idioma
             9: "Experimento alta concentracion cuando el entorno presente se altera.",
             10: "Separo de forma estricta las horas del reloj para sueno y produccion."
         }
+               
+
 
 # =================================================================
 # PARTE 12 DE 14: MOTOR DE ÁLGEBRA MULTIVARIADA Y AJUSTE SEMDEEP (APA FORMAT)
@@ -944,11 +917,13 @@ def main():
 
     # Capa de interceptación de idioma base
     if not st.session_state.flujo_finalizado:
-        idioma_sel = st.selectbox(
+                # Dentro de la Parte 13, Tramo 1:
+        idioma_sel_visual = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
-            ["Español", "Inglés", "Coreano", "Griego", "Francés", "Alemán", "Italiano", "Portugués"],
+            list(MAPA_IDIOMAS_GLOBAL.keys()),
             key="sb_language_selector_main"
         )
+        idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual] # Obtiene el código ISO: "es", "en", "ko", etc.
         tx = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"])
     else:
         idioma_sel = "Español"
