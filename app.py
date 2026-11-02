@@ -1090,8 +1090,8 @@ def main():
             st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla.")
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
 
-         # =================================================================
-       # =================================================================
+        
+    # =================================================================
     # PARTE 14 DE 14: PANTALLA POST-DESCARGA POLÍGLOTA (TRAMO 1)
     # =================================================================
     else:
@@ -1153,18 +1153,19 @@ def main():
 
         tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales, key="sb_tabla_analizar_master_office")
         
-        sheet = conectar_google_sheets(tabla_analizar)
+                sheet = conectar_google_sheets(tabla_analizar)
         df_doc = None
         es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
         todas_las_filas = []
         
         if sheet:
-            try: todas_las_filas = sheet.get_all_values()
-            except Exception: todas_las_filas = []
+            try: 
+                todas_las_filas = sheet.get_all_values()
+            except Exception: 
+                todas_las_filas = []
                 
-        # =================================================================
-        # INTEGRACIÓN DOCTORAL: GENERADOR DE DATOS SIMULADOS POR CADENAS DE MARKOV
-        # =================================================================
+        # 🔬 PROCESAMIENTO COMPORTAMENTAL: Si la hoja está vacía o carece de registros válidos (N < 2)
+        # Se activa el motor probabilístico de Cadenas de Markov de forma automática
         if not todas_las_filas or len(todas_las_filas) < 2:
             if es_tabla_likert:
                 columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
@@ -1223,9 +1224,23 @@ def main():
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
         else:
-            encabezados = todas_las_filas
+            # 🍊 BLINDAJE DIMENSIONAL APA: Validación matemática para garantizar el encuadre exacto
+            encabezados = todas_las_filas[0]
             columnas_limpias = [str(c).strip() if str(c).strip() else f"C_{i}" for i, c in enumerate(encabezados)]
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=columnas_limpias)
+            
+            # Sanitizamos que cada renglón posea exactamente la misma longitud que la cabecera
+            registros_limpios = []
+            for fila_reg in todas_las_filas[1:]:
+                if len(fila_reg) < len(columnas_limpias):
+                    # Rellenado de celdas faltantes con valores vacíos por defecto
+                    fila_reg += [""] * (len(columnas_limpias) - len(fila_reg))
+                elif len(fila_reg) > len(columnas_limpias):
+                    # Recorte de desbordamiento asimétrico accidental
+                    fila_reg = fila_reg[:len(columnas_limpias)]
+                registros_limpios.append(fila_reg)
+                
+            df_doc = pd.DataFrame(registros_limpios, columns=columnas_limpias)
+
 
         # CRM de Búsqueda Individual
         st.markdown("---")
