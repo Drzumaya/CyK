@@ -587,41 +587,41 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             
             # Renderizado del Gajo Afectado
             pdf.set_font("Helvetica", "B", 11)
-pdf.set_text_color(217, 30, 24) # Rojo Alerta para resaltar el riesgo
-pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)} [ALERTA ACTIVA]", new_x="LMARGIN", new_y="NEXT")
-# Lista de síntomas sanitizados
-puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
-pdf.set_font("Helvetica", "B", 10)
-pdf.set_text_color(50, 50, 50)
-pdf.multi_cell(0, 5, f"Sintomas Detectados: {puntos_str}")
-# Inyección de Significado y Recomendación atómica desde el glosario
+            pdf.set_text_color(217, 30, 24) # Rojo Alerta para resaltar el riesgo
+            pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)} [ALERTA ACTIVA]", new_x="LMARGIN", new_y="NEXT")
+            # Lista de síntomas sanitizados
+            puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
+            pdf.set_font("Helvetica", "B", 10)
+            pdf.set_text_color(50, 50, 50)
+            pdf.multi_cell(0, 5, f"Sintomas Detectados: {puntos_str}")
+    # Inyección de Significado y Recomendación atómica desde el glosario
     if dim_nombre in glosario_clinico:
-pdf.set_font("Helvetica", "", 9.5)
-pdf.set_text_color(80, 80, 80)
-pdf.multi_cell(0, 4.5, f"Significado: {glosario_clinico[dim_nombre]['sig']}")
-pdf.set_font("Helvetica", "I", 9.5)
-pdf.set_text_color(30, 139, 195) # Texto de recomendación en azul constructivo
-pdf.multi_cell(0, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n")
+            pdf.set_font("Helvetica", "", 9.5)
+            pdf.set_text_color(80, 80, 80)
+            pdf.multi_cell(0, 4.5, f"Significado: {glosario_clinico[dim_nombre]['sig']}")
+            pdf.set_font("Helvetica", "I", 9.5)
+            pdf.set_text_color(30, 139, 195) # Texto de recomendación en azul constructivo
+            pdf.multi_cell(0, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n")
     if not algun_gajo_marcado:
-pdf.set_font("Helvetica", "B", 11)
-pdf.set_text_color(38, 166, 91) # Verde de éxito absoluto
-pdf.multi_cell(0, 6, "FELICITACIONES: Tu ecosistema se encuentra en un estado OPTIMO. No se detectaron fugas ni alertas de vulnerabilidad en ninguno de tus gajos de salud.")
-# Bloque de Acompañamiento Clínico de Salud
-pdf.ln(4)
-pdf.set_draw_color(230, 81, 0)
-pdf.set_fill_color(254, 243, 233)
-pdf.rect(10, pdf.get_y(), 190, 25, "DF")
-pdf.set_y(pdf.get_y() + 2)
-pdf.set_x(12)
-pdf.set_font("Helvetica", "B", 10)
-pdf.set_text_color(230, 81, 0)
-pdf.cell(0, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
-pdf.set_x(12)
-pdf.set_font("Helvetica", "I", 9.5)
-pdf.set_text_color(60, 60, 60)
-mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
-pdf.multi_cell(186, 4.5, mensaje_apoyo)
-return bytes(pdf.output())
+            pdf.set_font("Helvetica", "B", 11)
+            pdf.set_text_color(38, 166, 91) # Verde de éxito absoluto
+            pdf.multi_cell(0, 6, "FELICITACIONES: Tu ecosistema se encuentra en un estado OPTIMO. No se detectaron fugas ni alertas de vulnerabilidad en ninguno de tus gajos de salud.")
+            # Bloque de Acompañamiento Clínico de Salud
+            pdf.ln(4)
+            pdf.set_draw_color(230, 81, 0)
+            pdf.set_fill_color(254, 243, 233)
+            pdf.rect(10, pdf.get_y(), 190, 25, "DF")
+            pdf.set_y(pdf.get_y() + 2)
+            pdf.set_x(12)
+            pdf.set_font("Helvetica", "B", 10)
+            pdf.set_text_color(230, 81, 0)
+            pdf.cell(0, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_x(12)
+            pdf.set_font("Helvetica", "I", 9.5)
+            pdf.set_text_color(60, 60, 60)
+            mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
+            pdf.multi_cell(186, 4.5, mensaje_apoyo)
+    return bytes(pdf.output())
 
 # =================================================================
 # PARTE 9: MOTOR DE INVESTIGACIÓN SEMDEEP (CONVERGENCIA SVD DE 10 ÍTEMS)
