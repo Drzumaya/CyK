@@ -988,37 +988,48 @@ def main():
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
         
+                tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
+        
+        # 1. EXTRACCIÓN AUTOMÁTICA EN SEGUNDO PLANO Y CONTROL DE ENTRADA
         sheet = conectar_google_sheets(tabla_analizar)
         df_doc = None
         es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
         todas_las_filas = []
+        
         if sheet:
-            try: 
+            try:
                 todas_las_filas = sheet.get_all_values()
-            except Exception: 
+            except Exception:
                 todas_las_filas = []
                 
         if not todas_las_filas or len(todas_las_filas) < 2:
+            # Matriz sintética balanceada de control por si la hoja de cálculo está vacía o es nueva
             if es_tabla_likert:
                 columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
                 datos_sinteticos = []
                 for u in range(10):
-                    row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+5263300{u}", "30", "Masculino", "Mexicana", "Sonora", "Sonora", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
+                    row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
+                    
+                    # SOLUCIÓN: Inyección explícita de respuestas balanceadas en espejo para simular varianza real
                     if u % 2 == 0:
-                        row += 
+                        row += [5, 2, 4, 1, 5, 2, 4, 1, 5, 2]  # Perfil con inclinación específica
                     else:
-                        row += 
+                        row += [2, 5, 1, 4, 2, 5, 1, 4, 2, 5]  # Perfil inverso balanceador
+                        
                     row += ["Token_C"]
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
             else:
                 columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)", "Detalle Alertas Temporal", "Token"]
-                df_doc = pd.DataFrame([[str(datetime.datetime.now()), f"Control_User_{u}", f"+5200{u}", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_C"] for u in range(5)], columns=columnas_sinteticas)
+                datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "1", "0", "2", "0", "1", "3", "0", "Burnout", "Token_C"] for u in range(5)]
+                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
         else:
             encabezados = todas_las_filas
             df_doc = pd.DataFrame(todas_las_filas[1:], columns=[c.strip() if c.strip() else f"C_{i}" for i, c in enumerate(encabezados)])
 
+        # =================================================================
         # MÓDULO INTERACTIVO A: CRM DE BÚSQUEDA CLÍNICA PERSONALIZADA
+        # =================================================================
         st.markdown("---")
         st.subheader("🔍 Buscador Exclusivo de Participantes (Atención y Consulta Privada)")
         st.write("Introduce el nombre o WhatsApp del asistente para extraer su perfil psicométrico de forma inmediata:")
@@ -1027,6 +1038,7 @@ def main():
         
         if c_busq and df_doc is not None:
             df_filtrado = df_doc[df_doc["Nombre"].str.lower().str.contains(c_busq) | df_doc["WhatsApp"].str.lower().str.contains(c_busq)]
+            
             if df_filtrado.empty:
                 st.warning("❌ No se encontraron participantes registrados con esos criterios en esta audiencia.")
             else:
@@ -1035,6 +1047,7 @@ def main():
                     with st.container(border=True):
                         st.markdown(f"### 👤 Participante: **{row_p['Nombre']}**")
                         st.write(f"📱 **Enlace WhatsApp:** {row_p['WhatsApp']} | 📅 **Registro:** {row_p['Timestamp']}")
+                        
                         if es_tabla_likert:
                             r_items = [pd.to_numeric(row_p[f"R{i}"], errors='coerce') for i in range(1, 11) if f"R{i}" in row_p]
                             if len(r_items) >= 10:
@@ -1077,6 +1090,7 @@ def main():
                 st.progress(int(pct_cronos))
         else:
             st.info("La tabla de Salud Integral no escala vectores proporcionales C/K.")
+
         # =================================================================
         # PARTE 13: CENTRO DE INTELIGENCIA, SEGMENTACIÓN Y DICTAMEN DOCTORAL (TRAMO 2)
         # =================================================================
