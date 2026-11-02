@@ -1070,7 +1070,7 @@ def main():
         except Exception:
             lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
 
-        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
+               tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
         
         # 1. EXTRACCIÓN AUTOMÁTICA EN SEGUNDO PLANO Y CONTROL DE ENTRADA
         sheet = conectar_google_sheets(tabla_analizar)
@@ -1092,9 +1092,9 @@ def main():
                 for u in range(10):
                     row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
                     if u % 2 == 0:
-                        row += [5, 4, 5, 4, 5, 1, 2, 1, 2, 1]
+                        row += [4, 4, 3, 3, 4, 4, 3, 3, 4, 4]
                     else:
-                        row += [1, 2, 1, 2, 1, 5, 4, 5, 4, 5]
+                        row += [3, 3, 5, 5, 3, 3, 5, 5, 3, 3]
                     row += ["Token_C"]
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
@@ -1146,7 +1146,6 @@ def main():
                         else:
                             st.markdown("**🚨 Alertas de Salud Integral Activas:**")
                             st.write(f"`{row_p.get('Detalle Alertas Temporal', 'Sin especificación en Fuga Temporal')}`")
-
         # =================================================================
         # MÓDULO INTERACTIVO B: VISUALIZADOR CRUDO DE AUDIENCIA EN TIEMPO REAL
         # =================================================================
@@ -1208,43 +1207,47 @@ def main():
                         with c_al1:
                             if alpha_c >= 0.70: st.success(f"⏱️ Alfa de Cronbach Vector Cronos: **{alpha_c:.4f}** (Fiabilidad Alta)")
                             else: st.warning(f"⚠️ Alfa de Cronbach Vector Cronos: **{alpha_c:.4f}** (Ruido en Comprensión)")
-                        with c_al2:
+                        with col_graph2:
                             if alpha_k >= 0.70: st.success(f"🍃 Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Fiabilidad Alta)")
                             else: st.warning(f"⚠️ Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Ruido en Comprensión)")
 
                 st.markdown("---")
                 st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
-pdf_auditoria = FPDF()
-pdf_auditoria.add_page()
-pdf_auditoria.set_font("Helvetica", "B", 14)
-pdf_auditoria.set_text_color(230, 81, 0)
-pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
-pdf_auditoria.set_font("Helvetica", "", 10)
-pdf_auditoria.set_text_color(100, 100, 100)
-pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
-pdf_auditoria.ln(5)
-pdf_auditoria.set_font("Helvetica", "B", 11)
-pdf_auditoria.set_text_color(50, 50, 50)
-pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
-                  if es_tabla_likert:
-pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Alfa Cronbach Cronos: {alpha_c:.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Alfa Cronbach Kairos: {alpha_k:.4f}", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
-bytes_auditoria = pdf_auditoria.output()
-st.download_button(
-label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
-data=bytes(bytes_auditoria),
-file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '')}{datetime.date.today()}.pdf",
-mime="application/pdf",
-key="btn_download_admin_pdf"
-)
-
-
-
+                
+                pdf_auditoria = FPDF()
+                pdf_auditoria.add_page()
+                pdf_auditoria.set_font("Helvetica", "B", 14)
+                pdf_auditoria.set_text_color(230, 81, 0)
+                pdf_auditoria.cell(0, 10, f"AUDITORIA ESTADISTICA: {tabla_analizar.upper()}", new_x="LMARGIN", new_y="NEXT", align="C")
+                pdf_auditoria.set_font("Helvetica", "", 10)
+                pdf_auditoria.set_text_color(100, 100, 100)
+                pdf_auditoria.cell(0, 6, f"Emitido: {datetime.datetime.now().strftime('%d/%m/%Y %H:%M:%S')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+                pdf_auditoria.ln(5)
+                
+                pdf_auditoria.set_font("Helvetica", "B", 11)
+                pdf_auditoria.set_text_color(50, 50, 50)
+                pdf_auditoria.cell(0, 6, f"Registros Totales Analizados: {len(df_doc)}", new_x="LMARGIN", new_y="NEXT")
+                pdf_auditoria.cell(0, 6, f"Estado del Motor: {res_sem.get('status', 'N/A')}", new_x="LMARGIN", new_y="NEXT")
+                
+                if es_tabla_likert:
+                    pdf_auditoria.cell(0, 6, f"- Beta Path Cronos: {res_sem.get('beta_cronos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.cell(0, 6, f"- Beta Path Kairos: {res_sem.get('beta_kairos_path', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.cell(0, 6, f"- Covarianza de Variables Latentes: {res_sem.get('covarianza_latente', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.cell(0, 6, f"- Alfa Cronbach Cronos: {alpha_c:.4f}", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.cell(0, 6, f"- Alfa Cronbach Kairos: {alpha_k:.4f}", new_x="LMARGIN", new_y="NEXT")
+                
+                pdf_auditoria.cell(0, 6, f"- Indice de Ajuste GOF R2: {res_sem.get('gof_r2_ajuste', 0.0):.4f}", new_x="LMARGIN", new_y="NEXT")
+                
+                bytes_auditoria = pdf_auditoria.output()
+                
+                st.download_button(
+                    label=f"📥 DESCARGAR AUDITORÍA EJECUTIVA ({tabla_analizar}) EN PDF",
+                    data=bytes(bytes_auditoria),
+                    file_name=f"Auditoria_Doctoral_{tabla_analizar.replace(' ', '_')}_{datetime.date.today()}.pdf",
+                    mime="application/pdf",
+                    key="btn_download_admin_pdf"
+                )
+                
 # Guardia de ejecución principal para el ecosistema web de Streamlit
 if __name__ == "__main__":
     main()
