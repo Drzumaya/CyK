@@ -765,7 +765,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.caption("Complete los campos obligatorios para activar el canal WhatsApp.")
 
 # =================================================================
-# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS (SALUD & REACTIVOS)
+# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS (POLYGLOT INDEXED)
 # =================================================================
 def algoritmo_generar_gajos_salud(idioma="Español"):
     """
@@ -793,6 +793,19 @@ def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, idioma
             9: "I experience high focus when the present environment alters.",
             10: "I strictly separate clock hours for sleep and production."
         }
+    elif idioma == "Griego":
+        return {
+            1: f"Συλλαμβάνω εύκολα στρατηγικές ευκαιρίες στο {contexto_geo}.",
+            2: "Δομώ οπτικά το εβδομαδιαίο μου πρόγραμμα σε ακριβή ρολόγια.",
+            3: "Νιώθω ότι ο χρόνος ρέει οργανικά όταν ενεργώ βασικούς στόχους.",
+            4: "Τιμωρώ αυστηρά την έλλειψη ακρίβειας στον επαγγελματικό μου κύκλο.",
+            5: "Διαβάζω εύκολα απρόσμενες αλλαγές ως κρίσιμες ευκαιρίες.",
+            6: "Διαχειρίζομαι τους επαγγελματικούς μου στόχους υπό αυστηρές λίστες.",
+            7: "Προτιμώ να σπάσω το δρομολόγιο εάν εμφανιστεί ένα προσωπικό παράθυρο.",
+            8: "Προτιμώ τη διαδοχική σειρά έναντι των προσαρμογών πολλαπλών εργασιών.",
+            9: "Βιώνω υψηλή εστίαση όταν το παρόν περιβάλλον μεταβάλλεται.",
+            10: "Διαχωρίζω αυστηρά τις ώρες του ρολογιού για ύπνο και παραγωγή."
+        }
     else:
         return {
             1: f"Capturo con gran agilidad oportunidades estrategicas en {contexto_geo}.",
@@ -801,11 +814,12 @@ def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, idioma
             4: "Castigo estrictamente la impuntualidad en mi circulo profesional.",
             5: "Leo con facilidad los cambios imprevistos como oportunidades criticas.",
             6: "Gestiono mis metas laborales bajo check-lists rigidos e inamovibles.",
-            7: "Prefiero romper el intranet si emerge una ventana personal util.",
+            7: "Prefiero romper el itinerario si emerge una ventana personal util.",
             8: "Prefiero el orden secuencial sobre las adaptaciones multi-tarea.",
             9: "Experimento alta concentracion cuando el entorno presente se altera.",
             10: "Separo de forma estricta las horas del reloj para sueno y produccion."
         }
+
 # =================================================================
 # PARTE 12 DE 14: MOTOR DE ÁLGEBRA MULTIVARIADA Y AJUSTE SEMDEEP (APA FORMAT)
 # =================================================================
