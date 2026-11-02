@@ -1224,55 +1224,57 @@ def main():
                     
                     dominancia = "Cronos (Planificacion y Rigidez)" if b_c > b_k else "Kairos (Agilidad y Contexto)"
                     txt_conclusion = (
-f"A partir de los coeficientes de ruta estimados, se concluye de forma clara que el vector de mayor "
-f"impacto predictivo sistematico en esta audiencia es {dominancia}. Esto sugiere que los esfuerzos de "
-f"intervencion organizacional deben priorizar la estabilizacion de esta dimension temporal."
-)
-pdf_auditoria.multi_cell(0, 5, txt_conclusion)
-pdf_auditoria.ln(4)
-pdf_auditoria.set_font("Helvetica", "B", 12)
-pdf_auditoria.set_text_color(230, 81, 0)
-pdf_auditoria.cell(0, 7, "IV. NOTA CIENTIFICA Y CONTROL EPISTEMOLOGICO", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.set_font("Helvetica", "I", 9.5)
-pdf_auditoria.set_text_color(80, 80, 80)
-txt_nota = (
-"Nota Cientifica de Validacion: Este reporte fue compiled empleando Descomposicion en Valores Singulares (SVD) "
-"Análisis de Componentes Principales e Inversion Matricial Ortogonal de Varianza. Para validez indexada se pauta N > 30."
-)
-pdf_auditoria.multi_cell(0, 5, txt_nota)
-else:
-# ---- CASO B: AUDITORÍA DE SALUD INTEGRAL MODELO MANDARINA ----
-pdf_auditoria.set_font("Helvetica", "B", 12)
-pdf_auditoria.set_text_color(230, 81, 0)
-pdf_auditoria.cell(0, 7, "I. ANALISIS DE VULNERABILIDAD COLECTIVA POR GAJOS DE BIENESTAR", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.set_font("Helvetica", "", 10)
-pdf_auditoria.set_text_color(60, 60, 60)
-txt_salud_desc = (
-"El informe descriptivo de distribucion de frecuencias representa los niveles de prevalencia epidemiologica "
-"y debilidades relativas capturadas en la audiencia. Los gajos con mayor promedio de seleccion pautan las areas "
-"de intervencion urgente en materia de salud fisica, mental, emocional, social, economica, temporal y espiritual."
-)
-pdf_auditoria.multi_cell(0, 5, txt_salud_desc)
-pdf_auditoria.ln(4)
-pdf_auditoria.set_font("Helvetica", "B", 12)
-pdf_auditoria.set_text_color(230, 81, 0)
-pdf_auditoria.cell(0, 7, "II. NOTA CIENTIFICA DE RECOMENDACION CLINICO-ORGANIZACIONAL", new_x="LMARGIN", new_y="NEXT")
-pdf_auditoria.set_font("Helvetica", "I", 9.5)
-pdf_auditoria.set_text_color(80, 80, 80)
-txt_nota_salud = (
-"Nota Tecnica: Los datos acumulados expresan sintomatologias latentes auto-reportadas. Se sugiere al ponente "
-"y tomadores de decisiones establecer canales formales de consulta y atencion medica o psicopedagogica para "
-"darle seguimiento cientifico y contencion oportuna a los focos de alerta roja detectados en los participantes."
-)
-pdf_auditoria.multi_cell(0, 5, txt_nota_salud)
-bytes_auditoria = pdf_auditoria.output()
-st.download_button(
-label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_limpia_pdf})",
-data=bytes(bytes_auditoria),
-file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
-mime="application/pdf",
-key="btn_download_admin_pdf_final_maestro"
-)
+                    f"A partir de los coeficientes de ruta estimados, se concluye de forma clara que el vector de mayor "
+                    f"impacto predictivo sistematico en esta audiencia es {dominancia}. Esto sugiere que los esfuerzos de "
+                    f"intervencion organizacional deben priorizar la estabilizacion de esta dimension temporal."
+                    )
+                    pdf_auditoria.multi_cell(0, 5, txt_conclusion)
+                    pdf_auditoria.ln(4)
+                    pdf_auditoria.set_font("Helvetica", "B", 12)
+                    pdf_auditoria.set_text_color(230, 81, 0)
+                    pdf_auditoria.cell(0, 7, "IV. NOTA CIENTIFICA Y CONTROL EPISTEMOLOGICO", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.set_font("Helvetica", "I", 9.5)
+                    pdf_auditoria.set_text_color(80, 80, 80)
+                    txt_nota = (
+                    "Nota Cientifica de Validacion: Este reporte fue compiled empleando Descomposicion en Valores Singulares (SVD) "
+                    "Análisis de Componentes Principales e Inversion Matricial Ortogonal de Varianza. Para validez indexada se pauta N > 30."
+                    )
+                    pdf_auditoria.multi_cell(0, 5, txt_nota)
+                    else:
+                    # ---- CASO B: AUDITORÍA DE SALUD INTEGRAL MODELO MANDARINA ----
+                    pdf_auditoria.set_font("Helvetica", "B", 12)
+                    pdf_auditoria.set_text_color(230, 81, 0)
+                    pdf_auditoria.cell(0, 7, "I. ANALISIS DE VULNERABILIDAD COLECTIVA POR GAJOS DE BIENESTAR", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.set_font("Helvetica", "", 10)
+                    pdf_auditoria.set_text_color(60, 60, 60)
+                    txt_salud_desc = (
+                    "El informe descriptivo de distribucion de frecuencias representa los niveles de prevalencia epidemiologica "
+                    "y debilidades relativas capturadas en la audiencia. Los gajos con mayor promedio de seleccion pautan las areas "
+                    "de intervencion urgente en materia de salud fisica, mental, emocional, social, economica, temporal y espiritual."
+                    )
+                    pdf_auditoria.multi_cell(0, 5, txt_salud_desc)
+                    pdf_auditoria.ln(4)
+                    pdf_auditoria.set_font("Helvetica", "B", 12)
+                    pdf_auditoria.set_text_color(230, 81, 0)
+                    pdf_auditoria.cell(0, 7, "II. NOTA CIENTIFICA DE RECOMENDACION CLINICO-ORGANIZACIONAL", new_x="LMARGIN", new_y="NEXT")
+                    pdf_auditoria.set_font("Helvetica", "I", 9.5)
+                    pdf_auditoria.set_text_color(80, 80, 80)
+                    txt_nota_salud = (
+                    "Nota Tecnica: Los datos acumulados expresan sintomatologias latentes auto-reportadas. Se sugiere al ponente "
+                    "y tomadores de decisiones establecer canales formales de consulta y atencion medica o psicopedagogica para "
+                    "darle seguimiento cientifico y contencion oportuna a los focos de alerta roja detectados en los participantes."
+                    )
+                    pdf_auditoria.multi_cell(0, 5, txt_nota_salud)
+                bytes_auditoria = pdf_auditoria.output()
+                st.download_button(
+                    label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_limpia_pdf})",
+                    data=bytes(bytes_auditoria),
+                    file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                    key="btn_download_admin_pdf_final_maestro"
+                )
+
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
     main()
+
