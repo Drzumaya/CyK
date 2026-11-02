@@ -988,7 +988,7 @@ def main():
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
         
-                tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
+        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales)
         
         # 1. EXTRACCIÓN AUTOMÁTICA EN SEGUNDO PLANO Y CONTROL DE ENTRADA
         sheet = conectar_google_sheets(tabla_analizar)
