@@ -9,6 +9,7 @@ import time
 import hashlib
 import base64
 import gspread
+import qrcode # SOLUCIÓN: Inyección explícita del módulo para erradicar el NameError
 import matplotlib.pyplot as plt
 from io import BytesIO
 from fpdf import FPDF
