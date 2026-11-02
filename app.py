@@ -1011,8 +1011,8 @@ def main():
 
 
 
-        # =================================================================
-    # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 1)
+     # =================================================================
+    # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA E HISTORIAL (TRAMO 1)
     # =================================================================
     else:
         nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
@@ -1082,22 +1082,20 @@ def main():
             try: todas_las_filas = sheet.get_all_values()
             except Exception: todas_las_filas = []
                 
-                # =================================================================
-        # OPTIMIZACIÓN DOCTORAL: GENERADOR DE DATOS SIMULADOS POR CADENAS DE MARKOV
+        # =================================================================
+        # INTEGRACIÓN DOCTORAL: GENERADOR DE DATOS SIMULADOS POR CADENAS DE MARKOV
         # =================================================================
         if not todas_las_filas or len(todas_las_filas) < 2:
             if es_tabla_likert:
                 columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
                 datos_sinteticos = []
                 
-                # Matriz de Transición de Markov para respuestas Likert (Estados 1 a 5)
-                # P(ij) = Probabilidad de transitar de la respuesta anterior a la siguiente para mantener consistencia interna
                 matriz_transicion_cronos = np.array([
-                    [0.4, 0.3, 0.2, 0.1, 0.0],  # Si respondió 1, tiende a mantenerse bajo o neutro
+                    [0.4, 0.3, 0.2, 0.1, 0.0],
                     [0.2, 0.4, 0.3, 0.1, 0.0],
                     [0.1, 0.2, 0.4, 0.2, 0.1],
                     [0.0, 0.1, 0.3, 0.4, 0.2],
-                    [0.0, 0.0, 0.2, 0.3, 0.5]   # Si respondió 5, alta probabilidad de mantenerse alto
+                    [0.0, 0.0, 0.2, 0.3, 0.5]
                 ])
                 
                 matriz_transicion_kairos = np.array([
@@ -1113,20 +1111,16 @@ def main():
                 for u in range(10):
                     row = [str(datetime.datetime.now()), f"Simulated_Markov_User_{u}", f"+52633100200{u}", str(20 + u), "Other" if u==9 else ("Femenino" if u%2==0 else "Masculino"), "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
                     
-                    # Estado inicial estocástico aleatorio
                     estado_actual_c = np.random.choice(estados_likert, p=[0.1, 0.2, 0.4, 0.2, 0.1])
                     estado_actual_k = np.random.choice(estados_likert, p=[0.1, 0.1, 0.3, 0.3, 0.2])
                     
                     respuestas_usuario = []
-                    # Generación de la cadena de pasos acoplados (Pares=Cronos, Impares=Kairós)
                     for r_idx in range(1, 11):
-                        if r_idx % 2 == 0:  # Dimensión Cronos
+                        if r_idx % 2 == 0:
                             respuestas_usuario.append(int(estado_actual_c))
-                            # Transición al siguiente estado de la cadena de Markov
                             estado_actual_c = np.random.choice(estados_likert, p=matriz_transicion_cronos[estado_actual_c - 1])
-                        else:  # Dimensión Kairós
+                        else:
                             respuestas_usuario.append(int(estado_actual_k))
-                            # Transición al siguiente estado de la cadena de Markov
                             estado_actual_k = np.random.choice(estados_likert, p=matriz_transicion_kairos[estado_actual_k - 1])
                             
                     row += respuestas_usuario
@@ -1137,22 +1131,16 @@ def main():
                 columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Token"]
                 datos_sinteticos = []
                 
-                # Cadenas de Markov para Frecuencias de Síntomas: Probabilidad de heredar alertas entre dimensiones consecutivas
                 sintomas_fisicos = ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"]
                 sintomas_mentales = ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"]
                 
                 for u in range(5):
-                    # Determinación estocástica de estados patológicos correlacionados
                     sf = sintomas_fisicos[np.random.randint(4)] if np.random.rand() > 0.3 else ""
-                    sm = sintomas_mentales[np.random.randint(4)] if (sf != "") else "" # Dependencia estocástica
+                    sm = sintomas_mentales[np.random.randint(4)] if (sf != "") else ""
                     se = "Ansiedad o Estrés Agudo" if (sm != "") else ""
                     
                     row = [str(datetime.datetime.now()), f"Simulated_Markov_User_{u}", f"+52633100200{u}", sf, sm, se, "", "", "", "", f"Markov_Token_{u}"]
                     datos_sinteticos.append(row)
-                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-            else:
-                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Token"]
-                datos_sinteticos = [[str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "Fatiga", "", "Ansiedad", "", "", "Sobrecarga", "", f"Token_{u}"] for u in range(5)]
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
         else:
             encabezados = todas_las_filas
@@ -1182,8 +1170,7 @@ def main():
                         else:
                             st.markdown("**🚨 Alertas de Salud Activas:**")
                             st.write(f"`{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}`")
-
-               # =================================================================
+        # =================================================================
         # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 2)
         # =================================================================
         # Proporciones Globales de Audiencia
@@ -1287,4 +1274,3 @@ def main():
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
     main()
-
