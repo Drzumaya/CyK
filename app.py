@@ -273,13 +273,12 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (CP1252)
+# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (LATIN-1 NATIVO)
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
-    Purifica las cadenas de texto conservando la n, acentos y dieresis.
-    Fuerza la traduccion al mapa de caracteres WinAnsi (cp1252) admitido
-    nativamente por las fuentes core de FPDF sin generar excepciones.
+    Purifica las cadenas de texto conservando la n y todos los acentos.
+    Mapea de forma directa a la codificacion latin-1 nativa de FPDF.
     """
     if not texto: 
         return ""
@@ -288,26 +287,25 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
         
-    try:
-        # Transición ortográfica: Mapea la n y tildes al estándar cp1252 de FPDF
-        texto_ansi = txt_str.encode("cp1252", errors="replace").decode("cp1252")
-        return texto_ansi
-    except Exception:
-        # Fallback de emergencia adaptativo en caso de colapso de bytes
-        return txt_str.encode("ascii", "ignore").decode("ascii").strip()
+    # Remapeo directo de compatibilidad de fuentes core
+    return txt_str.encode("latin-1", errors="replace").decode("latin-1")
+
 
 
 # =================================================================
-# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (UNICODE ACADEMIC FORMAT)
+# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (ACADEMIC FORMAT)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     """
     Compila el archivo PDF ejecutivo individual para el participante.
-    Implementa el motor TrueType Unicode para renderizar acentos perfectos y n.
+    Adopta una jerarquia tipografica y maquetacion sobria de formato cientifico.
     """
+    # BLINDAJE ORTOGRÁFICO: Configuramos FPDF para aceptar acentos nativos occidentales
     pdf = FPDF()
+    pdf.core_fonts_encoding = "latin-1" # Fuerza el mapa de caracteres correcto en el motor
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
+
     
     # 🍊 COMPATIBILIDAD UNICODE NATIVA: Forzamos el uso del mapa de caracteres extendido
     # fpdf2 procesa de forma nativa fuentes del sistema con soporte UTF-8 completo
