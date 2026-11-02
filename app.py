@@ -1040,7 +1040,7 @@ def main():
                     with st.spinner("Inicializando entorno de datos..."):
                         conectar_google_sheets(seleccion)
                     st.rerun()
-          # =================================================================
+        # =================================================================
     # PARTE 13 DE 14: GATEWAY MULTILINGÜE DIRECTO CON PROGRAMACIÓN FORZADA (BLOQUE 3 DE 4)
     # =================================================================
     if not st.session_state.flujo_finalizado:
