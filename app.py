@@ -273,23 +273,27 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO PURIFICADOR Y ADAPTADOR FACTORIAL UNICODE UTF-8
+# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (LATIN-1)
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
-    Conserva la integridad ortografica (acentos, n, dieresis) del espanol
-    y prepara la codificacion limpia para el motor TrueType Unicode.
+    Purifica las cadenas de texto conservando acentos, enes y dieresis.
+    Mapea el texto de forma segura al set latin-1 admitido por las fuentes core.
     """
     if not texto: 
         return ""
     txt_str = str(texto)
     
-    # Si la cadena es una de nuestras llaves maestras políglotas, la extrae traducida
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
         
-    # Retornamos la cadena limpia en formato de texto normal sin barrer los acentos
-    return txt_str.strip()
+    # Re-codificación limpia en caliente: Conserva acentos convirtiendo caracteres rotos
+    try:
+        texto_latin1 = txt_str.encode("latin-1", errors="replace").decode("latin-1")
+        return texto_latin1
+    except Exception:
+        # Fallback de seguridad en caso de caracteres UTF-8 corruptos
+        return txt_str.encode("ascii", "ignore").decode("ascii").strip()
 
 # =================================================================
 # PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (UNICODE ACADEMIC FORMAT)
@@ -485,12 +489,12 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
             pdf.set_x(10)
             pdf.set_font("Helvetica", "", 9.5)
             pdf.set_text_color(60, 60, 60)
-            pdf.multi_cell(190, 4.5, f"Significado del constructo: {glosario_clinico[dim_nombre]['sig']}", new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(190, 4.5, f"Significado del constructo: {limpiar_texto_pdf(glosario_clinico[dim_nombre]['sig'], lang)}", new_x="LMARGIN", new_y="NEXT")
             
             pdf.set_x(10)
             pdf.set_font("Helvetica", "B", 9.5)
             pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(190, 4.5, f"Directriz de intervencion sugerida: {glosario_clinico[dim_nombre]['rec']}\n", new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(190, 4.5, f"Directriz de intervencion sugerida: {limpiar_texto_pdf(glosario_clinico[dim_nombre]['rec'], lang)}\n", new_x="LMARGIN", new_y="NEXT")
             
     if not algun_gajo_marcado:
         pdf.set_x(10)
@@ -498,7 +502,7 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
         pdf.set_text_color(40, 120, 60)
         pdf.multi_cell(190, 6, "Nota Clinica. El ecosistema analizado se encuentra en un estado funcional optimo. No se registraron indicadores de riesgo o fugas en ninguna de las dimensiones de bienestar integral.", new_x="LMARGIN", new_y="NEXT")
 
-    # Cierre Estilo Nota al pie de manuscrito científico
+    # Cierre Académico
     pdf.ln(4)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(4)
@@ -513,6 +517,7 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
     pdf.multi_cell(190, 4.5, mensaje_apoyo, new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+
 # =================================================================
 # PARTE 10 DE 14: PASARELA TRANSACCIONAL INDEPENDIENTE (PARTICIPANTE)
 # =================================================================
