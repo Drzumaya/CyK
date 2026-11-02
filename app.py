@@ -150,9 +150,8 @@ def traducir_objeto_dinamico(objeto, codigo_destino):
 
 
 # =================================================================
-# PARTE 3 DE 14: DICCIONARIO BASE DE LLAVES MAESTRAS SÍNCRONAS
+# PARTE 3 DE 14: DICCIONARIO BASE DE LLAVES MAESTRAS SÍNCRONAS (BLOQUE 1 DE 5)
 # =================================================================
-# Cadenas de anclaje para la interfaz dinámica. Servirán como semillas para la traducción neuronal.
 TEXTOS_BASE_ESPANOL = {
     "qr_title": "📢 Proyección del Código QR para el Auditorio",
     "qr_sub1": "Escanea este código con tu smartphone para acceder al formulario adaptativo en tiempo real.",
@@ -171,7 +170,12 @@ TEXTOS_BASE_ESPANOL = {
     "sec1": "Sección I. Contexto Demográfico y Geográfico",
     "sec2": "Sección II. Evaluación de Nivel de Conocimiento del Modelo",
     "edad": "Edad / Age:", "genero": "Género / Gender:", "nac": "Nacionalidad / Nationality:",
-    "orig": "Estado de Origen:", "res": "Estado de Residencia:", "pais": "País de Origen:", "cont": "Continente:",
+    "orig": "Estado de Origen:", "res": "Estado de Residencia:", "pais": "País de Origen:", "cont": "Continente:"
+}
+# =================================================================
+# PARTE 3 DE 14: DICCIONARIO BASE DE LLAVES MAESTRAS SÍNCRONAS (BLOQUE 2 DE 5)
+# =================================================================
+TEXTOS_BASE_ESPANOL.update({
     "kn1": "1. ¿Has escuchado hablar del modelo temporal Cronos y Kairós?",
     "kn2": "2. ¿Has leído algún libro o artículo científico sobre estos constructos?",
     "kn3": "3. ¿Te han enseñado formalmente a gestionar tus metas bajo este enfoque?",
@@ -180,19 +184,70 @@ TEXTOS_BASE_ESPANOL = {
     "kn4_options_0": "Se impone", "kn4_options_1": "Se hereda", "kn4_options_2": "No sé",
     "kn5_options_0": "Teología", "kn5_options_1": "Cultura", "kn5_options_2": "No sé",
     "part": "Participante:", "cont_label": "Contacto/WhatsApp:", "fecha": "Fecha de Emisión:",
-    "likert_1": "1 - Totalmente en Desacuerdo", "likert_2": "2 - En Desacuerdo", "likert_3": "3 - Neutral", "likert_4": "4 - De Acuerdo", "likert_5": "5 - Totalmente de Acuerdo"
-}
+    "likert_1": "1 - Totalmente en Desacuerdo", "likert_2": "2 - En Desacuerdo", 
+    "likert_3": "3 - Neutral", "likert_4": "4 - De Acuerdo", "likert_5": "5 - Totalmente de Acuerdo"
+})
 
-# Estructura ontológica original inmutable de la Mandarina (Base para traducción bajo demanda)
-GAJOS_MANDARINA_ORIGINAL = {
-    "💪 Salud Física": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
-    "🧠 Salud Mental": ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"],
-    "❤️ Salud Emocional": ["Ansiedad o Estrés Agudo", "Irritabilidad Reactiva", "Desmotivación General", "Inestabilidad Anímica"],
-    "👥 Salud Social": ["Aislamiento Voluntario", "Conflictos Interpersonales", "Falta de Red de Apoyo", "Falta de Límites Sanos"],
-    "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Fuentes de Ingreso"],
-    "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Falta de Descanso/Margen", "Falta de Gestión Balanceada Cronos y Kairós"],
-    "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
-}
+# Estructura ontológica original inmutable de la Mandarina (Base para traducción)
+GAJOS_MANDARINA_ORIGINAL = {}
+# =================================================================
+# PARTE 3 DE 14: ESTRUCTURA ONTOLÓGICA MANDARINA (BLOQUE 3 DE 5)
+# =================================================================
+GAJOS_MANDARINA_ORIGINAL.update({
+    "💪 Salud Física": [
+        "Nutrición Deficiente", 
+        "Falta de Sueño/Insomnio", 
+        "Sedentarismo Crónico", 
+        "Fatiga Corporal"
+    ],
+    "🧠 Salud Mental": [
+        "Niebla Mental/Falta de Foco", 
+        "Pensamientos Rumiativos", 
+        "Saturación de Información", 
+        "Apatía Cognitiva"
+    ],
+    "❤️ Salud Emocional": [
+        "Ansiedad o Estrés Agudo", 
+        "Irritabilidad Reactiva", 
+        "Desmotivación General", 
+        "Inestabilidad Anímica"
+    ]
+})
+# =================================================================
+# PARTE 3 DE 14: ESTRUCTURA ONTOLÓGICA MANDARINA (BLOQUE 4 DE 5)
+# =================================================================
+GAJOS_MANDARINA_ORIGINAL.update({
+    "👥 Salud Social": [
+        "Aislamiento Voluntario", 
+        "Conflictos Interpersonales", 
+        "Falta de Red de Apoyo", 
+        "Falta de Límites Sanos"
+    ],
+    "💰 Salud Económica": [
+        "Gastos Compulsivos", 
+        "Deudas Atropelladas", 
+        "Falta de Fondo de Emergencia", 
+        "Falta de Emprendimiento de Negocios o Fuentes de Ingreso"
+    ]
+})
+# =================================================================
+# PARTE 3 DE 14: ESTRUCTURA ONTOLÓGICA MANDARINA (BLOQUE 5 DE 5)
+# =================================================================
+GAJOS_MANDARINA_ORIGINAL.update({
+    "⏳ Salud Temporal": [
+        "Procrastinación Crónica", 
+        "Burnout o Sobrecarga", 
+        "Falta de Descanso/Margen", 
+        "Falta de Gestión Balanceada Cronos y Kairós"
+    ],
+    "🙏 Salud Espiritual": [
+        "Vacío Existencial", 
+        "Desconexión Interna", 
+        "Falta de Propósito", 
+        "Abandono de la Fe"
+    ]
+})
+
 
 
 # =================================================================
@@ -731,7 +786,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.caption("Complete los campos obligatorios para activar el canal WhatsApp.")
 
 # =================================================================
-# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES (133 IDIOMAS)
+# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES (SINCRO)
 # =================================================================
 def algoritmo_generar_gajos_salud(codigo_idioma="es"):
     """
@@ -773,7 +828,8 @@ def algoritmo_generar_gajos_salud(codigo_idioma="es"):
 
 def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, codigo_idioma="es"):
     """
-    Traduce en un solo lote la batería completa de reactivos C&K de forma síncrona.
+    MANDATO EXPLÍCITO: Traduce en un solo lote lineal la batería de reactivos C&K.
+    Hereda incondicionalmente el código de idioma del selector para sincronizar UI y PDF.
     """
     banco_base_es = [
         f"Capturo con gran agilidad oportunidades estrategicas en {contexto_geo}.",
@@ -792,10 +848,15 @@ def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, codigo
         return {i+1: v for i, v in enumerate(banco_base_es)}
         
     try:
+        # Envío masivo por lotes del vector psicométrico temporal al satélite de Google
         reactivos_traducidos = traducir_lote_neuronal_master(banco_base_es, codigo_idioma)
+        
+        # Mapeamos de forma síncrona el diccionario relacional indexado del 1 al 10
         return {i+1: v for i, v in enumerate(reactivos_traducidos)}
     except Exception:
+        # Fallback seguro en frío si la API sufre latencia
         return {i+1: v for i, v in enumerate(banco_base_es)}
+
 
 
 
