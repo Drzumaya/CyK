@@ -454,7 +454,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
 }
 }
 algun_gajo_marcado = False
-        for dim_nombre, items in resultados.items():
+     for dim_nombre, items in resultados.items():
      if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]:
 continue
      if len(items) == 0:
