@@ -273,12 +273,13 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR ASCII ESTRICTO
+# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (CP1252)
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
-    Purifica las cadenas de texto removiendo de forma sistematica emojis.
-    Bandea y barre estrictamente acentos y enes para maxima compatibilidad core.
+    Purifica las cadenas de texto conservando la n, las tildes y dieresis.
+    Mapea el texto de forma explicita al set cp1252 (WinAnsi) de FPDF
+    removiendo previamente los emojis para evitar signos de interrogacion.
     """
     if not texto: 
         return ""
@@ -287,38 +288,32 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
         
-    # Remoción de emojis del Modelo Mandarina y Ponencia
+    # Remoción de emojis para proteger el búfer
     emojis_a_remover = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏", "🏭", "🍊"]
     for emj in emojis_a_remover:
         txt_str = txt_str.replace(emj, "")
         
-    # Diccionario de equivalencias planas para barrido ortográfico estricto
-    equivalencias_ascii = {
-        'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
-        'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U',
-        'ñ': 'n', 'Ñ': 'N', 'ü': 'u', 'Ü': 'U'
-    }
-    
-    texto_plano = "".join(equivalencias_ascii.get(c, c) for c in txt_str)
-    
-    # Compilación final forzada a caracteres imprimibles estándar
-    return texto_plano.encode('ascii', 'ignore').decode('ascii').strip()
-
+    try:
+        # Codificación nativa occidental para fuentes integradas de FPDF
+        return txt_str.encode("cp1252", errors="ignore").decode("cp1252").strip()
+    except Exception:
+        return txt_str.encode("ascii", "ignore").decode("ascii").strip()
 
 
 # =================================================================
-# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (ACADEMIC FORMAT)
+# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (APA WINANSI FORMAT)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     """
     Compila el archivo PDF ejecutivo individual para el participante.
     Adopta una jerarquia tipografica y maquetacion sobria de formato cientifico.
     """
-    # BLINDAJE ORTOGRÁFICO: Configuramos FPDF para aceptar acentos nativos occidentales
+    # BLINDAJE ORTOGRÁFICO: Activamos el decodificador nativo occidental cp1252
     pdf = FPDF()
-    pdf.core_fonts_encoding = "latin-1" # Fuerza el mapa de caracteres correcto en el motor
+    pdf.core_fonts_encoding = "cp1252" 
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
+
 
     
     # 🍊 COMPATIBILIDAD UNICODE NATIVA: Forzamos el uso del mapa de caracteres extendido
