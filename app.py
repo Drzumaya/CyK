@@ -1240,7 +1240,7 @@ def main():
                     "Análisis de Componentes Principales e Inversion Matricial Ortogonal de Varianza. Para validez indexada se pauta N > 30."
                     )
                     pdf_auditoria.multi_cell(0, 5, txt_nota)
-                    else:
+                else:
                     # ---- CASO B: AUDITORÍA DE SALUD INTEGRAL MODELO MANDARINA ----
                     pdf_auditoria.set_font("Helvetica", "B", 12)
                     pdf_auditoria.set_text_color(230, 81, 0)
