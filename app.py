@@ -1142,7 +1142,7 @@ def main():
                     row = [str(datetime.datetime.now()), f"Simulated_Markov_User_{u}", f"+52633100200{u}", sf, sm, se, "", "", "", "", f"Markov_Token_{u}"]
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-            else:
+      else:
             # CORRECCIÓN DE RAÍZ: Forzado estricto a string para evitar el AttributeError
             encabezados = todas_las_filas[0]
             columnas_limpias = [str(c).strip() if str(c).strip() else f"C_{i}" for i, c in enumerate(encabezados)]
