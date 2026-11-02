@@ -437,49 +437,53 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
 
 
 # =================================================================
-# PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE SALUD (APA CLEAN TABLE STYLE)
+# PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (TRAMO 1)
 # =================================================================
 def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
     """
     Renderiza de manera exclusiva y asimétrica los gajos con alertas activas
     bajo el formato y la jerarquía de tablas del estilo académico minimalista.
+    Hereda síncronamente la fuente TrueType Unicode activa del documento.
     """
+    # Configuramos pesos y tamaños heredando la tipografía Unicode activa
     pdf.set_font(style="B", size=11)
     pdf.set_text_color(50, 50, 50)
-    pdf.cell(190, 7, "Vectores de Atencion Critica Detectados", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(190, 7, "Vectores de Atención Crítica Detectados", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     
     glosario_clinico = {
         "💪 Salud Física": {
-            "sig": "Indica un desgaste en los pilares basicos de energia corporal, afectando la homeostasis debido a privacion de sueno, sedentarismo o nutricion deficiente.",
-            "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activacion cardiovascular diaria."
+            "sig": "Indica un desgaste en los pilares básicos de energía corporal, afectando la homeostasis debido a privación de sueño, sedentarismo o nutrición deficiente.",
+            "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activación cardiovascular diaria."
         },
         "🧠 Salud Mental": {
-            "sig": "Representa una saturacion cognitiva severa, perdida de enfoque, niebla mental o procesamiento rumiativo de informacion que merma la agilidad mental.",
-            "rec": "Aplica tecnicas de ayuno digital de pantallas, practica la focalizacion en una sola tarea a la vez y disena pausas de silencio mental entre jornadas."
+            "sig": "Representa una saturación cognitiva severa, pérdida de enfoque, niebla mental o procesamiento rumiativo de información que merma la agilidad mental.",
+            "rec": "Aplica técnicas de ayuno digital de pantallas, practica la focalización en una sola tarea a la vez y diseña pausas de silencio mental entre jornadas."
         },
         "❤️ Salud Emocional": {
-            "sig": "Determina una desregulacion animica reactiva, estres agudo, ansiedad latente o el sindrome de desgaste por empatia extrema (Burnout).",
-            "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiracion diafragmatica consciente y externaliza tus emociones con redes de confianza."
+            "sig": "Determina una desregulación anímica reactiva, estrés agudo, ansiedad la tente o el síndrome de desgaste por empatía extrema (Burnout).",
+            "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiración diafragmática consciente y externaliza tus emociones con redes de confianza."
         },
         "👥 Salud Social": {
-            "sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinamicas interpersonales conflictivas provocadas por la ausencia de limites claros.",
-            "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una activity recreativa inamovible con tu red de apoyo familiar."
+            "sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinámicas interpersonales conflictivas provocadas por la ausencia de límites claros.",
+            "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una actividad recreativa inamovible con tu red de apoyo familiar."
         },
         "💰 Salud Económica": {
-            "sig": "Expresa vulnerabilidad financiera sistemica, estres presupuestal agudo debido a deudas desordenadas o falta de diversificacion en fuentes de ingresos.",
-            "rec": "Automatiza la separacion de un fondo de contingencia basico, elimina gastos hormiga reactivos and evalua proyectos de emprendimiento alternos a corto plazo."
+            "sig": "Expresa vulnerabilidad financiera sistémica, estrés presupuestal agudo debido a deudas desordenadas o falta de diversificación en fuentes de ingresos.",
+            "rec": "Automatiza la separación de un fondo de contingencia básico, elimina gastos hormiga reactivos y evalúa proyectos de emprendimiento alternos a corto plazo."
         },
         "⏳ Salud Temporal": {
-            "sig": "Refleja desequilibrio critico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairos), desencadenando procrastinacion o sobrecarga de tareas.",
-            "rec": "Usa tecnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."
+            "sig": "Refleja desequilibrio crítico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairós), desencadenando procrastinación o sobrecarga de tareas.",
+            "rec": "Usa técnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."
         },
         "🙏 Salud Espiritual": {
-            "sig": "Manifiesta un vacio existencial latente, perdida del sentido de vocacion fundamental, desconexion interna o descuido de habitos devocionales basicos.",
-            "rec": "Dedica los primeros minutos del dia a la meditacion, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."
+            "sig": "Manifiesta un vacío existencial latente, pérdida del sentido de vocación fundamental, desconexión interna o descuido de hábitos devocionales básicos.",
+            "rec": "Dedica los primeros minutos del día a la meditación, la oración y la reflexión de valores, y reconecta intencionalmente con actividades de servicio."
         }
     }
-    
+    # =================================================================
+    # PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (TRAMO 2)
+    # =================================================================
     algun_gajo_marcado = False
     for dim_nombre, items in resultados.items():
         if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]: 
@@ -490,45 +494,45 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
         algun_gajo_marcado = True
         
         pdf.set_x(10)
-        pdf.set_font(style="B", size=11)
+        pdf.set_font(style="B", size=10.5)
         pdf.set_text_color(50, 50, 50)
-        pdf.cell(190, 6, f"Dimension Evaluada: {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, f"Dimensión Evaluada: {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
         
         puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
         pdf.set_x(10)
-        pdf.set_font(style="B", size=11)
+        pdf.set_font(style="I", size=10)
         pdf.set_text_color(80, 80, 80)
         pdf.multi_cell(190, 5, f"Indicadores de vulnerabilidad reportados: {puntos_str}", new_x="LMARGIN", new_y="NEXT")
         
         if dim_nombre in glosario_clinico:
             pdf.set_x(10)
-            pdf.set_font(style="B", size=11)
+            pdf.set_font(style="", size=9.5)
             pdf.set_text_color(60, 60, 60)
-            pdf.multi_cell(190, 4.5, f"Significado del constructo: {limpiar_texto_pdf(glosario_clinico[dim_nombre]['sig'], lang)}", new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(190, 4.5, f"Significado del constructo: {glosario_clinico[dim_nombre]['sig']}", new_x="LMARGIN", new_y="NEXT")
             
             pdf.set_x(10)
-            pdf.set_font(style="B", size=11)
+            pdf.set_font(style="B", size=9.5)
             pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(190, 4.5, f"Directriz de intervencion sugerida: {limpiar_texto_pdf(glosario_clinico[dim_nombre]['rec'], lang)}\n", new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(190, 4.5, f"Directriz de intervención sugerida: {glosario_clinico[dim_nombre]['rec']}\n", new_x="LMARGIN", new_y="NEXT")
             
     if not algun_gajo_marcado:
         pdf.set_x(10)
-        pdf.set_font(style="B", size=11)
+        pdf.set_font(style="", size=10)
         pdf.set_text_color(40, 120, 60)
-        pdf.multi_cell(190, 6, "Nota Clinica. El ecosistema analizado se encuentra en un estado funcional optimo. No se registraron indicadores de riesgo o fugas en ninguna de las dimensiones de bienestar integral.", new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 6, "Nota Clínica. El ecosistema analizado se encuentra en un estado funcional óptimo. No se registraron indicadores de riesgo o fugas en ninguna de las dimensiones de bienestar integral.", new_x="LMARGIN", new_y="NEXT")
 
-    # Cierre Académico
+    # Cierre Académico Estilo Nota al pie de manuscrito científico
     pdf.ln(4)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(4)
     pdf.set_x(10)
-    pdf.set_font(style="B", size=11)
+    pdf.set_font(style="B", size=10)
     pdf.set_text_color(50, 50, 50)
-    pdf.cell(190, 5, "Canalizacion y Seguimiento de Caso", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(190, 5, "Canalización y Seguimiento de Caso", new_x="LMARGIN", new_y="NEXT")
     pdf.set_x(10)
-    pdf.set_font(style="B", size=11)
+    pdf.set_font(style="I", size=9.5)
     pdf.set_text_color(80, 80, 80)
-    mensaje_apoyo = "El auto-reporte es el primer paso en la deteccion de vulnerabilidades institucionales. Si has registrado indicadores criticos en tus gajos de salud, se extiende una invitacion cordial para contactar directamente al ponente para coordinar una consulta privada o asesoria personalizada para el diseno de planes de contencion oportuna."
+    mensaje_apoyo = "El auto-reporte es el primer paso en la detección de vulnerabilidades institucionales. Si has registrado indicadores críticos en tus gajos de salud, se extiende una invitación cordial para contactar directamente al ponente para coordinar una consulta privada o asesoría personalizada para el diseño de planes de contención oportuna."
     pdf.multi_cell(190, 4.5, mensaje_apoyo, new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
