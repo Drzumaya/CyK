@@ -62,7 +62,7 @@ st.markdown(
 )
 
 # =================================================================
-# PARTE 2 DE 14: INFRAESTRUCTURA DE TRADUCCIÓN NEURONAL POR LOTES ISO (133 IDIOMAS)
+# PARTE 2 DE 14: ENTRADA TRADUCTORA NEURONAL POR LOTES GOOGLE API
 # =================================================================
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
@@ -70,21 +70,8 @@ NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 CONTINENTES = ["América del Norte", "América del Sur", "Europa", "Asia", "África", "Oceanía"]
 
-# CATÁLOGO INTERNACIONAL DE IDIOMAS ISO 639-1 COMPLETAMENTE DINÁMICO
-MAPA_IDIOMAS_GLOBAL = {
-    "Español": "es", "English (Inglés)": "en", "Français (Francés)": "fr", "Deutsch (Alemán)": "de", 
-    "Italiano (Italiano)": "it", "Português (Portugués)": "pt", "Ελληνικά (Griego)": "el", "한국어 (Coreano)": "ko", 
-    "日本語 (Japonés)": "ja", "简体中文 (Chino Simplificado)": "zh-CN", "繁體中文 (Chino Tradicional)": "zh-TW",
-    "العربية (Árabe)": "ar", "Русский (Ruso)": "ru", "Tagalog (Tagalo)": "tl", "हिन्दी (Hindi)": "hi", 
-    "Tiếng Việt (Vietnamita)": "vi", "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", "Türkçe (Turco)": "tr"
-}
-
-@st.cache_data(show_spinner=False)
 def traducir_lote_neuronal_master(lista_textos, codigo_destino):
-    """
-    Realiza una única petición por lote (Batch Request) a Google Cloud Translation API.
-    Traduce cientos de cadenas simultáneamente reduciendo la latencia de red.
-    """
+    """ Realiza una única petición por lote (Batch Request) a Google Cloud. """
     if not lista_textos or codigo_destino == "es":
         return lista_textos
     try:
@@ -92,44 +79,35 @@ def traducir_lote_neuronal_master(lista_textos, codigo_destino):
             return lista_textos
         from google.cloud import translate_v2 as translate
         import html
-        
         secrets_dict = dict(st.secrets["gcp_service_account"])
         if "private_key" in secrets_dict:
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
-            
         translate_client = translate.Client.from_service_account_info(secrets_dict)
         resultados = translate_client.translate(lista_textos, target_language=codigo_destino)
         return [html.unescape(r["translatedText"]) for r in resultados]
     except Exception:
         return lista_textos
 
-@st.cache_data(show_spinner=False)
 def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
-    """
-    Función de interceptación atómica para cadenas individuales en caliente.
-    """
+    """ Interceptación síncrona para cadenas individuales. """
     if not texto_origen or codigo_destino == "es":
         return str(texto_origen)
-    try:
-        res = traducir_lote_neuronal_master([str(texto_origen)], codigo_destino)
-        return res[0] if res else str(texto_origen)
-    except Exception:
-        return str(texto_origen)
+    res = traducir_lote_neuronal_master([str(texto_origen)], codigo_destino)
+    return res[0] if res else str(texto_origen)
 
-def traducir_objeto_dinamico(objeto, codigo_destino):
-    """
-    Algoritmo recursivo. Traduce automáticamente estructuras complejas
-    (cadenas, listas o diccionarios) al idioma de destino.
-    """
-    if codigo_destino == "es" or not objeto:
-        return objeto
-    if isinstance(objeto, str):
-        return ejecutar_traduccion_neuronal(objeto, codigo_destino)
-    if isinstance(objeto, list):
-        return [traducir_objeto_dinamico(item, codigo_destino) for item in objeto]
-    if isinstance(objeto, dict):
-        return {traducir_objeto_dinamico(k, codigo_destino): traducir_objeto_dinamico(v, codigo_destino) for k, v in objeto.items()}
-    return objeto
+# 🌐 EXTRACCIÓN DINÁMICA DE LOS 133 IDIOMAS OFICIALES DIRECTO DEL SATÉLITE
+if "lista_idiomas_133_iso" not in st.session_state:
+    try:
+        from google.cloud import translate_v2 as translate
+        sec_dict = dict(st.secrets["gcp_service_account"])
+        if "private_key" in sec_dict:
+            sec_dict["private_key"] = sec_dict["private_key"].replace("\\n", "\n")
+        cl_t = translate.Client.from_service_account_info(sec_dict)
+        idiomas_disponibles = cl_t.get_languages(target_language="es")
+        st.session_state.lista_idiomas_133_iso = {i["name"].title(): i["language"] for i in idiomas_disponibles}
+    except Exception:
+        st.session_state.lista_idiomas_133_iso = {"Español": "es", "English": "en", "Français": "fr", "Deutsch": "de"}
+
 
 
 
@@ -845,13 +823,11 @@ def ejecutar_analisis_semdeep(dataframe, es_likert):
         return {"Error_Analitico": str(e), "R2": ".00"}
 
 # =================================================================
-# PARTE 13 DE 14: INTERCEPTACIÓN NEURONAL DE ORIGEN (BLOQUE 1 DE format)
+# PARTE 13 DE 14: INTERCEPTACIÓN NEURONAL DE ORIGEN (BLOQUE 1 DE 4)
 # =================================================================
 def main():
-    # Inicialización local de variables globales de red y tiempo
     global token_actual, es_celular_del_publico, url_con_token, token_tiempo
 
-    # 🍊 BLINDAJE DE INICIALIZACIÓN ABSOLUTO DE SESIÓN ANTI-KEYERROR
     if "audiences_custom_list" not in st.session_state:
         st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state:
@@ -862,26 +838,12 @@ def main():
         st.session_state.flujo_finalizado = False
     if "guardado_exitoso" not in st.session_state:
         st.session_state.guardado_exitoso = False
-    if "idioma_activo_actual" not in st.session_state:
-        st.session_state.idioma_activo_actual = st.query_params.get("lang", "es")
 
-    # 🌐 CONECTOR DINÁMICO DE 133 IDIOMAS OFICIALES DESDE GOOGLE CLOUD
-    if "lista_idiomas_133_iso" not in st.session_state:
-        try:
-            from google.cloud import translate_v2 as translate
-            secrets_dict = dict(st.secrets["gcp_service_account"])
-            if "private_key" in secrets_dict:
-                secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
-            client_t = translate.Client.from_service_account_info(secrets_dict)
-            
-            idiomas_disponibles = client_t.get_languages(target_language=st.session_state.idioma_activo_actual)
-            st.session_state.lista_idiomas_133_iso = {i["name"].title(): i["language"] for i in idiomas_disponibles}
-        except Exception:
-            st.session_state.lista_idiomas_133_iso = {"Español": "es", "English": "en", "Français": "fr", "Deutsch": "de", "Italiano": "it", "Português": "pt"}
-
+    # Forzado de lectura desde la barra del navegador URL
     idioma_url_codigo = st.query_params.get("lang", "es")
+    st.session_state.idioma_activo_actual = idioma_url_codigo
 
-    # 🚀 INTERCEPTOR EN COLD START: Traduce el lote de la interfaz entera antes de renderizar
+    # Forzado de traducción masiva en el Lote de Interfaz
     if "tx_traducido_cache" not in st.session_state or st.session_state.get("idioma_previo_check") != idioma_url_codigo:
         llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
         valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
@@ -889,9 +851,9 @@ def main():
         st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
         st.session_state.idioma_previo_check = idioma_url_codigo
 
-    # Asignación de variables síncronas maestras locales
     tx = st.session_state.tx_traducido_cache
     idioma_sel = idioma_url_codigo
+
     # =================================================================
     # PARTE 13 DE 14: AMARRE DE RED, SEGURIDAD Y CONSOLA (BLOQUE 2 DE format)
     # =================================================================
@@ -979,7 +941,7 @@ def main():
                     with st.spinner("Inicializando entorno de datos..."):
                         conectar_google_sheets(seleccion)
                     st.rerun()
-    # =================================================================
+        # =================================================================
     # PARTE 13 DE 14: GATEWAY MULTILINGÜE SÍNCRONO DIRECTO Y QR (BLOQUE 3 DE 4)
     # =================================================================
     if not st.session_state.flujo_finalizado:
@@ -988,7 +950,6 @@ def main():
         opcion_visual_defecto = nombre_visual_invertido.get(idioma_sel, "Español")
         lista_opciones_visuales = list(mapa_133.keys())
 
-        # Contenedor limpio con borde para máxima elegancia académica minimalista
         with st.container(border=True):
             lbl_title_gateway = ejecutar_traduccion_neuronal("🌐 Internationalization Gateway / Control Políglota", idioma_sel)
             st.markdown(f"### {lbl_title_gateway}")
@@ -1003,23 +964,11 @@ def main():
             
             lbl_btn_submit = ejecutar_traduccion_neuronal("🔄 TRANSLATE ENTIRE SYSTEM / TRADUCIR TODO EL SISTEMA", idioma_sel)
             
-            # Botón transaccional síncrono directo fuera de formulario para evitar congelamientos
+            # Botón tradicional directo: Fuerza la reescritura de la URL y limpia el caché al instante
             if st.button(lbl_btn_submit, type="primary", key="btn_execute_neural_translation_trigger"):
                 codigo_iso_seleccionado = mapa_133[idioma_sel_visual]
-                
-                # Inyección atómica e inmediata en la URL del navegador
                 st.query_params["lang"] = codigo_iso_seleccionado
                 st.session_state.idioma_activo_actual = codigo_iso_seleccionado
-                
-                # Forzamos al motor a traducir el lote entero e inyectarlo en caché antes de reiniciar
-                with st.spinner("Translating system variables... 🌐"):
-                    llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
-                    valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
-                    valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, codigo_iso_seleccionado)
-                    st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
-                    st.session_state.idioma_previo_check = codigo_iso_seleccionado
-                
-                # Rompe el estado y redibuja la aplicación entera desde el renglón número uno
                 st.rerun()
 
         st.write("")
@@ -1042,6 +991,7 @@ def main():
                 st.write(f"### {lbl_aud_proj}: {st.session_state.audiencia_activa}")
                 st.write(sub_qr1)
                 st.write(sub_qr2)
+
         # =================================================================
         # PARTE 13 DE 14: INTERFAZ VISIBLE DEL CUESTIONARIO (BLOQUE 4 DE 4)
         # =================================================================
