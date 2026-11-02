@@ -1059,7 +1059,7 @@ def main():
                 resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
                 
                 st.subheader("📋 BATERÍA DE REACTIVOS C&K")
-                banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
+                                banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
                 for r_id, enunciado_idioma in banco_mutado.items():
                     st.write(f"Reactivo {r_id}: {enunciado_idioma}")
                     etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
@@ -1071,9 +1071,16 @@ def main():
                         key=f"dyn_r_{r_id}"
                     )
 
+            # 🍊 LIBERACIÓN DOCTORAL: Invocación fija de la pasarela de guardado y descarga PDF
+            # Se ejecuta con 12 espacios de sangría exacta, justo al pie de página del formulario activo
+            renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
+        else:
+            # Mensaje estético de contingencia cuando el ponente decide ocultar la pasarela de captura local
+            st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla. El auditorio puede seguir respondiendo escaneando el codigo QR superior con normalidad.")
 
 
-        # =================================================================
+
+    # =================================================================
     # PARTE 13: CENTRO DE INTELIGENCIA Y EXTRACTOR DE HISTORIAL (TRAMO 1)
     # =================================================================
     if st.session_state.admin_autenticado and not es_celular_del_publico:
