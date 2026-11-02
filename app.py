@@ -1004,7 +1004,8 @@ def main():
         opcion_visual_defecto = nombre_visual_invertido.get(idioma_sel, "Español")
         lista_opciones_visuales = list(mapa_133.keys())
 
-        with st.form(key="form_gateway_idioma_universal_url_133", clear_on_submit=False):
+        # Contenedor limpio con borde para máxima elegancia académica minimalista
+        with st.container(border=True):
             lbl_title_gateway = ejecutar_traduccion_neuronal("🌐 Internationalization Gateway / Control Políglota", idioma_sel)
             st.markdown(f"### {lbl_title_gateway}")
             
@@ -1016,14 +1017,25 @@ def main():
                 key="sb_language_selector_main_fixed_url_state_133"
             )
             
-            lbl_btn_submit = ejecutar_traduccion_neuronal("🔄 APLICAR IDIOMA / APPLY LANGUAGE (Press Enter)", idioma_sel)
-            submit_idioma = st.form_submit_button(label=lbl_btn_submit, type="primary")
+            lbl_btn_submit = ejecutar_traduccion_neuronal("🔄 TRANSLATE ENTIRE SYSTEM / TRADUCIR TODO EL SISTEMA", idioma_sel)
             
-        if submit_idioma:
-            codigo_iso_seleccionado = mapa_133[idioma_sel_visual]
-            if codigo_iso_seleccionado != idioma_sel:
+            # Botón transaccional síncrono directo fuera de formulario
+            if st.button(lbl_btn_submit, type="primary", key="btn_execute_neural_translation_trigger"):
+                codigo_iso_seleccionado = mapa_133[idioma_sel_visual]
+                
+                # Inyección atómica e inmediata en la URL del navegador
                 st.query_params["lang"] = codigo_iso_seleccionado
                 st.session_state.idioma_activo_actual = codigo_iso_seleccionado
+                
+                # Forzamos al motor a traducir el lote entero e inyectarlo en caché antes de reiniciar
+                with st.spinner("Translating system variables... 🌐"):
+                    llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+                    valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+                    valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, codigo_iso_seleccionado)
+                    st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+                    st.session_state.idioma_previo_check = codigo_iso_seleccionado
+                
+                # Rompe el estado y redibuja la aplicación entera desde el renglón número uno
                 st.rerun()
 
         st.write("")
