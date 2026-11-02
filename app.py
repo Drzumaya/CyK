@@ -1109,10 +1109,46 @@ def main():
                                     st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
                                 else:
                                     st.warning("Estructura de reactivos incompleta en la tabla seleccionada.")
+                        
                         with col_graph2:
                             st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                             res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                             st.json(res_sem)
+                            
+                        # === INYECCIÓN DOCTORAL: EVALUACIÓN DE CONSISTENCIA INTERNA (CRONBACH'S ALPHA) ===
+                        if es_tabla_likert and len(df_doc) >= 5:
+                            st.markdown("---")
+                            st.write("#### 🔬 Fiabilidad y Consistencia Interna del Instrumento en Vivo")
+                            
+                            r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
+                            if len(r_cols) >= 10:
+                                matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                                kairos_items = matriz_r[:, 0::2]
+                                cronos_items = matriz_r[:, 1::2]
+                                
+                                def calcular_cronbach(matriz_items):
+                                    try:
+                                        k = matriz_items.shape[1]
+                                        varianzas_items = np.var(matriz_items, axis=0, ddof=1)
+                                        varianza_total = np.var(np.sum(matriz_items, axis=1), ddof=1)
+                                        if varianza_total == 0: return 0.0
+                                        return (k / (k - 1)) * (1 - (np.sum(varianzas_items) / varianza_total))
+                                    except Exception: return 0.0
+                                    
+                                alpha_k = calcular_cronbach(kairos_items)
+                                alpha_c = calcular_cronbach(cronos_items)
+                                
+                                c_al1, c_al2 = st.columns(2)
+                                with c_al1:
+                                    if alpha_c >= 0.70:
+                                        st.success(f"⏱️ Alfa de Cronbach Vector Cronos: **{alpha_c:.4f}** (Fiabilidad Alta)")
+                                    else:
+                                        st.warning(f"⚠️ Alfa de Cronbach Vector Cronos: **{alpha_c:.4f}** (Inconsistencia / Ruido en Grupo)")
+                                with c_al2:
+                                    if alpha_k >= 0.70:
+                                        st.success(f"🍃 Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Fiabilidad Alta)")
+                                    else:
+                                        st.warning(f"⚠️ Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Inconsistencia / Ruido en Grupo)")
 
                         st.markdown("---")
                         st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
