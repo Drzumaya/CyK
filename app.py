@@ -1126,8 +1126,8 @@ def main():
         st.info(lbl_info_hidden)
         nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
 
-    # =================================================================
-    # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA E HISTORIAL (TRAMO 14A)
+       # =================================================================
+    # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA E HISTORIAL (TRAMO 1 DE 3)
     # =================================================================
     else:
         nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
@@ -1168,9 +1168,8 @@ def main():
                 for k in ["nombre_usuario_persistente", "whatsapp_usuario_persistente", "resultados_usuario_persistente", "grafica_usuario_persistente", "es_modo_likert_persistente"]:
                     if k in st.session_state: del st.session_state[k]
                 st.rerun()
-
     # =================================================================
-    # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (TRAMO 14B)
+    # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (TRAMO 2 DE 3)
     # =================================================================
     # Módulo de Control de Oficina para el Ponente Autenticado
     if st.session_state.admin_autenticado and not es_celular_del_publico:
@@ -1298,8 +1297,10 @@ def main():
                         else:
                             st.markdown("**🚨 Alertas de Salud Activas:**")
                             st.write(f"`{row_p.get('💪 Salud Física', '')} {row_p.get('🧠 Salud Mental', '')} {row_p.get('❤️ Salud Emocional', '')}`")
+
+
         # =================================================================
-        # PARTE 14 DE 14: PROPORCIONES, DICTAMEN MACRO Y CIERRE (TRAMO 14C)
+        # PARTE 14 DE 14: PROPORCIONES, DICTAMEN MACRO Y CIERRE (TRAMO 3 DE 3)
         # =================================================================
         # Proporciones Globales de Audiencia
         st.markdown("---")
@@ -1443,7 +1444,6 @@ def main():
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
     main()
-
 
 
 # =================================================================
