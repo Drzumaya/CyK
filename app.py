@@ -273,12 +273,13 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (LATIN-1)
+# PARTE 7 DE 14: FILTRO SANITIZADOR Y PURIFICADOR UNICODE (CP1252)
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     """
-    Purifica las cadenas de texto conservando acentos, enes y dieresis.
-    Mapea el texto de forma segura al set latin-1 admitido por las fuentes core.
+    Purifica las cadenas de texto conservando la n, acentos y dieresis.
+    Fuerza la traduccion al mapa de caracteres WinAnsi (cp1252) admitido
+    nativamente por las fuentes core de FPDF sin generar excepciones.
     """
     if not texto: 
         return ""
@@ -287,13 +288,14 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     if txt_str in ["part", "cont_label", "fecha", "vec", "perf_s", "perf_k", "perf_c"]:
         txt_str = traducir_texto_dinamico(txt_str, idioma)
         
-    # Re-codificación limpia en caliente: Conserva acentos convirtiendo caracteres rotos
     try:
-        texto_latin1 = txt_str.encode("latin-1", errors="replace").decode("latin-1")
-        return texto_latin1
+        # Transición ortográfica: Mapea la n y tildes al estándar cp1252 de FPDF
+        texto_ansi = txt_str.encode("cp1252", errors="replace").decode("cp1252")
+        return texto_ansi
     except Exception:
-        # Fallback de seguridad en caso de caracteres UTF-8 corruptos
+        # Fallback de emergencia adaptativo en caso de colapso de bytes
         return txt_str.encode("ascii", "ignore").decode("ascii").strip()
+
 
 # =================================================================
 # PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (UNICODE ACADEMIC FORMAT)
