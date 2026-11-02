@@ -538,15 +538,16 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
 
 # =================================================================
-# PARTE 10 DE 14: PASARELA TRANSACCIONAL INDEPENDIENTE (PARTICIPANTE)
+# PARTE 10 DE 14: PASARELA TRANSACCIONAL CON API GATEWAY DE WHATSAPP
 # =================================================================
 def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx):
     """
-    Renderiza la pasarela de guardado y descarga individual.
+    Renderiza la pasarela de guardado, descarga individual y Gateway de WhatsApp.
     Dibuja la dona interactiva de la Mandarina si aplica.
     """
     st.divider()
     grafica_base64 = None
+    perfil_interpretado_txt = ""
     
     if not es_modo_likert and resultados_totales:
         st.write("### 🍊 Visualizacion de tu Mandarina de Salud Integral")
@@ -560,14 +561,22 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
         
         labels_grafica = []
         colores_gajos = []
+        gajos_con_alerta = []
         
         for g_visible, g_clave in col_gajos_maestro.items():
             alertas_gajo = resultados_totales.get(g_visible, [])
             labels_grafica.append(g_visible.replace(" ", "\n"))
             if len(alertas_gajo) > 0: 
                 colores_gajos.append("#d91e24")
+                gajos_con_alerta.append(g_visible)
             else: 
                 colores_gajos.append("#ff9800")
+                
+        # Construcción de síntesis para el Gateway de comunicación
+        if gajos_con_alerta:
+            perfil_interpretated_txt = f"Vectores con alertas activas: {', '.join(gajos_con_alerta)}"
+        else:
+            perfil_interpretated_txt = "Estado optimo de salud integral sin alertas registradas."
                 
         try:
             fig, ax = plt.subplots(figsize=(4, 4))
@@ -585,8 +594,22 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.image(buf_m.getvalue(), width=280)
         except Exception: 
             pass
+    elif es_modo_likert and resultados_totales:
+        # Síntesis temporal para el módulo Likert C&K
+        try:
+            kairos_v = [int(resultados_totales.get(f"R{i}", 3)) for i in range(1, 11, 2)]
+            cronos_v = [int(resultados_totales.get(f"R{i}", 3)) for i in range(2, 11, 2)]
+            avg_c = sum(cronos_v) / 5
+            avg_k = sum(kairos_v) / 5
+            dif = abs(avg_c - avg_k)
+            
+            if dif <= 0.4: perfil_interpretated_txt = "Simbiosis Temporal Equilibrada (Cronos y Kairos)"
+            elif avg_k > avg_c: perfil_interpretated_txt = "Perfil Temporal Kairotico Puro (Adaptativo)"
+            else: perfil_interpretated_txt = "Perfil Temporal Cronocentrico Puro (Rigido)"
+        except Exception:
+            perfil_interpretated_txt = "Modelo Temporal Procesado"
 
-    col_btn1, col_btn2 = st.columns(2)
+    col_btn1, col_btn2, col_btn3 = st.columns(3)
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
     
     if grafica_base64:
@@ -631,10 +654,40 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                 data=reporte_procesado,
                 file_name=f"Reporte_Mandarina_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
                 mime="application/pdf",
-                key="btn_download_user_pdf_report_fixed"
+                key="btn_download_user_pdf_report_fixed",
+                use_container_width=True
             )
         else: 
             st.info(tx["fields_msg"])
+
+    # 📱 COLUMNA 3: GATEWAY DE WHATSAPP INTEGRADO
+    with col_btn3:
+        if campos_completos:
+            # Saneamiento del string numérico telefónico
+            telefono_limpio = "".join(c for c in str(whatsapp) if c.isdigit() or c == '+')
+            if not telefono_limpio.startswith('+'):
+                # Fallback por si omiten la lada en la captura demográfica
+                telefono_limpio = f"+52{telefono_limpio}" if len(telefono_limpio) == 10 else telefono_limpio
+                
+            # Formateo del mensaje transaccional con codificación URL segura
+            mensaje_wa = f"Hola {nombre}, tu diagnóstico de {st.session_state.audiencia_activa} ha sido procesado de manera exitosa en el software científico de la ponencia.\n\nConstructo Detectado:\n* {perfil_interpretated_txt}\n\nPuedes descargar tu reporte individual completo en formato institucional directamente en la plataforma web de producción."
+            mensaje_url_encoded = base64.b64encode(mensaje_wa.encode('utf-8')).decode('utf-8') # Fallback o texto puro
+            
+            # Construcción del URL del API Gateway oficial de WhatsApp
+            import urllib.parse
+            wa_api_url = f"https://whatsapp.com{urllib.parse.quote(telefono_limpio)}&text={urllib.parse.quote(mensaje_wa)}"
+            
+            # Renderizado del botón gemelo minimalista de alta conversión
+            st.markdown(
+                f'<a href="{wa_api_url}" target="_blank" style="text-decoration:none;">'
+                f'<div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;font-size:14px;box-shadow:none;border:none;">'
+                f'💬 ENVIAR PERFIL POR WHATSAPP'
+                f'</div></a>',
+                unsafe_allow_html=True
+            )
+        else:
+            st.caption("Complete los campos obligatorios para activar el canal WhatsApp.")
+
 # =================================================================
 # PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS (SALUD & REACTIVOS)
 # =================================================================
@@ -1029,19 +1082,72 @@ def main():
             try: todas_las_filas = sheet.get_all_values()
             except Exception: todas_las_filas = []
                 
+                # =================================================================
+        # OPTIMIZACIÓN DOCTORAL: GENERADOR DE DATOS SIMULADOS POR CADENAS DE MARKOV
+        # =================================================================
         if not todas_las_filas or len(todas_las_filas) < 2:
             if es_tabla_likert:
                 columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
                 datos_sinteticos = []
+                
+                # Matriz de Transición de Markov para respuestas Likert (Estados 1 a 5)
+                # P(ij) = Probabilidad de transitar de la respuesta anterior a la siguiente para mantener consistencia interna
+                matriz_transicion_cronos = np.array([
+                    [0.4, 0.3, 0.2, 0.1, 0.0],  # Si respondió 1, tiende a mantenerse bajo o neutro
+                    [0.2, 0.4, 0.3, 0.1, 0.0],
+                    [0.1, 0.2, 0.4, 0.2, 0.1],
+                    [0.0, 0.1, 0.3, 0.4, 0.2],
+                    [0.0, 0.0, 0.2, 0.3, 0.5]   # Si respondió 5, alta probabilidad de mantenerse alto
+                ])
+                
+                matriz_transicion_kairos = np.array([
+                    [0.5, 0.3, 0.1, 0.1, 0.0],
+                    [0.2, 0.5, 0.2, 0.1, 0.0],
+                    [0.1, 0.2, 0.4, 0.2, 0.1],
+                    [0.0, 0.1, 0.2, 0.5, 0.2],
+                    [0.0, 0.0, 0.1, 0.3, 0.6]
+                ])
+                
+                estados_likert = [1, 2, 3, 4, 5]
+                
                 for u in range(10):
-                    row = [str(datetime.datetime.now()), f"Control_User_{u}", f"+52633100200{u}", "30", "Masculino", "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
+                    row = [str(datetime.datetime.now()), f"Simulated_Markov_User_{u}", f"+52633100200{u}", str(20 + u), "Other" if u==9 else ("Femenino" if u%2==0 else "Masculino"), "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
                     
-                    if u % 2 == 0: 
-                        row += [5, 2, 4, 1, 5, 2, 4, 1, 5, 3]
-                    else: 
-                        row += [2, 5, 1, 4, 2, 5, 1, 4, 2, 3]
-                        
-                    row += [f"Token_{u}"]
+                    # Estado inicial estocástico aleatorio
+                    estado_actual_c = np.random.choice(estados_likert, p=[0.1, 0.2, 0.4, 0.2, 0.1])
+                    estado_actual_k = np.random.choice(estados_likert, p=[0.1, 0.1, 0.3, 0.3, 0.2])
+                    
+                    respuestas_usuario = []
+                    # Generación de la cadena de pasos acoplados (Pares=Cronos, Impares=Kairós)
+                    for r_idx in range(1, 11):
+                        if r_idx % 2 == 0:  # Dimensión Cronos
+                            respuestas_usuario.append(int(estado_actual_c))
+                            # Transición al siguiente estado de la cadena de Markov
+                            estado_actual_c = np.random.choice(estados_likert, p=matriz_transicion_cronos[estado_actual_c - 1])
+                        else:  # Dimensión Kairós
+                            respuestas_usuario.append(int(estado_actual_k))
+                            # Transición al siguiente estado de la cadena de Markov
+                            estado_actual_k = np.random.choice(estados_likert, p=matriz_transicion_kairos[estado_actual_k - 1])
+                            
+                    row += respuestas_usuario
+                    row += [f"Markov_Token_{u}"]
+                    datos_sinteticos.append(row)
+                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+            else:
+                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Token"]
+                datos_sinteticos = []
+                
+                # Cadenas de Markov para Frecuencias de Síntomas: Probabilidad de heredar alertas entre dimensiones consecutivas
+                sintomas_fisicos = ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"]
+                sintomas_mentales = ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"]
+                
+                for u in range(5):
+                    # Determinación estocástica de estados patológicos correlacionados
+                    sf = sintomas_fisicos[np.random.randint(4)] if np.random.rand() > 0.3 else ""
+                    sm = sintomas_mentales[np.random.randint(4)] if (sf != "") else "" # Dependencia estocástica
+                    se = "Ansiedad o Estrés Agudo" if (sm != "") else ""
+                    
+                    row = [str(datetime.datetime.now()), f"Simulated_Markov_User_{u}", f"+52633100200{u}", sf, sm, se, "", "", "", "", f"Markov_Token_{u}"]
                     datos_sinteticos.append(row)
                 df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
             else:
