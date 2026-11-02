@@ -894,6 +894,8 @@ def main():
         tx = DICCIONARIO_IDIOMAS["Español"]
 
         # EXTRACCIÓN HERMÉTICA: Busca en los Secrets de la nube; si no existe, usa un fallback de desarrollo temporal
+
+    
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     
     if not es_celular_del_publico:
@@ -958,45 +960,6 @@ def main():
                 st.write(f"### Audiencia Proyectada en Vivo: {st.session_state.audiencia_activa}")
                 st.write(sub_qr1)
                 st.write(sub_qr2)
-
-       # =================================================================
-    # PARTE 12.5: CONSOLA LATERAL CON INTERRUPTOR DE CIERRE ABSOLUTO (KEYS BLINDADAS)
-    # =================================================================
-    PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
-    if not es_celular_del_publico:
-        with st.sidebar:
-            st.markdown("## 🔐 Control del Ponente")
-            if not st.session_state.admin_autenticado:
-                input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_master")
-                if st.button("Desbloquear Tableros", key="btn_desbloquear_tableros_master"):
-                    if input_password == PASSWORD_SISTEMA:
-                        st.session_state.admin_autenticado = True
-                        st.rerun()
-                    else:
-                        st.error("Contraseña incorrecta.")
-            else:
-                st.success("Modo Ponente Activo")
-                
-                # CORRECCIÓN DEFINITIVA 1: Llave única para la entrada de texto de audiencias custom
-                nueva_aud_txt = st.text_input("➕ Agregar Nueva Audiencia Personalizada:", key="add_new_aud_input_master_office").strip()
-                
-                lista_audiencias_base = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-                if "audiencias_custom_list" not in st.session_state: 
-                    st.session_state.audiencias_custom_list = []
-                if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiencias_custom_list:
-                    st.session_state.audiences_custom_list.append(nueva_aud_txt)
-                    st.toast(f"Audiencia '{nueva_aud_txt}' añadida", icon="🍊")
-                
-                lista_audiencias_completa = lista_audiencias_base + st.session_state.audiences_custom_list
-                
-                # CORRECCIÓN DEFINITIVA 2: Llave única para el selectbox de cambio de audiencia en vivo
-                seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias_completa, index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0, key="sb_select_audience_master_office")
-                if seleccion != st.session_state.audiencia_activa:
-                    st.session_state.audiencia_activa = seleccion
-                    with st.spinner("Inicializando entorno de datos..."):
-                        conectar_google_sheets(seleccion)
-                    st.rerun()
-
 
     # =================================================================
     # PARTE 13: CENTRO DE INTELIGENCIA, SEGMENTACIÓN Y DICTAMEN DOCTORAL (TRAMO 1)
