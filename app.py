@@ -423,14 +423,14 @@ def limpiar_texto_pdf(texto, idioma="Español"):
 
 
 # =================================================================
-# PARTE 8: SANITIZADOR Y COMPILADOR CON RENDERIZADO GRÁFICO ASIMÉTRICO
+# PARTE 8: SANITIZADOR Y COMPILADOR CON ASISTENCIA Y RECOMENDACIONES C&K
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # 1. Asignación asimétrica de títulos oficiales blindados
+    # 1. Asignacion asimetrica de titulos oficiales blindados
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
         titulo_oficial = "DIAGNOSTICO DE LA SALUD INTEGRAL MODELO MANDARINA"
         es_realmente_likert = False
@@ -454,7 +454,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(8)
     
-    # Bloque Sociodemográfico
+    # Bloque Sociodemografico
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
@@ -472,7 +472,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
-    # 🍊 INYECCIÓN DE LA GRÁFICA ILUSTRATIVA DE LA MANDARINA O CUADRANTE C&K
+    # Inyeccion Dinamica del Grafico
     if img_grafica_base64:
         try:
             img_clean = img_grafica_base64.split(",")[-1]
@@ -483,7 +483,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pass
 
     if es_realmente_likert:
-        # === BLOQUE MODELOS TEMPORALES C&K ===
+        # === BLOQUE MODELOS TEMPORALES CRONOS Y KAIROS ===
         kairos_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         cronos_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_cronos = sum(cronos_v) / 5
@@ -519,6 +519,30 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.set_font("Helvetica", "I", 10)
             pdf.set_text_color(60, 60, 60)
             pdf.multi_cell(0, 5, "Explicacion: Posees una rigidez estructural alta. Experimentas estres cuando los checklists sufren alteraciones imprevistas.\nSugestion: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio.")
+            
+        # 🛡️ INYECCIÓN DE RECOMENDACIONES Y SEGUIMIENTO PERSONALIZADO PARA C&K
+        pdf.ln(6)
+        pdf.set_draw_color(30, 139, 195) # Azul institucional para control del tiempo
+        pdf.set_fill_color(240, 248, 255) # Fondo azul de control adaptativo
+        pdf.rect(10, pdf.get_y(), 190, 26, "DF")
+        
+        pdf.set_y(pdf.get_y() + 2)
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_text_color(30, 139, 195)
+        pdf.cell(0, 5, "RECOMENDACIONES GENERALES Y ASESORIA DIRECTA:", new_x="LMARGIN", new_y="NEXT")
+        
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "I", 9.5)
+        pdf.set_text_color(60, 60, 60)
+        mensaje_tiempo = (
+            "Optimizar la simbiosis entre el tiempo metrico (Cronos) y el tiempo de oportunidad (Kairos) es vital para el exito "
+            "profesional y la reduccion de fatiga. Si tu perfil presenta una inclinacion polarizada o rigida, te sugerimos "
+            "acercarte directamente con el ponente para solicitar una consulta personalizada o asesoria estrategica. "
+            "Alinear tus vectores temporales potenciara de inmediato tu madurez operativa y tu rendimiento cognitivo integral."
+        )
+        pdf.multi_cell(186, 4.5, mensaje_tiempo)
+        
     else:
         # === BLOQUE GAJOS SALUD INTEGRAL ===
         pdf.set_font("Helvetica", "B", 12)
@@ -537,7 +561,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.set_text_color(50, 50, 50)
             pdf.multi_cell(0, 5, f"Alertas registradas: {puntos_str}\n")
             
-        # Bloque Institucional de Acompañamiento
+        # Bloque Institucional de Acompañamiento de Salud
         pdf.ln(5)
         pdf.set_draw_color(230, 81, 0)
         pdf.set_fill_color(254, 243, 233)
@@ -556,6 +580,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.multi_cell(186, 4.5, mensaje_apoyo)
             
     return bytes(pdf.output())
+
 
 
 # =================================================================
