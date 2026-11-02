@@ -911,55 +911,64 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-       # =================================================================
-    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR CONFIRMACIÓN (ENTER / RETURN GATEWAY)
+          # =================================================================
+    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR PARÁMETROS DE URL ABSOLUTOS
     # =================================================================
-    idioma_url_codigo = st.query_params.get("lang", "es")
+    # 1. Extracción e inicialización del código ISO desde la raíz del navegador
+    if "lang" not in st.query_params:
+        st.query_params["lang"] = "es"
+    idioma_url_codigo = st.query_params["lang"]
     
-    # Mapeo inverso seguro para posicionar el índice visual por defecto del selectbox
+    # Mapeo inverso seguro para posicionar el índice visual por defecto
     nombre_visual_invertido = {v: k for k, v in MAPA_IDIOMAS_GLOBAL.items()}
-    opcion_visual_defecto = nombre_visual_invertido.get(st.session_state.idioma_activo_actual, "Español")
+    opcion_visual_defecto = nombre_visual_invertido.get(idioma_url_codigo, "Español")
     lista_opciones_visuales = list(MAPA_IDIOMAS_GLOBAL.keys())
 
     if not st.session_state.flujo_finalizado:
-        # Encapsulamos el componente en un formulario para capturar el evento Enter / Return
-        with st.form(key="form_gateway_idioma_universal", clear_on_submit=False):
+        # Formulario hermético para capturar el evento Enter / Return
+        with st.form(key="form_gateway_idioma_universal_url", clear_on_submit=False):
             st.markdown("### 🌐 Internationalization Gateway / Control Políglota")
             
             idioma_sel_visual = st.selectbox(
                 "Select System Language / Selecciona Idioma del Sistema:", 
                 options=lista_opciones_visuales,
                 index=lista_opciones_visuales.index(opcion_visual_defecto) if opcion_visual_defecto in lista_opciones_visuales else 0,
-                key="sb_language_selector_main_fixed_state_unfailing_v3"
+                key="sb_language_selector_main_fixed_url_state"
             )
             
-            # Botón de confirmación (Al dar clic o presionar Enter dentro del formulario se gatilla el submit)
-            lbl_submit_btn = "🔄 APLICAR IDIOMA / APPLY LANGUAGE (Press Enter)"
-            submit_idioma = st.form_submit_button(label=lbl_submit_btn, type="primary")
+            submit_idioma = st.form_submit_button(label="🔄 APLICAR IDIOMA / APPLY LANGUAGE (Press Enter)", type="primary")
             
-        # 🍊 DISPARADOR DE MIGRACIÓN NEURONAL POR EVENTO ENTER / SUBMIT
+        # 🍊 INTERCEPTOR DOCTORAL SÍNCRONO POR EVENTO ENTER
         if submit_idioma:
             idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
             
             if idioma_sel != idioma_url_codigo:
-                st.query_params["lang"] = idioma_sel  # Actualiza la barra de navegación de la URL
+                # Modificamos la URL del navegador de forma explícita
+                st.query_params["lang"] = idioma_sel
                 st.session_state.idioma_activo_actual = idioma_sel
                 
-                with st.spinner("Migrating complete system interface... 🌐"):
-                    llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
-                    valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
-                    
-                    # Una sola llamada HTTP masiva por lotes para traducir la pantalla entera
-                    valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
-                    st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
-                    
-                    # Forzamos la reconstrucción síncrona inmediata del formulario con los nuevos textos
-                    st.rerun()
-                    
+                # Forzamos la limpieza del búfer de traducción en caliente
+                llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+                valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+                
+                valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
+                st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+                
+                # Rompe el bucle de Streamlit y obliga a redibujar todo desde la nueva URL
+                st.rerun()
+        
+        # Forzado síncrono de carga de diccionario
+        if "tx_traducido_cache" not in st.session_state or st.session_state.get("idioma_activo_actual", "es") != idioma_url_codigo:
+            llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+            valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+            valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_url_codigo)
+            st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+            st.session_state.idioma_activo_actual = idioma_url_codigo
+            
         tx = st.session_state.tx_traducido_cache
+        idioma_sel = idioma_url_codigo
     else:
         idioma_sel = "es"
-        st.session_state.idioma_activo_actual = "es"
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
 
      # =================================================================
