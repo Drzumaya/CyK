@@ -888,6 +888,8 @@ def main():
                     with st.container(border=True):
                         st.markdown(f"#### {g_name}")
                         col1, col2 = st.columns(2)
+                        
+                        # CORRECCIÓN DE UNICIDAD EXTRACTIVA: Indexación quirúrgica de ítems individuales
                         with col1:
                             cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
                             cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
@@ -944,6 +946,7 @@ def main():
         else:
             st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla. El auditorio puede seguir respondiendo escaneando el codigo QR superior con normalidad.")
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
+
 
 
     # =================================================================
