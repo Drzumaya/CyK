@@ -1126,7 +1126,7 @@ def main():
         st.info(lbl_info_hidden)
         nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
 
-       # =================================================================
+    # =================================================================
     # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA E HISTORIAL (TRAMO 14A)
     # =================================================================
     else:
@@ -1137,7 +1137,7 @@ def main():
         grafica_p = st.session_state.get("grafica_usuario_persistente", None)
         
         # Sincronización incondicional del nodo idiomático final
-        tx_final = DICCIONARIO_IDIOMAS.get(idioma_sel, DICCIONARIO_IDIOMAS["Español"]) if "DICCIONARIO_IDIOMAS" in globals() else st.session_state.tx_traducido_cache
+        tx_final = st.session_state.tx_traducido_cache if "tx_traducido_cache" in st.session_state else {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
         
         st.balloons()
         st.success(tx_final.get("thanks", "### ¡Diagnóstico Procesado con Éxito! 🎉"))
@@ -1168,6 +1168,7 @@ def main():
                 for k in ["nombre_usuario_persistente", "whatsapp_usuario_persistente", "resultados_usuario_persistente", "grafica_usuario_persistente", "es_modo_likert_persistente"]:
                     if k in st.session_state: del st.session_state[k]
                 st.rerun()
+
     # =================================================================
     # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (TRAMO 14B)
     # =================================================================
