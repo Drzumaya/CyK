@@ -1076,14 +1076,14 @@ def main():
         st.write("Tabla completa de respuestas del auditorio sincronizada en vivo:")
         st.dataframe(df_doc, use_container_width=True)
 
-        st.markdown("---")
+                st.markdown("---")
         if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
             if df_doc is not None and len(df_doc) >= 2:
-                # INSTANCIACIÓN EN LA RAÍZ ABSOLUTA DEL BOTÓN: Inmune a NameError en cualquier flujo
+                # 🍊 INSTANCIACIÓN EN LA RAÍZ DEL BOTÓN: Inmune a NameError en cualquier flujo
                 pdf_auditoria = FPDF()
                 pdf_auditoria.add_page()
                 
-                # Renderizado Gráfico Local con Matplotlib capturado en memoria
+                # Renderizado Gráfico Local con Matplotlib capturado en memoria síncrona
                 fig, ax = plt.subplots(figsize=(5, 3.5))
                 
                 col_graph1, col_graph2 = st.columns(2)
@@ -1114,7 +1114,7 @@ def main():
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
                     
-                # Guardado virtual en memoria de la gráfica corporativa
+                # Guardado virtual en memoria de la gráfica descriptiva macro
                 buf_macro = BytesIO()
                 plt.savefig(buf_macro, format='png', bbox_inches='tight', dpi=120)
                 buf_macro.seek(0)
@@ -1130,7 +1130,7 @@ def main():
                         
                         def calcular_cronbach(matriz_items):
                             try:
-                                n_items = matriz_items.shape
+                                n_items = matriz_items.shape[1]
                                 if n_items <= 1: return 0.0
                                 varianzas_items = np.var(matriz_items, axis=0, ddof=1)
                                 varianza_total = np.var(np.sum(matriz_items, axis=1), ddof=1)
@@ -1164,7 +1164,7 @@ def main():
                 pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
                 pdf_auditoria.ln(6)
                 
-                # Datos Descriptivos
+                # Datos Descriptivos Colectivos
                 pdf_auditoria.set_font("Helvetica", "B", 11)
                 pdf_auditoria.set_text_color(50, 50, 50)
                 pdf_auditoria.cell(0, 6, f"Muestra Analizada (N): {len(df_doc)} registros activos en la base de datos.", new_x="LMARGIN", new_y="NEXT")
@@ -1178,6 +1178,7 @@ def main():
                     pdf_auditoria.ln(6)
                 except Exception: pass
                 
+                # SECCIÓN I: METADATOS DE TRAYECTORIA SEMDEEP
                 pdf_auditoria.set_font("Helvetica", "B", 12)
                 pdf_auditoria.set_text_color(230, 81, 0)
                 pdf_auditoria.cell(0, 7, "I. SIGNIFICADO Y ARQUITECTURA DE TRAYECTORIAS (SEMDeep)", new_x="LMARGIN", new_y="NEXT")
@@ -1197,6 +1198,7 @@ def main():
                 )
                 pdf_auditoria.multi_cell(0, 5, txt_significado)
                 
+                # SECCIÓN II: INTERPRETACIÓN PSICOMÉTRICA
                 pdf_auditoria.ln(4)
                 pdf_auditoria.set_font("Helvetica", "B", 12)
                 pdf_auditoria.set_text_color(230, 81, 0)
@@ -1205,12 +1207,13 @@ def main():
                 pdf_auditoria.set_text_color(60, 60, 60)
                 
                 txt_interpretacion = (
-                    f"Los datos analizados revelan la estructura cognitiva predominante del grupo. "
+                    f"Los datos analizados revelan la estructura cognitiva y de distribucion adaptativa de la muestra. "
                     f"El nivel de covarianza latente observado ({cov:.4f}) indica el grado de interdependencia o tension psiquica que "
-                    f"los participantes experimentan al equilibrar las demandas del reloj y las ventanas de oportunidad operativa en sus entornos."
+                    f"los participantes experimentan al equilibrar las demandas de operacion ordinaria y las ventanas de oportunidad en sus entornos."
                 )
                 pdf_auditoria.multi_cell(0, 5, txt_interpretacion)
                 
+                # SECCIÓN III: CONCLUSIONES GENERALES DICTAMINADAS
                 pdf_auditoria.ln(4)
                 pdf_auditoria.set_font("Helvetica", "B", 12)
                 pdf_auditoria.set_text_color(230, 81, 0)
@@ -1220,12 +1223,13 @@ def main():
                 
                 dominancia = "Cronos (Planificacion y Rigidez)" if b_c > b_k else "Kairos (Agilidad y Contexto)"
                 txt_conclusion = (
-                    f"A partir de los coeficientes de ruta estimados, se concluye de forma clara que el vector de mayor "
-                    f"impacto predictivo sistematico en esta audiencia es {dominancia}. Esto sugiere que los esfuerzos de "
-                    f"intervencion y desarrollo organizacional deben priorizar la estabilizacion de esta dimension temporal "
+                    f"A partir de los coeficientes de ruta estimados por el motor lineal, se concluye de forma clara que el vector de mayor "
+f"impacto predictivo sistematico en esta audiencia evaluada es {dominancia}. Esto sugiere que los esfuerzos de "
+f"intervencion y desarrollo organizacional deben priorizar la estabilizacion de esta dimension temporal "
 f"para optimizar el bienestar integral institucional."
 )
 pdf_auditoria.multi_cell(0, 5, txt_conclusion)
+# SECCIÓN IV: NOTA CIENTÍFICA
 pdf_auditoria.ln(4)
 pdf_auditoria.set_font("Helvetica", "B", 12)
 pdf_auditoria.set_text_color(230, 81, 0)
@@ -1246,8 +1250,6 @@ file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
 mime="application/pdf",
 key="btn_download_admin_pdf_final_maestro"
 )
-
-
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
     main()
