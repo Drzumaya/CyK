@@ -911,19 +911,12 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-       # =================================================================
-    # CONEXIÓN SINCRÓNICA DEL QR
+     # =================================================================
+    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR PARÁMETROS DE URL RECTIFICADA (FIX NAMEERROR)
     # =================================================================
-    # La URL amarra el código ISO de la sesión actual (ej. &lang=en, &lang=ja, &lang=ko)
-    # Esto garantiza que el celular del público se abra directamente en el idioma que tú proyectas en el auditorio.
-    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={st.session_state.idioma_activo_actual}"
-
+    # Recuperamos de forma segura el estado de inicialización superior
+    idioma_url_codigo = st.query_params.get("lang", "es")
     
-    if "tx_traducido_cache" not in st.session_state:
-        st.session_state.tx_traducido_cache = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
-    if "idioma_activo_actual" not in st.session_state:
-        st.session_state.idioma_activo_actual = idioma_url_codigo
-
     # Mapeo inverso seguro para posicionar el índice visual por defecto del selectbox
     nombre_visual_invertido = {v: k for k, v in MAPA_IDIOMAS_GLOBAL.items()}
     opcion_visual_defecto = nombre_visual_invertido.get(st.session_state.idioma_activo_actual, "Español")
@@ -942,7 +935,7 @@ def main():
         idioma_sel = st.session_state.idioma_activo_actual
         
         # 🍊 DISPARADOR DE INTERCEPTACIÓN SÍNCRONA TOTAL:
-        # Si el usuario cambia la opción, guarda en la URL, traduce el lote entero y recarga la pantalla en el acto
+        # Si el usuario hace clic, reescribe la barra del navegador, traduce en lote y reinicia
         if idioma_sel != idioma_url_codigo:
             st.query_params["lang"] = idioma_sel  
             
@@ -960,6 +953,7 @@ def main():
         idioma_sel = "es"
         st.session_state.idioma_activo_actual = "es"
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+
 
 
 
