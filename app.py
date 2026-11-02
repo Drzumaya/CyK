@@ -534,13 +534,12 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.multi_cell(186, 4.5, mensaje_tiempo)
         
     else:
-        # === 🍊 BLOQUE OPTIMIZADO: GAJOS DE SALUD INTEGRAL CON ALERTAS FILTRADAS ===
+                # === BLOQUE GAJOS SALUD INTEGRAL CORREGIDO ===
         pdf.set_font("Helvetica", "B", 12)
         pdf.set_text_color(230, 81, 0)
         pdf.cell(0, 8, "VECTORES DE ATENCION CRITICA DETECTADOS:", new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         
-        # Diccionario ontológico de Significado y Recomendación por dimensión de fuga
         glosario_clinico = {
             "💪 Salud Física": {
                 "sig": "Indica un desgaste en los pilares basicos de energia corporal, afectando la homeostasis debido a privacion de sueno, sedentarismo o nutricion deficiente.",
@@ -559,7 +558,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
                 "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una actividad recreativa inamovible con tu red de apoyo familiar."
             },
             "💰 Salud Económica": {
-                "sig": "Expresa vulnerabilidad financiera sistémica, estres presupuestal agudo debido a deudas desordenadas o falta de diversificacion en fuentes de ingresos.",
+                "sig": "Expresa vulnerabilidad financiera sistemica, estres presupuestal agudo debido a deudas desordenadas o falta de diversificacion en fuentes de ingresos.",
                 "rec": "Automatiza la separacion de un fondo de contingencia basico, elimina gastos hormiga reactivos y evalua proyectos de emprendimiento alternos a corto plazo."
             },
             "⏳ Salud Temporal": {
@@ -568,59 +567,69 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             },
             "🙏 Salud Espiritual": {
                 "sig": "Manifiesta un vacio existencial latente, perdida del sentido de vocacion fundamental, desconexion interna o descuido de habitos devocionales basicos.",
-                "rec": "Dedica los primeros minutos del dia a la meditación, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."
+                "rec": "Dedica los primeros minutos del dia a la meditacion, la oracion y la reflexion de valores, y reconecta intencionalmente con actividades de servicio."
             }
         }
         
         algun_gajo_marcado = False
         
         for dim_nombre, items in resultados.items():
-            # Filtramos columnas que pertenezcan al perfil demográfico
             if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]: 
                 continue
             
-            # 🍊 OMISIÓN DINÁMICA: Si el gajo está en ceros (sin alertas), se salta por completo para ahorrar espacio
             if len(items) == 0:
                 continue
                 
             algun_gajo_marcado = True
             
-            # Renderizado del Gajo Afectado
+            # BLINDAJE DE ESPACIO HORIZONTAL: Forzamos el cursor de vuelta al inicio antes de pintar cada bloque
+            pdf.set_x(10)
             pdf.set_font("Helvetica", "B", 11)
-            pdf.set_text_color(217, 30, 24) # Rojo Alerta para resaltar el riesgo
-            pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)} [ALERTA ACTIVA]", new_x="LMARGIN", new_y="NEXT")
-            # Lista de síntomas sanitizados
+            pdf.set_text_color(217, 30, 24)
+            pdf.cell(190, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)} [ALERTA ACTIVA]", new_x="LMARGIN", new_y="NEXT")
+            
             puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
+            pdf.set_x(10)
             pdf.set_font("Helvetica", "B", 10)
             pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(0, 5, f"Sintomas Detectados: {puntos_str}")
-    # Inyección de Significado y Recomendación atómica desde el glosario
-    if dim_nombre in glosario_clinico:
-            pdf.set_font("Helvetica", "", 9.5)
-            pdf.set_text_color(80, 80, 80)
-            pdf.multi_cell(0, 4.5, f"Significado: {glosario_clinico[dim_nombre]['sig']}")
-            pdf.set_font("Helvetica", "I", 9.5)
-            pdf.set_text_color(30, 139, 195) # Texto de recomendación en azul constructivo
-            pdf.multi_cell(0, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n")
-    if not algun_gajo_marcado:
+            pdf.multi_cell(190, 5, f"Sintomas Detectados: {puntos_str}", new_x="LMARGIN", new_y="NEXT")
+            
+            if dim_nombre in glosario_clinico:
+                # Ajuste de ancho fijo inalterable a 190 mm para evitar colapso de espacio
+                pdf.set_x(10)
+                pdf.set_font("Helvetica", "", 9.5)
+                pdf.set_text_color(80, 80, 80)
+                pdf.multi_cell(190, 4.5, f"Significado: {glosario_clinico[dim_nombre]['sig']}", new_x="LMARGIN", new_y="NEXT")
+                
+                pdf.set_x(10)
+                pdf.set_font("Helvetica", "I", 9.5)
+                pdf.set_text_color(30, 139, 195)
+                pdf.multi_cell(190, 4.5, f"Recomendacion: {glosario_clinico[dim_nombre]['rec']}\n", new_x="LMARGIN", new_y="NEXT")
+                
+        if not algun_gajo_marcado:
+            pdf.set_x(10)
             pdf.set_font("Helvetica", "B", 11)
-            pdf.set_text_color(38, 166, 91) # Verde de éxito absoluto
-            pdf.multi_cell(0, 6, "FELICITACIONES: Tu ecosistema se encuentra en un estado OPTIMO. No se detectaron fugas ni alertas de vulnerabilidad en ninguno de tus gajos de salud.")
-            # Bloque de Acompañamiento Clínico de Salud
-            pdf.ln(4)
-            pdf.set_draw_color(230, 81, 0)
-            pdf.set_fill_color(254, 243, 233)
-            pdf.rect(10, pdf.get_y(), 190, 25, "DF")
-            pdf.set_y(pdf.get_y() + 2)
-            pdf.set_x(12)
-            pdf.set_font("Helvetica", "B", 10)
-            pdf.set_text_color(230, 81, 0)
-            pdf.cell(0, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
-            pdf.set_x(12)
-            pdf.set_font("Helvetica", "I", 9.5)
-            pdf.set_text_color(60, 60, 60)
-            mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
-            pdf.multi_cell(186, 4.5, mensaje_apoyo)
+            pdf.set_text_color(38, 166, 91)
+            pdf.multi_cell(190, 6, "FELICITACIONES: Tu ecosistema se encuentra en un estado OPTIMO. No se detectaron fugas ni alertas de vulnerabilidad en ninguno de tus gajos de salud.", new_x="LMARGIN", new_y="NEXT")
+
+        # Bloque de Acompañamiento Clínico de Salud alineado con márgenes fijos
+        pdf.ln(4)
+        pdf.set_x(10)
+        pdf.set_draw_color(230, 81, 0)
+        pdf.set_fill_color(254, 243, 233)
+        pdf.rect(10, pdf.get_y(), 190, 25, "DF")
+        
+        pdf.set_y(pdf.get_y() + 2)
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "B", 10)
+        pdf.set_text_color(230, 81, 0)
+        pdf.cell(186, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
+        
+        pdf.set_x(12)
+        pdf.set_font("Helvetica", "I", 9.5)
+        pdf.set_text_color(60, 60, 60)
+        mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
+        pdf.multi_cell(186, 4.5, mensaje_apoyo, new_x="LMARGIN", new_y="NEXT")
     return bytes(pdf.output())
 
 # =================================================================
