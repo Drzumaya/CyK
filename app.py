@@ -1229,7 +1229,8 @@ def main():
                 key="btn_download_admin_pdf_final_maestro"
                 )
 
-# Guardia de ejecución principal reglamentaria en el entorno de Python
 
-if name == "main":
+# Guardia de ejecución principal reglamentaria en el entorno de Python
+if __name__ == "__main__":
     main()
+
