@@ -1079,11 +1079,11 @@ def main():
         st.markdown("---")
         if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
             if df_doc is not None and len(df_doc) >= 2:
-                # INSTANCIACIÓN EN LA RAÍZ DEL BOTÓN: Garantiza la existencia incondicional del documento
+                # INSTANCIACIÓN EN LA RAÍZ ABSOLUTA DEL BOTÓN: Inmune a NameError en cualquier flujo
                 pdf_auditoria = FPDF()
                 pdf_auditoria.add_page()
                 
-                # Renderizado Gráfico Local con Matplotlib capturado de forma síncrona en memoria
+                # Renderizado Gráfico Local con Matplotlib capturado en memoria
                 fig, ax = plt.subplots(figsize=(5, 3.5))
                 
                 col_graph1, col_graph2 = st.columns(2)
@@ -1096,7 +1096,7 @@ def main():
                             df_plot = pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"])
                             st.bar_chart(df_plot, x="Dim", y="Media", color="#e65100")
                             
-                            # Construcción de gráfica Matplotlib para el PDF macro
+                            # Gráfica para el PDF
                             ax.bar(df_plot["Dim"], df_plot["Media"], color="#e65100")
                             ax.set_title("Medias de Alertas por Dimension de Bienestar")
                             plt.xticks(rotation=45, ha='right')
@@ -1104,7 +1104,7 @@ def main():
                         df_plot = pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"])
                         st.bar_chart(df_plot, x="Vector", y="Media", color="#2574a9")
                         
-                        # Construcción de gráfica Matplotlib para el PDF macro
+                        # Gráfica para el PDF
                         ax.bar(df_plot["Vector"], df_plot["Media"], color="#2574a9", width=0.5)
                         ax.set_title("Medias del Vector Temporal Colectivo")
                         ax.set_ylim(1, 5)
@@ -1114,7 +1114,7 @@ def main():
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
                     
-                # Guardado virtual en memoria de la gráfica corporativa para el informe imprimible
+                # Guardado virtual en memoria de la gráfica corporativa
                 buf_macro = BytesIO()
                 plt.savefig(buf_macro, format='png', bbox_inches='tight', dpi=120)
                 buf_macro.seek(0)
@@ -1130,7 +1130,7 @@ def main():
                         
                         def calcular_cronbach(matriz_items):
                             try:
-                                n_items = matriz_items.shape[1]
+                                n_items = matriz_items.shape
                                 if n_items <= 1: return 0.0
                                 varianzas_items = np.var(matriz_items, axis=0, ddof=1)
                                 varianza_total = np.var(np.sum(matriz_items, axis=1), ddof=1)
@@ -1151,7 +1151,7 @@ def main():
                 st.markdown("---")
                 st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
                 
-                # Configuración e Inyección del Reporte Macro en PDF
+                # Configuración e Inyección del Reporte Macro en el PDF instanciado arriba
                 tabla_limpia_pdf = limpiar_texto_pdf(tabla_analizar).upper()
                 pdf_auditoria.set_font("Helvetica", "B", 14)
                 pdf_auditoria.set_text_color(230, 81, 0)
@@ -1164,7 +1164,7 @@ def main():
                 pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
                 pdf_auditoria.ln(6)
                 
-                # Datos Descriptivos Muestra
+                # Datos Descriptivos
                 pdf_auditoria.set_font("Helvetica", "B", 11)
                 pdf_auditoria.set_text_color(50, 50, 50)
                 pdf_auditoria.cell(0, 6, f"Muestra Analizada (N): {len(df_doc)} registros activos en la base de datos.", new_x="LMARGIN", new_y="NEXT")
@@ -1216,12 +1216,13 @@ def main():
                 pdf_auditoria.set_text_color(230, 81, 0)
                 pdf_auditoria.cell(0, 7, "III. CONCLUSION DE TRAYECTORIAS Y EQUILIBRIO SISTEMICO", new_x="LMARGIN", new_y="NEXT")
                 pdf_auditoria.set_font("Helvetica", "", 10)
-pdf_auditoria.set_text_color(60, 60, 60)
-dominancia = "Cronos (Planificacion y Rigidez)" if b_c > b_k else "Kairos (Agilidad y Contexto)"
-txt_conclusion = (
-f"A partir de los coeficientes de ruta estimados, se concluye de forma clara que el vector de mayor "
-f"impacto predictivo sistematico en esta audiencia es {dominancia}. Esto sugiere que los esfuerzos de "
-f"intervencion y desarrollo organizacional deben priorizar la estabilizacion de esta dimension temporal "
+                pdf_auditoria.set_text_color(60, 60, 60)
+                
+                dominancia = "Cronos (Planificacion y Rigidez)" if b_c > b_k else "Kairos (Agilidad y Contexto)"
+                txt_conclusion = (
+                    f"A partir de los coeficientes de ruta estimados, se concluye de forma clara que el vector de mayor "
+                    f"impacto predictivo sistematico en esta audiencia es {dominancia}. Esto sugiere que los esfuerzos de "
+                    f"intervencion y desarrollo organizacional deben priorizar la estabilizacion de esta dimension temporal "
 f"para optimizar el bienestar integral institucional."
 )
 pdf_auditoria.multi_cell(0, 5, txt_conclusion)
@@ -1246,9 +1247,8 @@ mime="application/pdf",
 key="btn_download_admin_pdf_final_maestro"
 )
 
+Guardia de ejecución principal reglamentaria en el entorno de Python
+
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
     main()
-
-
-
