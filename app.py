@@ -60,54 +60,66 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 # =================================================================
-# PARTE 2 DE 14: CONSTANTES DE RED, PASARELA GOOGLE TRANSLATION API Y GEOGRAFÍA
+# PARTE 2 DE 14: INFRAESTRUCTURA DE TRADUCCIÓN NEURONAL GLOBAL ISO
 # =================================================================
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 
-ESTADOS_MEXICO = [
-    "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", 
-    "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", 
-    "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", 
-    "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", 
-    "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", 
-    "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
-]
+ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 CONTINENTES = ["América del Norte", "América del Sur", "Europa", "Asia", "África", "Oceanía"]
 
-# Catálogo Maestro ISO: Mapeo de despliegue visual hacia códigos de lenguaje universales
+# Catálogo Internacional Completo de Idiomas (Códigos ISO 639-1)
 MAPA_IDIOMAS_GLOBAL = {
-    "Español": "es", "English (Inglés)": "en", "Français (Francés)": "fr", 
-    "Deutsch (Alemán)": "de", "Italiano (Italiano)": "it", "Português (Portugués)": "pt",
-    "Ελληνικά (Griego)": "el", "한국어 (Coreano)": "ko", "日本語 (Japonés)": "ja", 
-    "中文 (Chino)": "zh-CN", "العربية (Árabe)": "ar", "Русский (Ruso)": "ru",
-    "Tagalog (Tagalo)": "tl", "हिन्दी (Hindi)": "hi", "Tiếng Việt (Vietnamita)": "vi"
+    "Español": "es", "English (Inglés)": "en", "Français (Francés)": "fr", "Deutsch (Alemán)": "de", 
+    "Italiano (Italiano)": "it", "Português (Portugués)": "pt", "Ελληνικά (Griego)": "el", "한국어 (Coreano)": "ko", 
+    "日本語 (Japonés)": "ja", "简体中文 (Chino Simplificado)": "zh-CN", "繁體中文 (Chino Tradicional)": "zh-TW",
+    "العربية (Árabe)": "ar", "Русский (Ruso)": "ru", "Tagalog (Tagalo)": "tl", "हिन्दी (Hindi)": "hi", 
+    "Tiếng Việt (Vietnamita)": "vi", "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", "Türkçe (Turco)": "tr",
+    "Svenska (Sueco)": "sv", "Norsk (Noruego)": "no", "Dansk (Danés)": "da", "Suomi (Finés)": "fi", 
+    "Čeština (Checo)": "cs", "עברית (Hebreo)": "he", "ไทย (Tailandés)": "th", "Bahasa Indonesia (Indonesio)": "id",
+    "Українська (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu", "Slovenčina (Eslovaco)": "sk",
+    "Български (Búlgaro)": "bg", "Hrvatski (Croata)": "hr", "Lietuvių (Lituano)": "lt", "Latviešu (Letón)": "lv",
+    "Eesti (Estonio)": "et", "Slovenščina (Esloveno)": "sl", "Srpski (Serbio)": "sr", "Macedonian (Macedonio)": "mk"
 }
 
 @st.cache_data(show_spinner=False)
 def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
     """
-    Conecta de forma síncrona con la API Neuronal de Google Cloud Translation.
-    Emplea las credenciales seguras de la cuenta de servicio y optimiza mediante caché local.
+    Conecta con la API Neuronal de Google Cloud Translation de forma síncrona.
+    Mantiene caché interna en Streamlit para operar a costo cero ($0.00 USD).
     """
     if not texto_origen or codigo_destino == "es":
         return str(texto_origen)
     try:
         if "gcp_service_account" not in st.secrets:
             return str(texto_origen)
-            
         from google.cloud import translate_v2 as translate
         secrets_dict = dict(st.secrets["gcp_service_account"])
         if "private_key" in secrets_dict:
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
-            
         translate_client = translate.Client.from_service_account_info(secrets_dict)
         resultado = translate_client.translate(str(texto_origen), target_language=codigo_destino)
-        return resultado["translatedText"]
+        import html
+        return html.unescape(resultado["translatedText"])
     except Exception:
-        # Fallback defensivo: si la API se satura o carece de red, entrega el texto base en español
         return str(texto_origen)
+
+def traducir_objeto_dinamico(objeto, codigo_destino):
+    """
+    Algoritmo recursivo de alta escuela. Traduce automáticamente cualquier tipo de dato
+    (cadenas, listas o diccionarios) al idioma destino bajo demanda de la API.
+    """
+    if codigo_destino == "es" or not objeto:
+        return objeto
+    if isinstance(objeto, str):
+        return ejecutar_traduccion_neuronal(objeto, codigo_destino)
+    if isinstance(objeto, list):
+        return [traducir_objeto_dinamico(item, codigo_destino) for item in objeto]
+    if isinstance(objeto, dict):
+        return {traducir_objeto_dinamico(k, codigo_destino): traducir_objeto_dinamico(v, codigo_destino) for k, v in objeto.items()}
+    return objeto
 
 # =================================================================
 # PARTE 3 DE 14: DICCIONARIO BASE DE LLAVES MAESTRAS SÍNCRONAS
@@ -261,6 +273,7 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
     if texto_original in diccionario_traduccion:
         return diccionario_traduccion[texto_original].get(idioma_destino, diccionario_traduccion[texto_original]["Español"])
     return texto_original
+    
 # =================================================================
 # PARTE 7 DE 14: FILTRO SANITIZADOR UNIVERSAL PARA EMISIÓN UTF-8
 # =================================================================
@@ -492,68 +505,84 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
         }
     }
 
-        # =================================================================
-    # PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (TRAMO 2 - POLYGLOT)
-    # =================================================================
-    # Matriz estática indexada para emparejar la llave del session_state con su posición analítica
-    mapa_posicional_gajos = ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"]
+# =================================================================
+# PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE FRECUENCIAS (NEURAL MULTILINGÜE)
+# =================================================================
+def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="es"):
+    """
+    Renderiza de manera exclusiva y asimétrica los gajos con alertas activas
+    bajo el formato del estilo académico minimalista herando la fuente TrueType.
+    """
+    pdf.set_font(style="B", size=11)
+    pdf.set_text_color(50, 50, 50)
     
+    tit_alertas = ejecutar_traduccion_neuronal("Vectores de Atención Crítica Detectados", lang)
+    pdf.cell(190, 7, limpiar_texto_pdf(tit_alertas, lang), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+    
+    # Diccionario maestro de constructos clínicos originales en Español
+    glosario_base = {
+        "💪 Salud Física": {"sig": "Indica un desgaste en los pilares básicos de energía corporal, afectando la homeostasis debido a privación de sueño, sedentarismo o nutrición deficiente.", "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activación cardiovascular diaria."},
+        "🧠 Salud Mental": {"sig": "Representa una saturación cognitiva severa, pérdida de enfoque, niebla mental o procesamiento rumiativo de información que merma la agilidad mental.", "rec": "Aplica técnicas de ayuno digital de pantallas, practica la focalización en una sola tarea a la vez y diseña pausas de silencio mental entre jornadas."},
+        "❤️ Salud Emocional": {"sig": "Determina una desregulación anímica reactiva, estrés agudo, ansiedad latente o el síndrome de desgaste por empatía extrema (Burnout).", "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiración diafragmática consciente y externaliza tus emociones con redes de confianza."},
+        "👥 Salud Social": {"sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinámicas interpersonales conflictivas provocadas por la ausencia de límites claros.", "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una actividad recreativa inamovible con tu red de apoyo familiar."},
+        "💰 Salud Económica": {"sig": "Expresa vulnerabilidad financiera sistémica, estrés presupuestal agudo debido a deudas desordenadas o falta de diversificación en fuentes de ingresos.", "rec": "Automatiza la separación de un fondo de contingencia básico, elimina gastos hormiga reactivos y evalúa proyectos de emprendimiento alternos a corto plazo."},
+        "⏳ Salud Temporal": {"sig": "Refleja desequilibrio crítico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairós), desencadenando procrastinación o sobrecarga de tareas.", "rec": "Usa técnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."},
+        "🙏 Salud Espiritual": {"sig": "Manifiesta un vacío existencial latente, pérdida del sentido de vocación fundamental, desconexión interna o descuido de hábitos devocionales básicos.", "rec": "Dedica los primeros minutos del día a la meditación, la oración y la reflexión de valores, y reconecta intencionalmente con actividades de servicio."}
+    }
+    
+    gajos_dinamicos_traduccion = algoritmo_generar_gajos_salud(lang)
     algun_gajo_marcado = False
-    for idx_gajo, dim_original_name in enumerate(mapa_posicional_gajos):
-        items = resultados.get(dim_original_name, [])
-        if len(items) == 0: 
+    
+    for idx_gajo, dim_original_name in enumerate(GAJOS_MANDARINA_ORIGINAL.keys()):
+        indices_alertas = resultados.get(dim_original_name, [])
+        if len(indices_alertas) == 0: 
             continue
             
         algun_gajo_marcado = True
         
-        # Extraemos el glosario adaptativo en el idioma destino (Fallback a Español)
-        nodo_idioma = glosario_clinico_universal.get(idx_gajo, {}).get(lang, glosario_clinico_universal[idx_gajo]["Español"])
-        
-        # Determinación de títulos de dimensión traducidos para el reporte PDF
-        gajos_titulos_traduccion = {
-            "Español": ["Salud Fisica", "Salud Mental", "Salud Emocional", "Salud Social", "Salud Economica", "Salud Temporal", "Salud Espiritual"],
-            "Inglés": ["Physical Health", "Mental Health", "Emotional Health", "Social Health", "Economic Health", "Temporal Health", "Spiritual Health"],
-            "Griego": ["Σωματική Υγεία", "Ψυχική Υγεία", "Συναισθηματική Υγεία", "Κοινωνική Υγεία", "Οικονομική Υγεία", "Χρονική Υγεία", "Πνευματική Υγεία"]
-        }
-        
-        dim_traducida = gajos_titulos_traduccion.get(lang, gajos_titulos_traduccion["Español"])[idx_gajo]
+        # Traducción instantánea del bloque clínico semántico
+        dim_traducida = list(gajos_dinamicos_traduccion.keys())[idx_gajo]
+        nodo_clinico = traducir_objeto_dinamico(glosario_base[dim_original_name], lang)
         
         pdf.set_x(10)
         pdf.set_font(style="B", size=10.5)
         pdf.set_text_color(50, 50, 50)
         
-        lbl_dim = "Dimension Evaluada" if lang == "Español" else ("Dimension Assessed" if lang == "Inglés" else "Αξιολογημένη Διάσταση")
+        lbl_dim = ejecutar_traduccion_neuronal("Dimensión Evaluada", lang)
         pdf.cell(190, 6, limpiar_texto_pdf(f"{lbl_dim}: {dim_traducida}", lang), new_x="LMARGIN", new_y="NEXT")
         
-        puntos_str = ", ".join([limpiar_texto_pdf(it, lang) for it in items])
+        sintomas_origen_gajo = list(gajos_dinamicos_traduccion.values())[idx_gajo]
+        sintomas_traducidos = [sintomas_origen_gajo[int(i)] for i in indices_alertas if int(i) < len(sintomas_origen_gajo)]
+        puntos_str = ", ".join(sintomas_traducidos)
+        
         pdf.set_x(10)
         pdf.set_font(style="I", size=10)
         pdf.set_text_color(80, 80, 80)
         
-        lbl_ind = "Indicadores de vulnerabilidad reportados" if lang == "Español" else ("Reported vulnerability indicators" if lang == "Inglés" else "Αναφερόμενοι δείκτες τρωτότητας")
+        lbl_ind = ejecutar_traduccion_neuronal("Indicadores de vulnerabilidad reportados", lang)
         pdf.multi_cell(190, 5, limpiar_texto_pdf(f"{lbl_ind}: {puntos_str}", lang), new_x="LMARGIN", new_y="NEXT")
         
-        # Inyección del constructo clínico y directriz de intervención 100% traducidos
         pdf.set_x(10)
         pdf.set_font(style="", size=9.5)
         pdf.set_text_color(60, 60, 60)
-        lbl_sig = "Significado del constructo" if lang == "Español" else ("Meaning of the construct" if lang == "Inglés" else "Σημασία της έννοιας")
-        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{lbl_sig}: {nodo_idioma['sig']}", lang), new_x="LMARGIN", new_y="NEXT")
+        lbl_sig = ejecutar_traduccion_neuronal("Significado del constructo", lang)
+        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{lbl_sig}: {nodo_clinico['sig']}", lang), new_x="LMARGIN", new_y="NEXT")
         
         pdf.set_x(10)
         pdf.set_font(style="B", size=9.5)
         pdf.set_text_color(50, 50, 50)
-        lbl_rec = "Directriz de intervencion sugerida" if lang == "Español" else ("Suggested intervention guideline" if lang == "Inglés" else "Προτεινόμενη κατευθυντήρια γραμμή παρέμβασης")
-        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{lbl_rec}: {nodo_idioma['rec']}\n", lang), new_x="LMARGIN", new_y="NEXT")
+        lbl_rec = ejecutar_traduccion_neuronal("Directriz de intervención sugerida", lang)
+        pdf.multi_cell(190, 4.5, limpiar_texto_pdf(f"{lbl_rec}: {nodo_clinico['rec']}\n", lang), new_x="LMARGIN", new_y="NEXT")
                 
     if not algun_gajo_marcado:
         pdf.set_x(10)
         pdf.set_font(style="", size=10)
         pdf.set_text_color(40, 120, 60)
-        lbl_ok = "Nota Clinica. El ecosistema analizado se encuentra en un estado funcional optimo." if lang == "Español" else ("Clinical Note: The analyzed ecosystem is in an optimal functional state." if lang == "Inglés" else "Κλινικό Σημείωμα: Το αναλυόμενο οικοσύστημα βρίσκεται σε βέλτιστη λειτουργική κατάσταση.")
+        lbl_ok = ejecutar_traduccion_neuronal("Nota Clínica. El ecosistema analizado se encuentra en un estado funcional óptimo. No se registraron indicadores de riesgo.", lang)
         pdf.multi_cell(190, 6, limpiar_texto_pdf(lbl_ok, lang), new_x="LMARGIN", new_y="NEXT")
 
-    # Cierre Institucional Políglota Estilo Nota al pie de manuscrito científico
+    # Cierre Institucional al pie de página
     pdf.ln(4)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(4)
@@ -561,23 +590,19 @@ def inyectar_bloque_salud_integral_apa(pdf, resultados, lang="Español"):
     pdf.set_font(style="B", size=10)
     pdf.set_text_color(50, 50, 50)
     
-    lbl_segs = "Canalizacion y Seguimiento de Caso" if lang == "Español" else ("Case Referral and Follow-up" if lang == "Inglés" else "Παραπομπή και Παρακολούθηση Υπόθεσης")
+    lbl_segs = ejecutar_traduccion_neuronal("Canalización y Seguimiento de Caso", lang)
     pdf.cell(190, 5, limpiar_texto_pdf(lbl_segs, lang), new_x="LMARGIN", new_y="NEXT")
     
     pdf.set_x(10)
     pdf.set_font(style="I", size=9.5)
     pdf.set_text_color(80, 80, 80)
     
-    if lang == "Inglés":
-        mensaje_apoyo = "Self-reporting is the first step in detecting institutional vulnerabilities. If you have registered critical indicators in your health dimensions, a cordial invitation is extended to contact the speaker directly to coordinate a private consultation or personalized advice for timely containment plans."
-    elif lang == "Griego":
-        mensaje_apoyo = "Η αυτοαναφορά είναι το πρώτο βήμα για τον εντοπισμό θεσμικών τρωτών σημείων. Εάν έχετε καταγράψει κρίσιμους δείκτες στις διαστάσεις της υγείας σας, απευθύνεται θερμή πρόσκληση να επικοινωνήσετε απευθείας με τον ομιλητή για τον συντονισμό μιας ιδιωτικής επίσκεψης."
-    else:
-        mensaje_apoyo = "El auto-reporte es el primer paso en la deteccion de vulnerabilidades institucionales. Si has registrado indicadores criticos en tus gajos de salud, se extiende una invitacion cordial para contactar directamente al ponente para coordinar una consulta privada o asesoria personalizada para el diseno de planes de contencion oportuna."
-        
+    mensaje_apoyo_base = "El auto-reporte es el primer paso en la detección de vulnerabilidades institucionales. Si has registrado indicadores críticos en tus gajos de salud, se extiende una invitación cordial para contactar directamente al ponente para coordinar una consulta privada o asesoría personalizada para el diseño de planes de contencion oportuna."
+    mensaje_apoyo = ejecutar_traduccion_neuronal(mensaje_apoyo_base, lang)
     pdf.multi_cell(190, 4.5, limpiar_texto_pdf(mensaje_apoyo, lang), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(2)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+
 
 
 # =================================================================
@@ -912,8 +937,8 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-    # =================================================================
-    # CAPA DE INTERCEPTACIÓN DE IDIOMA BASE NEURONAL (CORREGIDA)
+       # =================================================================
+    # CAPA DE INTERCEPTACIÓN DE IDIOMA BASE NEURONAL MASTER
     # =================================================================
     if not st.session_state.flujo_finalizado:
         idioma_sel_visual = st.selectbox(
@@ -921,14 +946,14 @@ def main():
             list(MAPA_IDIOMAS_GLOBAL.keys()),
             key="sb_language_selector_main"
         )
-        idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual] # Obtiene el código ISO nativo: "es", "en", "ko", etc.
+        idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
         
-        # Generación síncrona del diccionario de interfaz a través de la API Neuronal
-        # Traduce dinámicamente las semillas base de la Parte 3 bajo demanda
+        # Traduce de forma masiva y recursiva todas las semillas de la interfaz
         tx = {k: ejecutar_traduccion_neuronal(v, idioma_sel) for k, v in TEXTOS_BASE_ESPANOL.items()}
     else:
-        idioma_sel = "es" # Código ISO estándar de retorno
+        idioma_sel = "es"
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+
 
     # =================================================================
     # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2 - POLYGLOT)
