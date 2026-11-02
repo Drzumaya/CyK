@@ -295,7 +295,7 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     texto_sano = "".join(reemplazos.get(c, c) for c in txt_str)
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
 # =================================================================
-# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (ACADEMIC FORMAT)
+# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL (ACADEMIC FORMAT CORREGIDO)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     """
@@ -326,9 +326,9 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(190, 6, f"Evaluacion Psicometrica Individual | Jacob Zumaya Prianti (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(4)
     
-    # Línea horizontal superior del encabezado
+    # Línea horizontal superior del encabezado (Sintaxis fpdf2 corregida)
     pdf.set_draw_color(80, 80, 80)
-    pdf.set_linewidth(0.5)
+    pdf.set_line_width(0.5)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(6)
     
@@ -420,6 +420,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         inyectar_bloque_salud_integral_apa(pdf, resultados, lang)
             
     return bytes(pdf.output())
+
 # =================================================================
 # PARTE 9 DE 14: INTELIGENCIA ASIMÉTRICA DE SALUD (APA CLEAN TABLE STYLE)
 # =================================================================
