@@ -911,10 +911,9 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-     # =================================================================
-    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR PARÁMETROS DE URL RECTIFICADA (FIX NAMEERROR)
+       # =================================================================
+    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR CONFIRMACIÓN (ENTER / RETURN GATEWAY)
     # =================================================================
-    # Recuperamos de forma segura el estado de inicialización superior
     idioma_url_codigo = st.query_params.get("lang", "es")
     
     # Mapeo inverso seguro para posicionar el índice visual por defecto del selectbox
@@ -923,39 +922,45 @@ def main():
     lista_opciones_visuales = list(MAPA_IDIOMAS_GLOBAL.keys())
 
     if not st.session_state.flujo_finalizado:
-        # Selector políglota universal acoplado de forma fija a la sesión
-        idioma_sel_visual = st.selectbox(
-            "🌐 Choose System Language / Selecciona Idioma:", 
-            options=lista_opciones_visuales,
-            index=lista_opciones_visuales.index(opcion_visual_defecto) if opcion_visual_defecto in lista_opciones_visuales else 0,
-            key="sb_language_selector_main_fixed_state_unfailing_v3"
-        )
-        # Sincronizamos la variable global madre directamente al session_state reactivo
-        st.session_state.idioma_activo_actual = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
-        idioma_sel = st.session_state.idioma_activo_actual
-        
-        # 🍊 DISPARADOR DE INTERCEPTACIÓN SÍNCRONA TOTAL:
-        # Si el usuario hace clic, reescribe la barra del navegador, traduce en lote y reinicia
-        if idioma_sel != idioma_url_codigo:
-            st.query_params["lang"] = idioma_sel  
+        # Encapsulamos el componente en un formulario para capturar el evento Enter / Return
+        with st.form(key="form_gateway_idioma_universal", clear_on_submit=False):
+            st.markdown("### 🌐 Internationalization Gateway / Control Políglota")
             
-            with st.spinner("Translating complete system interface... 🌐"):
-                llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
-                valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+            idioma_sel_visual = st.selectbox(
+                "Select System Language / Selecciona Idioma del Sistema:", 
+                options=lista_opciones_visuales,
+                index=lista_opciones_visuales.index(opcion_visual_defecto) if opcion_visual_defecto in lista_opciones_visuales else 0,
+                key="sb_language_selector_main_fixed_state_unfailing_v3"
+            )
+            
+            # Botón de confirmación (Al dar clic o presionar Enter dentro del formulario se gatilla el submit)
+            lbl_submit_btn = "🔄 APLICAR IDIOMA / APPLY LANGUAGE (Press Enter)"
+            submit_idioma = st.form_submit_button(label=lbl_submit_btn, type="primary")
+            
+        # 🍊 DISPARADOR DE MIGRACIÓN NEURONAL POR EVENTO ENTER / SUBMIT
+        if submit_idioma:
+            idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
+            
+            if idioma_sel != idioma_url_codigo:
+                st.query_params["lang"] = idioma_sel  # Actualiza la barra de navegación de la URL
+                st.session_state.idioma_activo_actual = idioma_sel
                 
-                # Una sola llamada masiva por lotes para traducir toda la pantalla
-                valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
-                st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
-                st.rerun()
-                
+                with st.spinner("Migrating complete system interface... 🌐"):
+                    llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+                    valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+                    
+                    # Una sola llamada HTTP masiva por lotes para traducir la pantalla entera
+                    valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
+                    st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+                    
+                    # Forzamos la reconstrucción síncrona inmediata del formulario con los nuevos textos
+                    st.rerun()
+                    
         tx = st.session_state.tx_traducido_cache
     else:
         idioma_sel = "es"
         st.session_state.idioma_activo_actual = "es"
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
-
-
-
 
      # =================================================================
     # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2 - NEURAL POLYGLOT RECTIFICADO)
