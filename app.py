@@ -892,35 +892,44 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
+        # =================================================================
+    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR PARÁMETROS DE URL RECTIFICADA
     # =================================================================
-    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR VECTOR DE LOTE ÚNICO
-    # =================================================================
-    if "idioma_previo" not in st.session_state:
-        st.session_state.idioma_previo = "es"
-    if "tx_traducido_cache" not in st.session_state:
-        st.session_state.tx_traducido_cache = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+    # 1. Leemos el idioma activo directamente desde la barra de direcciones URL (Default: es)
+    idioma_url_codigo = st.query_params.get("lang", "es")
+    
+    # Buscamos el nombre visual que corresponde al código ISO para posicionar el selectbox
+    nombre_visual_invertido = {v: k for k, v in MAPA_IDIOMAS_GLOBAL.items()}
+    opcion_visual_defecto = nombre_visual_invertido.get(idioma_url_codigo, "Español")
+    lista_opciones_visuales = list(MAPA_IDIOMAS_GLOBAL.keys())
 
     if not st.session_state.flujo_finalizado:
+        # Desplegamos el selector políglota indexado dinámicamente
         idioma_sel_visual = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
-            list(MAPA_IDIOMAS_GLOBAL.keys()),
-            key="sb_language_selector_main"
+            options=lista_opciones_visuales,
+            index=lista_opciones_visuales.index(opcion_visual_defecto),
+            key="sb_language_selector_main_fixed_state"
         )
         idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
         
-        # Si el usuario cambió el idioma, se dispara la traducción por lote único de alto rendimiento
-        if idioma_sel != st.session_state.idioma_previo:
-            with st.spinner("Translating system interface... 🌐"):
+        # INTERCEPTOR Y DISPARADOR DE REDIRECCIÓN INTERNA:
+        # Si el usuario selecciona un idioma diferente al de la URL, forzamos mutación de raíz
+        if idioma_sel != idioma_url_codigo:
+            st.query_params["lang"] = idioma_sel  # Inyecta el nuevo código ISO en la URL
+            
+            with st.spinner("Translating complete system interface... 🌐"):
                 llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
                 valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
                 
-                # Una sola petición para toda la pantalla
+                # Una sola petición por lote masivo para blindar la cuota API
                 valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
                 st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
-                st.session_state.idioma_previo = idioma_sel
+                
+                # Forzamos a Streamlit a destruir los componentes y redibujar el formulario desde cero
                 st.rerun()
                 
-        tx = st.session_state.tx_traducido_cache
+        tx = st.session_state.get("tx_traducido_cache", {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()})
     else:
         idioma_sel = "es"
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
