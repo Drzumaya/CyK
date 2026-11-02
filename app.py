@@ -70,31 +70,20 @@ NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 CONTINENTES = ["América del Norte", "América del Sur", "Europa", "Asia", "África", "Oceanía"]
 
-# CATÁLOGO INTERNACIONAL EXPANDIDO DE IDIOMAS ISO 639-1 (SOPORTE GLOBAL)
+# CATÁLOGO INTERNACIONAL DE IDIOMAS ISO 639-1 COMPLETAMENTE DINÁMICO
 MAPA_IDIOMAS_GLOBAL = {
     "Español": "es", "English (Inglés)": "en", "Français (Francés)": "fr", "Deutsch (Alemán)": "de", 
     "Italiano (Italiano)": "it", "Português (Portugués)": "pt", "Ελληνικά (Griego)": "el", "한국어 (Coreano)": "ko", 
     "日本語 (Japonés)": "ja", "简体中文 (Chino Simplificado)": "zh-CN", "繁體中文 (Chino Tradicional)": "zh-TW",
     "العربية (Árabe)": "ar", "Русский (Ruso)": "ru", "Tagalog (Tagalo)": "tl", "हिन्दी (Hindi)": "hi", 
-    "Tiếng Việt (Vietnamita)": "vi", "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", "Türkçe (Turco)": "tr",
-    "Svenska (Sueco)": "sv", "Norsk (Noruego)": "no", "Dansk (Danés)": "da", "Suomi (Finés)": "fi", 
-    "Čeština (Checo)": "cs", "עברית (Hebreo)": "he", "ไทย (Tailandés)": "th", "Bahasa Indonesia (Indonesio)": "id",
-    "Ukrainska (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu", "Slovenčina (Eslovaco)": "sk",
-    "Български (Búlgaro)": "bg", "Hrvatski (Croata)": "hr", "Lietuvių (Lituano)": "lt", "Latviešu (Letón)": "lv",
-    "Eesti (Estonio)": "et", "Slovenščina (Esloveno)": "sl", "Srpski (Serbio)": "sr", "Macedonian (Macedonio)": "mk",
-    "Afrikaans (Afrikáans)": "af", "Shqip (Albanés)": "sq", "Հαเยρεν (Armenio)": "hy", "Azərbaycan (Azerbaiyano)": "az",
-    "Euskara (Vasco)": "eu", "Беларуская (Bielorruso)": "be", "Català (Catalán)": "ca", "Galego (Gallego)": "gl",
-    "Georgian (Georgiano)": "ka", "Kreyòl Ayisyen (Haitiano)": "ht", "Íslenska (Islandés)": "is", "Gaeilge (Irlandés)": "ga",
-    "Basa Jawa (Javanés)": "jw", "Latina (Latín)": "la", "मराठी (Maratí)": "mr", "Melayu (Malayo)": "ms",
-    "Malti (Maltés)": "mt", "✍️ (Sánscrito)": "sa", "Kiswahili (Suajili)": "sw", "Basa Sunda (Sundanés)": "su",
-    "Cymraeg (Galés)": "cy", "ייִδίש (Yidis)": "yi", "Yorùbá (Yoruba)": "yo", "Zulu (Zulú)": "zu"
+    "Tiếng Việt (Vietnamita)": "vi", "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", "Türkçe (Turco)": "tr"
 }
 
 @st.cache_data(show_spinner=False)
 def traducir_lote_neuronal_master(lista_textos, codigo_destino):
     """
     Realiza una única petición por lote (Batch Request) a Google Cloud Translation API.
-    Traduce de forma masiva reduciendo la latencia de red y protegiendo la cuota de la cuenta.
+    Traduce cientos de cadenas simultáneamente reduciendo la latencia de red.
     """
     if not lista_textos or codigo_destino == "es":
         return lista_textos
@@ -117,8 +106,7 @@ def traducir_lote_neuronal_master(lista_textos, codigo_destino):
 @st.cache_data(show_spinner=False)
 def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
     """
-    Función de interceptación atómica para cadenas individuales.
-    Garantiza compatibilidad con las llamadas directas de la interfaz.
+    Función de interceptación atómica para cadenas individuales en caliente.
     """
     if not texto_origen or codigo_destino == "es":
         return str(texto_origen)
@@ -130,8 +118,8 @@ def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
 
 def traducir_objeto_dinamico(objeto, codigo_destino):
     """
-    Algoritmo recursivo de alta escuela. Traduce automáticamente cualquier tipo de dato
-    (cadenas, listas o diccionarios) al idioma destino bajo demanda de la API.
+    Algoritmo recursivo. Traduce automáticamente estructuras complejas
+    (cadenas, listas o diccionarios) al idioma de destino.
     """
     if codigo_destino == "es" or not objeto:
         return objeto
@@ -857,13 +845,13 @@ def ejecutar_analisis_semdeep(dataframe, es_likert):
         return {"Error_Analitico": str(e), "R2": ".00"}
 
 # =================================================================
-# PARTE 13 DE 14: INTERCEPTACIÓN NEURONAL DE ORIGEN (BLOQUE 1 DE 7)
+# PARTE 13 DE 14: INTERCEPTACIÓN NEURONAL DE ORIGEN (BLOQUE 1 DE format)
 # =================================================================
 def main():
     # Inicialización local de variables globales de red y tiempo
     global token_actual, es_celular_del_publico, url_con_token, token_tiempo
 
-    # 🍊 BLINDAJE DE INICIALIZACIÓN ABSOLUTO DE SESIÓN
+    # 🍊 BLINDAJE DE INICIALIZACIÓN ABSOLUTO DE SESIÓN ANTI-KEYERROR
     if "audiences_custom_list" not in st.session_state:
         st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state:
@@ -877,7 +865,7 @@ def main():
     if "idioma_activo_actual" not in st.session_state:
         st.session_state.idioma_activo_actual = st.query_params.get("lang", "es")
 
-    # 🌐 CONECTOR DINÁMICO DE 133 IDIOMAS OFICIALES DE GOOGLE CLOUD
+    # 🌐 CONECTOR DINÁMICO DE 133 IDIOMAS OFICIALES DESDE GOOGLE CLOUD
     if "lista_idiomas_133_iso" not in st.session_state:
         try:
             from google.cloud import translate_v2 as translate
@@ -889,7 +877,7 @@ def main():
             idiomas_disponibles = client_t.get_languages(target_language=st.session_state.idioma_activo_actual)
             st.session_state.lista_idiomas_133_iso = {i["name"].title(): i["language"] for i in idiomas_disponibles}
         except Exception:
-            st.session_state.lista_idiomas_133_iso = {"Español": "es", "English": "en", "Français": "fr", "Deutsch": "de", "Italiano": "it", "Português": "pt", "한국어": "ko", "日本語": "ja", "العربية": "ar", "Русский": "ru"}
+            st.session_state.lista_idiomas_133_iso = {"Español": "es", "English": "en", "Français": "fr", "Deutsch": "de", "Italiano": "it", "Português": "pt"}
 
     idioma_url_codigo = st.query_params.get("lang", "es")
 
@@ -901,11 +889,11 @@ def main():
         st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
         st.session_state.idioma_previo_check = idioma_url_codigo
 
-    # Asignación de variables síncronas maestras
+    # Asignación de variables síncronas maestras locales
     tx = st.session_state.tx_traducido_cache
     idioma_sel = idioma_url_codigo
     # =================================================================
-    # PARTE 13 DE 14: ENLAZADO DE RED, SEGURIDAD Y CONSOLA (BLOQUE 2 DE 7)
+    # PARTE 13 DE 14: AMARRE DE RED, SEGURIDAD Y CONSOLA (BLOQUE 2 DE format)
     # =================================================================
     minuto_actual = int(time.time() // 60)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
@@ -924,9 +912,8 @@ def main():
     # Instanciación síncrona inicial de estructuras físicas en la nube
     if "estructuras_inicializadas" not in st.session_state:
         lista_inicializar = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-        with st.spinner("Instanciando matriz de datos políglota... 🍊"):
-            for tabla in lista_inicializar:
-                conectar_google_sheets(tabla)
+        for tabla in lista_inicializar:
+            conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
     # Interceptor de caducidad temporal anti-duplicados (Ventana de 10 minutos)
@@ -959,7 +946,6 @@ def main():
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
             if not st.session_state.admin_autenticado:
-                # CORRECCIÓN DE UNICIDAD CLAVE: Se modifica la key a "side_pwd_admin_master_unfailing_2026"
                 input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_master_unfailing_2026")
                 if st.button("Desbloquear Tableros", key="btn_desbloquear_unique"):
                     if input_password == PASSWORD_SISTEMA:
@@ -967,7 +953,6 @@ def main():
                         st.rerun()
                     else:
                         st.error("Contraseña incorrecta.")
-
             else:
                 st.success("Modo Ponente Activo")
                 if st.button("🚪 Cerrar Centro de Inteligencia", type="secondary", key="btn_close_admin_unique"):
@@ -995,9 +980,8 @@ def main():
                         conectar_google_sheets(seleccion)
                     st.rerun()
     # =================================================================
-    # PARTE 13 DE 14: SELECTOR DE 133 IDIOMAS Y CÓDIGO QR (BLOQUE 3 DE 7)
+    # PARTE 13 DE 14: GATEWAY MULTILINGÜE SÍNCRONO DIRECTO Y QR (BLOQUE 3 DE 4)
     # =================================================================
-    # 📦 GATEWAY INTERNACIONAL DE CAPTURA ENTER CON LOS 133 IDIOMAS DINÁMICOS
     if not st.session_state.flujo_finalizado:
         mapa_133 = st.session_state.lista_idiomas_133_iso
         nombre_visual_invertido = {v: k for k, v in mapa_133.items()}
@@ -1019,7 +1003,7 @@ def main():
             
             lbl_btn_submit = ejecutar_traduccion_neuronal("🔄 TRANSLATE ENTIRE SYSTEM / TRADUCIR TODO EL SISTEMA", idioma_sel)
             
-            # Botón transaccional síncrono directo fuera de formulario
+            # Botón transaccional síncrono directo fuera de formulario para evitar congelamientos
             if st.button(lbl_btn_submit, type="primary", key="btn_execute_neural_translation_trigger"):
                 codigo_iso_seleccionado = mapa_133[idioma_sel_visual]
                 
@@ -1059,7 +1043,7 @@ def main():
                 st.write(sub_qr1)
                 st.write(sub_qr2)
         # =================================================================
-        # PARTE 13 DE 14: CUESTIONARIO COMPLETO Y FORMULARIO (BLOQUE 4 DE 7)
+        # PARTE 13 DE 14: INTERFAZ VISIBLE DEL CUESTIONARIO (BLOQUE 4 DE 4)
         # =================================================================
         st.write("")
         lbl_tgl_form = ejecutar_traduccion_neuronal("📝 Mostrar Formulario de Captura en Pantalla Principal", idioma_sel)
@@ -1100,9 +1084,6 @@ def main():
                 if st.button(lbl_btn_reg, key="btn_register_alerts_gajos"):
                     st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
                     st.success("OK. Context synchronized.")
-            # =================================================================
-            # PARTE 13 DE 14: BATERÍA DE REACTIVOS LIKERT C&K (BLOQUE 5 DE 7)
-            # =================================================================
             else:
                 st.subheader(tx["sec1"])
                 resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
@@ -1153,8 +1134,9 @@ def main():
             lbl_info_hidden = ejecutar_traduccion_neuronal("💡 El formulario de captura local se encuentra oculto en esta pantalla.", idioma_sel)
             st.info(lbl_info_hidden)
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
-    # =================================================================
-    # PARTE 14 DE 14: PANTALLA POST-DESCARGA E INFORME INDIVIDUAL (TRAMO 14A)
+
+       # =================================================================
+    # PARTE 14 DE 14: PANTALLA POST-DESCARGA E INFORME INDIVIDUAL (BLOQUE 1 DE 3)
     # =================================================================
     else:
         nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
@@ -1195,7 +1177,7 @@ def main():
                     if k in st.session_state: del st.session_state[k]
                 st.rerun()
     # =================================================================
-    # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (TRAMO 14B)
+    # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (BLOQUE 2 DE 3)
     # =================================================================
     # Módulo de Control de Oficina para el Ponente Autenticado
     if st.session_state.admin_autenticado and not es_celular_del_publico:
@@ -1298,18 +1280,16 @@ def main():
                 
             df_doc = pd.DataFrame(registros_limpios, columns=columnas_limpias)
 
-        # CRM de Búsqueda Individual Blindado Neuronalmente por Índices Posicionales
+        # CRM de Búsqueda Individual
         st.markdown("---")
         st.subheader("🔍 Buscador Exclusivo de Participantes (Atención y Consulta Privada)")
         c_busq = st.text_input("📝 Filtrar por Nombre o Teléfono Celular:", placeholder="Ej. Juan o +52...", key="crm_search_input").strip().lower()
         
         if c_busq and df_doc is not None and not df_doc.empty:
-            # CORRECCIÓN DE RAÍZ: Extraemos dinámicamente el nombre real de las columnas 1 y 2 traducidas
             col_nombre_dinamica = df_doc.columns[1] if len(df_doc.columns) > 1 else "Nombre"
             col_whatsapp_dinamica = df_doc.columns[2] if len(df_doc.columns) > 2 else "WhatsApp"
             col_timestamp_dinamica = df_doc.columns[0] if len(df_doc.columns) > 0 else "Timestamp"
             
-            # Realizamos el filtrado sobre las llaves dinámicas mutadas por la API de Google
             df_filtrado = df_doc[
                 df_doc[col_nombre_dinamica].astype(str).str.lower().str.contains(c_busq) | 
                 df_doc[col_whatsapp_dinamica].astype(str).str.lower().str.contains(c_busq)
@@ -1323,20 +1303,18 @@ def main():
                     with st.container(border=True):
                         st.markdown(f"### 👤 Participante: **{row_p[col_nombre_dinamica]}**")
                         st.write(f"📱 **Enlace WhatsApp:** {row_p[col_whatsapp_dinamica]} | 📅 **Registro:** {row_p[col_timestamp_dinamica]}")
-                        
                         if es_tabla_likert:
-                            r_cols_p = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-                            if len(r_cols_p) >= 10:
-                                k_score = sum([pd.to_numeric(row_p[c], errors='coerce') for i, c in enumerate(r_cols_p) if i % 2 == 0]) / 5
-                                c_score = sum([pd.to_numeric(row_p[c], errors='coerce') for i, c in enumerate(r_cols_p) if i % 2 != 0]) / 5
+                            r_items = [pd.to_numeric(row_p[c], errors='coerce') for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
+                            if len(r_items) >= 10:
+                                k_score = sum(r_items[0::2]) / 5
+                                c_score = sum(r_items[1::2]) / 5
                                 st.markdown(f"**⏱️ Puntaje Cronos:** `{c_score:.2f}` | **🍃 Puntaje Kairós:** `{k_score:.2f}`")
                         else:
                             st.markdown("**🚨 Alertas de Salud Activas:**")
-                            # Extracción segura de síntomas por posición relacional
                             alertas_detectadas = [str(row_p[c]) for c in df_doc.columns[3:10] if str(row_p[c]).strip()]
                             st.write(f"`{' | '.join(alertas_detectadas) if alertas_detectadas else 'Sin Alertas'}`")
         # =================================================================
-        # PARTE 14 DE 14: PROPORCIONES, DICTAMEN MACRO Y CIERRE (TRAMO 14C)
+        # PARTE 14 DE 14: PROPORCIONES, DICTAMEN MACRO Y CIERRE (BLOQUE 3 DE 3)
         # =================================================================
         # Proporciones Globales de Audiencia
         st.markdown("---")
@@ -1460,7 +1438,7 @@ def main():
                     data=bytes(bytes_auditoria),
                     file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
                     mime="application/pdf",
-                    key="btn_download_admin_pdf_final_maestro"
+                    key="btn_download_final_macro_report_maestro"
                 )
 
         # INYECCIÓN DEL BOTÓN EXCLUSIVO DE DESCARGA DEL RECONOCIMIENTO HONORÍFICO
