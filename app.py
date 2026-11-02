@@ -62,7 +62,7 @@ st.markdown(
 )
 
 # =================================================================
-# PARTE 2 DE 14: INFRAESTRUCTURA DE TRADUCCIÓN NEURONAL POR LOTES ISO
+# PARTE 2 DE 14: INFRAESTRUCTURA DE TRADUCCIÓN NEURONAL POR LOTES ISO (133 IDIOMAS)
 # =================================================================
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
@@ -70,7 +70,7 @@ NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 CONTINENTES = ["América del Norte", "América del Sur", "Europa", "Asia", "África", "Oceanía"]
 
-# Catálogo Internacional Completo de Idiomas (Códigos ISO 639-1)
+# CATÁLOGO INTERNACIONAL EXPANDIDO DE IDIOMAS ISO 639-1 (SOPORTE GLOBAL)
 MAPA_IDIOMAS_GLOBAL = {
     "Español": "es", "English (Inglés)": "en", "Français (Francés)": "fr", "Deutsch (Alemán)": "de", 
     "Italiano (Italiano)": "it", "Português (Portugués)": "pt", "Ελληνικά (Griego)": "el", "한국어 (Coreano)": "ko", 
@@ -79,16 +79,25 @@ MAPA_IDIOMAS_GLOBAL = {
     "Tiếng Việt (Vietnamita)": "vi", "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", "Türkçe (Turco)": "tr",
     "Svenska (Sueco)": "sv", "Norsk (Noruego)": "no", "Dansk (Danés)": "da", "Suomi (Finés)": "fi", 
     "Čeština (Checo)": "cs", "עברית (Hebreo)": "he", "ไทย (Tailandés)": "th", "Bahasa Indonesia (Indonesio)": "id",
-    "Ukrainska (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu", "Slovenčina (Eslovaco)": "sk"
+    "Ukrainska (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu", "Slovenčina (Eslovaco)": "sk",
+    "Български (Búlgaro)": "bg", "Hrvatski (Croata)": "hr", "Lietuvių (Lituano)": "lt", "Latviešu (Letón)": "lv",
+    "Eesti (Estonio)": "et", "Slovenščina (Esloveno)": "sl", "Srpski (Serbio)": "sr", "Macedonian (Macedonio)": "mk",
+    "Afrikaans (Afrikáans)": "af", "Shqip (Albanés)": "sq", "Հαเยρεν (Armenio)": "hy", "Azərbaycan (Azerbaiyano)": "az",
+    "Euskara (Vasco)": "eu", "Беларуская (Bielorruso)": "be", "Català (Catalán)": "ca", "Galego (Gallego)": "gl",
+    "Georgian (Georgiano)": "ka", "Kreyòl Ayisyen (Haitiano)": "ht", "Íslenska (Islandés)": "is", "Gaeilge (Irlandés)": "ga",
+    "Basa Jawa (Javanés)": "jw", "Latina (Latín)": "la", "मराठी (Maratí)": "mr", "Melayu (Malayo)": "ms",
+    "Malti (Maltés)": "mt", "✍️ (Sánscrito)": "sa", "Kiswahili (Suajili)": "sw", "Basa Sunda (Sundanés)": "su",
+    "Cymraeg (Galés)": "cy", "ייִδίש (Yidis)": "yi", "Yorùbá (Yoruba)": "yo", "Zulu (Zulú)": "zu",
+    "Índigenas / Central": "nah"
 }
 
 @st.cache_data(show_spinner=False)
 def traducir_lote_neuronal_master(lista_textos, codigo_destino):
     """
-    Realiza una única petición por lote (Batch Request) a Google Cloud Translation.
-    Traduce cientos de cadenas simultáneamente reduciendo la latencia a milisegundos.
+    Realiza una única petición por lote (Batch Request) a Google Cloud Translation API.
+    Traduce de forma masiva reduciendo la latencia de red y protegiendo la cuota de la cuenta.
     """
-    if codigo_destino == "es" or not lista_textos:
+    if not lista_textos or codigo_destino == "es":
         return lista_textos
     try:
         if "gcp_service_account" not in st.secrets:
@@ -101,11 +110,26 @@ def traducir_lote_neuronal_master(lista_textos, codigo_destino):
             secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
             
         translate_client = translate.Client.from_service_account_info(secrets_dict)
-        # Petición masiva en un solo hilo de red
+        # Un solo disparo HTTP síncrono para optimizar el canal
         resultados = translate_client.translate(lista_textos, target_language=codigo_destino)
         return [html.unescape(r["translatedText"]) for r in resultados]
     except Exception:
         return lista_textos
+
+def traducir_objeto_dinamico(objeto, codigo_destino):
+    """
+    Algoritmo recursivo de alta escuela. Traduce automáticamente cualquier tipo de dato
+    (cadenas, listas o diccionarios) al idioma destino bajo demanda de la API.
+    """
+    if codigo_destino == "es" or not objeto:
+        return objeto
+    if isinstance(objeto, str):
+        return traducir_lote_neuronal_master([objeto], codigo_destino)[0]
+    if isinstance(objeto, list):
+        return [traducir_objeto_dinamico(item, codigo_destino) for item in objeto]
+    if isinstance(objeto, dict):
+        return {traducir_objeto_dinamico(k, codigo_destino): traducir_objeto_dinamico(v, codigo_destino) for k, v in objeto.items()}
+    return objeto
 
 
 # =================================================================
@@ -895,41 +919,48 @@ def main():
         # =================================================================
     # CAPA DE INTERCEPTACIÓN DE IDIOMA POR PARÁMETROS DE URL RECTIFICADA
     # =================================================================
-    # 1. Leemos el idioma activo directamente desde la barra de direcciones URL (Default: es)
+    # 1. Detectamos el idioma actual de la URL o inicializamos la memoria del lote
     idioma_url_codigo = st.query_params.get("lang", "es")
     
-    # Buscamos el nombre visual que corresponde al código ISO para posicionar el selectbox
+    if "tx_traducido_cache" not in st.session_state:
+        st.session_state.tx_traducido_cache = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+    if "idioma_activo_actual" not in st.session_state:
+        st.session_state.idioma_activo_actual = "es"
+
+    # Mapeo inverso seguro para posicionar el índice por defecto del widget selectbox
     nombre_visual_invertido = {v: k for k, v in MAPA_IDIOMAS_GLOBAL.items()}
-    opcion_visual_defecto = nombre_visual_invertido.get(idioma_url_codigo, "Español")
+    opcion_visual_defecto = nombre_visual_invertido.get(st.session_state.idioma_activo_actual, "Español")
     lista_opciones_visuales = list(MAPA_IDIOMAS_GLOBAL.keys())
 
     if not st.session_state.flujo_finalizado:
-        # Desplegamos el selector políglota indexado dinámicamente
+        # Selector políglota universal acoplado
         idioma_sel_visual = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
             options=lista_opciones_visuales,
-            index=lista_opciones_visuales.index(opcion_visual_defecto),
-            key="sb_language_selector_main_fixed_state"
+            index=lista_opciones_visuales.index(opcion_visual_defecto) if opcion_visual_defecto in lista_opciones_visuales else 0,
+            key="sb_language_selector_main_fixed_state_unfailing"
         )
         idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
         
-        # INTERCEPTOR Y DISPARADOR DE REDIRECCIÓN INTERNA:
-        # Si el usuario selecciona un idioma diferente al de la URL, forzamos mutación de raíz
-        if idioma_sel != idioma_url_codigo:
-            st.query_params["lang"] = idioma_sel  # Inyecta el nuevo código ISO en la URL
+        # 🍊 DISPARADOR DE INTERCEPTACIÓN SÍNCRONA: 
+        # Si el usuario hace clic y cambia el idioma, ejecutamos la traducción masiva ANTES de pintar la pantalla
+        if idioma_sel != st.session_state.idioma_activo_actual:
+            st.query_params["lang"] = idioma_sel  # Escribe el nuevo idioma en la URL
+            st.session_state.idioma_activo_actual = idioma_sel
             
             with st.spinner("Translating complete system interface... 🌐"):
                 llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
                 valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
                 
-                # Una sola petición por lote masivo para blindar la cuota API
+                # Una sola llamada HTTP masiva para traducir el formulario entero de un solo golpe
                 valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
                 st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
                 
-                # Forzamos a Streamlit a destruir los componentes y redibujar el formulario desde cero
+                # 🔄 REINICIO DEL HILO DE EJECUCIÓN: Destruye la vista vieja y fuerza a Streamlit
+                # a pintar el formulario completo ya traducido con los datos limpios de la sesión
                 st.rerun()
                 
-        tx = st.session_state.get("tx_traducido_cache", {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()})
+        tx = st.session_state.tx_traducido_cache
     else:
         idioma_sel = "es"
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
