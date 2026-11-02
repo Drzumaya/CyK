@@ -414,28 +414,13 @@ def guardar_en_google_sheets(nombre_pestana, nombre, whatsapp, resultados, token
 # =================================================================
 def limpiar_texto_pdf(texto, idioma="Español"):
     if not texto: return ""
-    diccionario_pdf = {
-        "Español": {
-            "part": "Participante:", "cont": "Contacto/WhatsApp:",
-            "fecha": "Fecha de Emision:", "vec": "VECTORES CRONOS Y KAIROS ADAPTATIVOS", 
-            "perf_s": "Perfil de Simbiosis Temporal Equilibrada (C&K)",
-            "perf_c": "Perfil Temporal Cronocentrico Puro (Rigido)", 
-            "perf_k": "Perfil Temporal Kairotico Puro (Adaptativo)"
-        },
-        "Inglés": {
-            "part": "Participant:", "cont": "Contact/WhatsApp:",
-            "fecha": "Date of Issue:", "vec": "ADAPTIVE CRONOS AND KAIROS VECTORS", 
-            "perf_s": "Balanced Temporal Symbiosis Profile (C&K)",
-            "perf_c": "Pure Chronocentric Temporal Profile (Rigid)", 
-            "perf_k": "Pure Kairotic Temporal Profile (Adaptive)"
-        }
-    }
     txt_str = str(texto)
-    lang_dic = diccionario_pdf.get(idioma, diccionario_pdf["Español"])
-    if txt_str in lang_dic: return lang_dic[txt_str]
+    # Reemplazos básicos de acentuación
     reemplazos = {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'Á': 'A', 'É': 'E', 'Í': 'I', 'Ó': 'O', 'Ú': 'U', 'ñ': 'n', 'Ñ': 'N', 'ü': 'u', 'Ü': 'U'}
     texto_sano = "".join(reemplazos.get(c, c) for c in txt_str)
+    # FILTRO DOCTORAL: Elimina emojis o caracteres fuera del rango estándar Latin-1
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
+
 
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
@@ -1088,8 +1073,24 @@ def main():
         if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
             if df_doc is not None and len(df_doc) >= 2:
                 # INSTANCIACIÓN EN LA RAÍZ DEL BOTÓN: Garantiza que el PDF exista para cualquier flujo (Likert o Salud)
+                                # === COMPILACIÓN BLINDADA ANTI-EMOJIS ===
                 pdf_auditoria = FPDF()
                 pdf_auditoria.add_page()
+                
+                # Desinfectamos el nombre de la tabla (remueve la naranja 🍊 y acentos antes de escribir)
+                tabla_limpia_pdf = limpiar_texto_pdf(tabla_analizar).upper()
+                
+                # Configuración institucional y metadatos del PDF sanitizados
+                pdf_auditoria.set_font("Helvetica", "B", 14)
+                pdf_auditoria.set_text_color(230, 81, 0)
+                pdf_auditoria.cell(0, 10, f"DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO: {tabla_limpia_pdf}", new_x="LMARGIN", new_y="NEXT", align="C")
+                pdf_auditoria.set_font("Helvetica", "I", 9.5)
+                pdf_auditoria.set_text_color(110, 110, 110)
+                pdf_auditoria.cell(0, 5, "Tipo de Documento: Reporte de Modelado de Variables Latentes y Auditoria de Consistencia de Constructo", new_x="LMARGIN", new_y="NEXT", align="C")
+                
+                # CORRECCIÓN EN LÍNEA 1147: Usamos la variable purificada libre de glifos inválidos
+                pdf_auditoria.cell(0, 5, f"Audiencia: {tabla_limpia_pdf} | Emitido: {datetime.datetime.now().strftime('%d/%m/%Y')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
+
                 
                 col_graph1, col_graph2 = st.columns(2)
                 with col_graph1:
@@ -1140,14 +1141,14 @@ def main():
                 # Configuración institucional y metadatos del PDF
                 pdf_auditoria.set_font("Helvetica", "B", 14)
                 pdf_auditoria.set_text_color(230, 81, 0)
-                pdf_auditoria.cell(0, 10, "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO", new_x="LMARGIN", new_y="NEXT", align="C")
+                pdf_auditoria.cell(0, 10, f"DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO: {tabla_limpia_pdf}", new_x="LMARGIN", new_y="NEXT", align="C")
                 pdf_auditoria.set_font("Helvetica", "I", 9.5)
                 pdf_auditoria.set_text_color(110, 110, 110)
-                pdf_auditoria.cell(0, 5, "Tipo de Documento: Reporte de Modelado de Variables Latentes y Auditoria de Consistencia de Constructo", new_x="LMARGIN", new_y="NEXT", align="C")
                 pdf_auditoria.cell(0, 5, f"Audiencia: {tabla_analizar.upper()} | Emitido: {datetime.datetime.now().strftime('%d/%m/%Y')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
                 pdf_auditoria.ln(6)
                 pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
                 pdf_auditoria.ln(6)
+                
                 
                 pdf_auditoria.set_font("Helvetica", "B", 11)
                 pdf_auditoria.set_text_color(50, 50, 50)
