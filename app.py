@@ -1080,17 +1080,6 @@ def main():
                 # Desinfectamos el nombre de la tabla (remueve la naranja 🍊 y acentos antes de escribir)
                 tabla_limpia_pdf = limpiar_texto_pdf(tabla_analizar).upper()
                 
-                # Configuración institucional y metadatos del PDF sanitizados
-                pdf_auditoria.set_font("Helvetica", "B", 14)
-                pdf_auditoria.set_text_color(230, 81, 0)
-                pdf_auditoria.cell(0, 10, f"DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO: {tabla_limpia_pdf}", new_x="LMARGIN", new_y="NEXT", align="C")
-                pdf_auditoria.set_font("Helvetica", "I", 9.5)
-                pdf_auditoria.set_text_color(110, 110, 110)
-                pdf_auditoria.cell(0, 5, "Tipo de Documento: Reporte de Modelado de Variables Latentes y Auditoria de Consistencia de Constructo", new_x="LMARGIN", new_y="NEXT", align="C")
-                
-                # CORRECCIÓN EN LÍNEA 1147: Usamos la variable purificada libre de glifos inválidos
-                pdf_auditoria.cell(0, 5, f"Audiencia: {tabla_limpia_pdf} | Emitido: {datetime.datetime.now().strftime('%d/%m/%Y')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
-
                 
                 col_graph1, col_graph2 = st.columns(2)
                 with col_graph1:
