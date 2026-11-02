@@ -725,10 +725,10 @@ def ejecutar_analisis_semdeep(dataframe, es_likert):
 # PARTE 13 DE 14: ORQUESTRACIÓN CENTRAL, INTERFAZ POLÍGLOTA Y QR (TRAMO 1)
 # =================================================================
 def main():
-    # Inicialización local de variables globales de red
+    # Inicialización local de variables globales de red y tiempo
     global token_actual, es_celular_del_publico, url_con_token, token_tiempo
 
-    # 🍊 BLINDAJE ESTRUCTURAL INCONDICIONAL DE VARIABLES DE SESIÓN (PREVIENE EL KEYERROR)
+    # Blindaje estructural incondicional de variables de sesión
     if "audiencia_activa" not in st.session_state:
         st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state:
@@ -749,7 +749,6 @@ def main():
     if es_celular_del_publico and diag_tipo_url:
         st.session_state.audiencia_activa = diag_tipo_url
 
-    # Ahora esta línea corre de forma segura, garantizando que 'audiencia_activa' siempre exista
     url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}"
 
     # Instanciación síncrona inicial de estructuras físicas en la nube
@@ -794,7 +793,7 @@ def main():
     else:
         idioma_sel = "Español"
         tx = DICCIONARIO_IDIOMAS["Español"]
-        # =================================================================
+    # =================================================================
     # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2)
     # =================================================================
     # Consola Lateral Unificada del Ponente
@@ -945,6 +944,7 @@ def main():
         else:
             st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla. El auditorio puede seguir respondiendo escaneando el codigo QR superior con normalidad.")
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
+
 
     # =================================================================
     # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA Y CIERRE (TRAMO 1)
