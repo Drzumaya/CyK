@@ -732,64 +732,61 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.caption("Complete los campos obligatorios para activar el canal WhatsApp.")
 
 # =================================================================
-# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS (POLYGLOT INDEXED)
+# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES
 # =================================================================
-def algoritmo_generar_gajos_salud(idioma="Español"):
+def algoritmo_generar_gajos_salud(codigo_idioma="es"):
     """
-    Retorna la matriz adaptativa ontologica de alertas de Salud Integral
-    segun el diccionario poliglota maestro cargado.
+    Traduce dinamicamente bajo demanda la estructura entera del Modelo Mandarina.
+    Mapea llaves y sintomas en caliente usando la API Neuronal de Google.
     """
-     # Dentro de la Parte 11, forzamos la traducción neuronal bajo demanda de los enunciados:
-    enunciado_traducido = ejecutar_traduccion_neuronal(enunciado_base_espanol, idioma_sel)
-    st.write(f"Reactivo {r_id}: {enunciado_traducido}")
+    if not codigo_idioma or codigo_idioma == "es":
+        return GAJOS_MANDARINA_ORIGINAL
+        
+    gajos_traducidos = {}
+    try:
+        for dim_es, sintomas_lista in GAJOS_MANDARINA_ORIGINAL.items():
+            # Traduce el nombre de la dimensión (ej. "💪 Salud Física" manteniendo el emoji aislado)
+            emoji_prefix = dim_es[0:2] if dim_es[0] in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"] else ""
+            clean_dim = dim_es.replace(emoji_prefix, "").strip()
+            
+            dim_traducida = ejecutar_traduccion_neuronal(clean_dim, codigo_idioma)
+            dim_final_key = f"{emoji_prefix} {dim_traducida}".strip()
+            
+            # Traduce secuencialmente cada síntoma de la lista
+            sintomas_traducidos = [ejecutar_traduccion_neuronal(sintoma, codigo_idioma) for sintoma in sintomas_lista]
+            gajos_traducidos[dim_final_key] = sintomas_traducidos
+            
+        return gajos_traducidos
+    except Exception:
+        return GAJOS_MANDARINA_ORIGINAL
 
-    tx_gajos = DICCIONARIO_IDIOMAS.get(idioma, DICCIONARIO_IDIOMAS["Español"])
-    return tx_gajos["gajos_data"]
-
-def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, idioma="Español"):
+def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, codigo_idioma="es"):
     """
     Genera dinamicamente los 10 reactivos intercalados Cronos (Pares)
-    y Kairos (Impares) adaptados al contexto demografico.
+    y Kairos (Impares) adaptandolos al contexto demografico mediante la API de Google.
     """
-    if idioma == "Inglés":
-        return {
-            1: f"I easily capture strategic opportunities in {contexto_geo}.",
-            2: "I visually structure my weekly plan on exact clocks.",
-            3: "I feel that time flows organically when I act key goals.",
-            4: "I strictly punish non-punctuality in my professional circle.",
-            5: "I easily read unexpected changes as critical opportunities.",
-            6: "I manage my professional goals under rigid check-lists.",
-            7: "I prefer to break the itinerary if a personal window emerges.",
-            8: "I prefer sequential order over multi-task adaptations.",
-            9: "I experience high focus when the present environment alters.",
-            10: "I strictly separate clock hours for sleep and production."
-        }
-    elif idioma == "Griego":
-        return {
-            1: f"Συλλαμβάνω εύκολα στρατηγικές ευκαιρίες στο {contexto_geo}.",
-            2: "Δομώ οπτικά το εβδομαδιαίο μου πρόγραμμα σε ακριβή ρολόγια.",
-            3: "Νιώθω ότι ο χρόνος ρέει οργανικά όταν ενεργώ βασικούς στόχους.",
-            4: "Τιμωρώ αυστηρά την έλλειψη ακρίβειας στον επαγγελματικό μου κύκλο.",
-            5: "Διαβάζω εύκολα απρόσμενες αλλαγές ως κρίσιμες ευκαιρίες.",
-            6: "Διαχειρίζομαι τους επαγγελματικούς μου στόχους υπό αυστηρές λίστες.",
-            7: "Προτιμώ να σπάσω το δρομολόγιο εάν εμφανιστεί ένα προσωπικό παράθυρο.",
-            8: "Προτιμώ τη διαδοχική σειρά έναντι των προσαρμογών πολλαπλών εργασιών.",
-            9: "Βιώνω υψηλή εστίαση όταν το παρόν περιβάλλον μεταβάλλεται.",
-            10: "Διαχωρίζω αυστηρά τις ώρες του ρολογιού για ύπνο και παραγωγή."
-        }
-    else:
-        return {
-            1: f"Capturo con gran agilidad oportunidades estrategicas en {contexto_geo}.",
-            2: "Estructuro visualmente mi agenda semanal sobre relojes exactos.",
-            3: "Siento que el tiempo fluye de forma organica al accionar metas clave.",
-            4: "Castigo estrictamente la impuntualidad en mi circulo profesional.",
-            5: "Leo con facilidad los cambios imprevistos como oportunidades criticas.",
-            6: "Gestiono mis metas laborales bajo check-lists rigidos e inamovibles.",
-            7: "Prefiero romper el itinerario si emerge una ventana personal util.",
-            8: "Prefiero el orden secuencial sobre las adaptaciones multi-tarea.",
-            9: "Experimento alta concentracion cuando el entorno presente se altera.",
-            10: "Separo de forma estricta las horas del reloj para sueno y produccion."
-        }
+    banco_base_es = {
+        1: f"Capturo con gran agilidad oportunidades estrategicas en {contexto_geo}.",
+        2: "Estructuro visualmente mi agenda semanal sobre relojes exactos.",
+        3: "Siento que el tiempo fluye de forma organica al accionar metas clave.",
+        4: "Castigo estrictamente la impuntualidad en mi circulo profesional.",
+        5: "Leo con facilidad los cambios imprevistos como oportunidades criticas.",
+        6: "Gestiono mis metas laborales bajo check-lists rigidos e inamovibles.",
+        7: "Prefiero romper el itinerario si emerge una ventana personal util.",
+        8: "Prefiero el orden secuencial sobre las adaptaciones multi-tarea.",
+        9: "Experimento alta concentracion cuando el entorno presente se altera.",
+        10: "Separo de forma estricta las horas del reloj para sueno y produccion."
+    }
+    
+    if not codigo_idioma or codigo_idioma == "es":
+        return banco_base_es
+        
+    # Traducción neuronal al vuelo de la batería psicométrica completa
+    try:
+        return {r_id: ejecutar_traduccion_neuronal(enunciado, codigo_idioma) for r_id, enunciado in banco_base_es.items()}
+    except Exception:
+        return banco_base_es
+
                
 
 
