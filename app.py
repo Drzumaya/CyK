@@ -966,6 +966,70 @@ def main():
             resultados_totales = {}
             es_modo_likert = (st.session_state.audiencia_activa != "🍊 Salud Integral")
 
+            if not es_modo_likert:
+                st.write(tx["mand_title"])
+                st.write(tx["mand_subtitle"])
+                
+                # Ejecución del motor adaptativo ontológico de Salud Integral
+                gajos_dinamicos = algoritmo_generar_gajos_salud(idioma_sel)
+                
+                for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
+                    with st.container(border=True):
+                        st.markdown(f"#### {g_name}")
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
+                            cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
+                        with col2:
+                            cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
+                            cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
+                        resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
+                        
+                if st.button("Procesar Alertas Base / Register Alerts", key="btn_register_alerts_gajos"):
+                    st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
+                    st.success("OK. Context synchronized.")
+            else:
+                st.subheader(tx["sec1"])
+                resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
+                resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
+                nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
+                resultados_totales["Nacionalidad"] = nacionalidad
+                geo_contexto = "Region"
+                
+                if nacionalidad == "Mexicana":
+                    resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
+                    resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
+                    resultados_totales["País Origen"] = "México"
+                    resultados_totales["Continente Extranjero"] = "América"
+                    geo_contexto = str(resultados_totales["Estado Residencia"])
+                else:
+                    resultados_totales["Estado Origen"] = "N/A"
+                    resultados_totales["Estado Residencia"] = "N/A"
+                    resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
+                    resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
+                    geo_contexto = str(resultados_totales["País Origen"])
+                    
+                st.subheader(tx["sec2"])
+                resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
+                resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
+                resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
+                resultados_totales["C4_Origen"] = st.radio(tx["kn4"], ["Se impone", "Se hereda", "No sé"], horizontal=True, key="kn_4")
+                resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], ["Teología", "Cultura", "No sé"], horizontal=True, key="kn_5")
+                
+                st.subheader("📋 BATERÍA DE REACTIVOS C&K")
+                banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
+                for r_id, enunciado_idioma in banco_mutado.items():
+                    st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+                    etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        "Scale / Escala:",
+                        options=[1, 2, 3, 4, 5],
+                        format_func=lambda x: etiquetas_likert.get(x, str(x)),
+                        horizontal=False,
+                        key=f"dyn_r_{r_id}"
+                    )
+
+
 
         # =================================================================
     # PARTE 13: CENTRO DE INTELIGENCIA Y EXTRACTOR DE HISTORIAL (TRAMO 1)
