@@ -286,22 +286,22 @@ def traducir_texto_dinamico(texto_original, idioma_destino):
     return texto_original
     
 # =================================================================
-# PARTE 7 DE 14: FILTRO SANITIZADOR UNIVERSAL PARA EMISIÓN UTF-8
+# PARTE 7 DE 14: FILTRO SANITIZADOR UNIVERSAL NEURONAL MULTILINGÜE
 # =================================================================
 def limpiar_texto_pdf(texto, idioma_codigo="es"):
     """
-    Sanitiza las cadenas traduciéndolas bajo demanda a través de la API Neuronal.
-    Preserva el flujo UTF-8 intacto para compatibilidad con fuentes multilingües globales.
+    Sanitiza las cadenas traduciendolas bajo demanda a traves de la API Neuronal.
+    Preserva el flujo UTF-8 intacto y remueve emojis para evitar signos de interrogacion.
     """
     if not texto: 
         return ""
     txt_str = str(texto)
     
-    # Si la cadena es una semilla de interfaz, se auto-traduce dinámicamente antes de imprimirse
+    # Si la cadena es una semilla de interfaz, se auto-traduce dinamicamente antes de imprimirse
     if txt_str in TEXTOS_BASE_ESPANOL:
         txt_str = ejecutar_traduccion_neuronal(TEXTOS_BASE_ESPANOL[txt_str], idioma_codigo)
         
-    # Remoción de emojis de control web para limpiar las celdas vectoriales del PDF
+    # Remoción de emojis de la ponencia para proteger las celdas vectoriales del PDF
     emojis_a_remover = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏", "🏭", "🍊"]
     for emj in emojis_a_remover:
         txt_str = txt_str.replace(emj, "")
@@ -309,33 +309,22 @@ def limpiar_texto_pdf(texto, idioma_codigo="es"):
     return txt_str.strip()
 
 
-
-
 # =================================================================
-# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL UNIVERSAL (NOTO SANS UTF-8)
+# PARTE 8 DE 14: CONSTRUCTOR DE INFORME INDIVIDUAL UNIVERSAL (AUTOMÁTICO)
 # =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang_code="es"):
     """
     Compila el archivo PDF ejecutivo individual para el participante.
-    Inyecta dinámicamente Noto Sans de Google Fonts para soportar cualquier idioma del mundo.
+    Fuerza el mapa de caracteres nativo de Europa y Asia sin dependencias de red externas.
     """
     pdf = FPDF()
+    # Blindaje Ortográfico: Forzamos la codificacion nativa extendida para admitir glifos multilingües
+    pdf.core_fonts_encoding = "utf-8" if lang_code in ["ko", "ja", "zh-CN", "zh-TW", "ar", "ru", "hi"] else "cp1252"
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # 🍊 INYECCIÓN TIPOGRÁFICA TRANBCONTINENTAL: Carga fuentes con soporte completo de glifos orientales, árabes y latinos
-    try:
-        url_noto = "https://githubusercontent.com"
-        url_noto_bold = "https://githubusercontent.com"
-        url_noto_italic = "https://githubusercontent.com"
-        
-        pdf.add_font("NotoSansUniversal", "", url_noto)
-        pdf.add_font("NotoSansUniversal", "B", url_noto_bold)
-        pdf.add_font("NotoSansUniversal", "I", url_noto_italic)
-        font_family = "NotoSansUniversal"
-    except Exception:
-        font_family = "Helvetica" # Fallback de emergencia
-        
+    font_family = "Helvetica"
+    
     # Traducción en caliente del título del manuscrito según el tipo de audiencia activa
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
         base_title = "Reporte de Diagnóstico de la Salud Integral (Modelo Mandarina)"
@@ -364,7 +353,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(6)
     
-    # Mesa Demográfica Colectiva traducida bajo demanda
+    # Mesa Demográfica Colectiva traducida bajo demanda neuronal
     pdf.set_text_color(60, 60, 60)
     pdf.set_font(font_family, "B", 10)
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang_code), new_x="RIGHT", new_y="TOP")
@@ -453,7 +442,6 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         
     else:
-        # El bloque de Salud Integral se delega transaccionalmente a la Parte 9 (Ahora 100% neuronal)
         pdf.set_font(font_family, "", 10)
         inyectar_bloque_salud_integral_apa(pdf, resultados, lang_code)
             
@@ -916,59 +904,58 @@ def main():
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
 
-        # =================================================================
-    # CAPA DE INTERCEPTACIÓN DE IDIOMA POR PARÁMETROS DE URL RECTIFICADA
+         # =================================================================
+    # PARTE 13 DE 14: INTERCEPTACIÓN GLOBAL POR SESIÓN SÍNCRONA MASTER (TRAMO 1)
     # =================================================================
-    # 1. Detectamos el idioma actual de la URL o inicializamos la memoria del lote
+    # 1. Inicialización obligatoria e incondicional de los estados maestros de la sesión
     idioma_url_codigo = st.query_params.get("lang", "es")
     
     if "tx_traducido_cache" not in st.session_state:
         st.session_state.tx_traducido_cache = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
     if "idioma_activo_actual" not in st.session_state:
-        st.session_state.idioma_activo_actual = "es"
+        st.session_state.idioma_activo_actual = idioma_url_codigo
 
-    # Mapeo inverso seguro para posicionar el índice por defecto del widget selectbox
+    # Mapeo inverso seguro para posicionar el índice visual por defecto del selectbox
     nombre_visual_invertido = {v: k for k, v in MAPA_IDIOMAS_GLOBAL.items()}
     opcion_visual_defecto = nombre_visual_invertido.get(st.session_state.idioma_activo_actual, "Español")
     lista_opciones_visuales = list(MAPA_IDIOMAS_GLOBAL.keys())
 
     if not st.session_state.flujo_finalizado:
-        # Selector políglota universal acoplado
+        # Selector políglota universal acoplado de forma fija a la sesión
         idioma_sel_visual = st.selectbox(
             "🌐 Choose System Language / Selecciona Idioma:", 
             options=lista_opciones_visuales,
             index=lista_opciones_visuales.index(opcion_visual_defecto) if opcion_visual_defecto in lista_opciones_visuales else 0,
-            key="sb_language_selector_main_fixed_state_unfailing"
+            key="sb_language_selector_main_fixed_state_unfailing_v3"
         )
-        idioma_sel = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
+        # Sincronizamos la variable global madre directamente al session_state reactivo
+        st.session_state.idioma_activo_actual = MAPA_IDIOMAS_GLOBAL[idioma_sel_visual]
+        idioma_sel = st.session_state.idioma_activo_actual
         
-        # 🍊 DISPARADOR DE INTERCEPTACIÓN SÍNCRONA: 
-        # Si el usuario hace clic y cambia el idioma, ejecutamos la traducción masiva ANTES de pintar la pantalla
-        if idioma_sel != st.session_state.idioma_activo_actual:
-            st.query_params["lang"] = idioma_sel  # Escribe el nuevo idioma en la URL
-            st.session_state.idioma_activo_actual = idioma_sel
+        # 🍊 DISPARADOR DE INTERCEPTACIÓN SÍNCRONA TOTAL:
+        # Si el usuario cambia la opción, guarda en la URL, traduce el lote entero y recarga la pantalla en el acto
+        if idioma_sel != idioma_url_codigo:
+            st.query_params["lang"] = idioma_sel  
             
             with st.spinner("Translating complete system interface... 🌐"):
                 llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
                 valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
                 
-                # Una sola llamada HTTP masiva para traducir el formulario entero de un solo golpe
+                # Una sola llamada masiva por lotes para traducir toda la pantalla
                 valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
                 st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
-                
-                # 🔄 REINICIO DEL HILO DE EJECUCIÓN: Destruye la vista vieja y fuerza a Streamlit
-                # a pintar el formulario completo ya traducido con los datos limpios de la sesión
                 st.rerun()
                 
         tx = st.session_state.tx_traducido_cache
     else:
         idioma_sel = "es"
+        st.session_state.idioma_activo_actual = "es"
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
 
 
 
-    # =================================================================
-    # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2 - POLYGLOT)
+      # =================================================================
+    # PARTE 13 DE 14: CONSOLE, PROYECTOR QR Y FORMULARIO (TRAMO 2 - NEURAL POLYGLOT)
     # =================================================================
     # Consola Lateral Unificada del Ponente
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
@@ -1004,7 +991,7 @@ def main():
                 
                 seleccion = st.selectbox(
                     "Audiencia Actual en Vivo:", 
-                    lista_audiencias_completa, 
+                    lista_audiences_completa, 
                     index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0, 
                     key="sb_select_audience_unique"
                 )
@@ -1015,14 +1002,11 @@ def main():
                         conectar_google_sheets(seleccion)
                     st.rerun()
 
-       # Único proyector de Código QR dinámico en pantalla principal (Mecanismo Neuronal Blindado)
+    # Único proyector de Código QR dinámico en pantalla principal (Mecanismo Neuronal)
     if not st.session_state.flujo_finalizado:
-        # Se extrae de forma segura desde el diccionario dinámico 'tx' generado por la API de Google
-        # El fallback recurre directamente al texto semilla en español si la API sufre latencia
         titulo_qr = tx.get("qr_title", TEXTOS_BASE_ESPANOL["qr_title"])
         sub_qr1 = tx.get("qr_sub1", TEXTOS_BASE_ESPANOL["qr_sub1"])
         sub_qr2 = tx.get("qr_sub2", TEXTOS_BASE_ESPANOL["qr_sub2"])
-
         
         with st.expander(titulo_qr, expanded=True):
             col_qr1, col_qr2 = st.columns([1, 1.5])
@@ -1059,8 +1043,8 @@ def main():
                 st.write(tx["mand_title"])
                 st.write(tx["mand_subtitle"])
                 
-                # Carga síncrona de síntomas ontológicos traducidos
-                gajos_dinamicos = algoritmo_generar_gajos_salud(idioma_sel)
+                # 🍊 Sincronización Neuronal: Cargamos los gajos de la Mandarina usando el idioma de la sesión
+                gajos_dinamicos = algoritmo_generar_gajos_salud(st.session_state.idioma_activo_actual)
                 
                 for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
                     with st.container(border=True):
@@ -1072,7 +1056,8 @@ def main():
                         with col2:
                             cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
                             cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
-                        resultados_totales[g_name] = [alertas_especificas[i] for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
+                        # Almacenamiento posicional unívoco e inmune a traducciones rotas
+                        resultados_totales[g_name] = [i for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                         
                 if st.button("Procesar Alertas Base / Register Alerts", key="btn_register_alerts_gajos"):
                     st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
@@ -1103,30 +1088,30 @@ def main():
                 resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
                 resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
                 
-                # Mapeo de opciones traducidas para la evaluación de conocimiento
-                opciones_c4 = tx.get("kn4_options", ["Sí", "No", "No sé"])
-                opciones_c5 = tx.get("kn5_options", ["Sí", "No", "No sé"])
+                # Mapeo por lote dinámico de respuestas demográficas de conocimiento
+                opciones_c4 = [tx.get("kn4_options_0", "Se impone"), tx.get("kn4_options_1", "Se hereda"), tx.get("kn4_options_2", "No sé")]
+                opciones_c5 = [tx.get("kn5_options_0", "Teología"), tx.get("kn5_options_1", "Cultura"), tx.get("kn5_options_2", "No sé")]
                 resultados_totales["C4_Origen"] = st.radio(tx["kn4"], opciones_c4, horizontal=True, key="kn_4")
                 resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], opciones_c5, horizontal=True, key="kn_5")
                 
                 st.subheader("📋 BATERÍA DE REACTIVOS C&K")
-                banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
+                # 🍊 Sincronización Neuronal: Cargamos los reactivos usando el idioma de la sesión
+                banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, st.session_state.idioma_activo_actual)
                 for r_id, enunciado_idioma in banco_mutado.items():
                     st.write(f"Reactivo {r_id}: {enunciado_idioma}")
-                    etiquetas_likert = tx.get("likert_labels", DICCIONARIO_IDIOMAS["Español"]["likert_labels"])
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Scale / Escala:",
-                        options=[1, 2, 3, 4, 5],
-                        format_func=lambda x: etiquetas_likert.get(x, str(x)),
+                        options=,
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)),
                         horizontal=False,
                         key=f"dyn_r_{r_id}"
                     )
 
-            renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
+            # Inyectamos incondicionalmente la variable maestra de idioma de la sesión en los botones transaccionales
+            renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, st.session_state.idioma_activo_actual, tx)
         else:
             st.info("💡 El formulario de captura local se encuentra oculto en esta pantalla.")
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
-
         
     # =================================================================
     # PARTE 14 DE 14: PANTALLA POST-DESCARGA POLÍGLOTA (TRAMO 1)
