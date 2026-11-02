@@ -422,14 +422,14 @@ def limpiar_texto_pdf(texto, idioma="Español"):
     return texto_sano.encode('ascii', 'ignore').decode('ascii').strip()
 
 
+# =================================================================
+# PARTE 8: COMPILADOR PSICOMÉTRICO INDIVIDUAL CON SUGERENCIAS ASIMÉTRICAS
+# =================================================================
 def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo_diagnostico, es_likert=False, img_grafica_base64=None, lang="Español"):
     pdf = FPDF()
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
-    # 🍊 BLINDAJE ABSOLUTO ANTI-FUTURAS AUDIENCIAS:
-    # Si el título de la audiencia es la Salud Integral, se rotula como Mandarina.
-    # Cualquier otra tabla o audiencia futura (ITAP, TELMEX, etc.) se rotula AUTOMÁTICAMENTE como Cronos y Kairós.
     if str(titulo_diagnostico).strip() == "🍊 Salud Integral":
         titulo_oficial = "DIAGNOSTICO DE LA SALUD INTEGRAL MODELO MANDARINA"
         es_realmente_likert = False
@@ -440,20 +440,20 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     nombre_sano = limpiar_texto_pdf(nombre_usuario, lang)
     whatsapp_sano = limpiar_texto_pdf(whatsapp_usuario, lang)
     
-    # Renderizado de Encabezado Institucional
+    # Encabezado Institucional
     pdf.set_font("Helvetica", "B", 13)
-    pdf.set_text_color(230, 81, 0) # Naranja Mandarina Core
+    pdf.set_text_color(230, 81, 0)
     pdf.cell(0, 10, titulo_oficial, new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font("Helvetica", "B", 9)
     pdf.set_text_color(100, 100, 100)
-    pdf.cell(0, 6, f"Jacob Zumaya Prianti (c) 2026 | Language: {lang}", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.cell(0, 6, f"Jacob Zumaya Prianti (c) 2026 | Language: {lang} | Reporte Individual", new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(5)
     pdf.set_draw_color(255, 152, 0)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(8)
     
-    # Bloque de Datos Sociodemográficos Básicos
+    # Bloque Demográfico
     pdf.set_text_color(50, 50, 50)
     pdf.set_font("Helvetica", "B", 11)
     pdf.cell(45, 6, limpiar_texto_pdf("part", lang), new_x="RIGHT", new_y="TOP")
@@ -471,11 +471,10 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
     pdf.cell(0, 6, datetime.date.today().strftime("%d/%m/%Y"), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(5)
 
-    # Reemplazamos la evaluación de la bandera por la nueva variable sanitizada de control estricto
     if es_realmente_likert:
-        # === BLOQUE DE RENDERIZADO MODELOS TEMPORALES C&K ===
-        kairos_v = [resultados.get(f"R{i}", 3) for i in range(1, 11, 2)]
-        cronos_v = [resultados.get(f"R{i}", 3) for i in range(2, 11, 2)]
+        # === INFORME PSICOMÉTRICO INDIVIDUAL TEMPORAL C&K ===
+        kairos_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
+        cronos_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_cronos = sum(cronos_v) / 5
         avg_kairos = sum(kairos_v) / 5
         
@@ -484,6 +483,7 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         pdf.cell(0, 8, limpiar_texto_pdf("vec", lang), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         
+        # Inyección de la gráfica individual en el PDF
         if img_grafica_base64:
             try:
                 img_clean = img_grafica_base64.split(",")[-1]
@@ -499,18 +499,30 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
         
         diferencia = abs(avg_cronos - avg_kairos)
         pdf.set_font("Helvetica", "B", 11)
+        
+        # Explicación y Sugestiones Asimétricas C&K
         if diferencia <= 0.4:
             pdf.set_text_color(38, 166, 91)
             pdf.cell(0, 6, limpiar_texto_pdf("perf_s", lang), new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "I", 10)
+            pdf.set_text_color(60, 60, 60)
+            pdf.multi_cell(0, 5, "Explicacion: Posees una mente bitemporal madura. Consigues balancear la precision metrico-secuencial (Cronos) con la flexibilidad adaptativa de ventanas de oportunidad (Kairos).\nSugestion: Sigue cultivando este balance. Utiliza agendas rigidas para la operacion basica, pero reserva intencionalmente un 20% de tu jornada libre de compromisos fijos para reaccionar ante eventos fortuitos de alta rentabilidad existencial.")
         elif avg_kairos > avg_cronos:
             pdf.set_text_color(30, 139, 195)
             pdf.cell(0, 6, limpiar_texto_pdf("perf_k", lang), new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "I", 10)
+            pdf.set_text_color(60, 60, 60)
+            pdf.multi_cell(0, 5, "Explicacion: Tu perfil opera bajo esquemas puramente kairoticos. Sobresales en reaccionar ante contingencias y capturar momentos optimos de accion, pero corres el riesgo de descuidar hitos administrativos o plazos rigidos.\nSugestion: Desarrolla anclajes operativos. Vincula alarmas digitales inamovibles o delegaciones solidas para tus entregas regulatorias, evitando que tu gran agilidad cognitiva degenere en una procrastinacion sistematica basada en el caos.")
         else:
             pdf.set_text_color(217, 30, 24)
             pdf.cell(0, 6, limpiar_texto_pdf("perf_c", lang), new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "I", 10)
+            pdf.set_text_color(60, 60, 60)
+            pdf.multi_cell(0, 5, "Explicacion: Presentas una fijacion cronocentrica pura. Eres altamente confiable, puntual y estructurado, pero experimentas altos niveles de ansiedad o frustracion psiquica extrema cuando los planes sufren alteraciones o ventanas imprevistas de cambio.\nSugestion: Entrena la tolerancia a la incertidumbre. Disena conscientemente simulacros de cambio en tu rutina semanal y practica deliberadamente pausar tu checklist inamovible frente a una emergencia humana o pastoral prioritaria.")
     else:
-        # === BLOQUE DE RENDERIZADO GAJOS SALUD INTEGRAL ===
+        # === INFORME DE SALUD INTEGRAL MODELO MANDARINA ===
         for dim_nombre, items in resultados.items():
+            if dim_nombre in ["Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia"]: continue
             pdf.set_font("Helvetica", "B", 11)
             pdf.set_text_color(230, 81, 0)
             pdf.cell(0, 6, f">> {limpiar_texto_pdf(dim_nombre, lang)}", new_x="LMARGIN", new_y="NEXT")
@@ -519,29 +531,24 @@ def generar_pdf_diagnostico(nombre_usuario, whatsapp_usuario, resultados, titulo
             pdf.set_text_color(50, 50, 50)
             pdf.multi_cell(0, 5, f"Alertas Detectadas: {puntos_str}\n")
             
-        # Apartado de invitación de seguimiento clínico
+        # Invitación Médica/Clínica de Acompañamiento
         pdf.ln(5)
         pdf.set_draw_color(230, 81, 0)
         pdf.set_fill_color(254, 243, 233)
         pdf.rect(10, pdf.get_y(), 190, 25, "DF")
-        
         pdf.set_y(pdf.get_y() + 2)
         pdf.set_x(12)
         pdf.set_font("Helvetica", "B", 10)
         pdf.set_text_color(230, 81, 0)
         pdf.cell(0, 5, "INVITACION DE SEGUIMIENTO Y ATENCION:", new_x="LMARGIN", new_y="NEXT")
-        
         pdf.set_x(12)
         pdf.set_font("Helvetica", "I", 9.5)
         pdf.set_text_color(60, 60, 60)
-        mensaje_apoyo = (
-            "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, "
-            "te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. "
-            "Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
-        )
+        mensaje_apoyo = "Tu bienestar es nuestra prioridad mas alta. Si has identificado alertas criticas en tus gajos de salud, te invitamos cordialmente a acercarte con el ponente para agendar una consulta privada o asesoria personalizada. Darle un seguimiento oportuno a estos vectores es el primer paso hacia una madurez integral adaptativa duradera."
         pdf.multi_cell(186, 4.5, mensaje_apoyo)
             
     return bytes(pdf.output())
+
 
 # =================================================================
 # PARTE 9: MOTOR DE INVESTIGACIÓN SEMDEEP (CONVERGENCIA SVD DE 10 ÍTEMS)
@@ -1061,8 +1068,8 @@ def main():
                 st.progress(int(pct_cronos))
         else:
             st.info("La tabla de Salud Integral no escala vectores proporcionales C/K.")
-        # =================================================================
-        # PARTE 13: INSPECCIÓN CRUDA, COMPILACIÓN DOCTORAL Y GUARDIA MAIN (TRAMO 3 - FIXED)
+                # =================================================================
+        # PARTE 13: INSPECCIÓN CRUDA, COMPILACIÓN DOCTORAL Y GUARDIA MAIN (TRAMO 3 DEFINITIVO)
         # =================================================================
         st.markdown("---")
         st.subheader(f"📊 Inspección de Base de Datos Cruda: {tabla_analizar}")
@@ -1072,14 +1079,12 @@ def main():
         st.markdown("---")
         if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
             if df_doc is not None and len(df_doc) >= 2:
-                # INSTANCIACIÓN EN LA RAÍZ DEL BOTÓN: Garantiza que el PDF exista para cualquier flujo (Likert o Salud)
-                                # === COMPILACIÓN BLINDADA ANTI-EMOJIS ===
+                # INSTANCIACIÓN EN LA RAÍZ DEL BOTÓN: Garantiza la existencia incondicional del documento
                 pdf_auditoria = FPDF()
                 pdf_auditoria.add_page()
                 
-                # Desinfectamos el nombre de la tabla (remueve la naranja 🍊 y acentos antes de escribir)
-                tabla_limpia_pdf = limpiar_texto_pdf(tabla_analizar).upper()
-                
+                # Renderizado Gráfico Local con Matplotlib capturado de forma síncrona en memoria
+                fig, ax = plt.subplots(figsize=(5, 3.5))
                 
                 col_graph1, col_graph2 = st.columns(2)
                 with col_graph1:
@@ -1087,14 +1092,33 @@ def main():
                     if not es_tabla_likert:
                         col_gajos = ["Salud Fisica (SF)", "Salud Mental (SM)", "Salud Emocional (SE)", "Salud Social (SS)", "Salud Economica (SECO)", "Salud Temporal (ST)", "Salud Espiritual (SPI)"]
                         promedios = {c: pd.to_numeric(df_doc[c], errors='coerce').fillna(0).mean() for c in col_gajos if c in df_doc.columns}
-                        if promedios: st.bar_chart(pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"]), x="Dim", y="Media", color="#e65100")
+                        if promedios:
+                            df_plot = pd.DataFrame(list(promedios.items()), columns=["Dim", "Media"])
+                            st.bar_chart(df_plot, x="Dim", y="Media", color="#e65100")
+                            
+                            # Construcción de gráfica Matplotlib para el PDF macro
+                            ax.bar(df_plot["Dim"], df_plot["Media"], color="#e65100")
+                            ax.set_title("Medias de Alertas por Dimension de Bienestar")
+                            plt.xticks(rotation=45, ha='right')
                     else:
-                        st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
+                        df_plot = pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"])
+                        st.bar_chart(df_plot, x="Vector", y="Media", color="#2574a9")
+                        
+                        # Construcción de gráfica Matplotlib para el PDF macro
+                        ax.bar(df_plot["Vector"], df_plot["Media"], color="#2574a9", width=0.5)
+                        ax.set_title("Medias del Vector Temporal Colectivo")
+                        ax.set_ylim(1, 5)
                 
                 with col_graph2:
                     st.write("#### 🧠 Modelado Estructural Ecuaciones Latentes: SEMDeep")
                     res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
                     st.json(res_sem)
+                    
+                # Guardado virtual en memoria de la gráfica corporativa para el informe imprimible
+                buf_macro = BytesIO()
+                plt.savefig(buf_macro, format='png', bbox_inches='tight', dpi=120)
+                buf_macro.seek(0)
+                plt.close(fig)
                     
                 alpha_c, alpha_k = 0.0, 0.0
                 if es_tabla_likert:
@@ -1124,37 +1148,36 @@ def main():
                             if alpha_k >= 0.70: st.success(f"🍃 Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Fiabilidad Alta)")
                             else: st.warning(f"⚠️ Alfa de Cronbach Vector Kairós: **{alpha_k:.4f}** (Ruido en Comprensión)")
 
-                # =================================================================
-                # EXPORTACIÓN EJECUTIVA COMPLETA EN PDF (BLINDADA CONTRA GLIFOS UNICODE)
-                # =================================================================
                 st.markdown("---")
                 st.write("#### 📥 Exportación Ejecutiva para Tomadores de Decisiones")
                 
-                pdf_auditoria = FPDF()
-                pdf_auditoria.add_page()
-                
-                # FILTRO QUIRÚRGICO DE SEGURIDAD: Limpiamos la cadena de la tabla para evaporar la naranja 🍊 o acentos
+                # Configuración e Inyección del Reporte Macro en PDF
                 tabla_limpia_pdf = limpiar_texto_pdf(tabla_analizar).upper()
-                
                 pdf_auditoria.set_font("Helvetica", "B", 14)
                 pdf_auditoria.set_text_color(230, 81, 0)
                 pdf_auditoria.cell(0, 10, "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO", new_x="LMARGIN", new_y="NEXT", align="C")
                 pdf_auditoria.set_font("Helvetica", "I", 9.5)
                 pdf_auditoria.set_text_color(110, 110, 110)
                 pdf_auditoria.cell(0, 5, "Tipo de Documento: Reporte de Modelado de Variables Latentes y Auditoria de Consistencia de Constructo", new_x="LMARGIN", new_y="NEXT", align="C")
-                
-                # CORRECCIÓN DOCTORAL DE LA LÍNEA CRÍTICA 1136: Usamos la variable purificada inmune a fallas de codificación
                 pdf_auditoria.cell(0, 5, f"Audiencia: {tabla_limpia_pdf} | Emitido: {datetime.datetime.now().strftime('%d/%m/%Y')} | Jacob Zumaya (c) 2026", new_x="LMARGIN", new_y="NEXT", align="C")
                 pdf_auditoria.ln(6)
                 pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
                 pdf_auditoria.ln(6)
                 
+                # Datos Descriptivos Muestra
                 pdf_auditoria.set_font("Helvetica", "B", 11)
                 pdf_auditoria.set_text_color(50, 50, 50)
-                pdf_auditoria.cell(0, 6, f"Muestra Analizada (N): {len(df_doc)} registros activos.", new_x="LMARGIN", new_y="NEXT")
-                pdf_auditoria.cell(0, 6, f"Distribucion Porcentual: Vector Cronos ({pct_cronos:.2f}%) | Vector Kairos ({pct_kairos:.2f}%)", new_x="LMARGIN", new_y="NEXT")
+                pdf_auditoria.cell(0, 6, f"Muestra Analizada (N): {len(df_doc)} registros activos en la base de datos.", new_x="LMARGIN", new_y="NEXT")
+                if es_tabla_likert:
+                    pdf_auditoria.cell(0, 6, f"Distribucion Porcentual Dominante: Vector Cronos ({pct_cronos:.2f}%) | Vector Kairos ({pct_kairos:.2f}%)", new_x="LMARGIN", new_y="NEXT")
+                pdf_auditoria.ln(5)
                 
-                pdf_auditoria.ln(4)
+                # Incrustar la gráfica generada dinámicamente en el PDF Macro
+                try:
+                    pdf_auditoria.image(buf_macro, x=55, w=100)
+                    pdf_auditoria.ln(6)
+                except Exception: pass
+                
                 pdf_auditoria.set_font("Helvetica", "B", 12)
                 pdf_auditoria.set_text_color(230, 81, 0)
                 pdf_auditoria.cell(0, 7, "I. SIGNIFICADO Y ARQUITECTURA DE TRAYECTORIAS (SEMDeep)", new_x="LMARGIN", new_y="NEXT")
@@ -1182,10 +1205,9 @@ def main():
                 pdf_auditoria.set_text_color(60, 60, 60)
                 
                 txt_interpretacion = (
-                    f"Los datos revelan que el {pct_cronos:.1f}% de la audiencia posee una estructura cognitiva predominantemente "
-                    f"cronocentrica, while que el {pct_kairos:.1f}% opera bajo esquemas kairoticos adaptativos. El nivel de "
-                    f"covarianza latente observado ({cov:.4f}) indica el grado de interdependencia o tension psiquica que "
-                    f"los participantes experimentan al equilibrar las demandas del reloj y las ventanas de oportunidad operativa."
+                    f"Los datos analizados revelan la estructura cognitiva predominante del grupo. "
+                    f"El nivel de covarianza latente observado ({cov:.4f}) indica el grado de interdependencia o tension psiquica que "
+                    f"los participantes experimentan al equilibrar las demandas del reloj y las ventanas de oportunidad operativa en sus entornos."
                 )
                 pdf_auditoria.multi_cell(0, 5, txt_interpretacion)
                 
@@ -1194,44 +1216,40 @@ def main():
                 pdf_auditoria.set_text_color(230, 81, 0)
                 pdf_auditoria.cell(0, 7, "III. CONCLUSION DE TRAYECTORIAS Y EQUILIBRIO SISTEMICO", new_x="LMARGIN", new_y="NEXT")
                 pdf_auditoria.set_font("Helvetica", "", 10)
-                pdf_auditoria.set_text_color(60, 60, 60)
-                
-                dominancia = "Cronos (Planificacion y Rigidez)" if b_c > b_k else "Kairos (Agilidad y Contexto)"
-                txt_conclusion = (
-                    f"A partir de los coeficientes de ruta estimados, se concluye que el vector de mayor "
-                    f"impacto predictivo sistematico en esta audiencia es {dominancia}. Esto sugiere que los esfuerzos de "
-                    f"intervencion y desarrollo organizacional deben priorizar la estabilizacion de esta dimension temporal "
-                    f"para optimizar el bienestar integral institucional y mitigar indices de fatiga."
-                )
-                pdf_auditoria.multi_cell(0, 5, txt_conclusion)
-                
-                pdf_auditoria.ln(4)
-                pdf_auditoria.set_font("Helvetica", "B", 12)
-                pdf_auditoria.set_text_color(230, 81, 0)
-                pdf_auditoria.cell(0, 7, "IV. NOTA CIENTIFICA Y CONTROL EPISTEMOLOGICO", new_x="LMARGIN", new_y="NEXT")
-                pdf_auditoria.set_font("Helvetica", "I", 9.5)
-                pdf_auditoria.set_text_color(80, 80, 80)
-                
-                txt_nota = (
-                    "Nota Cientifica de Validacion: Este reporte fue compiled empleando Descomposicion en Valores Singulares (SVD) "
-                    "y Factorizacion Ortogonal de Matrices Centradas. En caso de procesar muestras de control simuladas de baja "
-                    "varianza, el R2 tendera de manera determinista a 1.000 y la covarianza a 1.000 como reflejo de simetria algebraica. "
-                    "Para validez externa indexada, se recomienda contrastar estos coeficientes de ruta con muestras reales N > 30."
-                )
-                pdf_auditoria.multi_cell(0, 5, txt_nota)
-                
-                bytes_auditoria = pdf_auditoria.output()
-                st.download_button(
-                    label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_limpia_pdf})",
-                    data=bytes(bytes_auditoria),
-                    file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
-                    mime="application/pdf",
-                    key="btn_download_admin_pdf_final_maestro"
-                )
+pdf_auditoria.set_text_color(60, 60, 60)
+dominancia = "Cronos (Planificacion y Rigidez)" if b_c > b_k else "Kairos (Agilidad y Contexto)"
+txt_conclusion = (
+f"A partir de los coeficientes de ruta estimados, se concluye de forma clara que el vector de mayor "
+f"impacto predictivo sistematico en esta audiencia es {dominancia}. Esto sugiere que los esfuerzos de "
+f"intervencion y desarrollo organizacional deben priorizar la estabilizacion de esta dimension temporal "
+f"para optimizar el bienestar integral institucional."
+)
+pdf_auditoria.multi_cell(0, 5, txt_conclusion)
+pdf_auditoria.ln(4)
+pdf_auditoria.set_font("Helvetica", "B", 12)
+pdf_auditoria.set_text_color(230, 81, 0)
+pdf_auditoria.cell(0, 7, "IV. NOTA CIENTIFICA Y CONTROL EPISTEMOLOGICO", new_x="LMARGIN", new_y="NEXT")
+pdf_auditoria.set_font("Helvetica", "I", 9.5)
+pdf_auditoria.set_text_color(80, 80, 80)
+txt_nota = (
+"Nota Cientifica de Validacion: Este reporte fue compiled empleando Descomposicion en Valores Singulares (SVD) "
+"y Factorizacion Ortogonal de Matrices Centradas. En caso de procesar muestras de control simuladas de baja "
+"varianza, el R2 tendera de manera determinista a 1.000 y la covarianza a 1.000 como reflejo de simetria algebraica."
+)
+pdf_auditoria.multi_cell(0, 5, txt_nota)
+bytes_auditoria = pdf_auditoria.output()
+st.download_button(
+label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_limpia_pdf})",
+data=bytes(bytes_auditoria),
+file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
+mime="application/pdf",
+key="btn_download_admin_pdf_final_maestro"
+)
 
-
+Guardia de ejecución principal reglamentaria en el entorno de Python
 
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
     main()
+
 
