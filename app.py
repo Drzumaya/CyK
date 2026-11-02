@@ -895,31 +895,48 @@ def main():
 
         # EXTRACCIÓN HERMÉTICA: Busca en los Secrets de la nube; si no existe, usa un fallback de desarrollo temporal
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
-
+    
     if not es_celular_del_publico:
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
             if not st.session_state.admin_autenticado:
-                input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd")
-                if st.button("Desbloquear Tableros"):
+                input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_unique")
+                if st.button("Desbloquear Tableros", key="btn_desbloquear_unique"):
                     if input_password == PASSWORD_SISTEMA:
                         st.session_state.admin_autenticado = True
                         st.rerun()
-                    else: st.error("Contraseña incorrecta.")
+                    else:
+                        st.error("Contraseña incorrecta.")
             else:
                 st.success("Modo Ponente Activo")
-                nueva_aud_txt = st.text_input("➕ Agregar Nueva Audiencia Personalizada:", key="add_new_aud_input").strip()
-                lista_audiencias_base = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-                if "audiencias_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
-                if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiences_custom_list:
-                    st.session_state.audiences_custom_list.append(nueva_aud_txt)
-                    st.toast(f"Audiencia '{nueva_aud_txt}' añadida a la sesión", icon="🍊")
                 
-                lista_audiencias_completa = lista_audiencias_base + st.session_state.audiences_custom_list
-                seleccion = st.selectbox("Audiencia Actual en Vivo:", lista_audiencias_completa, index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0)
+                # BOTÓN DE CIERRE INSTANTÁNEO DEL CENTRO DE INTELIGENCIA
+                if st.button("🚪 Cerrar Centro de Inteligencia", type="secondary", key="btn_close_admin_unique"):
+                    st.session_state.admin_autenticado = False
+                    st.rerun()
+                    
+                nueva_aud_txt = st.text_input("➕ Agregar Nueva Audiencia Personalizada:", key="add_new_aud_unique").strip()
+                lista_audiencias_base = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
+                
+                if "audiencias_custom_list" not in st.session_state: 
+                    st.session_state.audiencias_custom_list = []
+                
+                if nueva_aud_txt and nueva_aud_txt not in lista_audiencias_base and nueva_aud_txt not in st.session_state.audiencias_custom_list:
+                    st.session_state.audiencias_custom_list.append(nueva_aud_txt)
+                    st.toast(f"Audiencia '{nueva_aud_txt}' añadida", icon="🍊")
+                
+                lista_audiencias_completa = lista_audiencias_base + st.session_state.audiencias_custom_list
+                
+                seleccion = st.selectbox(
+                    "Audiencia Actual en Vivo:", 
+                    lista_audiencias_completa, 
+                    index=lista_audiencias_completa.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_audiencias_completa else 0, 
+                    key="sb_select_audience_unique"
+                )
+                
                 if seleccion != st.session_state.audiencia_activa:
                     st.session_state.audiencia_activa = seleccion
-                    with st.spinner("Inicializando entorno de datos en Google Sheets..."):
+                    with st.spinner("Inicializando entorno de datos..."):
                         conectar_google_sheets(seleccion)
                     st.rerun()
 
