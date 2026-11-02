@@ -741,7 +741,7 @@ def algoritmo_generar_gajos_salud(idioma="Español"):
     """
      # Dentro de la Parte 11, forzamos la traducción neuronal bajo demanda de los enunciados:
     enunciado_traducido = ejecutar_traduccion_neuronal(enunciado_base_espanol, idioma_sel)
-        st.write(f"Reactivo {r_id}: {enunciado_traducido}")
+    st.write(f"Reactivo {r_id}: {enunciado_traducido}")
 
     tx_gajos = DICCIONARIO_IDIOMAS.get(idioma, DICCIONARIO_IDIOMAS["Español"])
     return tx_gajos["gajos_data"]
