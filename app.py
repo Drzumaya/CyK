@@ -758,19 +758,24 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.image(buf_m.getvalue(), width=280)
         except Exception: pass
 
-    col_btn1, col_btn2 = st.columns(2)
+        col_btn1, col_btn2 = st.columns(2)
     campos_completos = bool(nombre.strip()) and bool(whatsapp.strip())
     
     with col_btn1:
         if st.button(tx["btn_save"], type="primary", key="btn_save_main_core"):
-            if not campos_completos: st.error(tx["err_fields"])
+            if not campos_completos: 
+                st.error(tx["err_fields"])
             else:
-                exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
-                st.session_state.guardado_exitoso = True
-                st.rerun() # Fuerza la actualización de hilos de Streamlit para liberar el botón de descarga
+                with st.spinner(tx["proc"]):
+                    # Registro síncrono en la nube de Google Sheets
+                    exito = guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, token_actual, es_modo_likert)
+                    st.session_state.guardado_exitoso = True
+                    st.toast("⚡ Datos procesados en el ecosistema.", icon="🍊")
+                    st.rerun() # Reinicia el hilo para sincronizar el buffer de descarga
                         
     with col_btn2:
-        if st.session_state.guardado_exitoso and campos_completos:
+        # CORRECCIÓN DE RAÍZ: Permitimos la descarga instantánea si los campos básicos están validados
+        if campos_completos:
             if es_modo_likert and grafica_base64 is None:
                 try:
                     kairos_v = [int(resultados_totales.get(f"R{i}", 3)) for i in range(1, 11, 2)]
@@ -783,13 +788,17 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
                     grafica_base64 = f"data:image/png;base64,{base64.b64encode(buf_g.read()).decode('utf-8')}"
                     plt.close(fig)
                 except Exception: pass
-                    
+            
+            # Compilación binaria en tiempo real del PDF con la mandarina integrada
             reporte_procesado = generar_pdf_diagnostico(nombre, whatsapp, resultados_totales, st.session_state.audiencia_activa, es_modo_likert, grafica_base64, idioma_sel)
+            nombre_archivo = nombre.replace(' ', '_') if nombre else 'Participante'
             
             st.download_button(
-                label=tx["btn_pdf"], data=reporte_procesado,
-                file_name=f"Reporte_{st.session_state.audiencia_activa.replace(' ', '_')}.pdf",
-                mime="application/pdf", key="btn_download_user_pdf_report"
+                label=tx["btn_pdf"],
+                data=reporte_procesado,
+                file_name=f"Reporte_Mandarina_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
+                mime="application/pdf",
+                key="btn_download_user_pdf_report_fixed"
             )
         else: 
             st.info(tx["fields_msg"])
