@@ -1084,7 +1084,7 @@ def main():
         st.write("Tabla completa de respuestas del auditorio sincronizada en vivo:")
         st.dataframe(df_doc, use_container_width=True)
 
-               st.markdown("---")
+        st.markdown("---")
         if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
             if df_doc is not None and len(df_doc) >= 2:
                 # INSTANCIACIÓN EN LA RAÍZ DEL BOTÓN: Garantiza que el PDF exista para cualquier flujo (Likert o Salud)
