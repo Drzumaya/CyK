@@ -1120,14 +1120,16 @@ def main():
                     key=f"dyn_r_{r_id}"
                 )
 
-        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
-    else:
-        lbl_info_hidden = ejecutar_traduccion_neuronal("💡 El formulario de captura local se encuentra oculto en esta pantalla.", idioma_sel)
-        st.info(lbl_info_hidden)
-        nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
+    # Cierre y ejecución de botones transaccionales dentro del formulario activo
+            renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
+        else:
+            # Mensaje informativo traducido si el ponente mantiene el formulario oculto
+            lbl_info_hidden = ejecutar_traduccion_neuronal("💡 El formulario de captura local se encuentra oculto en esta pantalla.", idioma_sel)
+            st.info(lbl_info_hidden)
+            nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
 
-       # =================================================================
-    # PARTE 14 DE 14: PANTALLA POST-DESCARGA, CRM DE AUDITORÍA E HISTORIAL (TRAMO 1 DE 3)
+    # =================================================================
+    # PARTE 14 DE 14: PANTALLA POST-DESCARGA E INFORME INDIVIDUAL (TRAMO 1 DE 3)
     # =================================================================
     else:
         nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
@@ -1136,7 +1138,6 @@ def main():
         es_likert_p = st.session_state.get("es_modo_likert_persistente", False)
         grafica_p = st.session_state.get("grafica_usuario_persistente", None)
         
-        # Sincronización incondicional del nodo idiomático final
         tx_final = st.session_state.tx_traducido_cache if "tx_traducido_cache" in st.session_state else {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
         
         st.balloons()
@@ -1151,7 +1152,7 @@ def main():
                 
                 st.download_button(
                     label=tx_final.get("btn_pdf", "📥 DESCARGAR MI REPORTE EN PDF"),
-                    data=reporte_final_binario,
+                    data=repor_final_binario if 'repor_final_binario' in locals() else reporte_final_binario,
                     file_name=f"Reporte_Individual_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
                     mime="application/pdf",
                     use_container_width=True,
@@ -1168,6 +1169,7 @@ def main():
                 for k in ["nombre_usuario_persistente", "whatsapp_usuario_persistente", "resultados_usuario_persistente", "grafica_usuario_persistente", "es_modo_likert_persistente"]:
                     if k in st.session_state: del st.session_state[k]
                 st.rerun()
+
     # =================================================================
     # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (TRAMO 2 DE 3)
     # =================================================================
