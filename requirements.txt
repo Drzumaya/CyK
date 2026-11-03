@@ -1,8 +1,8 @@
-google-cloud-translate
-gspread
-fpdf2
+streamlit
 pandas
 numpy
+gspread
 matplotlib
-qrcode
-pillow
+fpdf2
+deep-translator
+
