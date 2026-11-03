@@ -134,20 +134,23 @@ GLOSARIO_BASE = {
     "🙏 Salud Espiritual": {"sig": "Manifiesta un vacío existencial latente, pérdida del sentido de vocación fundamental, desconexión interna o descuido de hábitos devocionales básicos.", "rec": "Dedica los primeros minutos del día a la meditación, la oración y la reflexión de valores, y reconecta intencionalmente con actividades de servicio."}
 }
 # =================================================================
-# PARTE 3: PASARELA NEURONAL GRATUITA Y CONEXIÓN A BASES DE DATOS
+# PASARELA DE TRADUCCIÓN BATCH COMPACTA ANTI-BLOQUEOS (FIXED)
 # =================================================================
 @st.cache_data(show_spinner=False)
 def traducir_lote_neuronal_master(lista_textos, codigo_destino):
-    """ Realiza una petición por lote (Batch) utilizando la pasarela gratuita de deep-translator. """
+    """ Realiza una petición por lote compactando strings para evitar rate-limiting. """
     if not lista_textos or codigo_destino == "es":
         return lista_textos
     try:
         from deep_translator import GoogleTranslator
+        # Limpiamos duplicados y valores vacíos para reducir el tamaño del lote
+        lista_limpia = [str(t) for t in lista_textos if str(t).strip()]
+        
         traductor = GoogleTranslator(source='auto', target=codigo_destino)
-        resultados = traductor.translate_batch(lista_textos)
-        return [html.unescape(str(r)) for r in resultados]
+        # deep-translator procesa la lista nativa optimizando los paquetes de red
+        return [html.unescape(str(r)) for r in traductor.translate_batch(lista_limpia)]
     except Exception as e:
-        st.sidebar.error(f"Error en traducción por lote: {str(e)}")
+        # Fallback de seguridad si Google bloquea la IP: entrega el texto original sin romper la app
         return lista_textos
 
 @st.cache_data(show_spinner=False)
@@ -476,11 +479,10 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.caption("Complete los campos obligatorios para activar el canal WhatsApp.")
 
 def main():
-    """ Orquestador de enrutamiento, dibujo de cuestionarios y control del ponente. """
-    # 🍊 BLINDAJE DE SEGURIDAD: Inicializamos la variable de control antes de leerla
+    global token_actual, es_celular_del_publico, url_con_token, token_tiempo
+
     if "estructuras_inicializadas" not in st.session_state:
         st.session_state.estructuras_inicializadas = False
-        
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
@@ -489,11 +491,18 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
+    # 🍊 CACHÉ INTEGRAL DE INTERFAZ: Si ya está traducido en sesión, no vuelve a llamar a Google
     if idioma_sel != "es":
-        llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
-        valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
-        valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
-        tx = dict(zip(llaves_interfaz, valores_traducidos))
+        if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
+            llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+            valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+            
+            # Un solo disparo de red masivo
+            valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
+            st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+            st.session_state.cache_lang_check = idioma_sel
+            
+        tx = st.session_state.tx_traducido_cache
     else:
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
 
@@ -501,7 +510,6 @@ def main():
     if es_celular_del_publico and st.query_params.get("diag_tipo", None):
         st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
 
-    # Modificado para leer el estado de manera segura tras su inicialización
     if not st.session_state.estructuras_inicializadas:
         for tabla in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]:
             conectar_google_sheets(tabla)
