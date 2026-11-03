@@ -439,8 +439,7 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
 
-if __name__ == "__main__": 
-    main()
+
 
 
 
