@@ -488,11 +488,23 @@ def main():
         tx = {k: str(v) for k, v in CENTRO_MANDO_TEXTOS.items()}
         tx_dictamen = {k: str(v) for k, v in TEXTOS_DICTAMEN_COMPLEMENTARIOS.items()}
 
-    min_10 = int(time.time() // 600)
-    token_tiempo = hashlib.md5(f"m_sec_{min_10}".encode()).hexdigest()[:8]
-    es_m_pub = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
+    # =================================================================
+# CORRECCIÓN DE EMERGENCIA: INYECCIÓN DE LA CONSTANTE EN MAIN()
+# =================================================================
+    # Forzamos la mutación algorítmica exacta cada 10 minutos (600 segundos)
+    minuto_bloque_10 = int(time.time() // 600)
+    token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
     
-    if es_m_pub and st.query_params.get("diag_tipo", None): st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
+    modo_admin_url = st.query_params.get("modo_admin", "true")
+    es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+    
+    if es_celular_del_publico and st.query_params.get("diag_tipo", None): 
+        st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
+
+    # 🍊 TRUCO DE BLINDAJE: Declaramos localmente la URL si Python la limpió de la memoria global
+    URL_PRODUCCION = "https://dsimandarina.streamlit.app/?lang=am"
+
+    # Ahora la concatenación se ejecuta de forma síncrona sin NameError
     url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={idioma_sel}"
 
     if not st.session_state.estructuras_inicializadas:
