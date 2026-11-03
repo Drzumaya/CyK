@@ -922,13 +922,13 @@ def ejecutar_analisis_semdeep(dataframe, es_likert):
         return {"Error_Analitico": str(e), "R2": ".00"}
 
 # =================================================================
-# PARTE 13 DE 14: ENTRADA NEURONAL INCONDICIONAL GLOBAL (BLOQUE 1 DE 4)
+# PARTE 13 DE 14: MIDDLEWARE INTERCEPTOR DE ORIGEN (BLOQUE 1 DE 4)
 # =================================================================
 def main():
     # Inicialización local de variables globales de red y tiempo
     global token_actual, es_celular_del_publico, url_con_token, token_tiempo
 
-    # 🍊 BLINDAJE DE INICIALIZACIÓN ABSOLUTO DE SESIÓN ANTI-KEYERROR
+    # 🍊 BLINDAJE DE INICIALIZACIÓN ABSOLUTO DE SESIÓN
     if "audiences_custom_list" not in st.session_state:
         st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state:
@@ -940,27 +940,24 @@ def main():
     if "guardado_exitoso" not in st.session_state:
         st.session_state.guardado_exitoso = False
 
-    # 🌐 DETECTOR DE PARAMETRO RAÍZ ABSOLUTO: Lee directo de la barra del navegador
+    # 🌐 ROUTING INDUSTRIAL: Leemos síncronamente el código ISO desde la raíz del navegador URL
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # 🔬 INTERCEPTOR MUTACIONAL INCONDICIONAL: 
-    # Destruye el bypass asíncrono y fuerza la traducción antes de pintar cualquier widget
+    # 🚀 HIDRATACIÓN INCONDICIONAL: Si el usuario seleccionó un idioma diferente, 
+    # traducimos el lote entero de forma síncrona antes de que Streamlit intente inicializar un solo widget
     if idioma_sel != "es":
         llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
         valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
         
-        # Una sola petición por lote masivo bloquea el congelamiento visual
+        # Una única petición por lote vectorial a Google Cloud Translation API
         valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
         tx = dict(zip(llaves_interfaz, valores_traducidos))
     else:
-        # Si está en el idioma base, se asigna el molde original en español
+        # Molde semilla en español nativo
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
-
-
-
     # =================================================================
-    # PARTE 13 DE 14: AMARRE DE RED, SEGURIDAD Y CONSOLA (BLOQUE 2 DE format)
+    # PARTE 13 DE 14: CRIPTOGRAFÍA DE TOKENS, SEGURIDAD Y RED (BLOQUE 2 DE 4)
     # =================================================================
     minuto_actual = int(time.time() // 60)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_actual}".encode()).hexdigest()[:8]
@@ -1005,7 +1002,9 @@ def main():
         if acceso_bloqueado:
             st.error("🚫 El acceso escaneado ha expirado o ya fue utilizado en esta ponencia.")
             st.stop()
-
+    # =================================================================
+    # PARTE 13 DE 14: CONSOLA LATERAL Y SELECTOR POLÍGLOTA DIRECTO (BLOQUE 3 DE 4)
+    # =================================================================
     # Consola Lateral Unificada del Ponente
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     
@@ -1046,9 +1045,8 @@ def main():
                     with st.spinner("Inicializando entorno de datos..."):
                         conectar_google_sheets(seleccion)
                     st.rerun()
-        # =================================================================
-    # PARTE 13 DE 14: GATEWAY MULTILINGÜE DIRECTO CON PROGRAMACIÓN FORZADA (BLOQUE 3 DE 4)
-    # =================================================================
+
+    # 📦 PASARELA DE HIDRATACIÓN SIMÉTRICA ORIENTADA A PARÁMETROS DE URL
     if not st.session_state.flujo_finalizado:
         mapa_133 = st.session_state.lista_idiomas_133_iso
         nombre_visual_invertido = {v: k for k, v in mapa_133.items()}
@@ -1069,27 +1067,20 @@ def main():
             
             lbl_btn_submit = ejecutar_traduccion_neuronal("🔄 TRANSLATE ENTIRE SYSTEM / TRADUCIR TODO EL SISTEMA", idioma_sel)
             
-            # 🚀 PROGRAMACIÓN CRÍTICA DEL BOTÓN: Inyección síncrona en caliente
+            # Botón tradicional directo: Modifica el parámetro URL, destruye el caché residual y fuerza un rerun síncrono
             if st.button(lbl_btn_submit, type="primary", key="btn_execute_neural_translation_trigger"):
                 codigo_iso_seleccionado = mapa_133[idioma_sel_visual]
-                
-                # 1. Forzamos la escritura inmediata en la barra del navegador
-                st.query_params["lang"] = codigo_iso_seleccionado
-                st.session_state.idioma_activo_actual = codigo_iso_seleccionado
-                
-                # 2. SE ADICIONA: Llamada inmediata y almacenamiento en caché ANTES del rerun
-                with st.spinner("Translating system variables... 🌐"):
-                    llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
-                    valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
-                    valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, codigo_iso_seleccionado)
+                if codigo_iso_seleccionado != idioma_sel:
+                    st.query_params["lang"] = codigo_iso_seleccionado
+                    st.session_state.idioma_activo_actual = codigo_iso_seleccionado
                     
-                    # Guardamos los textos traducidos en la sesión de forma persistente
-                    st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
-                    st.session_state.idioma_previo_check = codigo_iso_seleccionado
-                
-                # 3. Forzamos el reinicio absoluto con la memoria ya traducida
-                st.rerun()
-
+                    # Limpiamos el caché en caliente para que el Renglón Uno (Tramo 1) fuerce la recarga neuronal desde la nueva URL
+                    if "tx_traducido_cache" in st.session_state:
+                        del st.session_state["tx_traducido_cache"]
+                    st.rerun()
+        # =================================================================
+        # PARTE 13 DE 14: PROYECTOR QR Y FORMULARIO DE CAPTURA (BLOQUE 4 DE 4)
+        # =================================================================
         st.write("")
         titulo_qr = tx.get("qr_title", TEXTOS_BASE_ESPANOL["qr_title"])
         sub_qr1 = tx.get("qr_sub1", TEXTOS_BASE_ESPANOL["qr_sub1"])
@@ -1110,10 +1101,7 @@ def main():
                 st.write(f"### {lbl_aud_proj}: {st.session_state.audiencia_activa}")
                 st.write(sub_qr1)
                 st.write(sub_qr2)
-
-        # =================================================================
-        # PARTE 13 DE 14: INTERFAZ VISIBLE DEL CUESTIONARIO (BLOQUE 4 DE 4)
-        # =================================================================
+                
         st.write("")
         lbl_tgl_form = ejecutar_traduccion_neuronal("📝 Mostrar Formulario de Captura en Pantalla Principal", idioma_sel)
         mostrar_formulario = st.toggle(lbl_tgl_form, value=False, key="tgl_mostrar_formulario_main")
@@ -1142,11 +1130,11 @@ def main():
                         st.markdown(f"#### {g_name}")
                         col1, col2 = st.columns(2)
                         with col1:
-                            cb0 = st.checkbox(alertas_especificas[0], key=f"cb_{g_idx}_0")
-                            cb1 = st.checkbox(alertas_especificas[1], key=f"cb_{g_idx}_1")
+                            cb0 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_0")
+                            cb1 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_1")
                         with col2:
-                            cb2 = st.checkbox(alertas_especificas[2], key=f"cb_{g_idx}_2")
-                            cb3 = st.checkbox(alertas_especificas[3], key=f"cb_{g_idx}_3")
+                            cb2 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_2")
+                            cb3 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_3")
                         resultados_totales[g_name] = [i for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                         
                 lbl_btn_reg = ejecutar_traduccion_neuronal("Procesar Alertas Base / Register Alerts", idioma_sel)
@@ -1200,12 +1188,11 @@ def main():
 
             renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         else:
-            lbl_info_hidden = ejecutar_traduccion_neuronal("💡 El formulario de captura local se encuentra oculto en esta pantalla.", idioma_sel)
-            st.info(lbl_info_hidden)
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
 
-       # =================================================================
-    # PARTE 14 DE 14: PANTALLA POST-DESCARGA E INFORME INDIVIDUAL (BLOQUE 1 DE 3)
+
+        # =================================================================
+    # PARTE 14 DE 14: PANTALLA POST-DESCARGA SINCRO-PDF (BLOQUE 1 DE 3)
     # =================================================================
     else:
         nombre_p = st.session_state.get("nombre_usuario_persistente", "Participante")
@@ -1215,314 +1202,93 @@ def main():
         grafica_p = st.session_state.get("grafica_usuario_persistente", None)
         
         tx_final = st.session_state.tx_traducido_cache if "tx_traducido_cache" in st.session_state else {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
-        
         st.balloons()
         st.success(tx_final.get("thanks", "### ¡Diagnóstico Procesado con Éxito! 🎉"))
         
         with st.container(border=True):
             st.markdown(tx_final.get("thanks_sub", "Hemos compilado tu reporte individual."))
-            
             if resultados_p:
+                # El reporte PDF hereda incondicionalmente el código activo del selector de la URL
                 reporte_final_binario = generar_pdf_diagnostico(nombre_p, whatsapp_p, resultados_p, st.session_state.audiencia_activa, es_likert_p, grafica_p, idioma_sel)
                 nombre_archivo = nombre_p.replace(' ', '_')
                 
-                st.download_button(
-                    label=tx_final.get("btn_pdf", "📥 DESCARGAR MI REPORTE EN PDF"),
-                    data=reporte_final_binario,
-                    file_name=f"Reporte_Individual_{st.session_state.audiencia_activa.replace(' ', '_')}_{nombre_archivo}.pdf",
-                    mime="application/pdf",
-                    use_container_width=True,
-                    key="btn_download_final_screen_perfect"
-                )
-            
-            st.info("👉 Jacob Zumaya Prianti A.C. (c) 2026")
-        
+                lbl_btn_download_p = tx_final.get("btn_pdf", "📥 DESCARGAR MI REPORTE EN PDF")
+                st.download_button(label=lbl_btn_download_p, data=reporte_final_binario, file_name=f"Reporte_Individual_{nombre_archivo}.pdf", mime="application/pdf", use_container_width=True, key="btn_download_final_user_report_polyglot")
+
         if not es_celular_del_publico:
-            st.write("")
-            if st.button("🔄 Volver al Diagnóstico Principal / Reset View", type="primary", key="btn_global_reset_view_ponente"):
+            lbl_btn_reset = ejecutar_traduccion_neuronal("🔄 Volver al Diagnóstico Principal / Reset View", idioma_sel)
+            if st.button(lbl_btn_reset, key="btn_global_reset_view_ponente", type="primary"):
                 st.session_state.flujo_finalizado = False
                 st.session_state.guardado_exitoso = False
-                for k in ["nombre_usuario_persistente", "whatsapp_usuario_persistente", "resultados_usuario_persistente", "grafica_usuario_persistente", "es_modo_likert_persistente"]:
-                    if k in st.session_state: del st.session_state[k]
                 st.rerun()
-    # =================================================================
-    # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y ANÁLISIS MARKOVIANO (BLOQUE 2 DE 3)
+
+       # =================================================================
+    # PARTE 14 DE 14: OFICINA DE INVESTIGACIÓN Y CONTROL DE CRM (BLOQUE 2 DE 3)
     # =================================================================
     # Módulo de Control de Oficina para el Ponente Autenticado
     if st.session_state.admin_autenticado and not es_celular_del_publico:
         st.markdown("---")
         st.header("🔬 Oficina de Investigación y Alta Analítica del Ponente")
-        
-        lista_tablas_reales = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
-        try:
-            if "gcp_service_account" in st.secrets:
-                secrets_dict = dict(st.secrets["gcp_service_account"])
-                if "private_key" in secrets_dict:
-                    secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
-                client_back = gspread.service_account_from_dict(secrets_dict)
-                workbook_back = client_back.open(NOMBRE_HOJA_CALCULO)
-                lista_tablas_reales = [sh.title for sh in workbook_back.worksheets()]
-        except Exception:
-            pass
-
-        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", lista_tablas_reales, key="sb_tabla_analizar_master_office")
-        
+        tabla_analizar = st.selectbox("Seleccionar Tabla para Extracción Científica e Historial:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_tabla_analizar_master_office")
         sheet = conectar_google_sheets(tabla_analizar)
-        df_doc = None
-        es_tabla_likert = (tabla_analizar != "🍊 Salud Integral")
-        todas_las_filas = []
+        todas_las_filas = sheet.get_all_values() if sheet else []
         
-        if sheet:
-            try: todas_las_filas = sheet.get_all_values()
-            except Exception: todas_las_filas = []
-                
-        # 🔬 PROCESAMIENTO COMPORTAMENTAL: Si la hoja está vacía o carece de registros válidos (N < 2)
-        # Se activa el motor probabilístico de Cadenas de Markov de forma automática
         if not todas_las_filas or len(todas_las_filas) < 2:
-            if es_tabla_likert:
-                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "Rol Iglesia", "C1", "C2", "C3", "C4", "C5"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
-                datos_sinteticos = []
-                
-                matriz_transicion_cronos = np.array([
-                    [0.4, 0.3, 0.2, 0.1, 0.0],
-                    [0.2, 0.4, 0.3, 0.1, 0.0],
-                    [0.1, 0.2, 0.4, 0.2, 0.1],
-                    [0.0, 0.1, 0.3, 0.4, 0.2],
-                    [0.0, 0.0, 0.2, 0.3, 0.5]
-                ])
-                
-                matriz_transicion_kairos = np.array([
-                    [0.5, 0.3, 0.1, 0.1, 0.0],
-                    [0.2, 0.5, 0.2, 0.1, 0.0],
-                    [0.1, 0.2, 0.4, 0.2, 0.1],
-                    [0.0, 0.1, 0.2, 0.5, 0.2],
-                    [0.0, 0.0, 0.1, 0.3, 0.6]
-                ])
-                
-                estados_likert = [1, 2, 3, 4, 5]
-                
-                for u in range(10):
-                    row = [str(datetime.datetime.now()), f"Simulated_Markov_User_{u}", f"+52633100200{u}", str(20 + u), "Other" if u==9 else ("Femenino" if u%2==0 else "Masculino"), "Mexicana", "Chihuahua", "Chihuahua", "México", "América", "Miembro", "Sí", "Sí", "Sí", "Se hereda", "Cultura"]
-                    
-                    estado_actual_c = np.random.choice(estados_likert, p=[0.1, 0.2, 0.4, 0.2, 0.1])
-                    estado_actual_k = np.random.choice(estados_likert, p=[0.1, 0.1, 0.3, 0.3, 0.2])
-                    
-                    respuestas_usuario = []
-                    for r_idx in range(1, 11):
-                        if r_idx % 2 == 0:
-                            respuestas_usuario.append(int(estado_actual_c))
-                            estado_actual_c = np.random.choice(estados_likert, p=matriz_transicion_cronos[estado_actual_c - 1])
-                        else:
-                            respuestas_usuario.append(int(estado_actual_k))
-                            estado_actual_k = np.random.choice(estados_likert, p=matriz_transicion_kairos[estado_actual_k - 1])
-                            
-                    row += respuestas_usuario
-                    row += [f"Markov_Token_{u}"]
-                    datos_sinteticos.append(row)
-                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
-            else:
-                columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Token"]
-                datos_sinteticos = []
-                
-                sintomas_fisicos = ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"]
-                sintomas_mentales = ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"]
-                
-                for u in range(5):
-                    sf = sintomas_fisicos[np.random.randint(4)] if np.random.rand() > 0.3 else ""
-                    sm = sintomas_mentales[np.random.randint(4)] if (sf != "") else ""
-                    se = "Ansiedad o Estrés Agudo" if (sm != "") else ""
-                    
-                    row = [str(datetime.datetime.now()), f"Simulated_Markov_User_{u}", f"+52633100200{u}", sf, sm, se, "", "", "", "", f"Markov_Token_{u}"]
-                    datos_sinteticos.append(row)
-                df_doc = pd.DataFrame(datos_sinteticos, columns=columnas_sinteticas)
+            columnas_sinteticas = ["Timestamp", "Nombre", "WhatsApp"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
+            df_doc = pd.DataFrame([[str(datetime.datetime.now()), "Simulated", "+52", 3,3,3,3,3,3,3,3,3,3, "Token"]], columns=columnas_sinteticas)
         else:
-            encabezados = todas_las_filas if todas_las_filas else []
+            encabezados = todas_las_filas[0]
             columnas_limpias = [str(c).strip() if str(c).strip() else f"C_{i}" for i, c in enumerate(encabezados)]
-            
-            registros_limpios = []
-            for fila_reg in todas_las_filas[1:]:
-                if len(fila_reg) < len(columnas_limpias):
-                    fila_reg += [""] * (len(columnas_limpias) - len(fila_reg))
-                elif len(fila_reg) > len(columnas_limpias):
-                    fila_reg = fila_reg[:len(columnas_limpias)]
-                registros_limpios.append(fila_reg)
-                
-            df_doc = pd.DataFrame(registros_limpios, columns=columnas_limpias)
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=columnas_limpias)
 
-        # CRM de Búsqueda Individual
-        st.markdown("---")
-        st.subheader("🔍 Buscador Exclusivo de Participantes (Atención y Consulta Privada)")
-        c_busq = st.text_input("📝 Filtrar por Nombre o Teléfono Celular:", placeholder="Ej. Juan o +52...", key="crm_search_input").strip().lower()
-        
+        # CRM de Búsqueda Individual de Participantes
+        st.subheader("🔍 Buscador Exclusivo de Participantes")
+        c_busq = st.text_input("📝 Filtrar por Nombre o WhatsApp:", key="crm_search_input").strip().lower()
         if c_busq and df_doc is not None and not df_doc.empty:
-            col_nombre_dinamica = df_doc.columns[1] if len(df_doc.columns) > 1 else "Nombre"
-            col_whatsapp_dinamica = df_doc.columns[2] if len(df_doc.columns) > 2 else "WhatsApp"
-            col_timestamp_dinamica = df_doc.columns[0] if len(df_doc.columns) > 0 else "Timestamp"
+            col_nombre_dinamica = df_doc.columns[1] if len(df_doc.columns) > 1 else df_doc.columns[0]
+            df_filtrado = df_doc[df_doc[col_nombre_dinamica].astype(str).str.lower().str.contains(c_busq)]
+            if not df_filtrado.empty:
+                st.write(df_filtrado)
+
+               # =================================================================
+        # PARTE 14 DE 14: AUDITORÍA MACRO-ESTADÍSTICA Y REFERENCIAS APA (BLOQUE 3 DE 3)
+        # =================================================================
+        # Auditoría Doctoral Colectiva con su Bibliografía Traducida
+        lbl_btn_macro = ejecutar_traduccion_neuronal("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", idioma_sel)
+        if st.button(lbl_btn_macro, key="btn_run_doctoral_macro"):
+            pdf_auditoria = FPDF()
+            pdf_auditoria.add_page()
             
-            df_filtrado = df_doc[
-                df_doc[col_nombre_dinamica].astype(str).str.lower().str.contains(c_busq) | 
-                df_doc[col_whatsapp_dinamica].astype(str).str.lower().str.contains(c_busq)
+            # Encabezado e Inyección Metodológica en el Dictamen PDF
+            lbl_pdf_title = ejecutar_traduccion_neuronal("DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO", idioma_sel)
+            pdf_auditoria.set_font("Helvetica", "B", 14)
+            pdf_auditoria.cell(190, 10, limpiar_texto_pdf(lbl_pdf_title, idioma_sel), new_x="LMARGIN", new_y="NEXT", align="C")
+            
+            lbl_pdf_ref_title = ejecutar_traduccion_neuronal("Referencias Bibliograficas (APA Format)", idioma_sel)
+            pdf_auditoria.ln(6)
+            pdf_auditoria.set_font("Helvetica", "B", 12)
+            pdf_auditoria.cell(190, 7, limpiar_texto_pdf(lbl_pdf_ref_title, idioma_sel), new_x="LMARGIN", new_y="NEXT")
+            
+            referencias = [
+                "Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2019). Multivariate data analysis (8th ed.). Cengage Learning.",
+                "Kline, R. B. (2023). Principles and practice of structural equation modeling (5th ed.). Guilford Press.",
+                "Norris, J. R. (1998). Markov chains. Cambridge University Press."
             ]
-            
-            if df_filtrado.empty:
-                st.warning("❌ No se encontraron participantes registrados con esos criterios.")
-            else:
-                st.success(f"🎯 Coincidencias encontradas: {len(df_filtrado)} registro(s)")
-                for _, row_p in df_filtrado.iterrows():
-                    with st.container(border=True):
-                        st.markdown(f"### 👤 Participante: **{row_p[col_nombre_dinamica]}**")
-                        st.write(f"📱 **Enlace WhatsApp:** {row_p[col_whatsapp_dinamica]} | 📅 **Registro:** {row_p[col_timestamp_dinamica]}")
-                        if es_tabla_likert:
-                            r_items = [pd.to_numeric(row_p[c], errors='coerce') for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-                            if len(r_items) >= 10:
-                                k_score = sum(r_items[0::2]) / 5
-                                c_score = sum(r_items[1::2]) / 5
-                                st.markdown(f"**⏱️ Puntaje Cronos:** `{c_score:.2f}` | **🍃 Puntaje Kairós:** `{k_score:.2f}`")
-                        else:
-                            st.markdown("**🚨 Alertas de Salud Activas:**")
-                            alertas_detectadas = [str(row_p[c]) for c in df_doc.columns[3:10] if str(row_p[c]).strip()]
-                            st.write(f"`{' | '.join(alertas_detectadas) if alertas_detectadas else 'Sin Alertas'}`")
-        # =================================================================
-        # PARTE 14 DE 14: PROPORCIONES, DICTAMEN MACRO Y CIERRE (BLOQUE 3 DE 3)
-        # =================================================================
-        # Proporciones Globales de Audiencia
-        st.markdown("---")
-        st.subheader("📊 Tabla de Distribución Proporcional de la Audiencia")
-        c_mean, k_mean = 3.0, 3.0
-        
-        if es_tabla_likert:
-            r_cols = [c for c in df_doc.columns if c.startswith("Reactivo") or (len(c) <= 3 and c.startswith("R"))]
-            if len(r_cols) >= 10:
-                matriz_r = df_doc[r_cols].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                kairos_scores = np.mean(matriz_r[:, 0::2], axis=1)
-                cronos_scores = np.mean(matriz_r[:, 1::2], axis=1)
-                pct_cronos = (np.sum(cronos_scores > kairos_scores) / len(df_doc)) * 100
-                pct_kairos = (np.sum(kairos_scores > cronos_scores) / len(df_doc)) * 100
-                c_mean = np.mean(cronos_scores)
-                k_mean = np.mean(kairos_scores)
-                st.write(f"Inclinación Temporal Dominante: ⏳ Cronos: `{pct_cronos:.1f}%` | 🌊 Kairós: `{pct_kairos:.1f}%` (Muestra N={len(df_doc)})")
-                st.progress(int(pct_cronos))
-        else:
-            st.info("La tabla de Salud Integral describe frecuencias directas.")
-
-        st.markdown("---")
-        st.subheader(f"📊 Inspección de Base de Datos Cruda: {tabla_analizar}")
-        st.dataframe(df_doc, use_container_width=True)
-
-        st.markdown("---")
-        if st.button("📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", type="primary", key="btn_run_doctoral_macro"):
-            if df_doc is not None and len(df_doc) >= 2:
-                pdf_auditoria = FPDF()
-                pdf_auditoria.add_page()
-                fig, ax = plt.subplots(figsize=(5, 3.5))
-                
-                if not es_tabla_likert:
-                    col_gajos = ["💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"]
-                    promedios = {c: df_doc[c].astype(str).str.strip().replace('', np.nan).notna().sum() for c in col_gajos if c in df_doc.columns}
-                    df_plot = pd.DataFrame(list(promedios.items()), columns=["Dim", "Alertas"])
-                    st.bar_chart(df_plot, x="Dim", y="Alertas", color="#e65100")
-                    ax.bar(df_plot["Dim"], df_plot["Alertas"], color="#e65100")
-                else:
-                    st.bar_chart(pd.DataFrame([["Cronos", c_mean], ["Kairos", k_mean]], columns=["Vector", "Media"]), x="Vector", y="Media", color="#2574a9")
-                    ax.bar(["Cronos", "Kairos"], [c_mean, k_mean], color="#2574a9", width=0.5)
-                    ax.set_ylim(1, 5)
-                
-                res_sem = ejecutar_analisis_semdeep(df_doc, es_tabla_likert)
-                st.write("#### 🧠 Resultados del Modelo SEMDeep")
-                st.json(res_sem)
-                
-                buf_macro = BytesIO()
-                plt.savefig(buf_macro, format='png', bbox_inches='tight', dpi=120)
-                buf_macro.seek(0)
-                plt.close(fig)
-                
-                tabla_limpia_pdf = limpiar_texto_pdf(tabla_analizar).upper()
-                pdf_auditoria.set_font("Helvetica", "B", 14)
-                pdf_auditoria.set_text_color(50, 50, 50)
-                pdf_auditoria.cell(190, 10, "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO", new_x="LMARGIN", new_y="NEXT", align="C")
-                
-                pdf_auditoria.set_font("Helvetica", "I", 10)
-                pdf_auditoria.set_text_color(100, 100, 100)
-                pdf_auditoria.cell(190, 6, f"Muestra N: {len(df_doc)} | Audiencia: {tabla_limpia_pdf}", new_x="LMARGIN", new_y="NEXT", align="C")
-                pdf_auditoria.ln(4)
-                pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
-                pdf_auditoria.ln(6)
-                
-                try:
-                    pdf_auditoria.image(buf_macro, x=55, w=100)
-                    pdf_auditoria.ln(4)
-                    pdf_auditoria.set_font("Helvetica", "I", 9)
-                    pdf_auditoria.cell(190, 5, "Nota. Frecuencias colectivas de alertas y distribuciones factoriales.", new_x="LMARGIN", new_y="NEXT", align="C")
-                    pdf_auditoria.ln(4)
-                except Exception: pass
-                
-                if es_tabla_likert:
-                    b_c = res_sem.get("Beta_Cronos", ".38")
-                    b_k = res_sem.get("Beta_Kairos", ".28")
-                    pdf_auditoria.set_font("Helvetica", "B", 12)
-                    pdf_auditoria.cell(190, 7, "Conclusion de Trayectorias y Equilibrio Sistemico", new_x="LMARGIN", new_y="NEXT")
-                    pdf_auditoria.set_font("Helvetica", "", 10)
-                    pdf_auditoria.set_text_color(60, 60, 60)
-                    pdf_auditoria.multi_cell(190, 5, f"A partir de los coeficientes estimados (Beta Cronos: {b_c}, Beta Kairos: {b_k}), el modelo estructural pauta la distribucion y el peso predictivo de las variables latentes sobre el entorno.", new_x="LMARGIN", new_y="NEXT")
-                else:
-                    pdf_auditoria.set_font("Helvetica", "B", 12)
-                    pdf_auditoria.cell(190, 7, "Analisis Descriptivo de Vulnerabilidad Colectiva", new_x="LMARGIN", new_y="NEXT")
-                    pdf_auditoria.set_font("Helvetica", "", 10)
-                    pdf_auditoria.set_text_color(60, 60, 60)
-                    pdf_auditoria.multi_cell(190, 5, "El informe representa los indices de prevalencia de alertas auto-reportadas por el grupo en cada dimension de bienestar, pautando las directrices de contencion institucional.", new_x="LMARGIN", new_y="NEXT")
-                
-                # =================================================================
-                # INYECCIÓN METODOLÓGICA: REFERENCIAS BIBLIOGRÁFICAS (FORMATO APA)
-                # =================================================================
-                pdf_auditoria.ln(6)
-                pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
-                pdf_auditoria.ln(4)
-                
-                pdf_auditoria.set_font("Helvetica", "B", 12)
-                pdf_auditoria.set_text_color(50, 50, 50)
-                pdf_auditoria.cell(190, 7, "Referencias Bibliograficas", new_x="LMARGIN", new_y="NEXT")
+            pdf_auditoria.set_font("Helvetica", "", 9)
+            for ref in referencias:
+                pdf_auditoria.multi_cell(190, 4.5, ref, new_x="LMARGIN", new_y="NEXT")
                 pdf_auditoria.ln(2)
-                
-                referencias_apa = [
-                    "Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2019). Multivariate data analysis (8th ed.). Cengage Learning.",
-                    "Kline, R. B. (2023). Principles and practice of structural equation modeling (5th ed.). Guilford Press.",
-                    "Mandarina, M., & Zumaya-Prianti, J. (2026). Diagnostico asimetrico del bienestar institucional: Un enfoque estructural multieje sobre variables latentes de salud. Revista Internacional de Psicometria Avanzada, 14(2), 45-61.",
-                    "Norris, J. R. (1998). Markov chains. Cambridge University Press.",
-                    "Stewart, G. W. (1993). On the early history of the singular value decomposition. SIAM Review, 35(4), 551-566.",
-                    "Waller, B. (2021). Chronos and Kairos: The ontology of temporal management in modern professional environments. Journal of Organizational Behavior, 42(3), 312-328."
-                ]
-                
-                pdf_auditoria.set_font("Helvetica", "", 9)
-                pdf_auditoria.set_text_color(80, 80, 80)
-                for ref in referencias_apa:
-                    ref_sana = ref.encode("cp1252", errors="ignore").decode("cp1252")
-                    pdf_auditoria.multi_cell(190, 4.5, ref_sana, new_x="LMARGIN", new_y="NEXT")
-                    pdf_auditoria.ln(2.5)
-                
-                pdf_auditoria.line(10, pdf_auditoria.get_y(), 200, pdf_auditoria.get_y())
-                
-                bytes_auditoria = pdf_auditoria.output()
-                st.download_button(
-                    label=f"📥 DESCARGAR INFORME DOCTORAL Y DICTAMEN ({tabla_limpia_pdf})",
-                    data=bytes(bytes_auditoria),
-                    file_name=f"Dictamen_Doctoral_{tabla_limpia_pdf.replace(' ', '_')}.pdf",
-                    mime="application/pdf",
-                    key="btn_download_final_macro_report_maestro"
-                )
+            
+            lbl_btn_download_macro = ejecutar_traduccion_neuronal("📥 DESCARGAR INFORME DOCTORAL", idioma_sel)
+            st.download_button(label=lbl_btn_download_macro, data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report_fixed_polyglot")
 
-        # INYECCIÓN DEL BOTÓN EXCLUSIVO DE DESCARGA DEL RECONOCIMIENTO HONORÍFICO
-        st.markdown("---")
-        st.subheader("🏆 Galardones e Incentivos Académicos")
-        
+        # Descarga de Diploma Honorífico de una sola página
         bytes_reconocimiento = generar_reconocimiento_honorifico_dinamico()
-        st.download_button(
-            label="🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO (PRESIDENCIA)",
-            data=bytes_reconocimiento,
-            file_name=f"Reconocimiento_Honorifico_Dr_Jacob_Zumaya_{datetime.date.today().strftime('%Y_%m_%d')}.pdf",
-            mime="application/pdf",
-            key="btn_download_honorific_diploma_master_fixed",
-            use_container_width=True
-        )
+        st.download_button(label="🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO (PRESIDENCIA)", data=bytes_reconocimiento, file_name="Reconocimiento_Honorifico.pdf", mime="application/pdf", use_container_width=True, key="btn_download_honorific_diploma_master_fixed")
+
+# Guardia de ejecución reglamentaria final de Python
+if __name__ == "__main__":
+    main()
 
 
 # =================================================================
