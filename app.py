@@ -1012,9 +1012,16 @@ def main():
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
             if not st.session_state.admin_autenticado:
-                # RECTIFICACIÓN DE UNICIDAD EXCLUSIVA: Se altera el token 'key' para evitar colisiones
-                input_password = st.text_input("Contraseña Ponente:", type="password", key="key_side_pwd_admin_ultimate_uniqueness_gateway_2026")
-                if st.button("Desbloquear Tableros", key="btn_desbloquear_unique"):
+                # 🍊 INNOVACIÓN MÁSTER ANTI-DUPLICIDAD: Enlazamos la key al token_tiempo síncrono del sistema
+                key_dinamica_password = f"pwd_ponente_gateway_crypto_{token_tiempo}"
+                
+                input_password = st.text_input(
+                    "Contraseña Ponente:", 
+                    type="password", 
+                    key=key_dinamica_password
+                )
+                
+                if st.button("Desbloquear Tableros", key=f"btn_desbloquear_sincro_{token_tiempo}"):
                     if input_password == PASSWORD_SISTEMA:
                         st.session_state.admin_autenticado = True
                         st.rerun()
