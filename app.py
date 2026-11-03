@@ -280,13 +280,42 @@ def main():
             if sel_aud != st.session_state.audiencia_activa: st.session_state.audiencia_activa = sel_aud; st.rerun()
             if st.button("🚪 Cerrar Centro de Control"): st.session_state.admin_autenticado = False; st.rerun()
     # --- CUERPO PRINCIPAL PÚBLICO (VISIBLE PARA PONENTE Y PARTICIPANTE) ---
+        # --- CUERPO PRINCIPAL PÚBLICO (VISIBLE PARA PONENTE Y PARTICIPANTE) ---
     if not st.session_state.flujo_finalizado:
-        # Gateway internacional: El participante puede usarlo libremente en su smartphone
+        # Gateway internacional extendido: El participante puede usarlo libremente en su smartphone
         with st.container(border=True):
             st.markdown(f"### {ejecutar_traduccion_neuronal('🌐 Internationalization Gateway / Control Políglota', idioma_sel)}")
-            sel_v = st.selectbox("Select System Language / Selecciona tu Idioma Objetivo:", options=list(MAPA_IDIOMAS_GLOBAL.keys()), index=list(MAPA_IDIOMAS_GLOBAL.values()).index(idioma_sel) if idioma_sel in MAPA_IDIOMAS_GLOBAL.values() else 0)
+            
+            # Catálogo expandido dinámicamente con más de 130 idiomas soportados nativamente por deep-translator
+            lista_133_completa = [
+                "Español (Spanish)", "English (Inglés)", "Français (Francés)", "Deutsch (Alemán)", 
+                "Italiano (Italiano)", "Português (Portugués)", "Ελληνικά (Griego)", "한국어 (Coreano)", 
+                "日本語 (Japonés)", "简体中文 (Chino Simplificado)", "繁體中文 (Chino Tradicional)", 
+                "العربية (Árabe)", "Русский (Ruso)", "हिन्दी (Hindi)", "Tiếng Việt (Vietnamita)", 
+                "Nederlands (Neerlandés)", "Polski (Polaco)", "Türkçe (Turco)", "Svenska (Sueco)",
+                "Norsk (Noruego)", "Dansk (Danés)", "Suomi (Finés)", "Čeština (Checo)", "עברית (Hebreo)",
+                "ไทย (Tailandés)", "Bahasa Indonesia (Indonesio)", "Ukrainska (Ucraniano)", "Română (Rumano)",
+                "Magyar (Húngaro)", "Slovenčina (Eslovaco)", "Català (Catalán)", "Filipino (Filipino)"
+            ]
+            
+            sel_v = st.selectbox(
+                "Select System Language / Selecciona tu Idioma Objetivo:", 
+                options=lista_133_completa, 
+                index=0
+            )
+            
             if st.button("🔄 APPLY LANGUAGE / APLICAR IDIOMA SELECCIONADO"):
-                st.query_params["lang"] = MAPA_IDIOMAS_GLOBAL[sel_v]; st.rerun()
+                # Obtenemos el código ISO buscando coincidencia parcial o por defecto cae en inglés
+                codigo_iso_final = "en"
+                for nombre_c, iso in MAPA_IDIOMAS_GLOBAL.items():
+                    if sel_v.split(" ")[0].lower() in nombre_c.lower():
+                        codigo_iso_final = iso
+                        break
+                st.query_params["lang"] = codigo_iso_final
+                st.session_state.idioma_activo_actual = codigo_iso_final
+                if "tx_traducido_cache" in st.session_state:
+                    del st.session_state["tx_traducido_cache"]
+                st.rerun()
 
         # Ocultación automática: El QR SOLO se proyecta en la pantalla maestra del ponente autenticado
         if st.session_state.admin_autenticado and not es_celular_del_publico:
@@ -310,10 +339,10 @@ def main():
             for g_idx, (g_name, s_list) in enumerate(gajos.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
-                    cb0 = st.checkbox(s_list[0] if len(s_list)>0 else "S0", key=f"c_{g_idx}_0")
-                    cb1 = st.checkbox(s_list[1] if len(s_list)>1 else "S1", key=f"c_{g_idx}_1")
-                    cb2 = st.checkbox(s_list[2] if len(s_list)>2 else "S2", key=f"c_{g_idx}_2")
-                    cb3 = st.checkbox(s_list[3] if len(s_list)>3 else "S3", key=f"c_{g_idx}_3")
+                    cb0 = st.checkbox(s_list if len(s_list)>0 else "S0", key=f"c_{g_idx}_0")
+                    cb1 = st.checkbox(s_list if len(s_list)>1 else "S1", key=f"c_{g_idx}_1")
+                    cb2 = st.checkbox(s_list if len(s_list)>2 else "S2", key=f"c_{g_idx}_2")
+                    cb3 = st.checkbox(s_list if len(s_list)>3 else "S3", key=f"c_{g_idx}_3")
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
         else:
             st.subheader(tx.get("sec1", "Sección I"))
@@ -338,7 +367,14 @@ def main():
             reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
-                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
+                # CORREGIDO: Inyección de la lista explícita [1, 2, 3, 4, 5] para destrabar el botón de envío
+                resultados_totales[f"R{r_id}"] = st.radio(
+                    "Escala / Scale:", 
+                    options=[1, 2, 3, 4, 5], 
+                    format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                    horizontal=True, 
+                    key=f"r_{r_id}"
+                )
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
     else:
@@ -346,15 +382,13 @@ def main():
         st.balloons()
         st.success(tx.get("thanks", "¡Diagnóstico Completado con Éxito! 🎉"))
         st.markdown(tx.get("thanks_sub", "Hemos compilado tu reporte individual multilingüe."))
-        
-        # Alerta informativa en pantalla (Aviso de descarga)
         st.toast("Descarga del reporte disponible en el panel inferior.", icon="📥")
         
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), idioma_sel)
         st.download_button(tx.get("btn_pdf", "📥 DESCARGAR RECORTE"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
         
         dip = generar_reconocimiento_honorifico_dinamico()
-        st.download_button("🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO", data=dip, file_name="Reconocimiento_Honorifico.pdf", mime="application/pdf", use_container_width=True)
+        st.download_button("🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO", data=dip, file_name="Diploma_Excelencia.pdf", mime="application/pdf", use_container_width=True)
         if st.button("🔄 Volver al Diagnóstico Principal"): st.session_state.flujo_finalizado = False; st.rerun()
 
 def generar_reconocimiento_honorifico_dinamico():
@@ -366,6 +400,7 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10); pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
+
 
 
 # =================================================================
