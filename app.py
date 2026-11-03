@@ -401,25 +401,215 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
     return bytes(pdf.output())
 # =================================================================
-# PARTE 5: COMPONENTE TRANSACCIONAL, GATEWAYS Y LÓGICA PRINCIPAL (MAIN)
+# PARTE 5A: PROCESAMIENTO TRANSACCIONAL Y ENRUTAMIENTO GENERAL
 # =================================================================
-def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, lang, tx):
-    # Contiene la lógica para guardar en Google Sheets, persistencia en sesión,
-    # descarga de PDF y enlace directo a WhatsApp.
-    # El código completo se encuentra disponible en la implementación de la aplicación.
-    pass
+def renderizar_botones_transaccionales(nom, wha, res, es_lk, lang, tx):
+    st.divider()
+    c1, c2, col3 = st.columns(3)
+    ok = bool(nom.strip()) and bool(wha.strip())
+    with c1:
+        if st.button(tx["btn_save"], type="primary", use_container_width=True):
+            if not ok: st.error(tx["err_fields"])
+            else:
+                guardar_en_google_sheets(st.session_state.audiencia_activa, nom, wha, res, "TOKEN_10MIN", es_lk)
+                st.session_state.nombre_usuario_persistente = nom
+                st.session_state.whatsapp_usuario_persistente = wha
+                st.session_state.resultados_usuario_persistente = res
+                st.session_state.es_modo_likert_persistente = es_lk
+                st.session_state.flujo_finalizado = True
+                st.rerun()
+    with c2:
+        if ok:
+            r = generar_pdf_diagnostico(nom, wha, res, st.session_state.audiencia_activa, es_lk, lang)
+            st.download_button(tx["btn_pdf"], data=r, file_name="Reporte.pdf", mime="application/pdf", use_container_width=True)
+        else: st.info(tx["fields_msg"])
+    with col3:
+        if ok:
+            u_wa = f"https://whatsapp.com{urllib.parse.quote(wha)}&text=Diagnostico+Completado"
+            st.markdown(f'<a href="{u_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;cursor:pointer;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
 
 def main():
-    # Inicialización de estados de sesión, control multilingüe, rotación de tokens QR,
-    # barra lateral de administración y renderizado del cuerpo principal público y panel analítico.
-    # El código completo se puede consultar en el bloque de código provisto originalmente.
-    pass
+    if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
+    if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
+    if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
+    if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
+    if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
 
+    idioma_sel = st.query_params.get("lang", "es")
+    st.session_state.idioma_activo_actual = idioma_sel
 
+    if idioma_sel != "es":
+        if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
+            st.session_state.tx_traducido_cache = dict(zip(list(CENTRO_MANDO_TEXTOS.keys()), traducir_lote_neuronal_master(list(CENTRO_MANDO_TEXTOS.values()), idioma_sel)))
+            st.session_state.tx_dictamen_cache = dict(zip(list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.keys()), traducir_lote_neuronal_master(list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.values()), idioma_sel)))
+            gl_tr = {}
+            for gk, gv in GLOSARIO_BASE.items(): gl_tr[gk] = {"sig": ejecutar_traduccion_neuronal(gv["sig"], idioma_sel), "rec": ejecutar_traduccion_neuronal(gv["rec"], idioma_sel)}
+            st.session_state.glosario_traducido_cache = gl_tr
+            st.session_state.cache_lang_check = idioma_sel
+        tx, tx_dictamen = st.session_state.tx_traducido_cache, st.session_state.tx_dictamen_cache
+    else:
+        tx = {k: str(v) for k, v in CENTRO_MANDO_TEXTOS.items()}
+        tx_dictamen = {k: str(v) for k, v in TEXTOS_DICTAMEN_COMPLEMENTARIOS.items()}
 
+    min_10 = int(time.time() // 600)
+    token_tiempo = hashlib.md5(f"m_sec_{min_10}".encode()).hexdigest()[:8]
+    es_m_pub = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
+    
+    if es_m_pub and st.query_params.get("diag_tipo", None): st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
+    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={idioma_sel}"
 
+    if not st.session_state.estructuras_inicializadas:
+        for t in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(t)
+        st.session_state.estructuras_inicializadas = True
 
+    with st.sidebar:
+        st.markdown(tx.get("side_title", "## 🔐 Control"))
+        if not es_m_pub:
+            if not st.session_state.admin_autenticado:
+                p_in = st.text_input(tx.get("side_pwd", "Contraseña:"), type="password", key="p_sec")
+                if st.button(tx.get("side_btn", "Desbloquear")):
+                    if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): st.session_state.admin_autenticado = True; st.rerun()
+                    else: st.error(tx.get("side_pwd_err", "Error"))
+            else:
+                st.success(tx.get("side_success", "Activo"))
+                n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:")).strip()
+                if n_aud and n_aud not in st.session_state.audiences_custom_list: st.session_state.audiences_custom_list.append(n_aud); st.rerun()
+                op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master_ponente")
+                if sel_aud != st.session_state.audiencia_activa: st.session_state.audiencia_activa = sel_aud; st.rerun()
+                if st.button(tx.get("side_close", "Cerrar")): st.session_state.admin_autenticado = False; st.rerun()
+        else: st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+    # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL E INDEPENDIENTE) ---
+    if not st.session_state.flujo_finalizado:
+        with st.container(border=True):
+            st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
+            from deep_translator import GoogleTranslator
+            try:
+                dict_idiomas = GoogleTranslator().get_supported_languages(as_dict=True)
+                lista_visual = [k.title() for k in dict_idiomas.keys()]
+            except Exception:
+                dict_idiomas = {"spanish": "es", "english": "en", "french": "fr"}
+                lista_visual = ["Spanish", "English", "French"]
 
+            sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=sorted(lista_visual), key="sb_part_lang_unq")
+            if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_fixed"):
+                k_clean = str(sel_v).lower().strip()
+                iso_f = dict_idiomas.get(k_clean, "en")
+                st.query_params["lang"] = iso_f
+                st.session_state.idioma_activo_actual = iso_f
+                if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
+                st.rerun()
+
+        # Ocultación automática: El QR SOLO se proyecta en la pantalla maestra del ponente
+        if not es_m_pub:
+            with st.container(border=True):
+                st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR')}")
+                qr = qrcode.QRCode(version=1, box_size=10, border=4)
+                qr.add_data(url_con_token); qr.make(fit=True)
+                buf_qr = BytesIO()
+                qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
+                st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea para acceder'))
+
+        st.header(f"📋 {st.session_state.audiencia_activa}")
+        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
+        es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
+        
+        resultados_totales = {}
+        if not es_likert:
+            st.write(tx.get("mand_title", "### 🍊 Diagnóstico de Salud Adaptativo"))
+            # 🍊 MOTOR GENERATIVO: Los ítems se autogeneran dinámicamente según la audiencia activa en Sheets
+            gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, idioma_sel)
+            for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
+                with st.container(border=True):
+                    st.markdown(f"#### {g_name}")
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        t0 = alertas_especificas if len(alertas_especificas)>0 else "S0"
+                        t1 = alertas_especificas if len(alertas_especificas)>1 else "S1"
+                        cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
+                        cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
+                    with col_b:
+                        t2 = alertas_especificas if len(alertas_especificas)>2 else "S2"
+                        t3 = alertas_especificas if len(alertas_especificas)>3 else "S3"
+                        cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
+                        cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
+                    resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
+        else:
+            st.subheader(tx.get("sec1", "Sección I"))
+            resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
+            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
+            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], horizontal=True)
+            
+            if "mex" in resultados_totales["Nacionalidad"].lower():
+                resultados_totales["Estado Residencia"] = st.selectbox(tx.get("res", "Residencia:"), [""] + ESTADOS_MEXICO)
+                resultados_totales["País Origen"] = "México"
+            else: resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
+                
+            st.subheader(tx.get("sec2", "Sección II"))
+            resultados_totales["C1_Escuchado"] = st.radio(tx.get("kn1", "Q1"), ["Sí / Yes", "No"], horizontal=True)
+            resultados_totales["C2_Leído"] = st.radio(tx.get("kn2", "Q2"), ["Sí / Yes", "No"], horizontal=True)
+            resultados_totales["C3_Enseñado"] = st.radio(tx.get("kn3", "Q3"), ["Sí / Yes", "No"], horizontal=True)
+            resultados_totales["C4_Origen"] = st.radio(tx.get("kn4", "Q4"), [tx.get("kn4_options_0", "Se impone"), tx.get("kn4_options_1", "Se hereda"), tx.get("kn4_options_2", "No sé")], horizontal=True)
+            resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5", "Q5"), [tx.get("kn5_options_0", "Teología"), tx.get("kn5_options_1", "Cultura"), tx.get("kn5_options_2", "No sé")], horizontal=True)
+            
+            st.write("### 📋 BATERÍA DE REACTIVOS C&K")
+            reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
+            for r_id, r_txt in reactivos.items():
+                st.write(f"Reactivo {r_id}: {r_txt}")
+                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
+
+        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
+    else:
+        st.balloons()
+        st.success(tx.get("thanks", "¡Diagnóstico Completado con Éxito! 🎉"))
+        st.markdown(tx.get("thanks_sub", "Hemos compilado tu reporte individual multilingüe."))
+        st.toast(tx.get("toast_msg", "Descarga lista."), icon="📥")
+        
+        rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), idioma_sel)
+        st.download_button(tx.get("btn_pdf", "📥 DESCARGAR RECORTE"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
+        
+        dip = generar_reconocimiento_honorifico_dinamico()
+        st.download_button(tx.get("lbl_btn_download_diploma", "🏆 DIPLOMA"), data=dip, file_name="Diploma_Excelencia.pdf", mime="application/pdf", use_container_width=True)
+        if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
+            st.session_state.flujo_finalizado = False; st.rerun()
+
+    # --- INVESTIGACIÓN ALTA ANALÍTICA DEL PONENTE ---
+    if st.session_state.admin_autenticado and not es_m_pub:
+        st.markdown("---")
+        st.header(tx.get("lbl_titulo_aud"))
+        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_tabla_analizar_master_office")
+        sheet = conectar_google_sheets(tabla_analizar)
+        todas_las_filas = sheet.get_all_values() if sheet else []
+        if todas_las_filas and len(todas_las_filas) >= 2:
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+            st.subheader(tx.get("lbl_crm_buscar"))
+            c_busq = st.text_input(tx.get("lbl_crm_input"), key="crm_search_input").strip().lower()
+            if c_busq and not df_doc.empty:
+                st.write(df_doc[df_doc[df_doc.columns].astype(str).str.lower().str.contains(c_busq)])
+
+        if st.button(tx.get("lbl_btn_auditoria"), key="btn_run_doctoral_macro"):
+            pdf_auditoria = FPDF()
+            pdf_auditoria.add_page()
+            pdf_auditoria.set_font("Helvetica", "B", 14)
+            pdf_auditoria.cell(190, 10, str(tx.get("lbl_pdf_dictamen")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+            pdf_auditoria.ln(6); pdf_auditoria.set_font("Helvetica", "B", 12)
+            pdf_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+            pdf_auditoria.set_font("Helvetica", "", 9)
+            for ref_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
+                pdf_auditoria.multi_cell(190, 4.5, str(tx_dictamen.get(ref_key)).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                pdf_auditoria.ln(2)
+            st.download_button(label=tx.get("lbl_btn_download_macro"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report_fixed_mando")
+
+def generar_reconocimiento_honorifico_dinamico():
+    pdf = FPDF(orientation="L", unit="mm", format="A4")
+    pdf.add_page(); pdf.set_auto_page_break(auto=False)
+    pdf.set_draw_color(212, 175, 55); pdf.set_line_width(1.2); pdf.rect(10, 10, 277, 190)
+    pdf.set_font("Helvetica", "B", 14); pdf.set_text_color(50, 50, 50)
+    pdf.cell(277, 15, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.ln(10); pdf.set_font("Times", "B", 26)
+    pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
+    return bytes(pdf.output())
 
 
 # =================================================================
