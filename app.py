@@ -1,5 +1,5 @@
 # =================================================================
-# ECOSISTEMA ANALÍTICO PSICOMÉTRICO: MODELO MANDARINA & C&K ANALYTICS
+# ENTORNO UNIFICADO MONOLÍTICO: CENTRO DE MANDO DE TRADUCCIÓN GLOBAL
 # =================================================================
 import streamlit as st
 import pandas as pd
@@ -16,32 +16,106 @@ import matplotlib.pyplot as plt
 from io import BytesIO
 from fpdf import FPDF
 
+# Configuración estructural de la página web en producción
+st.set_page_config(
+    page_title="Informe Psicometrico - Modelos Temporales y Salud Integral",
+    page_icon="🍊",
+    layout="wide"
+)
 
-# 1. CONFIGURACIÓN INTERFAZ ACADÉMICA SÍNCRONA (STYLE APA)
+# Inyección de estilos CSS síncronos formato APA
 st.markdown(
-    """
-    <style>
-    .st_radio label, div[data-testid="stMarkdownContainer"] p, .stCheckbox label {
-        white-space: normal !important;
-        word-break: break-word !important;
-        overflow-wrap: break-word !important;
-    }
-    div[row-data-id="stRadioHorizontal"] {
-        flex-wrap: wrap !important;
-        gap: 12px !important;
-    }
-    div[data-testid="stDataFrame"] table {
-        border-top: 2px solid #333 !important;
-        border-bottom: 2px solid #333 !important;
-    }
-    div[data-testid="stDataFrame"] th {
-        border-bottom: 1px solid #333 !important;
-        background-color: #fff !important;
-        font-weight: bold !important;
-    }
-    </style>
-    """,
+    """<style>
+    .st_radio label, div[data-testid="stMarkdownContainer"] p, .stCheckbox label { white-space: normal !important; word-break: break-word !important; overflow-wrap: break-word !important; }
+    div[row-data-id="stRadioHorizontal"] { flex-wrap: wrap !important; gap: 12px !important; }
+    div[data-testid="stDataFrame"] table { border-top: 2px solid #333 !important; border-bottom: 2px solid #333 !important; }
+    div[data-testid="stDataFrame"] th { border-bottom: 1px solid #333 !important; background-color: #fff !important; font-weight: bold !important; }
+    </style>""", 
     unsafe_allow_html=True
+)
+
+# =================================================================
+# 🎛️ CENTRO DE MANDO MAESTRO DE TEXTOS (EL CONTROL TOTAL DEL SISTEMA)
+# =================================================================
+CENTRO_MANDO_TEXTOS = {
+    # Componentes de Control e Interfaz
+    "intl_title": "🌐 Internationalization Gateway / Control Políglota",
+    "intl_select": "Select System Language / Selecciona tu Idioma Objetivo:",
+    "intl_btn": "🔄 APPLY LANGUAGE / APLICAR IDIOMA SELECCIONADO",
+    "lbl_mostrar_form": "📝 Mostrar Formulario de Captura en Pantalla Principal",
+    "lbl_form_oculto": "💡 El formulario de captura local se encuentra oculto en esta pantalla.",
+    "lbl_titulo_aud": "🔬 Oficina de Investigación y Alta Analítica del Ponente",
+    "lbl_tabla_select": "Seleccionar Tabla para Extracción Científica e Historial:",
+    "lbl_crm_buscar": "🔍 Buscador Exclusivo de Participantes",
+    "lbl_crm_input": "📝 Filtrar por Nombre o WhatsApp:",
+    "lbl_btn_auditoria": "📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral",
+    "lbl_pdf_dictamen": "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO",
+    "lbl_pdf_ref_title": "Referencias Bibliograficas (APA Format)",
+    "lbl_btn_download_macro": "📥 DESCARGAR INFORME DOCTORAL",
+    "lbl_btn_download_diploma": "🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO (PRESIDENCIA)",
+    
+    # Textos Base del Cuestionario
+    "nombre": "Nombre Completo / Participant Name:",
+    "wha": "WhatsApp o Celular (Con lada, ej. +52):",
+    "err_fields": "🚨 Por favor, rellena todos los campos obligatorios.",
+    "proc": "Sincronizando vectores con la nube de Google Sheets...",
+    "fields_msg": "💡 Introduce Nombre y WhatsApp para habilitar la descarga.",
+    "btn_save": "💾 Guardar Diagnóstico y Procesar",
+    "btn_pdf": "DESCARGAR EN PDF 📥",
+    "thanks": "¡Diagnóstico Completado con Éxito! 🎉",
+    "thanks_sub": "Hemos compilado tu reporte individual multilingüe. Descárgalo abajo.",
+    "toast_msg": "Descarga del reporte disponible en el panel inferior.",
+    "mand_title": "### 🍊 Diagnóstico de Salud Integral - Modelo Mandarina",
+    "mand_subtitle": "Selecciona las casillas en las dimensiones donde experimentes alertas recurrentes o fugas de bienestar:",
+    "qr_title": "📢 Proyección del Código QR para el Auditorio",
+    "qr_sub1": "Escanea este código con tu smartphone para acceder al formulario en tiempo real.",
+    "qr_sub2": "El acceso expira automáticamente por control de seguridad anti-duplicados.",
+    "sec1": "Sección I. Contexto Demográfico y Geográfico",
+    "sec2": "Sección II. Evaluación de Nivel de Conocimiento del Modelo",
+    "edad": "Edad / Age:",
+    "genero": "Género / Gender:",
+    "nac": "Nacionalidad / Nationality:",
+    "res": "Estado de Residencia / State of Residence:",
+    "pais": "País de Origen / Country of Origin:",
+    "part": "Participante:",
+    "cont_label": "Contacto/WhatsApp:",
+    "fecha": "Fecha de Emisión:",
+    "lbl_descriptivos": "Resultados Descriptivos de Vectores Colectivos",
+    "lbl_medias_pdf": "Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}",
+    "lbl_nota_pdf": "Reporte de Evaluacion Psicometrica Individual",
+    "lbl_reporte_listo": "Descarga del reporte individual lista y disponible en el panel.",
+    
+    # Reactivos de Control de Conocimiento
+    "kn1": "1. ¿Has escuchado hablar del modelo temporal Cronos y Kairós?",
+    "kn2": "2. ¿Has leído algún libro o artículo científico sobre estos constructos?",
+    "kn3": "3. ¿Te han enseñado formalmente a gestionar tus metas bajo este enfoque?",
+    "kn4": "4. El modelo temporal dominante en tu entorno:",
+    "kn5": "5. Hablar de modelos temporales es hablar de:",
+    "kn4_options_0": "Se impone",
+    "kn4_options_1": "Se hereda",
+    "kn4_options_2": "No sé",
+    "kn5_options_0": "Teología",
+    "kn5_options_1": "Cultura",
+    "kn5_options_2": "No sé",
+    
+    # Escala Líkert
+    "likert_1": "1 - Totalmente en Desacuerdo",
+    "likert_2": "2 - En Desacuerdo",
+    "likert_3": "3 - Neutral",
+    "likert_4": "4 - De Acuerdo",
+    "likert_5": "5 - Totalmente de Acuerdo",
+    
+    # Control e Historiales del Ponente en Sidebar
+    "side_title": "## 🔐 Control del Ponente",
+    "side_pwd": "Contraseña Ponente:",
+    "side_btn": "Desbloquear Tableros",
+    "side_success": "Modo Ponente Activo",
+    "side_add": "➕ Agregar Audiencia Personalizada:",
+    "side_select_aud": "Audiencia Actual en Vivo:",
+    "side_close": "🚪 Cerrar Centro de Control",
+    "side_pwd_err": "Contraseña incorrecta."
+}
+
 )
 # =================================================================
 # PARTE 2: CONSTANTES GLOBALES, CATÁLOGOS PLANETA Y ONTOLOGÍAS BASE
