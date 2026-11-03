@@ -237,13 +237,10 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     return bytes(pdf.output())
 
 # =================================================================
-# PARTE 5A: INICIALIZACIÓN, RUTEO INTERNACIONAL Y CONTROL DE IDENTIDAD DUAL
+# PARTE 5A: INICIALIZACIÓN, SINCRO DE REACTIVOS Y CENTRO DE CONTROL
 # =================================================================
 def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, lang, tx):
-    """
-    Gestiona el guardado en segundo plano forzando el idioma español en la base de datos
-    y activa las pasarelas de descarga individuales del reporte.
-    """
+    """ Gestiona el guardado en la nube en español y activa las pasarelas individuales de descarga. """
     st.divider()
     col1, col2, col3 = st.columns(3)
     comp = bool(nombre.strip()) and bool(whatsapp.strip())
@@ -253,10 +250,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, 
             if not comp:
                 st.error(tx["err_fields"])
             else: 
-                # Requisito 3: Guardar en segundo plano la información en ESPAÑOL por default
                 guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados, "TOKEN_10MIN", es_likert)
-                
-                # Persistencia simétrica de variables para el PDF final
                 st.session_state.nombre_usuario_persistente = nombre
                 st.session_state.whatsapp_usuario_persistente = whatsapp
                 st.session_state.resultados_usuario_persistente = resultados
@@ -281,17 +275,13 @@ def main():
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
     if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
 
-    # Leemos de forma aislada y síncrona los parámetros de la URL para cada usuario independiente
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # Hidratación optimizada de la caché lingüística de red por instancia de navegador
+    # Hidratación optimizada de la caché lingüística de red por instancia
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
-            llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
-            valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
-            valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
-            st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+            st.session_state.tx_traducido_cache = dict(zip(list(TEXTOS_BASE_ESPANOL.keys()), traducir_lote_neuronal_master(list(TEXTOS_BASE_ESPANOL.values()), idioma_sel)))
             st.session_state.cache_lang_check = idioma_sel
         tx = st.session_state.tx_traducido_cache
     else:
@@ -307,15 +297,13 @@ def main():
     if es_celular_del_publico and st.query_params.get("diag_tipo", None):
         st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
 
-    # Enlace QR dinámico: Inyecta el idioma actual del ponente como semilla inicial para el público
     url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={idioma_sel}"
 
     if not st.session_state.estructuras_inicializadas:
-        for tabla in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]:
-            conectar_google_sheets(tabla)
+        for tabla in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-    # Barra lateral de administración: Oculta incondicionalmente para el participante
+    # 🔐 BARRA LATERAL DEL PONENTE CON ACCESO CORREGIDO AL CENTRO DE CONTROL
     if not es_celular_del_publico:
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
@@ -323,15 +311,20 @@ def main():
                 pwd_i = st.text_input("Contraseña Ponente:", type="password", key="panel_p_sec")
                 if st.button("Desbloquear"):
                     if pwd_i == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
-                        st.session_state.admin_autenticado = True; st.rerun()
+                        st.session_state.admin_autenticado = True
+                        st.rerun()
+                    else:
+                        st.error("Contraseña incorrecta.")
             else:
                 st.success("Modo Ponente Activo")
                 lista_auds = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
                 sel_aud = st.selectbox("Audiencia Actual en Vivo:", lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0)
                 if sel_aud != st.session_state.audiencia_activa:
-                    st.session_state.audiencia_activa = sel_aud; st.rerun()
+                    st.session_state.audiencia_activa = sel_aud
+                    st.rerun()
                 if st.button("🚪 Cerrar Centro de Control"):
-                    st.session_state.admin_autenticado = False; st.rerun()
+                    st.session_state.admin_autenticado = False
+                    st.rerun()
     else:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
     # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL E INDEPENDIENTE) ---
@@ -358,7 +351,6 @@ def main():
                 if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
-        # Proyección del QR: Requisito de ocultación automática cumplido para el participante scanneado
         if not es_celular_del_publico:
             with st.container(border=True):
                 st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR para el Auditorio')}")
@@ -384,13 +376,13 @@ def main():
                     col_a, col_b = st.columns(2)
                     
                     with col_a:
-                        t0 = alertas_especificas[0] if len(alertas_especificas) > 0 else "S0"
-                        t1 = alertas_especificas[1] if len(alertas_especificas) > 1 else "S1"
+                        t0 = alertas_especificas if len(alertas_especificas) > 0 else "S0"
+                        t1 = alertas_especificas if len(alertas_especificas) > 1 else "S1"
                         cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
                         cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
                     with col_b:
-                        t2 = alertas_especificas[2] if len(alertas_especificas) > 2 else "S2"
-                        t3 = alertas_especificas[3] if len(alertas_especificas) > 3 else "S3"
+                        t2 = alertas_especificas if len(alertas_especificas) > 2 else "S2"
+                        t3 = alertas_especificas if len(alertas_especificas) > 3 else "S3"
                         cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
                         cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
                         
@@ -415,10 +407,11 @@ def main():
             resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5", "Q5"), [tx.get("kn5_options_0", "Teología"), tx.get("kn5_options_1", "Cultura"), tx.get("kn5_options_2", "No sé")], horizontal=True)
             
             st.write("### 📋 BATERÍA DE REACTIVOS C&K")
+            # CORRECCIÓN SÍNCRONA: Hereda de forma unívoca el idioma_sel de control global
             reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
-                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
+                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=, format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
     else:
@@ -445,7 +438,6 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10); pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
-
 
 
 
