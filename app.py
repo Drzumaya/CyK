@@ -263,7 +263,7 @@ def main():
                 if st.button("🚪 Cerrar Centro de Control"): st.session_state.admin_autenticado = False; st.rerun()
     else:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
-    # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL) ---
+        # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL) ---
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
             st.markdown(f"### {ejecutar_traduccion_neuronal('🌐 Internationalization Gateway / Control Políglota', idioma_sel)}")
@@ -279,24 +279,26 @@ def main():
             sel_v = st.selectbox("Select System Language / Selecciona tu Idioma:", options=sorted(lista_despliegue_visual))
             
             if st.button("🔄 APPLY LANGUAGE / APLICAR IDIOMA SELECCIONADO"):
-                # Corrección del emparejamiento de claves limpias
                 lang_key_clean = str(sel_v).lower().strip()
                 codigo_iso_final = dict_idiomas_completos.get(lang_key_clean, "en")
                 
                 st.query_params["lang"] = codigo_iso_final
                 st.session_state.idioma_activo_actual = codigo_iso_final
-                if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
+                if "tx_traducido_cache" in st.session_state: 
+                    del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
-        # Proyección inmediata del QR únicamente en la pantalla del ponente
+        # Proyección inmediata del QR únicamente en la pantalla del ponente (Oculto para el público)
         if not es_celular_del_publico:
             with st.container(border=True):
                 st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR para el Auditorio')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=4)
-                qr.add_data(url_con_token); qr.make(fit=True)
+                qr.add_data(url_con_token)
+                qr.make(fit=True)
                 buf_qr = BytesIO()
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-                st.image(buf_qr.getvalue(), width=260, caption=f"Acceso Auditorio (10 min rotation): {url_con_token}")
+                # CORRECCIÓN: Se eliminó el texto plano de la leyenda URL inferior, manteniendo el QR puro
+                st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea para acceder al formulario'))
 
         st.header(f"📋 {st.session_state.audiencia_activa}")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
@@ -306,6 +308,7 @@ def main():
         resultados_totales = {}
         if not es_likert:
             st.write(tx.get("mand_title", "### 🍊 Diagnóstico de Salud Integral"))
+            # Sincronización del motor adaptativo con el código ISO validado
             gajos = algoritmo_generar_gajos_salud(idioma_sel)
             for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
                 with st.container(border=True):
@@ -349,8 +352,7 @@ def main():
                 st.write(f"Reactivo {r_id}: {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
-        # Sincronización exacta de los 7 parámetros requeridos
-        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_tiempo, es_likert, idioma_sel, tx)
+        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Diagnóstico Completado con Éxito! 🎉"))
@@ -362,7 +364,9 @@ def main():
         
         dip = generar_reconocimiento_honorifico_dinamico()
         st.download_button("🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO", data=dip, file_name="Diploma_Excelencia.pdf", mime="application/pdf", use_container_width=True)
-        if st.button("🔄 Volver al Diagnóstico Principal"): st.session_state.flujo_finalizado = False; st.rerun()
+        if st.button("🔄 Volver al Diagnóstico Principal"): 
+            st.session_state.flujo_finalizado = False; 
+            st.rerun()
 
 def generar_reconocimiento_honorifico_dinamico():
     pdf = FPDF(orientation="L", unit="mm", format="A4")
