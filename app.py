@@ -425,7 +425,9 @@ def renderizar_botones_transaccionales(nom, wha, res, es_lk, lang, tx):
         else: st.info(tx["fields_msg"])
     with col3:
         if ok:
-            u_wa = f"https://whatsapp.com{urllib.parse.quote(wha)}&text=Diagnostico+Completado"
+            # 🍊 CORRECCIÓN: API Gateway oficial de WhatsApp corregido sin concatenaciones rotas
+            telefono_limpio = "".join(c for c in str(wha) if c.isdigit() or c == '+')
+            u_wa = f"https://whatsapp.com{urllib.parse.quote(telefono_limpio)}&text=Diagnostico+Completado"
             st.markdown(f'<a href="{u_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;cursor:pointer;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
 
 def main():
@@ -438,30 +440,19 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-  # =================================================================
-# BLOQUE DE REEMPLAZO SEGURO ANTI-BLOQUEOS DENTRO DE LA FUNCIÓN MAIN()
-# =================================================================
     # Hidratación optimizada en un único paquete masivo para evitar baneos de IP
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
-            # 1. Creamos un super contenedor plano con todos los textos estáticos del sistema
             llaves_m = list(CENTRO_MANDO_TEXTOS.keys())
             valores_m = list(CENTRO_MANDO_TEXTOS.values())
-            
             llaves_d = list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.keys())
             valores_d = list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.values())
-            
-            # Formateamos el glosario clínico estático a una lista plana
             llaves_g = list(GLOSARIO_CLINICO_ESTÁTICO.keys())
             valores_g = list(GLOSARIO_CLINICO_ESTÁTICO.values())
             
-            # Combinamos todo en un único vector masivo para hacer un solo disparo de red
             super_lote_plano = valores_m + valores_d + valores_g
-            
-            # Pasarela nativa unificada: 1 sola consulta al servidor
             super_lote_traducido = traducir_lote_neuronal_master(super_lote_plano, idioma_sel)
             
-            # 2. Desempaquetamos de forma matemática usando cortes simétricos de índices (Slicing)
             ptr_m = len(valores_m)
             ptr_d = ptr_m + len(valores_d)
             
@@ -469,15 +460,12 @@ def main():
             valores_d_trad = super_lote_traducido[ptr_m:ptr_d]
             valores_g_trad = super_lote_traducido[ptr_d:]
             
-            # Re-asignamos las variables del caché de sesión de Streamlit de forma segura
             st.session_state.tx_traducido_cache = dict(zip(llaves_m, valores_m_trad))
             st.session_state.tx_dictamen_cache = dict(zip(llaves_d, valores_d_trad))
             
             gl_tr = {}
             for idx, gk in enumerate(llaves_g):
-                # Como las sugerencias son strings puros, barremos errores de asignación
-                texto_clinico_traducido = valores_g_trad[idx]
-                gl_tr[gk] = {"sig": texto_clinico_traducido, "rec": ""}
+                gl_tr[gk] = {"sig": valores_g_trad[idx], "rec": ""}
                 
             st.session_state.glosario_traducido_cache = gl_tr
             st.session_state.cache_lang_check = idioma_sel
@@ -488,9 +476,6 @@ def main():
         tx = {k: str(v) for k, v in CENTRO_MANDO_TEXTOS.items()}
         tx_dictamen = {k: str(v) for k, v in TEXTOS_DICTAMEN_COMPLEMENTARIOS.items()}
 
-    # =================================================================
-# CORRECCIÓN DE EMERGENCIA: INYECCIÓN DE LA CONSTANTE EN MAIN()
-# =================================================================
     # Forzamos la mutación algorítmica exacta cada 10 minutos (600 segundos)
     minuto_bloque_10 = int(time.time() // 600)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
@@ -501,10 +486,8 @@ def main():
     if es_celular_del_publico and st.query_params.get("diag_tipo", None): 
         st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
 
-    # 🍊 TRUCO DE BLINDAJE: Declaramos localmente la URL si Python la limpió de la memoria global
-    URL_PRODUCCION = "https://dsimandarina.streamlit.app/?lang=am"
-
-    # Ahora la concatenación se ejecuta de forma síncrona sin NameError
+    # 🍊 CORRECCIÓN: Raíz limpia del dominio para inyectar correctamente los parámetros dinámicos
+    URL_PRODUCCION = "https://dsimandarina.streamlit.app"
     url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={idioma_sel}"
 
     if not st.session_state.estructuras_inicializadas:
@@ -513,22 +496,36 @@ def main():
 
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
-        if not es_m_pub:
+        # 🍊 CORRECCIÓN: Se cambió es_m_pub por la variable unificada correcta de este módulo
+        if not es_celular_del_publico:
             if not st.session_state.admin_autenticado:
                 p_in = st.text_input(tx.get("side_pwd", "Contraseña:"), type="password", key="p_sec")
                 if st.button(tx.get("side_btn", "Desbloquear")):
-                    if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): st.session_state.admin_autenticado = True; st.rerun()
+                    if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): 
+                        st.session_state.admin_autenticado = True
+                        st.rerun()
                     else: st.error(tx.get("side_pwd_err", "Error"))
             else:
                 st.success(tx.get("side_success", "Activo"))
                 n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:")).strip()
-                if n_aud and n_aud not in st.session_state.audiences_custom_list: st.session_state.audiences_custom_list.append(n_aud); st.rerun()
+                if n_aud and n_aud not in st.session_state.audiences_custom_list: 
+                    st.session_state.audiences_custom_list.append(n_aud)
+                    st.rerun()
                 op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
                 sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master_ponente")
-                if sel_aud != st.session_state.audiencia_activa: st.session_state.audiencia_activa = sel_aud; st.rerun()
-                if st.button(tx.get("side_close", "Cerrar")): st.session_state.admin_autenticado = False; st.rerun()
+                if sel_aud != st.session_state.audiencia_activa: 
+                    st.session_state.audiencia_activa = sel_aud
+                    st.rerun()
+                if st.button(tx.get("side_close", "Cerrar")): 
+                    st.session_state.admin_autenticado = False
+                    st.rerun()
         else: st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
-    # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL E INDEPENDIENTE) ---
+    # =================================================================
+    # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GENERACIÓN DE DIPLOMAS
+    # =================================================================
+    # Sincronización explícita de variables y lógica de interfaz principal
+    es_m_pub = es_celular_del_publico 
+
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
             st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
@@ -540,8 +537,8 @@ def main():
                 dict_idiomas = {"spanish": "es", "english": "en", "french": "fr"}
                 lista_visual = ["Spanish", "English", "French"]
 
-            sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=sorted(lista_visual), key="sb_part_lang_unq")
-            if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_fixed"):
+            sel_v = st.selectbox(tx.get("intl_select", "Selecciona Idioma:"), options=sorted(lista_visual), key="sb_public_participant_gateway_language_unique")
+            if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_mando_fixed_core"):
                 k_clean = str(sel_v).lower().strip()
                 iso_f = dict_idiomas.get(k_clean, "en")
                 st.query_params["lang"] = iso_f
@@ -567,22 +564,18 @@ def main():
         resultados_totales = {}
         if not es_likert:
             st.write(tx.get("mand_title", "### 🍊 Diagnóstico de Salud Adaptativo"))
-            # 🍊 MOTOR GENERATIVO: Los ítems se autogeneran dinámicamente según la audiencia activa en Sheets
+            # 🍊 MOTOR GENERATIVO: Los ítems se autogeneran dinámicamente según la audiencia activa en la barra del ponente
             gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, idioma_sel)
             for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
                     col_a, col_b = st.columns(2)
                     with col_a:
-                        t0 = alertas_especificas if len(alertas_especificas)>0 else "S0"
-                        t1 = alertas_especificas if len(alertas_especificas)>1 else "S1"
-                        cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
-                        cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
+                        cb0 = st.checkbox(alertas_especificas[0] if len(alertas_especificas)>0 else "S0", key=f"c_{g_idx}_0_f")
+                        cb1 = st.checkbox(alertas_especificas[1] if len(alertas_especificas)>1 else "S1", key=f"c_{g_idx}_1_f")
                     with col_b:
-                        t2 = alertas_especificas if len(alertas_especificas)>2 else "S2"
-                        t3 = alertas_especificas if len(alertas_especificas)>3 else "S3"
-                        cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
-                        cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
+                        cb2 = st.checkbox(alertas_especificas[2] if len(alertas_especificas)>2 else "S2", key=f"c_{g_idx}_2_f")
+                        cb3 = st.checkbox(alertas_especificas[3] if len(alertas_especificas)>3 else "S3", key=f"c_{g_idx}_3_f")
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
         else:
             st.subheader(tx.get("sec1", "Sección I"))
@@ -593,7 +586,8 @@ def main():
             if "mex" in resultados_totales["Nacionalidad"].lower():
                 resultados_totales["Estado Residencia"] = st.selectbox(tx.get("res", "Residencia:"), [""] + ESTADOS_MEXICO)
                 resultados_totales["País Origen"] = "México"
-            else: resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
+            else: 
+                resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
                 
             st.subheader(tx.get("sec2", "Sección II"))
             resultados_totales["C1_Escuchado"] = st.radio(tx.get("kn1", "Q1"), ["Sí / Yes", "No"], horizontal=True)
@@ -606,6 +600,7 @@ def main():
             reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
+                # 🍊 CORRECCIÓN DE SINTAXIS: Se inyectó la escala numérica explícita del 1 al 5
                 resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
@@ -623,35 +618,44 @@ def main():
         if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
             st.session_state.flujo_finalizado = False; st.rerun()
 
-    
-        # =================================================================
-    # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GENERACIÓN DE DIPLOMAS
-    # =================================================================
-    # Sincronización explícita de variables y lógica de interfaz principal
-    es_m_pub = es_celular_del_publico 
+    # --- INVESTIGACIÓN ALTA ANALÍTICA DEL PONENTE ---
+    if st.session_state.admin_autenticado and not es_m_pub:
+        st.markdown("---")
+        st.header(tx.get("lbl_titulo_aud"))
+        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_tabla_analizar_master_office")
+        sheet = conectar_google_sheets(tabla_analizar)
+        todas_las_filas = sheet.get_all_values() if sheet else []
+        if todas_las_filas and len(todas_las_filas) >= 2:
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+            st.subheader(tx.get("lbl_crm_buscar"))
+            c_busq = st.text_input(tx.get("lbl_crm_input"), key="crm_search_input").strip().lower()
+            if c_busq and not df_doc.empty:
+                st.write(df_doc[df_doc[df_doc.columns].astype(str).str.lower().str.contains(c_busq)])
 
-    if not st.session_state.flujo_finalizado:
-        with st.container(border=True):
-            st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
-            # Configuración de traducción y selección de idioma
-            sel_v = st.selectbox(tx.get("intl_select", "Selecciona Idioma:"), options=["Spanish", "English", "French"], key="sb_public_participant_gateway_language_unique")
-            
-        st.header(f"📋 {st.session_state.audiencia_activa}")
-        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
-        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
-        es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
-        
-        resultados_totales = {}
-        # Procesamiento de cuestionarios y reactivos según el tipo de audiencia
-        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
-    else:
-        st.balloons()
-        st.success(tx.get("thanks", "¡Diagnóstico Completado con Éxito! 🎉"))
+        if st.button(tx.get("lbl_btn_auditoria"), key="btn_run_doctoral_macro"):
+            pdf_auditoria = FPDF()
+            pdf_auditoria.add_page()
+            pdf_auditoria.set_font("Helvetica", "B", 14)
+            pdf_auditoria.cell(190, 10, str(tx.get("lbl_pdf_dictamen")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+            pdf_auditoria.ln(6); pdf_auditoria.set_font("Helvetica", "B", 12)
+            pdf_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+            pdf_auditoria.set_font("Helvetica", "", 9)
+            for ref_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
+                pdf_auditoria.multi_cell(190, 4.5, str(tx_dictamen.get(ref_key)).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                pdf_auditoria.ln(2)
+            st.download_button(label=tx.get("lbl_btn_download_macro"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report_fixed_mando")
 
 def generar_reconocimiento_honorifico_dinamico():
     pdf = FPDF(orientation="L", unit="mm", format="A4")
-    pdf.add_page()
+    pdf.add_page(); pdf.set_auto_page_break(auto=False)
+    pdf.set_draw_color(212, 175, 55); pdf.set_line_width(1.2); pdf.rect(10, 10, 277, 190)
+    pdf.set_font("Helvetica", "B", 14); pdf.set_text_color(50, 50, 50)
+    pdf.cell(277, 15, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.ln(10); pdf.set_font("Times", "B", 26)
+    pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
+
+
 
 
 # =================================================================
