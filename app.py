@@ -477,6 +477,10 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
 
 def main():
     """ Orquestador de enrutamiento, dibujo de cuestionarios y control del ponente. """
+    # 🍊 BLINDAJE DE SEGURIDAD: Inicializamos la variable de control antes de leerla
+    if "estructuras_inicializadas" not in st.session_state:
+        st.session_state.estructuras_inicializadas = False
+        
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
@@ -497,10 +501,12 @@ def main():
     if es_celular_del_publico and st.query_params.get("diag_tipo", None):
         st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
 
+    # Modificado para leer el estado de manera segura tras su inicialización
     if not st.session_state.estructuras_inicializadas:
         for tabla in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]:
             conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
+
 
     if not es_celular_del_publico:
         with st.sidebar:
