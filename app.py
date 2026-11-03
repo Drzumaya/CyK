@@ -1012,8 +1012,8 @@ def main():
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
             if not st.session_state.admin_autenticado:
-                # 🍊 INNOVACIÓN MÁSTER ANTI-DUPLICIDAD: Enlazamos la key al token_tiempo síncrono del sistema
-                key_dinamica_password = f"pwd_ponente_gateway_crypto_{token_tiempo}"
+                # 🍊 INDENTACIÓN POSICIONAL INDEPENDIENTE: Añadimos un sufijo estricto de tramo
+                key_dinamica_password = f"pwd_ponente_gateway_crypto_{token_tiempo}_tramo13"
                 
                 input_password = st.text_input(
                     "Contraseña Ponente:", 
@@ -1021,12 +1021,13 @@ def main():
                     key=key_dinamica_password
                 )
                 
-                if st.button("Desbloquear Tableros", key=f"btn_desbloquear_sincro_{token_tiempo}"):
+                if st.button("Desbloquear Tableros", key=f"btn_desbloquear_sincro_{token_tiempo}_tramo13"):
                     if input_password == PASSWORD_SISTEMA:
                         st.session_state.admin_autenticado = True
                         st.rerun()
                     else:
                         st.error("Contraseña incorrecta.")
+
 
             else:
                 st.success("Modo Ponente Activo")
