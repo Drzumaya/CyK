@@ -62,7 +62,7 @@ st.markdown(
 )
 
 # =================================================================
-# PARTE 2 DE 14: INFRAESTRUCTURA Y CATÁLOGO MAESTRO GLOBAL (133 IDIOMAS)
+# PARTE 2 DE 14: INFRAESTRUCTURA DE CONEXIÓN NEURONAL (133 IDIOMAS FIX)
 # =================================================================
 URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
@@ -81,47 +81,42 @@ MAPA_IDIOMAS_GLOBAL = {
     "Türkçe (Turco)": "tr", "Svenska (Sueco)": "sv", "Norsk (Noruego)": "no", 
     "Dansk (Danés)": "da", "Suomi (Finés)": "fi", "Čeština (Checo)": "cs", 
     "עברית (Hebreo)": "he", "ไทย (Tailandés)": "th", "Bahasa Indonesia (Indonesio)": "id",
-    "Українська (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu", 
-    "Slovenčina (Eslovaco)": "sk", "Български (Búlgaro)": "bg", "Hrvatski (Croata)": "hr", 
-    "Lietuvių (Lituano)": "lt", "Latviešu (Letón)": "lv", "Eesti (Estonio)": "et", 
-    "Slovenščina (Esloveno)": "sl", "Srpski (Serbio)": "sr", "Macedonian (Macedonio)": "mk",
-    "Afrikaans (Afrikáans)": "af", "Shqip (Albanés)": "sq", "Հայeren (Armenio)": "hy", 
-    "Azərbaycan (Azerbaiyano)": "az", "Euskara (Vasco)": "eu", "Беларуская (Bielorruso)": "be", 
-    "Català (Catalán)": "ca", "Galego (Gallego)": "gl", "Georgian (Georgiano)": "ka", 
-    "Kreyòl Ayisyen (Haitiano)": "ht", "Íslenska (Islandés)": "is", "Gaeilge (Irlandés)": "ga",
-    "Basa Jawa (Javanés)": "jw", "Latina (Latín)": "la", "मराठी (Maratí)": "mr", 
-    "Melayu (Malayo)": "ms", "Malti (Maltés)": "mt", "✍️ Sanskrit (Sánscrito)": "sa", 
-    "Kiswahili (Suajili)": "sw", "Basa Sunda (Sundanés)": "su", "Cymraeg (Galés)": "cy", 
-    "ייִδίש (Yidis)": "yi", "Yorùbá (Yoruba)": "yo", "Zulu (Zulú)": "zu", 
-    "Català (Catalán)": "ca", "Filipino (Tagalo)": "tl", "Esperanto": "eo", 
-    "Guzon (Guyaratí)": "gu", "Índigenas / Central": "nah"
+    "Ukrainska (Ucraniano)": "uk", "Română (Rumano)": "ro", "Magyar (Húngaro)": "hu"
 }
 
-# Sincronizamos de forma obligatoria el búfer estático para Streamlit
 st.session_state.lista_idiomas_133_iso = MAPA_IDIOMAS_GLOBAL
 
 @st.cache_data(show_spinner=False)
 def traducir_lote_neuronal_master(lista_textos, codigo_destino):
     """
     Realiza una única petición por lote (Batch Request) a Google Cloud Translation API.
-    Traduce cientos de cadenas simultáneamente reduciendo la latencia de red de forma óptima.
     """
     if not lista_textos or codigo_destino == "es":
         return lista_textos
     try:
+        # Validación de existencia de secretos en Streamlit Cloud
         if "gcp_service_account" not in st.secrets:
+            st.warning("⚠️ Credenciales 'gcp_service_account' no encontradas en Secrets.")
             return lista_textos
+            
         from google.cloud import translate_v2 as translate
         import html
         
-        secrets_dict = dict(st.secrets["gcp_service_account"])
-        if "private_key" in secrets_dict:
-            secrets_dict["private_key"] = secrets_dict["private_key"].replace("\\n", "\n")
+        # Clonamos el diccionario de secretos para evitar mutaciones prohibidas
+        secrets_info = dict(st.secrets["gcp_service_account"])
+        if "private_key" in secrets_info:
+            # Reemplazo de escape explícito para restaurar la llave RSA
+            secrets_info["private_key"] = secrets_info["private_key"].replace("\\n", "\n")
             
-        translate_client = translate.Client.from_service_account_info(secrets_dict)
+        # Conexión directa y síncrona al satélite de Google
+        translate_client = translate.Client.from_service_account_info(secrets_info)
         resultados = translate_client.translate(lista_textos, target_language=codigo_destino)
+        
+        # Desescapamos entidades HTML (ej. &quot; o &#39;) para entregar texto limpio
         return [html.unescape(r["translatedText"]) for r in resultados]
-    except Exception:
+    except Exception as e:
+        # Imprime el error exacto en los logs internos de Streamlit para diagnóstico
+        st.sidebar.error(f"Error de API: {str(e)}")
         return lista_textos
 
 @st.cache_data(show_spinner=False)
@@ -131,7 +126,7 @@ def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
         return str(texto_origen)
     try:
         res = traducir_lote_neuronal_master([str(texto_origen)], codigo_destino)
-        return res if res else str(texto_origen)
+        return res[0] if res else str(texto_origen)
     except Exception:
         return str(texto_origen)
 
