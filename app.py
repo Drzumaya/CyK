@@ -399,9 +399,10 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     return bytes(pdf.output())
 
 # =================================================================
-# PARTE 5A: COMPONENTE TRANSACCIONAL, ENRUTAMIENTO Y CACHÉ DE TRADUCCIÓN
+# PARTE 5A: INICIALIZACIÓN, SINCRO DE REACTIVOS Y CENTRO DE CONTROL MAESTRO
 # =================================================================
 def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, lang, tx):
+    """ Gestiona el guardado en la nube en español y activa las pasarelas individuales de descarga. """
     st.divider()
     col1, col2, col3 = st.columns(3)
     comp = bool(nombre.strip()) and bool(whatsapp.strip())
@@ -411,10 +412,7 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, 
             if not comp:
                 st.error(tx["err_fields"])
             else: 
-                # Requisito 3: Guardar en segundo plano la información en ESPAÑOL por default en la nube
                 guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados, "TOKEN_10MIN", es_likert)
-                
-                # Persistencia simétrica en sesión
                 st.session_state.nombre_usuario_persistente = nombre
                 st.session_state.whatsapp_usuario_persistente = whatsapp
                 st.session_state.resultados_usuario_persistente = resultados
@@ -442,15 +440,22 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # 🎛️ ACOPLAMIENTO AL CENTRO DE MANDO: Traduce el diccionario maestro en un único disparo de red
+    # 🍊 CORRECCIÓN DE RAÍZ: Inicialización preventiva obligatoria para evitar el KeyError/AttributeError
+    if "tx_traducido_cache" not in st.session_state:
+        st.session_state.tx_traducido_cache = {k: str(v) for k, v in CENTRO_MANDO_TEXTOS.items()}
+    if "tx_dictamen_cache" not in st.session_state:
+        st.session_state.tx_dictamen_cache = {k: str(v) for k, v in TEXTOS_DICTAMEN_COMPLEMENTARIOS.items()}
+    if "glosario_traducido_cache" not in st.session_state:
+        st.session_state.glosario_traducido_cache = GLOSARIO_BASE
+
+    # Hidratación optimizada de la caché lingüística de red únicamente si cambia a un idioma extranjero
     if idioma_sel != "es":
-        if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
+        if st.session_state.get("cache_lang_check") != idioma_sel:
             llaves_maestras = list(CENTRO_MANDO_TEXTOS.keys())
             valores_maestros = list(CENTRO_MANDO_TEXTOS.values())
             valores_traducidos = traducir_lote_neuronal_master(valores_maestros, idioma_sel)
             st.session_state.tx_traducido_cache = dict(zip(llaves_maestras, valores_traducidos))
             
-            # Traducimos de forma adyacente los dictámenes y el glosario clínico bajo el mismo bloque
             llaves_dictamen = list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.keys())
             valores_dictamen = list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.values())
             valores_dictamen_trad = traducir_lote_neuronal_master(valores_dictamen, idioma_sel)
@@ -464,13 +469,11 @@ def main():
             st.session_state.glosario_traducido_cache = glosario_traducido
             
             st.session_state.cache_lang_check = idioma_sel
-        tx = st.session_state.tx_traducido_cache
-        tx_dictamen = st.session_state.tx_dictamen_cache
-    else:
-        tx = {k: str(v) for k, v in CENTRO_MANDO_TEXTOS.items()}
-        tx_dictamen = {k: str(v) for k, v in TEXTOS_DICTAMEN_COMPLEMENTARIOS.items()}
+            
+    tx = st.session_state.tx_traducido_cache
+    tx_dictamen = st.session_state.tx_dictamen_cache
 
-    # Rotación del token cifrado cada 10 minutos (600 segundos) para el código QR proyectado
+    # Rotación del token cada 10 minutos (600 segundos) para el código QR proyectado
     minuto_bloque_10 = int(time.time() // 600)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
     
@@ -524,7 +527,11 @@ def main():
                 codigo_iso_final = dict_idiomas_completos.get(lang_key_clean, "en")
                 st.query_params["lang"] = codigo_iso_final
                 st.session_state.idioma_activo_actual = codigo_iso_final
+                
+                # Reseteamos los estados de memoria para forzar la re-hidratación en el nuevo idioma extranjero
                 if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
+                if "tx_dictamen_cache" in st.session_state: del st.session_state["tx_dictamen_cache"]
+                if "glosario_traducido_cache" not in st.session_state: del st.session_state["glosario_traducido_cache"]
                 st.rerun()
 
         # Ocultación automática: El QR SOLO se proyecta en la pantalla maestra del ponente (Oculto en móvil)
@@ -551,11 +558,11 @@ def main():
                     st.markdown(f"#### {g_name}")
                     col_a, col_b = st.columns(2)
                     with col_a:
-                        cb0 = st.checkbox(alertas_especificas[0] if len(alertas_especificas)>0 else "S0", key=f"c_{g_idx}_0_f")
-                        cb1 = st.checkbox(alertas_especificas[1] if len(alertas_especificas)>1 else "S1", key=f"c_{g_idx}_1_f")
+                        cb0 = st.checkbox(alertas_especificas if len(alertas_especificas)>0 else "S0", key=f"c_{g_idx}_0_f")
+                        cb1 = st.checkbox(alertas_especificas if len(alertas_especificas)>1 else "S1", key=f"c_{g_idx}_1_f")
                     with col_b:
-                        cb2 = st.checkbox(alertas_especificas[2] if len(alertas_especificas)>2 else "S2", key=f"c_{g_idx}_3_f")
-                        cb3 = st.checkbox(alertas_especificas[3] if len(alertas_especificas)>3 else "S3", key=f"c_{g_idx}_4_f")
+                        cb2 = st.checkbox(alertas_especificas if len(alertas_especificas)>2 else "S2", key=f"c_{g_idx}_3_f")
+                        cb3 = st.checkbox(alertas_especificas if len(alertas_especificas)>3 else "S3", key=f"c_{g_idx}_4_f")
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
         else:
             st.subheader(tx.get("sec1", "Sección I"))
@@ -604,7 +611,7 @@ def main():
         sheet = conectar_google_sheets(tabla_analizar)
         todas_las_filas = sheet.get_all_values() if sheet else []
         if todas_las_filas and len(todas_las_filas) >= 2:
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
             st.subheader(tx.get("lbl_crm_buscar"))
             c_busq = st.text_input(tx.get("lbl_crm_input"), key="crm_search_input").strip().lower()
             if c_busq and not df_doc.empty:
@@ -632,6 +639,9 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10); pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
+
+
+
 
 
 
