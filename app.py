@@ -218,7 +218,7 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # 🍊 HIDRATACIÓN DINÁMICA AUTOMÁTICA DEL SISTEMA DE TRADUCCIÓN
+    # HIDRATACIÓN DINÁMICA AUTOMÁTICA DEL SISTEMA DE TRADUCCIÓN
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
             llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
@@ -268,7 +268,6 @@ def main():
         with st.container(border=True):
             st.markdown(f"### {ejecutar_traduccion_neuronal('🌐 Internationalization Gateway / Control Políglota', idioma_sel)}")
             
-            # 🍊 SOLUCIÓN MATRIZ PLANETA COMPLETA: Extrae nativamente todos los idiomas soportados por deep-translator
             from deep_translator import GoogleTranslator
             try:
                 dict_idiomas_completos = GoogleTranslator().get_supported_languages(as_dict=True)
@@ -280,8 +279,8 @@ def main():
             sel_v = st.selectbox("Select System Language / Selecciona tu Idioma:", options=sorted(lista_despliegue_visual))
             
             if st.button("🔄 APPLY LANGUAGE / APLICAR IDIOMA SELECCIONADO"):
-                # Mapeo directo al código ISO real del servidor de traducción
-                lang_key_clean = str(sel_v).lower()
+                # Corrección del emparejamiento de claves limpias
+                lang_key_clean = str(sel_v).lower().strip()
                 codigo_iso_final = dict_idiomas_completos.get(lang_key_clean, "en")
                 
                 st.query_params["lang"] = codigo_iso_final
@@ -313,7 +312,6 @@ def main():
                     st.markdown(f"#### {g_name}")
                     col_a, col_b = st.columns(2)
                     
-                    # 🍊 CORRECCIÓN DE RAÍZ: Mapeo por slicing indexado numérico absoluto para eliminar la repetición
                     with col_a:
                         t0 = alertas_especificas[0] if len(alertas_especificas) > 0 else "S0"
                         t1 = alertas_especificas[1] if len(alertas_especificas) > 1 else "S1"
@@ -351,7 +349,8 @@ def main():
                 st.write(f"Reactivo {r_id}: {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
-        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
+        # Sincronización exacta de los 7 parámetros requeridos
+        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_tiempo, es_likert, idioma_sel, tx)
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Diagnóstico Completado con Éxito! 🎉"))
@@ -374,6 +373,8 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10); pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
+
+
 
 
 
