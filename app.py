@@ -9,11 +9,13 @@ import time
 import hashlib
 import base64
 import gspread
+import qrcode  # 🍊 CORRECCIÓN: Inyección explícita de la librería de códigos QR
 import html
 import urllib.parse
 import matplotlib.pyplot as plt
 from io import BytesIO
 from fpdf import FPDF
+
 
 # 1. CONFIGURACIÓN INTERFAZ ACADÉMICA SÍNCRONA (STYLE APA)
 st.markdown(
