@@ -1005,20 +1005,22 @@ def main():
     # =================================================================
     # PARTE 13 DE 14: CONSOLA LATERAL Y SELECTOR POLÍGLOTA DIRECTO (BLOQUE 3 DE 4)
     # =================================================================
-    # Consola Lateral Unificada del Ponente
+        # Consola Lateral Unificada del Ponente
     PASSWORD_SISTEMA = st.secrets["credentials"]["password_ponente"] if "credentials" in st.secrets else "mandarina2026"
     
     if not es_celular_del_publico:
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
             if not st.session_state.admin_autenticado:
-                input_password = st.text_input("Contraseña Ponente:", type="password", key="side_pwd_admin_master_unfailing_2026")
+                # RECTIFICACIÓN DE UNICIDAD EXCLUSIVA: Se altera el token 'key' para evitar colisiones
+                input_password = st.text_input("Contraseña Ponente:", type="password", key="key_side_pwd_admin_ultimate_uniqueness_gateway_2026")
                 if st.button("Desbloquear Tableros", key="btn_desbloquear_unique"):
                     if input_password == PASSWORD_SISTEMA:
                         st.session_state.admin_autenticado = True
                         st.rerun()
                     else:
                         st.error("Contraseña incorrecta.")
+
             else:
                 st.success("Modo Ponente Activo")
                 if st.button("🚪 Cerrar Centro de Inteligencia", type="secondary", key="btn_close_admin_unique"):
