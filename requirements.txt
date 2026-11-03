@@ -1,8 +1,8 @@
-google-cloud-translate==2.0.1
-gspread==6.1.2
-fpdf2==2.7.9
-pandas==2.2.2
-numpy==1.26.4
-matplotlib==3.9.0
-qrcode==7.4.2
-pillow==10.3.0
+google-cloud-translate
+gspread
+fpdf2
+pandas
+numpy
+matplotlib
+qrcode
+pillow
