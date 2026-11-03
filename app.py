@@ -623,41 +623,34 @@ def main():
         if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
             st.session_state.flujo_finalizado = False; st.rerun()
 
-    # --- INVESTIGACIÓN ALTA ANALÍTICA DEL PONENTE ---
-    if st.session_state.admin_autenticado and not es_m_pub:
-        st.markdown("---")
-        st.header(tx.get("lbl_titulo_aud"))
-        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_tabla_analizar_master_office")
-        sheet = conectar_google_sheets(tabla_analizar)
-        todas_las_filas = sheet.get_all_values() if sheet else []
-        if todas_las_filas and len(todas_las_filas) >= 2:
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
-            st.subheader(tx.get("lbl_crm_buscar"))
-            c_busq = st.text_input(tx.get("lbl_crm_input"), key="crm_search_input").strip().lower()
-            if c_busq and not df_doc.empty:
-                st.write(df_doc[df_doc[df_doc.columns].astype(str).str.lower().str.contains(c_busq)])
+    
+        # =================================================================
+    # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GENERACIÓN DE DIPLOMAS
+    # =================================================================
+    # Sincronización explícita de variables y lógica de interfaz principal
+    es_m_pub = es_celular_del_publico 
 
-        if st.button(tx.get("lbl_btn_auditoria"), key="btn_run_doctoral_macro"):
-            pdf_auditoria = FPDF()
-            pdf_auditoria.add_page()
-            pdf_auditoria.set_font("Helvetica", "B", 14)
-            pdf_auditoria.cell(190, 10, str(tx.get("lbl_pdf_dictamen")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-            pdf_auditoria.ln(6); pdf_auditoria.set_font("Helvetica", "B", 12)
-            pdf_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-            pdf_auditoria.set_font("Helvetica", "", 9)
-            for ref_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
-                pdf_auditoria.multi_cell(190, 4.5, str(tx_dictamen.get(ref_key)).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
-                pdf_auditoria.ln(2)
-            st.download_button(label=tx.get("lbl_btn_download_macro"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report_fixed_mando")
+    if not st.session_state.flujo_finalizado:
+        with st.container(border=True):
+            st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
+            # Configuración de traducción y selección de idioma
+            sel_v = st.selectbox(tx.get("intl_select", "Selecciona Idioma:"), options=["Spanish", "English", "French"], key="sb_public_participant_gateway_language_unique")
+            
+        st.header(f"📋 {st.session_state.audiencia_activa}")
+        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
+        es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
+        
+        resultados_totales = {}
+        # Procesamiento de cuestionarios y reactivos según el tipo de audiencia
+        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
+    else:
+        st.balloons()
+        st.success(tx.get("thanks", "¡Diagnóstico Completado con Éxito! 🎉"))
 
 def generar_reconocimiento_honorifico_dinamico():
     pdf = FPDF(orientation="L", unit="mm", format="A4")
-    pdf.add_page(); pdf.set_auto_page_break(auto=False)
-    pdf.set_draw_color(212, 175, 55); pdf.set_line_width(1.2); pdf.rect(10, 10, 277, 190)
-    pdf.set_font("Helvetica", "B", 14); pdf.set_text_color(50, 50, 50)
-    pdf.cell(277, 15, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.ln(10); pdf.set_font("Times", "B", 26)
-    pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.add_page()
     return bytes(pdf.output())
 
 
