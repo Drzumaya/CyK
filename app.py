@@ -118,10 +118,10 @@ CENTRO_MANDO_TEXTOS = {
 
 
 # =================================================================
-# PARTE 2: CONSTANTES GLOBALES, CATÁLOGOS PLANETA Y ONTOLOGÍAS BASE
+# PARTE 2: CATÁLOGOS LINGÜÍSTICOS Y SISTEMA DE ALERTA CLÍNICA DE GAJOS
 # =================================================================
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
-URL_PRODUCCION = "https://dsimandarina.streamlit.app/?lang=hy"
+URL_PRODUCCION = "https://streamlit.app"
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 
 MAPA_IDIOMAS_GLOBAL = {
@@ -132,18 +132,7 @@ MAPA_IDIOMAS_GLOBAL = {
     "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", "Türkçe (Turco)": "tr", "Svenska (Sueco)": "sv"
 }
 
-TEXTOS_BASE_ESPANOL = {
-    "nombre": "Nombre Completo / Participant Name:", "wha": "WhatsApp o Celular (Con lada, ej. +52):",
-    "err_fields": "🚨 Por favor, rellena todos los campos obligatorios.", "proc": "Sincronizando con Google Sheets...",
-    "fields_msg": "💡 Introduce Nombre y WhatsApp para habilitar la descarga.", "btn_save": "💾 Guardar Diagnóstico y Procesar",
-    "btn_pdf": "DESCARGAR EN PDF 📥", "thanks": "### ¡Registro Exitoso! 🎉", "edad": "Edad / Age:",
-    "thanks_sub": "Hemos compilado tu reporte individual multilingüe. Presiona el botón de abajo para descargarlo.",
-    "mand_title": "### 🍊 Diagnóstico de Salud Integral - Modelo Mandarina", "mand_subtitle": "Selecciona las alertas de vulnerabilidad activas:",
-    "qr_title": "📢 Proyección del Código QR para el Auditorio", "qr_sub1": "Escanea este código con tu smartphone para acceder al formulario en tiempo real.", "qr_sub2": "El acceso expira automáticamente por control de seguridad anti-duplicados.",
-    "genero": "Género:", "nac": "Nacionalidad:", "orig": "Origen:", "res": "Residencia:", "pais": "País:", "cont": "Continente:", "part": "Participante:", "cont_label": "Contacto/WhatsApp:", "fecha": "Fecha de Emisión:"
-}
-for i in range(1, 6): TEXTOS_BASE_ESPANOL[f"likert_{i}"] = f"{i} - Escala Líkert Académica"
-
+# Centralización estricta de las dimensiones y síntomas para evitar la duplicidad
 GAJOS_MANDARINA_ORIGINAL = {
     "💪 Salud Física": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
     "🧠 Salud Mental": ["Niebla Mental", "Pensamientos Rumiativos", "Saturación Informativa", "Apatía Cognitiva"],
@@ -154,52 +143,113 @@ GAJOS_MANDARINA_ORIGINAL = {
     "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
 }
 
+# Glosario Clínico de Diagnóstico Interconectado
 GLOSARIO_BASE = {
-    "💪 Salud Física": "Desgaste energético corporal. Sugerencia: Fija descansos e hidratación.",
-    "🧠 Salud Mental": "Saturación cognitiva severa. Sugerencia: Aplica pausas de silencio mental y desconexión.",
-    "❤️ Salud Emocional": "Desregulación anímica reactiva. Sugerencia: Implementa ejercicios de respiración diafragmática.",
-    "👥 Salud Social": "Aislamiento relacional voluntario. Sugerencia: Aprende a pautar límites sanos con tu entorno.",
-    "💰 Salud Económica": "Vulnerabilidad financiera sistémica. Sugerencia: Automatiza la separación de un fondo de contingencia.",
-    "⏳ Salud Temporal": "Desequilibrio crítico Cronos y Kairós. Sugerencia: Usa bloques de tiempo fijos y 20% de margen libre.",
-    "🙏 Salud Espiritual": "Vacío existencial latente. Sugerencia: Dedica minutos del día a la meditación, oración y valores."
+    "💪 Salud Física": {
+        "sig": "Indica un desgaste en los pilares básicos de energía corporal, afectando la homeostasis debido a privación de sueño, sedentarismo o nutrición deficiente.", 
+        "rec": "Establece un horario fijo de descanso innegociable, planifica colaciones balanceadas y realiza al menos 15 minutos de activación cardiovascular diaria."
+    },
+    "🧠 Salud Mental": {
+        "sig": "Representa una saturación cognitiva severa, pérdida de enfoque, niebla mental o procesamiento rumiativo de información que merma la agilidad mental.", 
+        "rec": "Aplica técnicas de ayuno digital de pantallas, practica la focalización en una sola tarea a la vez y diseña pausas de silencio mental entre jornadas."
+    },
+    "❤️ Salud Emocional": {
+        "sig": "Determina una desregulación anímica reactiva, estrés agudo, ansiedad latente o el síndrome de desgaste por empatía extrema (Burnout).", 
+        "rec": "Monitorea tus detonadores de irritabilidad, implementa ejercicios de respiración diafragmática consciente y externaliza tus emociones con redes de confianza."
+    },
+    "👥 Salud Social": {
+        "sig": "Denota un aislamiento relacional voluntario o el desarrollo de dinámicas interpersonales conflictivas provocadas por la ausencia de límites claros.", 
+        "rec": "Aprende a decir 'no' de forma asertiva para resguardar tus espacios privados y agenda una actividad recreativa inamovible con tu red de apoyo familiar."
+    },
+    "💰 Salud Económica": {
+        "sig": "Expresa vulnerabilidad financiera sistémica, estrés presupuestal agudo debido a deudas desordenadas o falta de diversificación en fuentes de ingresos.", 
+        "rec": "Automatiza la separación de un fondo de contingencia básico, elimina gastos hormiga reactivos y evalúa proyectos de emprendimiento alternos a corto plazo."
+    },
+    "⏳ Salud Temporal": {
+        "sig": "Refleja desequilibrio crítico entre el tiempo del reloj (Cronos) y la captura de oportunidades (Kairós), desencadenando procrastinacion o sobrecarga de tareas.", 
+        "rec": "Usa técnicas de bloques de tiempo fijos para tus entregas inamovibles, pero reserva intencionalmente un 20% de margen libre en tu agenda diaria."
+    },
+    "🙏 Salud Espiritual": {
+        "sig": "Manifiesta un vacío existencial latente, pérdida del sentido de vocación fundamental, desconexión interna o descuido de hábitos devocionales básicos.", 
+        "rec": "Dedica los primeros minutos del día a la meditación, la oración y la reflexión de valores, y reconecta intencionalmente con actividades de servicio."
+    }
 }
+
+# Textos Complementarios de Interpretación Estructurada Colectiva
+TEXTOS_DICTAMEN_COMPLEMENTARIOS = {
+    "ctrl_f0": "Vectores de Atencion Critica Detectados",
+    "ctrl_f1": "Dimension Evaluada",
+    "ctrl_f2": "Indicadores de vulnerabilidad reportados",
+    "ctrl_f3": "Significado del constructo",
+    "ctrl_f4": "Directriz de intervencion sugerida",
+    "ctrl_f5": "Canalizacion y Seguimiento de Caso",
+    "ctrl_f6": "Nota Clinica. El ecosistema analizado se encuentra en un estado funcional optimo. No se registraron indicadores de riesgo.",
+    "lbl_interpretacion": "Interpretación de Constructo y Perfil Dominante",
+    "lbl_sugerencias_ck": "Recomendaciones de Acompañamiento Metodológico",
+    "txt_ck_recom": "Optimizar la simbiosis entre el tiempo métrico (Cronos) y el tempo de oportunidad (Kairós) es vital para reducir la fatiga cognitiva. Si tu perfil presenta una inclinación polarizada o rígida, se sugiere acudir directamente con el ponente para solicitar una consulta personalizada o asesoría estratégica.",
+    "txt_p_simbiosis": "Simbiosis Temporal Equilibrada (C&K): Balanceas la precisión cronométrica con la agilidad adaptativa de ventanas de oportunidad. Sugerencia: Mantén bloques fijos para tareas repetitivas y reserva un margen diario para imprevistos.",
+    "txt_p_kairos": "Perfil Temporal Kairótico Puro (Adaptativo): Destacas capturando oportunidades en caliente, pero corres el riesgo de descuidar hitos administrativos organizacionales fijos. Sugerencia: Desarrolla anclajes operativos con alarmas digitales estrictas para tus entregas regulatorias.",
+    "txt_p_cronos": "Perfil Temporal Cronocéntrico Puro (Rígido): Posees una rigidez estructural alta. Experimentas estrés cuando los checklists sufren alteraciones imprevistas. Sugerencia: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio.",
+    "msg_apoyo_frecuencias": "El auto-reporte es el primer paso en la detección de vulnerabilidades institucionales. Si has registrado indicadores críticos en tus gajos de salud, se extiende una invitación cordial para contactar directamente al ponente para coordinar una consulta privada o asesoría personalizada para el diseño de planes de contención oportuna.",
+    "lbl_ref1": "Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2019). Multivariate data analysis (8th ed.). Cengage Learning.",
+    "lbl_ref2": "Kline, R. B. (2023). Principles and practice of structural equation modeling (5th ed.). Guilford Press.",
+    "lbl_ref3": "Norris, J. R. (1998). Markov chains. Cambridge University Press."
+}
+
 # =================================================================
 # PARTE 3: PASARELA NEURONAL GRATUITA Y CONFIGURACIÓN GOOGLE SHEETS
 # =================================================================
 @st.cache_data(show_spinner=False)
 def traducir_lote_neuronal_master(lista_textos, codigo_destino):
-    if not lista_textos or codigo_destino == "es": return lista_textos
+    """ Realiza una petición por lote (Batch) utilizando la pasarela gratuita de deep-translator. """
+    if not lista_textos or codigo_destino == "es":
+        return lista_textos
     try:
         from deep_translator import GoogleTranslator
-        return [html.unescape(str(r)) for r in GoogleTranslator(source='auto', target=codigo_destino).translate_batch([str(t) for t in lista_textos if str(t).strip()])]
-    except Exception: return lista_textos
+        # Limpiamos duplicados y valores vacíos para optimizar la petición de red
+        lista_limpia = [str(t) for t in lista_textos if str(t).strip()]
+        traductor = GoogleTranslator(source='auto', target=codigo_destino)
+        return [html.unescape(str(r)) for r in traductor.translate_batch(lista_limpia)]
+    except Exception as e:
+        st.sidebar.error(f"Error en traducción por lote: {str(e)}")
+        return lista_textos
 
 @st.cache_data(show_spinner=False)
 def ejecutar_traduccion_neuronal(texto_origen, codigo_destino):
-    if not texto_origen or codigo_destino == "es": return str(texto_origen)
+    """ Interceptación atómica para cadenas individuales en caliente sin costo. """
+    if not texto_origen or codigo_destino == "es":
+        return str(texto_origen)
     try:
         from deep_translator import GoogleTranslator
         res = GoogleTranslator(source='auto', target=codigo_destino).translate(str(texto_origen))
         return html.unescape(res) if res else str(texto_origen)
-    except Exception: return str(texto_origen)
+    except Exception:
+        return str(texto_origen)
 
 def conectar_google_sheets(nombre_pestana):
-    if "gcp_service_account" not in st.secrets: return None
+    """ Establece conexión segura con la API de Google Sheets empleando Service Account. """
+    if "gcp_service_account" not in st.secrets:
+        return None
     try:
         sd = dict(st.secrets["gcp_service_account"])
-        if "private_key" in sd: sd["private_key"] = sd["private_key"].replace("\\n", "\n")
+        if "private_key" in sd: 
+            sd["private_key"] = sd["private_key"].replace("\\n", "\n")
         sheet = gspread.service_account_from_dict(sd).open(NOMBRE_HOJA_CALCULO)
-        try: return sheet.worksheet(nombre_pestana)
+        try: 
+            return sheet.worksheet(nombre_pestana)
         except gspread.exceptions.WorksheetNotFound:
             h = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Token"] if nombre_pestana == "🍊 Salud Integral" else ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "C1_Escuchado", "C2_Leído", "C3_Enseñado", "C4_Origen", "C5_Concepto"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
             ws = sheet.add_worksheet(title=nombre_pestana, rows="1000", cols="40")
-            ws.append_row(h); return ws
-    except Exception: return None
+            ws.append_row(h)
+            return ws
+    except Exception: 
+        return None
 
 def guardar_en_google_sheets(pestana, nom, wha, res, token, es_likert):
-    """ Almacena la información normalizada forzando siempre los strings en español """
+    """ Almacena la información normalizada forzando siempre los strings en español en la base de datos """
     sheet = conectar_google_sheets(pestana)
-    if not sheet: return False
+    if not sheet: 
+        return False
     ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
     if not es_likert:
@@ -225,96 +275,133 @@ def guardar_en_google_sheets(pestana, nom, wha, res, token, es_likert):
             "Se impone" if "imp" in str(res.get("C4_Origen", "")).lower() else "Se hereda" if "her" in str(res.get("C4_Origen", "")).lower() else "No sé",
             "Teología" if "teol" in str(res.get("C5_Concepto", "")).lower() else "Cultura" if "cult" in str(res.get("C5_Concepto", "")).lower() else "No sé"
         ]
-        for i in range(1, 11): fila.append(int(res.get(f"R{i}", 3)))
+        for i in range(1, 11): 
+            fila.append(int(res.get(f"R{i}", 3)))
         fila.append(str(token))
         
-    try: sheet.append_row(fila); return True
-    except Exception: return False
+    try: 
+        sheet.append_row(fila)
+        return True
+    except Exception: 
+        return False
+
 # =================================================================
-# PARTE 4: PLANIFICACIÓN DE GAJOS MULTILINGÜES Y ENSAMBLADO DEL PDF (ENCODING FIX)
+# PARTE 4: ALGORITMOS FACTORIALES ONTOLÓGICOS Y LÓGICA DE COMPILACIÓN PDF
 # =================================================================
 def algoritmo_generar_gajos_salud(lang="es"):
-    if not lang or lang == "es": return GAJOS_MANDARINA_ORIGINAL
+    if not lang or lang == "es": 
+        return GAJOS_MANDARINA_ORIGINAL
     vec = []
     for d, s in GAJOS_MANDARINA_ORIGINAL.items():
-        vec.append(d.replace("💪","").replace("🧠","").replace("❤️","").replace("👥","").replace("💰","").replace("⏳","").replace("🙏","").strip()); vec.extend(s)
+        vec.append(d.replace("💪","").replace("🧠","").replace("❤️","").replace("👥","").replace("💰","").replace("⏳","").replace("🙏","").strip())
+        vec.extend(s)
     trad = traducir_lote_neuronal_master(vec, lang)
     res, p, emj = {}, 0, ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]
     for idx, k in enumerate(GAJOS_MANDARINA_ORIGINAL.keys()):
-        res[f"{emj[idx]} {trad[p]}"] = trad[p+1 : p+5]; p += 5
+        res[f"{emj[idx]} {trad[p]}"] = trad[p+1 : p+5]
+        p += 5
     return res
 
 def algoritmo_generar_reactivos_poliglotas(geo, lang="es"):
-    b_es = [f"Capturo oportunidades en {geo}.", "Estructuro mi agenda sobre relojes exactos.", "El tiempo fluye de forma orgánica.", "Castigo la impuntualidad profesional.", "Leo imprevistos como ventanas útiles.", "Gestiono metas bajo checklists fijos.", "Rompo el itinerario si emerge una ventaja.", "Prefiero orden secuencial a multitarea.", "Alta concentración si el entorno cambia.", "Separo horas fijos de sueño y producción."]
-    if not lang or lang == "es": return {i+1: v for i, v in enumerate(b_es)}
-    try: return {i+1: v for i, v in enumerate(traducir_lote_neuronal_master(b_es, lang))}
-    except Exception: return {i+1: v for i, v in enumerate(b_es)}
-
-def limpiar_texto_pdf(texto, lang="es"):
-    if not texto: return ""
-    txt = ejecutar_traduccion_neuronal(TEXTOS_BASE_ESPANOL[texto], lang) if texto in TEXTOS_BASE_ESPANOL else str(texto)
-    for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏", "🏭", "🍊"]: txt = txt.replace(emj, "")
-    return txt.strip()
+    b_es = [
+        f"Capturo oportunidades en {geo}.", 
+        "Estructuro mi agenda sobre relojes exactos.", 
+        "El tiempo fluye de forma orgánica.", 
+        "Castigo la impuntualidad profesional.", 
+        "Leo imprevistos como ventanas útiles.", 
+        "Gestiono metas bajo checklists fijos.", 
+        "Rompo el itinerario si emerge una ventaja.", 
+        "Prefiero orden secuencial a multitarea.", 
+        "Alta concentración si el entorno cambia.", 
+        "Separo horas fijos de sueño y producción."
+    ]
+    if not lang or lang == "es": 
+        return {i+1: v for i, v in enumerate(b_es)}
+    try: 
+        return {i+1: v for i, v in enumerate(traducir_lote_neuronal_master(b_es, lang))}
+    except Exception: 
+        return {i+1: v for i, v in enumerate(b_es)}
 
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     pdf = FPDF()
-    # Blindaje síncrono: Mapeamos la codificación base cp1252 para evitar crasheos por caracteres unicode extendidos
     pdf.core_fonts_encoding = "cp1252"
     pdf.add_page()
     pdf.set_auto_page_break(auto=True, margin=15)
     
     font_family = "Helvetica"
-    base_title = "Reporte de Diagnostico de los Modelos Temporales Cronos y Kairos" if es_likert else "Reporte de Diagnostico de la Salud Integral (Modelo Mandarina)"
     
-    # Sanitizamos y convertimos el título a caracteres seguros cp1252 ascii asimilables por FPDF nativo
-    titulo_oficial = ejecutar_traduccion_neuronal(base_title, lang)
-    titulo_seguro = str(titulo_oficial).encode('ascii', 'ignore').decode('ascii')
-    if not titulo_seguro.strip(): titulo_seguro = base_title
-        
+    # Lectura unificada desde el caché del Centro de Mando
+    tx_pdf = st.session_state.get("tx_traducido_cache", {}) if lang != "es" else CENTRO_MANDO_TEXTOS
+    tx_dictamen = st.session_state.get("tx_dictamen_cache", {}) if lang != "es" else TEXTOS_DICTAMEN_COMPLEMENTARIOS
+    
+    base_title = tx_pdf.get("lbl_nota_pdf", "Reporte de Evaluacion Psicometrica Individual")
+    titulo_seguro = str(base_title).encode('ascii', 'ignore').decode('ascii')
+    
     pdf.set_font(font_family, "B", 14)
     pdf.cell(190, 10, titulo_seguro, new_x="LMARGIN", new_y="NEXT", align="C")
     
     pdf.set_font(font_family, "", 10)
-    # Codificamos preventivamente los datos del perfil demográfico de entrada
     nombre_seguro = str(nombre).encode('ascii', 'ignore').decode('ascii') if nombre else "Anonimo"
     whatsapp_seguro = str(whatsapp).encode('ascii', 'ignore').decode('ascii') if whatsapp else "N/A"
     
-    pdf.cell(190, 6, f"Participant: {nombre_seguro} | Contact: {whatsapp_seguro}", new_x="LMARGIN", new_y="NEXT")
+    lbl_part_pdf = str(tx_pdf.get("part", "Participante:")).encode('ascii', 'ignore').decode('ascii')
+    lbl_cont_pdf = str(tx_pdf.get("cont_label", "Contacto/WhatsApp:")).encode('ascii', 'ignore').decode('ascii')
+    
+    pdf.cell(190, 6, f"{lbl_part_pdf} {nombre_seguro} | {lbl_cont_pdf} {whatsapp_seguro}", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
     
     if not es_likert:
         g_trad = algoritmo_generar_gajos_salud(lang)
+        glosario_trad = st.session_state.get("glosario_traducido_cache", {}) if lang != "es" else GLOSARIO_BASE
+        
         for idx, k in enumerate(GAJOS_MANDARINA_ORIGINAL.keys()):
             if len(resultados.get(k, [])) > 0:
-                # Extraemos y purificamos la llave dinámica traducida para evitar el desplome por glifos incompatibles
                 raw_key = list(g_trad.keys())[idx]
                 key_segura = str(raw_key).encode('cp1252', 'ignore').decode('cp1252')
-                for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]: key_segura = key_segura.replace(emj, "")
-                if not key_segura.strip(): key_segura = str(k)
+                for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]: 
+                    key_segura = key_segura.replace(emj, "")
                     
                 pdf.set_font(font_family, "B", 11)
                 pdf.cell(190, 6, key_segura.strip(), new_x="LMARGIN", new_y="NEXT")
                 
-                # Traducimos la explicación clínica barriendo glifos fuera de rango cp1252
-                raw_glosario = GLOSARIO_BASE[k]
-                glosario_traducido = ejecutar_traduccion_neuronal(raw_glosario, lang)
-                glosario_seguro = str(glosario_traducido).encode('cp1252', 'ignore').decode('cp1252')
+                sig_segura = str(glosario_trad[k]["sig"]).encode('cp1252', 'ignore').decode('cp1252')
+                rec_segura = str(glosario_trad[k]["rec"]).encode('cp1252', 'ignore').decode('cp1252')
                 
                 pdf.set_font(font_family, "", 9.5)
-                pdf.multi_cell(190, 4.5, glosario_seguro.strip(), new_x="LMARGIN", new_y="NEXT")
+                pdf.multi_cell(190, 4.5, sig_segura.strip(), new_x="LMARGIN", new_y="NEXT")
+                pdf.set_font(font_family, "B", 9.5)
+                pdf.multi_cell(190, 4.5, rec_segura.strip(), new_x="LMARGIN", new_y="NEXT")
                 pdf.ln(2)
     else:
         k_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         c_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
-        pdf.cell(190, 5, f"Media Vector Cronos: {sum(c_v)/5:.2f} | Media Vector Kairos: {sum(k_v)/5:.2f}", new_x="LMARGIN", new_y="NEXT")
+        avg_c = sum(c_v) / 5
+        avg_k = sum(k_v) / 5
+        
+        lbl_m_pdf = tx_pdf.get("lbl_medias_pdf", "Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}").format(avg_c=avg_c, avg_k=avg_k)
+        pdf.cell(190, 5, str(lbl_m_pdf).encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+        
+        pdf.ln(4)
+        pdf.set_font(font_family, "B", 11)
+        pdf.cell(190, 6, str(tx_dictamen.get("lbl_interpretacion", "Interpretacion")).encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+        
+        dif = abs(avg_c - avg_k)
+        if dif <= 0.4:
+            txt_p = tx_dictamen.get("txt_p_simbiosis")
+        elif avg_k > avg_c:
+            txt_p = tx_dictamen.get("txt_p_kairos")
+        else:
+            txt_p = tx_dictamen.get("txt_p_cronos")
+            
+        pdf.set_font(font_family, "", 10)
+        pdf.multi_cell(190, 5, str(txt_p).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         
     return bytes(pdf.output())
 
 # =================================================================
-# PARTE 5A: INICIALIZACIÓN, SINCRO DE REACTIVOS Y CENTRO DE CONTROL
+# PARTE 5A: COMPONENTE TRANSACCIONAL, ENRUTAMIENTO Y CACHÉ DE TRADUCCIÓN
 # =================================================================
 def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, lang, tx):
-    """ Gestiona el guardado en la nube en español y activa las pasarelas individuales de descarga. """
     st.divider()
     col1, col2, col3 = st.columns(3)
     comp = bool(nombre.strip()) and bool(whatsapp.strip())
@@ -324,7 +411,10 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, 
             if not comp:
                 st.error(tx["err_fields"])
             else: 
+                # Requisito 3: Guardar en segundo plano la información en ESPAÑOL por default en la nube
                 guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados, "TOKEN_10MIN", es_likert)
+                
+                # Persistencia simétrica en sesión
                 st.session_state.nombre_usuario_persistente = nombre
                 st.session_state.whatsapp_usuario_persistente = whatsapp
                 st.session_state.resultados_usuario_persistente = resultados
@@ -352,16 +442,35 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # Hidratación optimizada de la caché lingüística de red por instancia
+    # 🎛️ ACOPLAMIENTO AL CENTRO DE MANDO: Traduce el diccionario maestro en un único disparo de red
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
-            st.session_state.tx_traducido_cache = dict(zip(list(TEXTOS_BASE_ESPANOL.keys()), traducir_lote_neuronal_master(list(TEXTOS_BASE_ESPANOL.values()), idioma_sel)))
+            llaves_maestras = list(CENTRO_MANDO_TEXTOS.keys())
+            valores_maestros = list(CENTRO_MANDO_TEXTOS.values())
+            valores_traducidos = traducir_lote_neuronal_master(valores_maestros, idioma_sel)
+            st.session_state.tx_traducido_cache = dict(zip(llaves_maestras, valores_traducidos))
+            
+            # Traducimos de forma adyacente los dictámenes y el glosario clínico bajo el mismo bloque
+            llaves_dictamen = list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.keys())
+            valores_dictamen = list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.values())
+            valores_dictamen_trad = traducir_lote_neuronal_master(valores_dictamen, idioma_sel)
+            st.session_state.tx_dictamen_cache = dict(zip(llaves_dictamen, valores_dictamen_trad))
+            
+            glosario_traducido = {}
+            for g_k, g_v in GLOSARIO_BASE.items():
+                g_trad_sig = ejecutar_traduccion_neuronal(g_v["sig"], idioma_sel)
+                g_trad_rec = ejecutar_traduccion_neuronal(g_v["rec"], idioma_sel)
+                glosario_traducido[g_k] = {"sig": g_trad_sig, "rec": g_trad_rec}
+            st.session_state.glosario_traducido_cache = glosario_traducido
+            
             st.session_state.cache_lang_check = idioma_sel
         tx = st.session_state.tx_traducido_cache
+        tx_dictamen = st.session_state.tx_dictamen_cache
     else:
-        tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+        tx = {k: str(v) for k, v in CENTRO_MANDO_TEXTOS.items()}
+        tx_dictamen = {k: str(v) for k, v in TEXTOS_DICTAMEN_COMPLEMENTARIOS.items()}
 
-    # Rotación del token cada 10 minutos (600 segundos) para el código QR proyectado
+    # Rotación del token cifrado cada 10 minutos (600 segundos) para el código QR proyectado
     minuto_bloque_10 = int(time.time() // 600)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
     
@@ -377,63 +486,56 @@ def main():
         for tabla in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-    # 🔐 BARRA LATERAL DEL PONENTE CON ACCESO CORREGIDO AL CENTRO DE CONTROL
+    # Barra lateral de administración del ponente: Oculta para el público móvil
     if not es_celular_del_publico:
         with st.sidebar:
-            st.markdown("## 🔐 Control del Ponente")
+            st.markdown(tx.get("side_title", "## 🔐 Control del Ponente"))
             if not st.session_state.admin_autenticado:
-                pwd_i = st.text_input("Contraseña Ponente:", type="password", key="panel_p_sec")
-                if st.button("Desbloquear"):
+                pwd_i = st.text_input(tx.get("side_pwd", "Contraseña:"), type="password", key="panel_p_sec")
+                if st.button(tx.get("side_btn", "Desbloquear")):
                     if pwd_i == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
-                        st.session_state.admin_autenticado = True
-                        st.rerun()
-                    else:
-                        st.error("Contraseña incorrecta.")
+                        st.session_state.admin_autenticado = True; st.rerun()
+                    else: st.error(tx.get("side_pwd_err", "Error"))
             else:
-                st.success("Modo Ponente Activo")
+                st.success(tx.get("side_success", "Activo"))
                 lista_auds = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-                sel_aud = st.selectbox("Audiencia Actual en Vivo:", lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0)
-                if sel_aud != st.session_state.audiencia_activa:
-                    st.session_state.audiencia_activa = sel_aud
-                    st.rerun()
-                if st.button("🚪 Cerrar Centro de Control"):
-                    st.session_state.admin_autenticado = False
-                    st.rerun()
+                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0, key="sb_master_audiencia_control_ponente_unique")
+                if sel_aud != st.session_state.audiencia_activa: st.session_state.audiencia_activa = sel_aud; st.rerun()
+                if st.button(tx.get("side_close", "🚪 Cerrar")): st.session_state.admin_autenticado = False; st.rerun()
     else:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
     # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL E INDEPENDIENTE) ---
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
-            st.markdown(f"### {ejecutar_traduccion_neuronal('🌐 Internationalization Gateway / Control Políglota', idioma_sel)}")
+            st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
             
             from deep_translator import GoogleTranslator
             try:
                 dict_idiomas_completos = GoogleTranslator().get_supported_languages(as_dict=True)
                 lista_despliegue_visual = [k.title() for k in dict_idiomas_completos.keys()]
             except Exception:
-                dict_idiomas_completos = {"spanish": "es", "english": "en", "french": "fr", "german": "de"}
-                lista_despliegue_visual = ["Spanish", "English", "French", "German"]
+                dict_idiomas_completos = {"spanish": "es", "english": "en", "french": "fr"}
+                lista_despliegue_visual = ["Spanish", "English", "French"]
 
-            sel_v = st.selectbox("Select System Language / Selecciona tu Idioma:", options=sorted(lista_despliegue_visual))
+            sel_v = st.selectbox(tx.get("intl_select", "Selecciona Idioma:"), options=sorted(lista_despliegue_visual), key="sb_public_participant_gateway_language_unique")
             
-            if st.button("🔄 APPLY LANGUAGE / APLICAR IDIOMA SELECCIONADO"):
+            if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_mando"):
                 lang_key_clean = str(sel_v).lower().strip()
                 codigo_iso_final = dict_idiomas_completos.get(lang_key_clean, "en")
-                
                 st.query_params["lang"] = codigo_iso_final
                 st.session_state.idioma_activo_actual = codigo_iso_final
                 if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
+        # Ocultación automática: El QR SOLO se proyecta en la pantalla maestra del ponente (Oculto en móvil)
         if not es_celular_del_publico:
             with st.container(border=True):
-                st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR para el Auditorio')}")
+                st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=4)
-                qr.add_data(url_con_token)
-                qr.make(fit=True)
+                qr.add_data(url_con_token); qr.make(fit=True)
                 buf_qr = BytesIO()
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-                st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea para acceder al formulario'))
+                st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea para acceder'))
 
         st.header(f"📋 {st.session_state.audiencia_activa}")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
@@ -442,24 +544,18 @@ def main():
         
         resultados_totales = {}
         if not es_likert:
-            st.write(tx.get("mand_title", "### 🍊 Diagnóstico de Salud Integral"))
+            st.write(tx.get("mand_title", "### 🍊 Modelo Mandarina"))
             gajos = algoritmo_generar_gajos_salud(idioma_sel)
             for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
                     col_a, col_b = st.columns(2)
-                    
                     with col_a:
-                        t0 = alertas_especificas[0] if len(alertas_especificas) > 0 else "S0"
-                        t1 = alertas_especificas[1] if len(alertas_especificas) > 1 else "S1"
-                        cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
-                        cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
+                        cb0 = st.checkbox(alertas_especificas[0] if len(alertas_especificas)>0 else "S0", key=f"c_{g_idx}_0_f")
+                        cb1 = st.checkbox(alertas_especificas[1] if len(alertas_especificas)>1 else "S1", key=f"c_{g_idx}_1_f")
                     with col_b:
-                        t2 = alertas_especificas[2] if len(alertas_especificas) > 2 else "S2"
-                        t3 = alertas_especificas[3] if len(alertas_especificas) > 3 else "S3"
-                        cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
-                        cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
-                        
+                        cb2 = st.checkbox(alertas_especificas[2] if len(alertas_especificas)>2 else "S2", key=f"c_{g_idx}_3_f")
+                        cb3 = st.checkbox(alertas_especificas[3] if len(alertas_especificas)>3 else "S3", key=f"c_{g_idx}_4_f")
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
         else:
             st.subheader(tx.get("sec1", "Sección I"))
@@ -470,8 +566,7 @@ def main():
             if "mex" in resultados_totales["Nacionalidad"].lower():
                 resultados_totales["Estado Residencia"] = st.selectbox(tx.get("res", "Residencia:"), [""] + ESTADOS_MEXICO)
                 resultados_totales["País Origen"] = "México"
-            else:
-                resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
+            else: resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
                 
             st.subheader(tx.get("sec2", "Sección II"))
             resultados_totales["C1_Escuchado"] = st.radio(tx.get("kn1", "Q1"), ["Sí / Yes", "No"], horizontal=True)
@@ -484,7 +579,6 @@ def main():
             reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
-                # 🍊 CORRECCIÓN DE SINTAXIS: Se inyectó el arreglo explícito [1, 2, 3, 4, 5]
                 resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
@@ -492,16 +586,42 @@ def main():
         st.balloons()
         st.success(tx.get("thanks", "¡Diagnóstico Completado con Éxito! 🎉"))
         st.markdown(tx.get("thanks_sub", "Hemos compilado tu reporte individual multilingüe."))
-        st.toast("Descarga del reporte disponible en el panel inferior.", icon="📥")
+        st.toast(tx.get("toast_msg", "Descarga lista."), icon="📥")
         
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), idioma_sel)
         st.download_button(tx.get("btn_pdf", "📥 DESCARGAR RECORTE"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
         
         dip = generar_reconocimiento_honorifico_dinamico()
-        st.download_button("🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO", data=dip, file_name="Diploma_Excelencia.pdf", mime="application/pdf", use_container_width=True)
-        if st.button("🔄 Volver al Diagnóstico Principal"): 
-            st.session_state.flujo_finalizado = False; 
-            st.rerun()
+        st.download_button(tx.get("lbl_btn_download_diploma", "🏆 DIPLOMA"), data=dip, file_name="Diploma_Excelencia.pdf", mime="application/pdf", use_container_width=True)
+        if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
+            st.session_state.flujo_finalizado = False; st.rerun()
+
+    # --- INVESTIGACIÓN ALTA ANALÍTICA DEL PONENTE ---
+    if st.session_state.admin_autenticado and not es_celular_del_publico:
+        st.markdown("---")
+        st.header(tx.get("lbl_titulo_aud"))
+        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_tabla_analizar_master_office")
+        sheet = conectar_google_sheets(tabla_analizar)
+        todas_las_filas = sheet.get_all_values() if sheet else []
+        if todas_las_filas and len(todas_las_filas) >= 2:
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
+            st.subheader(tx.get("lbl_crm_buscar"))
+            c_busq = st.text_input(tx.get("lbl_crm_input"), key="crm_search_input").strip().lower()
+            if c_busq and not df_doc.empty:
+                st.write(df_doc[df_doc[df_doc.columns].astype(str).str.lower().str.contains(c_busq)])
+
+        if st.button(tx.get("lbl_btn_auditoria"), key="btn_run_doctoral_macro"):
+            pdf_auditoria = FPDF()
+            pdf_auditoria.add_page()
+            pdf_auditoria.set_font("Helvetica", "B", 14)
+            pdf_auditoria.cell(190, 10, str(tx.get("lbl_pdf_dictamen")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+            pdf_auditoria.ln(6); pdf_auditoria.set_font("Helvetica", "B", 12)
+            pdf_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+            pdf_auditoria.set_font("Helvetica", "", 9)
+            for ref_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
+                pdf_auditoria.multi_cell(190, 4.5, str(tx_dictamen.get(ref_key)).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                pdf_auditoria.ln(2)
+            st.download_button(label=tx.get("lbl_btn_download_macro"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report_fixed_mando")
 
 def generar_reconocimiento_honorifico_dinamico():
     pdf = FPDF(orientation="L", unit="mm", format="A4")
@@ -512,11 +632,6 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10); pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
-
-
-
-
-
 
 
 
