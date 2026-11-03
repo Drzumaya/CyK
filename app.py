@@ -1296,10 +1296,6 @@ def main():
         bytes_reconocimiento = generar_reconocimiento_honorifico_dinamico()
         st.download_button(label="🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO (PRESIDENCIA)", data=bytes_reconocimiento, file_name="Reconocimiento_Honorifico.pdf", mime="application/pdf", use_container_width=True, key="btn_download_honorific_diploma_master_fixed")
 
-# Guardia de ejecución reglamentaria final de Python
-if __name__ == "__main__":
-    main()
-
 
 # =================================================================
 # INYECTOR COMPILADOR: RECONOCIMIENTO HONORÍFICO DINÁMICO (PÁGINA ÚNICA)
@@ -1428,8 +1424,6 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.cell(70, 4, "Jacob Zumaya Prianti A.C.", align="C")
     
     return bytes(pdf.output())
-
-
 
 # Guardia de ejecución principal reglamentaria en el entorno de Python
 if __name__ == "__main__":
