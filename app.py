@@ -204,11 +204,44 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         pdf.cell(190, 5, f"Media Vector Cronos: {sum(c_v)/5:.2f} | Media Vector Kairos: {sum(k_v)/5:.2f}", new_x="LMARGIN", new_y="NEXT")
     return bytes(pdf.output())
 # =================================================================
-# PARTE 5A: INICIALIZACIÓN, RUTEO INTERNACIONAL Y CONTROL DE IDENTIDAD
+# PARTE 5A: DEFINICIÓN TRANSACCIONAL Y CONTROLADORES INTERNOS MASTER
 # =================================================================
-def main():
-    global token_actual, es_celular_del_publico, url_con_token, token_tiempo
+def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, lang, tx):
+    """
+    Gestiona el guardado en segundo plano forzando el idioma español en la base de datos
+    y activa las pasarelas de descarga individuales del reporte.
+    """
+    st.divider()
+    col1, col2, col3 = st.columns(3)
+    comp = bool(nombre.strip()) and bool(whatsapp.strip())
+    
+    with col1:
+        if st.button(tx["btn_save"], type="primary", use_container_width=True):
+            if not comp:
+                st.error(tx["err_fields"])
+            else: 
+                # Requisito 3: Guardar en segundo plano la información en ESPAÑOL por default
+                guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados, "TOKEN_10MIN", es_likert)
+                
+                # Persistencia simétrica de variables para el PDF final
+                st.session_state.nombre_usuario_persistente = nombre
+                st.session_state.whatsapp_usuario_persistente = whatsapp
+                st.session_state.resultados_usuario_persistente = resultados
+                st.session_state.es_modo_likert_persistente = es_likert
+                st.session_state.flujo_finalizado = True
+                st.rerun()
+    with col2:
+        if comp:
+            rep = generar_pdf_diagnostico(nombre, whatsapp, resultados, st.session_state.audiencia_activa, es_likert, lang)
+            st.download_button(tx["btn_pdf"], data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
+        else:
+            st.info(tx["fields_msg"])
+    with col3:
+        if comp:
+            url_wa = f"https://whatsapp.com{urllib.parse.quote(whatsapp)}&text=Diagnostico+Mandarina+Completado"
+            st.markdown(f'<a href="{url_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;cursor:pointer;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
 
+def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
@@ -218,19 +251,16 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # HIDRATACIÓN DINÁMICA AUTOMÁTICA DEL SISTEMA DE TRADUCCIÓN
+    # Hidratación optimizada de la caché lingüística de red
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
-            llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
-            valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
-            valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
-            st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
+            st.session_state.tx_traducido_cache = dict(zip(list(TEXTOS_BASE_ESPANOL.keys()), traducir_lote_neuronal_master(list(TEXTOS_BASE_ESPANOL.values()), idioma_sel)))
             st.session_state.cache_lang_check = idioma_sel
         tx = st.session_state.tx_traducido_cache
-    else: 
+    else:
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
 
-    # Rotación estricta del token cada 10 minutos (600 segundos)
+    # Rotación del token cada 10 minutos (600 segundos) para el código QR
     minuto_bloque_10 = int(time.time() // 600)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
     
@@ -243,26 +273,27 @@ def main():
     url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={idioma_sel}"
 
     if not st.session_state.estructuras_inicializadas:
-        for tabla in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(tabla)
+        for tabla in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]:
+            conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-    # Control de la barra de herramientas del ponente
-    if not es_celular_del_publico:
-        with st.sidebar:
-            st.markdown("## 🔐 Control del Ponente")
-            if not st.session_state.admin_autenticado:
-                pwd_i = st.text_input("Contraseña Ponente:", type="password", key="panel_p_sec")
-                if st.button("Desbloquear"):
-                    if pwd_i == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
-                        st.session_state.admin_autenticado = True; st.rerun()
-            else:
-                st.success("Modo Ponente Activo")
-                lista_auds = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-                sel_aud = st.selectbox("Audiencia Actual en Vivo:", lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0)
-                if sel_aud != st.session_state.audiencia_activa: st.session_state.audiencia_activa = sel_aud; st.rerun()
-                if st.button("🚪 Cerrar Centro de Control"): st.session_state.admin_autenticado = False; st.rerun()
-    else:
-        st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+    # Barra lateral de administración del ponente
+    with st.sidebar:
+        st.markdown("## 🔐 Control del Ponente")
+        if not st.session_state.admin_autenticado:
+            pwd_i = st.text_input("Contraseña Ponente:", type="password", key="panel_p_sec")
+            if st.button("Desbloquear"):
+                if pwd_i == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
+                    st.session_state.admin_autenticado = True; st.rerun()
+        else:
+            st.success("Modo Ponente Activo")
+            lista_auds = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+            sel_aud = st.selectbox("Audiencia Actual en Vivo:", lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0)
+            if sel_aud != st.session_state.audiencia_activa:
+                st.session_state.audiencia_activa = sel_aud; st.rerun()
+            if st.button("🚪 Cerrar Centro de Control"):
+                st.session_state.admin_autenticado = False; st.rerun()
+
         # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL) ---
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
