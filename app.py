@@ -376,13 +376,13 @@ def main():
                     col_a, col_b = st.columns(2)
                     
                     with col_a:
-                        t0 = alertas_especificas if len(alertas_especificas) > 0 else "S0"
-                        t1 = alertas_especificas if len(alertas_especificas) > 1 else "S1"
+                        t0 = alertas_especificas[0] if len(alertas_especificas) > 0 else "S0"
+                        t1 = alertas_especificas[1] if len(alertas_especificas) > 1 else "S1"
                         cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
                         cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
                     with col_b:
-                        t2 = alertas_especificas if len(alertas_especificas) > 2 else "S2"
-                        t3 = alertas_especificas if len(alertas_especificas) > 3 else "S3"
+                        t2 = alertas_especificas[2] if len(alertas_especificas) > 2 else "S2"
+                        t3 = alertas_especificas[3] if len(alertas_especificas) > 3 else "S3"
                         cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
                         cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
                         
@@ -407,11 +407,11 @@ def main():
             resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5", "Q5"), [tx.get("kn5_options_0", "Teología"), tx.get("kn5_options_1", "Cultura"), tx.get("kn5_options_2", "No sé")], horizontal=True)
             
             st.write("### 📋 BATERÍA DE REACTIVOS C&K")
-            # CORRECCIÓN SÍNCRONA: Hereda de forma unívoca el idioma_sel de control global
             reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
-                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=, format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
+                # 🍊 CORRECCIÓN DE SINTAXIS: Se inyectó el arreglo explícito [1, 2, 3, 4, 5]
+                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
     else:
@@ -439,6 +439,8 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
 
+if __name__ == "__main__": 
+    main()
 
 
 
