@@ -116,7 +116,7 @@ CENTRO_MANDO_TEXTOS = {
     "side_pwd_err": "Contraseña incorrecta."
 }
 
-)
+
 # =================================================================
 # PARTE 2: CONSTANTES GLOBALES, CATÁLOGOS PLANETA Y ONTOLOGÍAS BASE
 # =================================================================
