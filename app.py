@@ -1094,30 +1094,9 @@ def main():
                     if "tx_traducido_cache" in st.session_state:
                         del st.session_state["tx_traducido_cache"]
                     st.rerun()
+               # =================================================================
+        # PARTE 13 DE 14: INTERFAZ VISIBLE DEL CUESTIONARIO (BLOQUE 4 DE 4)
         # =================================================================
-        # PARTE 13 DE 14: PROYECTOR QR Y FORMULARIO DE CAPTURA (BLOQUE 4 DE 4)
-        # =================================================================
-        st.write("")
-        titulo_qr = tx.get("qr_title", TEXTOS_BASE_ESPANOL["qr_title"])
-        sub_qr1 = tx.get("qr_sub1", TEXTOS_BASE_ESPANOL["qr_sub1"])
-        sub_qr2 = tx.get("qr_sub2", TEXTOS_BASE_ESPANOL["qr_sub2"])
-        
-        with st.expander(titulo_qr, expanded=True):
-            col_qr1, col_qr2 = st.columns([1, 1.5])
-            with col_qr1:
-                qr = qrcode.QRCode(version=1, box_size=10, border=2)
-                qr.add_data(url_con_token)
-                qr.make(fit=True)
-                img_qr = qr.make_image(fill_color="#e65100", back_color="white")
-                buf = BytesIO()
-                img_qr.save(buf, format="PNG")
-                st.image(buf.getvalue(), caption=f"QR Activo: {st.session_state.audiencia_activa}", use_container_width=True)
-            with col_qr2:
-                lbl_aud_proj = ejecutar_traduccion_neuronal("Audiencia Proyectada en Vivo", idioma_sel)
-                st.write(f"### {lbl_aud_proj}: {st.session_state.audiencia_activa}")
-                st.write(sub_qr1)
-                st.write(sub_qr2)
-                
         st.write("")
         lbl_tgl_form = ejecutar_traduccion_neuronal("📝 Mostrar Formulario de Captura en Pantalla Principal", idioma_sel)
         mostrar_formulario = st.toggle(lbl_tgl_form, value=False, key="tgl_mostrar_formulario_main")
@@ -1131,62 +1110,71 @@ def main():
         # Capa visible del cuestionario políglota neuronal masivo
         if mostrar_formulario:
             st.header(f"📋 {st.session_state.audiencia_activa}")
-            nombre = st.text_input(tx["nombre"], placeholder="Juan Pérez", key="main_name_in")
-            whatsapp = st.text_input(tx["wha"], placeholder="+52...", key="main_wha_in")
+            nombre = st.text_input(tx.get("nombre", "Nombre:"), placeholder="Juan Pérez", key="main_name_in")
+            whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), placeholder="+52...", key="main_wha_in")
             st.divider()
             
             if not es_modo_likert:
-                st.write(tx["mand_title"])
-                st.write(tx["mand_subtitle"])
+                st.write(tx.get("mand_title", "### 🍊 Diagnóstico de Salud Integral"))
+                st.write(tx.get("mand_subtitle", "Selecciona las casillas correspondientes:"))
                 
+                # Cargamos de forma síncrona el mapa de dimensiones traducidas
                 gajos_dinamicos = algoritmo_generar_gajos_salud(idioma_sel)
                 
                 for g_idx, (g_name, alertas_especificas) in enumerate(gajos_dinamicos.items()):
                     with st.container(border=True):
                         st.markdown(f"#### {g_name}")
                         col1, col2 = st.columns(2)
+                        
+                        # CORRECCIÓN DE RAÍZ: Slicing por índice numérico para evitar textos repetidos
                         with col1:
-                            cb0 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_0")
-                            cb1 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_1")
+                            txt_cb0 = alertas_especificas[0] if len(alertas_especificas) > 0 else "Symptom 1"
+                            txt_cb1 = alertas_especificas[1] if len(alertas_especificas) > 1 else "Symptom 2"
+                            cb0 = st.checkbox(txt_cb0, key=f"cb_{g_idx}_0_fixed_poly")
+                            cb1 = st.checkbox(txt_cb1, key=f"cb_{g_idx}_1_fixed_poly")
                         with col2:
-                            cb2 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_2")
-                            cb3 = st.checkbox(alertas_especificas, key=f"cb_{g_idx}_3")
+                            txt_cb2 = alertas_especificas[2] if len(alertas_especificas) > 2 else "Symptom 3"
+                            txt_cb3 = alertas_especificas[3] if len(alertas_especificas) > 3 else "Symptom 4"
+                            cb2 = st.checkbox(txt_cb2, key=f"cb_{g_idx}_2_fixed_poly")
+                            cb3 = st.checkbox(txt_cb3, key=f"cb_{g_idx}_3_fixed_poly")
+                            
+                        # Almacenamiento posicional unívoco e inmune a traducciones rotas para el PDF
                         resultados_totales[g_name] = [i for i, val in enumerate([cb0, cb1, cb2, cb3]) if val]
                         
                 lbl_btn_reg = ejecutar_traduccion_neuronal("Procesar Alertas Base / Register Alerts", idioma_sel)
-                if st.button(lbl_btn_reg, key="btn_register_alerts_gajos"):
+                if st.button(lbl_btn_reg, key="btn_register_alerts_gajos_fixed"):
                     st.session_state.alertas_mandarina_previas = list(resultados_totales.values()) if resultados_totales else ["Alert"]
                     st.success("OK. Context synchronized.")
             else:
-                st.subheader(tx["sec1"])
-                resultados_totales["Edad"] = st.number_input(tx["edad"], min_value=10, max_value=100, value=20, key="dem_edad")
-                resultados_totales["Género"] = st.radio(tx["genero"], ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
-                nacionalidad = st.radio(tx["nac"], ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
+                st.subheader(tx.get("sec1", "Sección I"))
+                resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), min_value=10, max_value=100, value=20, key="dem_edad")
+                resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino", "Femenino", "Other"], horizontal=True, key="dem_genero")
+                nacionalidad = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], horizontal=True, key="dem_nac")
                 resultados_totales["Nacionalidad"] = nacionalidad
                 geo_contexto = "Region"
                 
                 if nacionalidad == "Mexicana":
-                    resultados_totales["Estado Origen"] = st.selectbox(tx["orig"], [""] + ESTADOS_MEXICO, key="dem_orig")
-                    resultados_totales["Estado Residencia"] = st.selectbox(tx["res"], [""] + ESTADOS_MEXICO, key="dem_res")
+                    resultados_totales["Estado Origen"] = st.selectbox(tx.get("orig", "Origen:"), [""] + ESTADOS_MEXICO, key="dem_orig")
+                    resultados_totales["Estado Residencia"] = st.selectbox(tx.get("res", "Residencia:"), [""] + ESTADOS_MEXICO, key="dem_res")
                     resultados_totales["País Origen"] = "México"
                     resultados_totales["Continente Extranjero"] = "América"
                     geo_contexto = str(resultados_totales["Estado Residencia"])
                 else:
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
-                    resultados_totales["País Origen"] = st.text_input(tx["pais"], key="dem_pais_txt")
-                    resultados_totales["Continente Extranjero"] = st.selectbox(tx["cont"], [""] + CONTINENTES, key="dem_cont")
+                    resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"), key="dem_pais_txt")
+                    resultados_totales["Continente Extranjero"] = st.selectbox(tx.get("cont", "Continente:"), [""] + CONTINENTES, key="dem_cont")
                     geo_contexto = str(resultados_totales["País Origen"])
                     
-                st.subheader(tx["sec2"])
-                resultados_totales["C1_Escuchado"] = st.radio(tx["kn1"], ["Sí", "No"], horizontal=True, key="kn_1")
-                resultados_totales["C2_Leído"] = st.radio(tx["kn2"], ["Sí", "No"], horizontal=True, key="kn_2")
-                resultados_totales["C3_Enseñado"] = st.radio(tx["kn3"], ["Sí", "No"], horizontal=True, key="kn_3")
+                st.subheader(tx.get("sec2", "Sección I"))
+                resultados_totales["C1_Escuchado"] = st.radio(tx.get("kn1", "Q1"), ["Sí", "No"], horizontal=True, key="kn_1")
+                resultados_totales["C2_Leído"] = st.radio(tx.get("kn2", "Q2"), ["Sí", "No"], horizontal=True, key="kn_2")
+                resultados_totales["C3_Enseñado"] = st.radio(tx.get("kn3", "Q3"), ["Sí", "No"], horizontal=True, key="kn_3")
                 
                 opciones_c4 = [tx.get("kn4_options_0", "Se impone"), tx.get("kn4_options_1", "Se hereda"), tx.get("kn4_options_2", "No sé")]
                 opciones_c5 = [tx.get("kn5_options_0", "Teología"), tx.get("kn5_options_1", "Cultura"), tx.get("kn5_options_2", "No sé")]
-                resultados_totales["C4_Origen"] = st.radio(tx["kn4"], opciones_c4, horizontal=True, key="kn_4")
-                resultados_totales["C5_Concepto"] = st.radio(tx["kn5"], opciones_c5, horizontal=True, key="kn_5")
+                resultados_totales["C4_Origen"] = st.radio(tx.get("kn4", "Q4"), opciones_c4, horizontal=True, key="kn_4")
+                resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5", "Q5"), opciones_c5, horizontal=True, key="kn_5")
                 
                 lbl_bat = ejecutar_traduccion_neuronal("📋 BATERÍA DE REACTIVOS C&K", idioma_sel)
                 st.subheader(lbl_bat)
@@ -1194,16 +1182,20 @@ def main():
                 banco_mutado = algoritmo_generar_reactivos_poliglotas(geo_contexto, st.session_state.alertas_mandarina_previas, idioma_sel)
                 for r_id, enunciado_idioma in banco_mutado.items():
                     st.write(f"Reactivo {r_id}: {enunciado_idioma}")
+                    
+                    # CORRECCIÓN DE ESCALA LIKERT: Inyección explícita del arreglo [1, 2, 3, 4, 5]
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Scale / Escala:",
                         options=[1, 2, 3, 4, 5],
                         format_func=lambda x: tx.get(f"likert_{x}", str(x)),
                         horizontal=False,
-                        key=f"dyn_r_{r_id}"
+                        key=f"dyn_r_{r_id}_unique_poly"
                     )
 
             renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, token_actual, es_modo_likert, idioma_sel, tx)
         else:
+            lbl_info_hidden = ejecutar_traduccion_neuronal("💡 El formulario de captura local se encuentra oculto en esta pantalla.", idioma_sel)
+            st.info(lbl_info_hidden)
             nombre, whatsapp, resultados_totales, es_modo_likert = "", "", {}, False
 
 
