@@ -157,7 +157,7 @@ def guardar_en_google_sheets(pestana, nom, wha, res, token, es_likert):
     try: sheet.append_row(fila); return True
     except Exception: return False
 # =================================================================
-# PARTE 4: PLANIFICACIÓN DE GAJOS MULTILINGÜES Y ENSAMBLADO DEL PDF
+# PARTE 4: PLANIFICACIÓN DE GAJOS MULTILINGÜES Y ENSAMBLADO DEL PDF (ENCODING FIX)
 # =================================================================
 def algoritmo_generar_gajos_salud(lang="es"):
     if not lang or lang == "es": return GAJOS_MANDARINA_ORIGINAL
@@ -184,27 +184,60 @@ def limpiar_texto_pdf(texto, lang="es"):
 
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     pdf = FPDF()
-    pdf.core_fonts_encoding = "utf-8" if lang in ["ko", "ja", "zh-CN", "zh-TW", "ar", "ru", "hi"] else "cp1252"
-    pdf.add_page(); pdf.set_font("Helvetica", "B", 14)
-    pdf.cell(190, 10, ejecutar_traduccion_neuronal("Reporte de Evaluacion Psicometrica Individual", lang), new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.set_font("Helvetica", "", 10)
-    pdf.cell(190, 6, f"{limpiar_texto_pdf('part', lang)} {nombre} | {limpiar_texto_pdf('cont_label', lang)} {whatsapp}", new_x="LMARGIN", new_y="NEXT")
+    # Blindaje síncrono: Mapeamos la codificación base cp1252 para evitar crasheos por caracteres unicode extendidos
+    pdf.core_fonts_encoding = "cp1252"
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    
+    font_family = "Helvetica"
+    base_title = "Reporte de Diagnostico de los Modelos Temporales Cronos y Kairos" if es_likert else "Reporte de Diagnostico de la Salud Integral (Modelo Mandarina)"
+    
+    # Sanitizamos y convertimos el título a caracteres seguros cp1252 ascii asimilables por FPDF nativo
+    titulo_oficial = ejecutar_traduccion_neuronal(base_title, lang)
+    titulo_seguro = str(titulo_oficial).encode('ascii', 'ignore').decode('ascii')
+    if not titulo_seguro.strip(): titulo_seguro = base_title
+        
+    pdf.set_font(font_family, "B", 14)
+    pdf.cell(190, 10, titulo_seguro, new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    pdf.set_font(font_family, "", 10)
+    # Codificamos preventivamente los datos del perfil demográfico de entrada
+    nombre_seguro = str(nombre).encode('ascii', 'ignore').decode('ascii') if nombre else "Anonimo"
+    whatsapp_seguro = str(whatsapp).encode('ascii', 'ignore').decode('ascii') if whatsapp else "N/A"
+    
+    pdf.cell(190, 6, f"Participant: {nombre_seguro} | Contact: {whatsapp_seguro}", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
     
     if not es_likert:
         g_trad = algoritmo_generar_gajos_salud(lang)
         for idx, k in enumerate(GAJOS_MANDARINA_ORIGINAL.keys()):
             if len(resultados.get(k, [])) > 0:
-                pdf.set_font("Helvetica", "B", 11)
-                pdf.cell(190, 6, list(g_trad.keys())[idx], new_x="LMARGIN", new_y="NEXT")
-                pdf.set_font("Helvetica", "", 9.5)
-                pdf.multi_cell(190, 4.5, ejecutar_traduccion_neuronal(GLOSARIO_BASE[k], lang), new_x="LMARGIN", new_y="NEXT")
+                # Extraemos y purificamos la llave dinámica traducida para evitar el desplome por glifos incompatibles
+                raw_key = list(g_trad.keys())[idx]
+                key_segura = str(raw_key).encode('cp1252', 'ignore').decode('cp1252')
+                for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]: key_segura = key_segura.replace(emj, "")
+                if not key_segura.strip(): key_segura = str(k)
+                    
+                pdf.set_font(font_family, "B", 11)
+                pdf.cell(190, 6, key_segura.strip(), new_x="LMARGIN", new_y="NEXT")
+                
+                # Traducimos la explicación clínica barriendo glifos fuera de rango cp1252
+                raw_glosario = GLOSARIO_BASE[k]
+                glosario_traducido = ejecutar_traduccion_neuronal(raw_glosario, lang)
+                glosario_seguro = str(glosario_traducido).encode('cp1252', 'ignore').decode('cp1252')
+                
+                pdf.set_font(font_family, "", 9.5)
+                pdf.multi_cell(190, 4.5, glosario_seguro.strip(), new_x="LMARGIN", new_y="NEXT")
+                pdf.ln(2)
     else:
         k_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         c_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         pdf.cell(190, 5, f"Media Vector Cronos: {sum(c_v)/5:.2f} | Media Vector Kairos: {sum(k_v)/5:.2f}", new_x="LMARGIN", new_y="NEXT")
+        
     return bytes(pdf.output())
+
 # =================================================================
-# PARTE 5A: DEFINICIÓN TRANSACCIONAL Y CONTROLADORES INTERNOS MASTER
+# PARTE 5A: INICIALIZACIÓN, RUTEO INTERNACIONAL Y CONTROL DE IDENTIDAD DUAL
 # =================================================================
 def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, lang, tx):
     """
@@ -248,19 +281,23 @@ def main():
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
     if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
 
+    # Leemos de forma aislada y síncrona los parámetros de la URL para cada usuario independiente
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # Hidratación optimizada de la caché lingüística de red
+    # Hidratación optimizada de la caché lingüística de red por instancia de navegador
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
-            st.session_state.tx_traducido_cache = dict(zip(list(TEXTOS_BASE_ESPANOL.keys()), traducir_lote_neuronal_master(list(TEXTOS_BASE_ESPANOL.values()), idioma_sel)))
+            llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+            valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+            valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
+            st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
             st.session_state.cache_lang_check = idioma_sel
         tx = st.session_state.tx_traducido_cache
     else:
         tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
 
-    # Rotación del token cada 10 minutos (600 segundos) para el código QR
+    # Rotación del token cada 10 minutos (600 segundos) para el código QR proyectado
     minuto_bloque_10 = int(time.time() // 600)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
     
@@ -270,6 +307,7 @@ def main():
     if es_celular_del_publico and st.query_params.get("diag_tipo", None):
         st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
 
+    # Enlace QR dinámico: Inyecta el idioma actual del ponente como semilla inicial para el público
     url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={idioma_sel}"
 
     if not st.session_state.estructuras_inicializadas:
@@ -277,24 +315,26 @@ def main():
             conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-    # Barra lateral de administración del ponente
-    with st.sidebar:
-        st.markdown("## 🔐 Control del Ponente")
-        if not st.session_state.admin_autenticado:
-            pwd_i = st.text_input("Contraseña Ponente:", type="password", key="panel_p_sec")
-            if st.button("Desbloquear"):
-                if pwd_i == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
-                    st.session_state.admin_autenticado = True; st.rerun()
-        else:
-            st.success("Modo Ponente Activo")
-            lista_auds = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-            sel_aud = st.selectbox("Audiencia Actual en Vivo:", lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0)
-            if sel_aud != st.session_state.audiencia_activa:
-                st.session_state.audiencia_activa = sel_aud; st.rerun()
-            if st.button("🚪 Cerrar Centro de Control"):
-                st.session_state.admin_autenticado = False; st.rerun()
-
-        # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL) ---
+    # Barra lateral de administración: Oculta incondicionalmente para el participante
+    if not es_celular_del_publico:
+        with st.sidebar:
+            st.markdown("## 🔐 Control del Ponente")
+            if not st.session_state.admin_autenticado:
+                pwd_i = st.text_input("Contraseña Ponente:", type="password", key="panel_p_sec")
+                if st.button("Desbloquear"):
+                    if pwd_i == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
+                        st.session_state.admin_autenticado = True; st.rerun()
+            else:
+                st.success("Modo Ponente Activo")
+                lista_auds = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+                sel_aud = st.selectbox("Audiencia Actual en Vivo:", lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0)
+                if sel_aud != st.session_state.audiencia_activa:
+                    st.session_state.audiencia_activa = sel_aud; st.rerun()
+                if st.button("🚪 Cerrar Centro de Control"):
+                    st.session_state.admin_autenticado = False; st.rerun()
+    else:
+        st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+    # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL E INDEPENDIENTE) ---
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
             st.markdown(f"### {ejecutar_traduccion_neuronal('🌐 Internationalization Gateway / Control Políglota', idioma_sel)}")
@@ -315,11 +355,10 @@ def main():
                 
                 st.query_params["lang"] = codigo_iso_final
                 st.session_state.idioma_activo_actual = codigo_iso_final
-                if "tx_traducido_cache" in st.session_state: 
-                    del st.session_state["tx_traducido_cache"]
+                if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
-        # Proyección inmediata del QR únicamente en la pantalla del ponente (Oculto para el público)
+        # Proyección del QR: Requisito de ocultación automática cumplido para el participante scanneado
         if not es_celular_del_publico:
             with st.container(border=True):
                 st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR para el Auditorio')}")
@@ -328,7 +367,6 @@ def main():
                 qr.make(fit=True)
                 buf_qr = BytesIO()
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-                # CORRECCIÓN: Se eliminó el texto plano de la leyenda URL inferior, manteniendo el QR puro
                 st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea para acceder al formulario'))
 
         st.header(f"📋 {st.session_state.audiencia_activa}")
@@ -339,7 +377,6 @@ def main():
         resultados_totales = {}
         if not es_likert:
             st.write(tx.get("mand_title", "### 🍊 Diagnóstico de Salud Integral"))
-            # Sincronización del motor adaptativo con el código ISO validado
             gajos = algoritmo_generar_gajos_salud(idioma_sel)
             for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
                 with st.container(border=True):
@@ -408,6 +445,9 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10); pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
+
+
+
 
 
 
