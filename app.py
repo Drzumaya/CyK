@@ -1011,7 +1011,7 @@ def main():
     if not es_celular_del_publico:
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
-                       if not st.session_state.admin_autenticado:
+            if not st.session_state.admin_autenticado:
                 # 🍊 INDENTACIÓN POSICIONAL INDEPENDIENTE: Añadimos un sufijo estricto de tramo
                 key_dinamica_password = f"pwd_ponente_gateway_crypto_{token_tiempo}_tramo13"
                 
