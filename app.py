@@ -1012,23 +1012,22 @@ def main():
         with st.sidebar:
             st.markdown("## 🔐 Control del Ponente")
             if not st.session_state.admin_autenticado:
-                # 🍊 INDENTACIÓN POSICIONAL INDEPENDIENTE: Añadimos un sufijo estricto de tramo
-                key_dinamica_password = f"pwd_ponente_gateway_crypto_{token_tiempo}_tramo13"
+                # 🍊 INYECTOR GENERACIONAL DE ALTA FRONTERA: Genera un token unívoco por cada lectura física
+                import uuid
+                semilla_aleatoria_bloque = str(uuid.uuid4())[:8]
                 
                 input_password = st.text_input(
                     "Contraseña Ponente:", 
                     type="password", 
-                    key=key_dinamica_password
+                    key=f"pwd_ponente_gateway_crypto_{semilla_aleatoria_bloque}"
                 )
                 
-                if st.button("Desbloquear Tableros", key=f"btn_desbloquear_sincro_{token_tiempo}_tramo13"):
+                if st.button("Desbloquear Tableros", key=f"btn_desbloquear_sincro_{semilla_aleatoria_bloque}"):
                     if input_password == PASSWORD_SISTEMA:
                         st.session_state.admin_autenticado = True
                         st.rerun()
                     else:
                         st.error("Contraseña incorrecta.")
-
-
 
             else:
                 st.success("Modo Ponente Activo")
