@@ -5,4 +5,5 @@ gspread
 matplotlib
 fpdf2
 deep-translator
+qrcode
 
