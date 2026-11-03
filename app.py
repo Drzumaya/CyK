@@ -9,7 +9,7 @@ import time
 import hashlib
 import base64
 import gspread
-import qrcode  # 🍊 CORRECCIÓN: Inyección explícita de la librería de códigos QR
+import qrcode 
 import html
 import urllib.parse
 import matplotlib.pyplot as plt
