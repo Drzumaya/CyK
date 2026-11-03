@@ -922,7 +922,7 @@ def ejecutar_analisis_semdeep(dataframe, es_likert):
         return {"Error_Analitico": str(e), "R2": ".00"}
 
 # =================================================================
-# PARTE 13 DE 14: ORQUESTRACIÓN CENTRAL Y CONTROL POLÍGLOTA (BLOQUE 1 DE 4)
+# PARTE 13 DE 14: ENTRADA NEURONAL INCONDICIONAL GLOBAL (BLOQUE 1 DE 4)
 # =================================================================
 def main():
     # Inicialización local de variables globales de red y tiempo
@@ -940,29 +940,23 @@ def main():
     if "guardado_exitoso" not in st.session_state:
         st.session_state.guardado_exitoso = False
 
-    # 🌐 PRIORIZACIÓN POLÍGLOTA: Sincronización estricta de barra URL y búfer
-    idioma_url_codigo = st.query_params.get("lang", "es")
-    
-    if "idioma_activo_actual" not in st.session_state:
-        st.session_state.idioma_activo_actual = idioma_url_codigo
-        
-    # Si la URL difiere del estado interno de la sesión, actualizamos la referencia
-    if idioma_url_codigo != st.session_state.idioma_activo_actual:
-        st.session_state.idioma_activo_actual = idioma_url_codigo
+    # 🌐 DETECTOR DE PARAMETRO RAÍZ ABSOLUTO: Lee directo de la barra del navegador
+    idioma_sel = st.query_params.get("lang", "es")
+    st.session_state.idioma_activo_actual = idioma_sel
 
-    # 🚀 INTERCEPTOR INCONDICIONAL: Si no hay caché o cambió el idioma, traducimos el lote entero
-    if "tx_traducido_cache" not in st.session_state or st.session_state.get("idioma_previo_check") != st.session_state.idioma_activo_actual:
+    # 🔬 INTERCEPTOR MUTACIONAL INCONDICIONAL: 
+    # Destruye el bypass asíncrono y fuerza la traducción antes de pintar cualquier widget
+    if idioma_sel != "es":
         llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
         valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
         
-        # Una sola petición masiva por lote a Google Cloud Translation
-        valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, st.session_state.idioma_activo_actual)
-        st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
-        st.session_state.idioma_previo_check = st.session_state.idioma_activo_actual
+        # Una sola petición por lote masivo bloquea el congelamiento visual
+        valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
+        tx = dict(zip(llaves_interfaz, valores_traducidos))
+    else:
+        # Si está en el idioma base, se asigna el molde original en español
+        tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
 
-    # Asignación de variables síncronas maestras locales que gobernarán todos los tramos inferiores
-    tx = st.session_state.tx_traducido_cache
-    idioma_sel = st.session_state.idioma_activo_actual
 
 
     # =================================================================
