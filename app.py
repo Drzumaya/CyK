@@ -204,37 +204,11 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         pdf.cell(190, 5, f"Media Vector Cronos: {sum(c_v)/5:.2f} | Media Vector Kairos: {sum(k_v)/5:.2f}", new_x="LMARGIN", new_y="NEXT")
     return bytes(pdf.output())
 # =================================================================
-# PARTE 5A: COMPONENTE TRANSACCIONAL, GATEWAYS Y RENDERIZADOR
+# PARTE 5A: INICIALIZACIÓN, RUTEO INTERNACIONAL Y CONTROL DE IDENTIDAD
 # =================================================================
-def renderizar_botones_transaccionales(nombre, whatsapp, resultados, es_likert, lang, tx):
-    st.divider(); col1, col2, col3 = st.columns(3)
-    comp = bool(nombre.strip()) and bool(whatsapp.strip())
-    
-    with col1:
-        if st.button(tx["btn_save"], type="primary", use_container_width=True):
-            if not comp: st.error(tx["err_fields"])
-            else: 
-                # Guarda la información normalizada en ESPAÑOL por default en la nube
-                guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados, "TOKEN_10MIN", es_likert)
-                
-                # Persistencia simétrica en sesión
-                st.session_state.nombre_usuario_persistente = nombre
-                st.session_state.whatsapp_usuario_persistente = whatsapp
-                st.session_state.resultados_usuario_persistente = resultados
-                st.session_state.es_modo_likert_persistente = es_likert
-                st.session_state.flujo_finalizado = True
-                st.rerun()
-    with col2:
-        if comp:
-            rep = generar_pdf_diagnostico(nombre, whatsapp, resultados, st.session_state.audiencia_activa, es_likert, lang)
-            st.download_button(tx["btn_pdf"], data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
-        else: st.info(tx["fields_msg"])
-    with col3:
-        if comp:
-            url_wa = f"https://whatsapp.com{urllib.parse.quote(whatsapp)}&text=Diagnostico+Mandarina+Completado"
-            st.markdown(f'<a href="{url_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;cursor:pointer;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-
 def main():
+    global token_actual, es_celular_del_publico, url_con_token, token_tiempo
+
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
@@ -244,17 +218,24 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # Hidratación optimizada de la caché lingüística de red
+    # 🍊 HIDRATACIÓN DINÁMICA AUTOMÁTICA DEL SISTEMA DE TRADUCCIÓN
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
-            st.session_state.tx_traducido_cache = dict(zip(list(TEXTOS_BASE_ESPANOL.keys()), traducir_lote_neuronal_master(list(TEXTOS_BASE_ESPANOL.values()), idioma_sel)))
+            llaves_interfaz = list(TEXTOS_BASE_ESPANOL.keys())
+            valores_interfaz = list(TEXTOS_BASE_ESPANOL.values())
+            valores_traducidos = traducir_lote_neuronal_master(valores_interfaz, idioma_sel)
+            st.session_state.tx_traducido_cache = dict(zip(llaves_interfaz, valores_traducidos))
             st.session_state.cache_lang_check = idioma_sel
         tx = st.session_state.tx_traducido_cache
-    else: tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
+    else: 
+        tx = {k: str(v) for k, v in TEXTOS_BASE_ESPANOL.items()}
 
-    minuto = int(time.time() // 60)
-    token_tiempo = hashlib.md5(f"mandarina_secret_{minuto}".encode()).hexdigest()[:8]
-    es_celular_del_publico = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
+    # Rotación estricta del token cada 10 minutos (600 segundos)
+    minuto_bloque_10 = int(time.time() // 600)
+    token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
+    
+    modo_admin_url = st.query_params.get("modo_admin", "true")
+    es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
     
     if es_celular_del_publico and st.query_params.get("diag_tipo", None):
         st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
@@ -265,67 +246,58 @@ def main():
         for tabla in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(tabla)
         st.session_state.estructuras_inicializadas = True
 
-    # Barra lateral de administración exclusiva del ponente
-    with st.sidebar:
-        st.markdown("## 🔐 Control del Ponente")
-        if not st.session_state.admin_autenticado:
-            pwd_i = st.text_input("Contraseña Ponente:", type="password", key="panel_p_sec")
-            if st.button("Desbloquear"):
-                if pwd_i == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
-                    st.session_state.admin_autenticado = True; st.rerun()
-        else:
-            st.success("Modo Ponente Activo")
-            lista_auds = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-            sel_aud = st.selectbox("Audiencia Actual en Vivo:", lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0)
-            if sel_aud != st.session_state.audiencia_activa: st.session_state.audiencia_activa = sel_aud; st.rerun()
-            if st.button("🚪 Cerrar Centro de Control"): st.session_state.admin_autenticado = False; st.rerun()
-    # --- CUERPO PRINCIPAL PÚBLICO (VISIBLE PARA PONENTE Y PARTICIPANTE) ---
-        # --- CUERPO PRINCIPAL PÚBLICO (VISIBLE PARA PONENTE Y PARTICIPANTE) ---
+    # Control de la barra de herramientas del ponente
+    if not es_celular_del_publico:
+        with st.sidebar:
+            st.markdown("## 🔐 Control del Ponente")
+            if not st.session_state.admin_autenticado:
+                pwd_i = st.text_input("Contraseña Ponente:", type="password", key="panel_p_sec")
+                if st.button("Desbloquear"):
+                    if pwd_i == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
+                        st.session_state.admin_autenticado = True; st.rerun()
+            else:
+                st.success("Modo Ponente Activo")
+                lista_auds = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+                sel_aud = st.selectbox("Audiencia Actual en Vivo:", lista_auds, index=lista_auds.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_auds else 0)
+                if sel_aud != st.session_state.audiencia_activa: st.session_state.audiencia_activa = sel_aud; st.rerun()
+                if st.button("🚪 Cerrar Centro de Control"): st.session_state.admin_autenticado = False; st.rerun()
+    else:
+        st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+    # --- CUERPO PRINCIPAL PÚBLICO (ENTORNO MULTILINGÜE REAL) ---
     if not st.session_state.flujo_finalizado:
-        # Gateway internacional extendido: El participante puede usarlo libremente en su smartphone
         with st.container(border=True):
             st.markdown(f"### {ejecutar_traduccion_neuronal('🌐 Internationalization Gateway / Control Políglota', idioma_sel)}")
             
-            # Catálogo expandido dinámicamente con más de 130 idiomas soportados nativamente por deep-translator
-            lista_133_completa = [
-                "Español (Spanish)", "English (Inglés)", "Français (Francés)", "Deutsch (Alemán)", 
-                "Italiano (Italiano)", "Português (Portugués)", "Ελληνικά (Griego)", "한국어 (Coreano)", 
-                "日本語 (Japonés)", "简体中文 (Chino Simplificado)", "繁體中文 (Chino Tradicional)", 
-                "العربية (Árabe)", "Русский (Ruso)", "हिन्दी (Hindi)", "Tiếng Việt (Vietnamita)", 
-                "Nederlands (Neerlandés)", "Polski (Polaco)", "Türkçe (Turco)", "Svenska (Sueco)",
-                "Norsk (Noruego)", "Dansk (Danés)", "Suomi (Finés)", "Čeština (Checo)", "עברית (Hebreo)",
-                "ไทย (Tailandés)", "Bahasa Indonesia (Indonesio)", "Ukrainska (Ucraniano)", "Română (Rumano)",
-                "Magyar (Húngaro)", "Slovenčina (Eslovaco)", "Català (Catalán)", "Filipino (Filipino)"
-            ]
-            
-            sel_v = st.selectbox(
-                "Select System Language / Selecciona tu Idioma Objetivo:", 
-                options=lista_133_completa, 
-                index=0
-            )
+            # 🍊 SOLUCIÓN MATRIZ PLANETA COMPLETA: Extrae nativamente todos los idiomas soportados por deep-translator
+            from deep_translator import GoogleTranslator
+            try:
+                dict_idiomas_completos = GoogleTranslator().get_supported_languages(as_dict=True)
+                lista_despliegue_visual = [k.title() for k in dict_idiomas_completos.keys()]
+            except Exception:
+                dict_idiomas_completos = {"spanish": "es", "english": "en", "french": "fr", "german": "de"}
+                lista_despliegue_visual = ["Spanish", "English", "French", "German"]
+
+            sel_v = st.selectbox("Select System Language / Selecciona tu Idioma:", options=sorted(lista_despliegue_visual))
             
             if st.button("🔄 APPLY LANGUAGE / APLICAR IDIOMA SELECCIONADO"):
-                # Obtenemos el código ISO buscando coincidencia parcial o por defecto cae en inglés
-                codigo_iso_final = "en"
-                for nombre_c, iso in MAPA_IDIOMAS_GLOBAL.items():
-                    if sel_v.split(" ")[0].lower() in nombre_c.lower():
-                        codigo_iso_final = iso
-                        break
+                # Mapeo directo al código ISO real del servidor de traducción
+                lang_key_clean = str(sel_v).lower()
+                codigo_iso_final = dict_idiomas_completos.get(lang_key_clean, "en")
+                
                 st.query_params["lang"] = codigo_iso_final
                 st.session_state.idioma_activo_actual = codigo_iso_final
-                if "tx_traducido_cache" in st.session_state:
-                    del st.session_state["tx_traducido_cache"]
+                if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
-        # Ocultación automática: El QR SOLO se proyecta en la pantalla maestra del ponente autenticado
-        if st.session_state.admin_autenticado and not es_celular_del_publico:
+        # Proyección inmediata del QR únicamente en la pantalla del ponente
+        if not es_celular_del_publico:
             with st.container(border=True):
-                st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR')}")
+                st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR para el Auditorio')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=4)
                 qr.add_data(url_con_token); qr.make(fit=True)
                 buf_qr = BytesIO()
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-                st.image(buf_qr.getvalue(), width=260, caption=f"Acceso Auditorio: {url_con_token}")
+                st.image(buf_qr.getvalue(), width=260, caption=f"Acceso Auditorio (10 min rotation): {url_con_token}")
 
         st.header(f"📋 {st.session_state.audiencia_activa}")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
@@ -336,13 +308,23 @@ def main():
         if not es_likert:
             st.write(tx.get("mand_title", "### 🍊 Diagnóstico de Salud Integral"))
             gajos = algoritmo_generar_gajos_salud(idioma_sel)
-            for g_idx, (g_name, s_list) in enumerate(gajos.items()):
+            for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
-                    cb0 = st.checkbox(s_list if len(s_list)>0 else "S0", key=f"c_{g_idx}_0")
-                    cb1 = st.checkbox(s_list if len(s_list)>1 else "S1", key=f"c_{g_idx}_1")
-                    cb2 = st.checkbox(s_list if len(s_list)>2 else "S2", key=f"c_{g_idx}_2")
-                    cb3 = st.checkbox(s_list if len(s_list)>3 else "S3", key=f"c_{g_idx}_3")
+                    col_a, col_b = st.columns(2)
+                    
+                    # 🍊 CORRECCIÓN DE RAÍZ: Mapeo por slicing indexado numérico absoluto para eliminar la repetición
+                    with col_a:
+                        t0 = alertas_especificas[0] if len(alertas_especificas) > 0 else "S0"
+                        t1 = alertas_especificas[1] if len(alertas_especificas) > 1 else "S1"
+                        cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
+                        cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
+                    with col_b:
+                        t2 = alertas_especificas[2] if len(alertas_especificas) > 2 else "S2"
+                        t3 = alertas_especificas[3] if len(alertas_especificas) > 3 else "S3"
+                        cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
+                        cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
+                        
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
         else:
             st.subheader(tx.get("sec1", "Sección I"))
@@ -367,18 +349,10 @@ def main():
             reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
-                # CORREGIDO: Inyección de la lista explícita [1, 2, 3, 4, 5] para destrabar el botón de envío
-                resultados_totales[f"R{r_id}"] = st.radio(
-                    "Escala / Scale:", 
-                    options=[1, 2, 3, 4, 5], 
-                    format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                    horizontal=True, 
-                    key=f"r_{r_id}"
-                )
+                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
     else:
-        # Pantalla de confirmación y felicitación al participante con globos
         st.balloons()
         st.success(tx.get("thanks", "¡Diagnóstico Completado con Éxito! 🎉"))
         st.markdown(tx.get("thanks_sub", "Hemos compilado tu reporte individual multilingüe."))
@@ -400,6 +374,7 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10); pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
     return bytes(pdf.output())
+
 
 
 
