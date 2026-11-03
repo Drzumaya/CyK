@@ -786,22 +786,33 @@ def renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, tok
             st.caption("Complete los campos obligatorios para activar el canal WhatsApp.")
 
 # =================================================================
-# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES (SINCRO)
+# PARTE 11 DE 14: MOTORES ADAPTATIVOS ONTOLÓGICOS NEURONALES (SINCRO LIMPIO)
 # =================================================================
 def algoritmo_generar_gajos_salud(codigo_idioma="es"):
     """
     Traduce en un solo lote ordenado la estructura completa de la Mandarina.
-    Previene bloqueos de cuota e hilos caídos en Streamlit Cloud.
+    Limpia duplicados y segmenta estrictamente en porciones de 4 síntomas.
     """
+    # Molde base unívoco de control para evitar lecturas de variables sueltas
+    gajos_semilla = {
+        "💪 Salud Física": ["Nutrición Deficiente", "Falta de Sueño/Insomnio", "Sedentarismo Crónico", "Fatiga Corporal"],
+        "🧠 Salud Mental": ["Niebla Mental/Falta de Foco", "Pensamientos Rumiativos", "Saturación de Información", "Apatía Cognitiva"],
+        "❤️ Salud Emocional": ["Ansiedad o Estrés Agudo", "Irritabilidad Reactiva", "Desmotivación General", "Inestabilidad Anímica"],
+        "👥 Salud Social": ["Aislamiento Voluntario", "Conflictos Interpersonales", "Falta de Red de Apoyo", "Falta de Límites Sanos"],
+        "💰 Salud Económica": ["Gastos Compulsivos", "Deudas Atropelladas", "Falta de Fondo de Emergencia", "Falta de Emprendimiento de Negocios o Fuentes de Ingreso"],
+        "⏳ Salud Temporal": ["Procrastinación Crónica", "Burnout o Sobrecarga", "Falta de Descanso/Margen", "Falta de Gestión Balanceada Cronos y Kairós"],
+        "🙏 Salud Espiritual": ["Vacío Existencial", "Desconexión Interna", "Falta de Propósito", "Abandono de la Fe"]
+    }
+
     if not codigo_idioma or codigo_idioma == "es":
-        return GAJOS_MANDARINA_ORIGINAL
+        return gajos_semilla
         
     try:
-        llaves_originales = list(GAJOS_MANDARINA_ORIGINAL.keys())
+        llaves_originales = list(gajos_semilla.keys())
         bloque_plano_a_traducir = []
         
-        # Aplanamos toda la ontología médica en un solo vector de texto
-        for dim, sintomas in GAJOS_MANDARINA_ORIGINAL.items():
+        # Aplanamos toda la ontología médica en un solo vector de texto unívoco
+        for dim, sintomas in gajos_semilla.items():
             clean_dim = dim.replace("💪", "").replace("🧠", "").replace("❤️", "").replace("👥", "").replace("💰", "").replace("⏳", "").replace("🙏", "").strip()
             bloque_plano_a_traducir.append(clean_dim)
             bloque_plano_a_traducir.extend(sintomas)
@@ -818,17 +829,18 @@ def algoritmo_generar_gajos_salud(codigo_idioma="es"):
             key_final = f"{emojis[idx]} {dim_traducida}"
             ptr += 1
             
+            # Slicing preciso: Tomamos exactamente los 4 síntomas de la dimensión actual
             sintomas_traducidos = bloque_traducido[ptr : ptr + 4]
             gajos_traducidos[key_final] = sintomas_traducidos
             ptr += 4
             
         return gajos_traducidos
     except Exception:
-        return GAJOS_MANDARINA_ORIGINAL
+        return gajos_semilla
 
 def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, codigo_idioma="es"):
     """
-    MANDATO EXPLÍCITO: Traduce en un solo lote lineal la batería de reactivos C&K.
+    Traduce en un solo lote lineal la batería de reactivos C&K.
     Hereda incondicionalmente el código de idioma del selector para sincronizar UI y PDF.
     """
     banco_base_es = [
@@ -848,16 +860,10 @@ def algoritmo_generar_reactivos_poliglotas(contexto_geo, alertas_previas, codigo
         return {i+1: v for i, v in enumerate(banco_base_es)}
         
     try:
-        # Envío masivo por lotes del vector psicométrico temporal al satélite de Google
         reactivos_traducidos = traducir_lote_neuronal_master(banco_base_es, codigo_idioma)
-        
-        # Mapeamos de forma síncrona el diccionario relacional indexado del 1 al 10
         return {i+1: v for i, v in enumerate(reactivos_traducidos)}
     except Exception:
-        # Fallback seguro en frío si la API sufre latencia
         return {i+1: v for i, v in enumerate(banco_base_es)}
-
-
 
 
 # =================================================================
