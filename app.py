@@ -438,26 +438,52 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # =================================================================
-# ENTRADA REVISADA PARA LA FUNCIÓN MAIN() DENTRO DE LA FRACCIÓN 5A
+  # =================================================================
+# BLOQUE DE REEMPLAZO SEGURO ANTI-BLOQUEOS DENTRO DE LA FUNCIÓN MAIN()
 # =================================================================
-    # Hidratación optimizada de la caché lingüística de red por instancia
+    # Hidratación optimizada en un único paquete masivo para evitar baneos de IP
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
-            st.session_state.tx_traducido_cache = dict(zip(list(CENTRO_MANDO_TEXTOS.keys()), traducir_lote_neuronal_master(list(CENTRO_MANDO_TEXTOS.values()), idioma_sel)))
-            st.session_state.tx_dictamen_cache = dict(zip(list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.keys()), traducir_lote_neuronal_master(list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.values()), idioma_sel)))
+            # 1. Creamos un super contenedor plano con todos los textos estáticos del sistema
+            llaves_m = list(CENTRO_MANDO_TEXTOS.keys())
+            valores_m = list(CENTRO_MANDO_TEXTOS.values())
+            
+            llaves_d = list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.keys())
+            valores_d = list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.values())
+            
+            # Formateamos el glosario clínico estático a una lista plana
+            llaves_g = list(GLOSARIO_CLINICO_ESTÁTICO.keys())
+            valores_g = list(GLOSARIO_CLINICO_ESTÁTICO.values())
+            
+            # Combinamos todo en un único vector masivo para hacer un solo disparo de red
+            super_lote_plano = valores_m + valores_d + valores_g
+            
+            # Pasarela nativa unificada: 1 sola consulta al servidor
+            super_lote_traducido = traducir_lote_neuronal_master(super_lote_plano, idioma_sel)
+            
+            # 2. Desempaquetamos de forma matemática usando cortes simétricos de índices (Slicing)
+            ptr_m = len(valores_m)
+            ptr_d = ptr_m + len(valores_d)
+            
+            valores_m_trad = super_lote_traducido[:ptr_m]
+            valores_d_trad = super_lote_traducido[ptr_m:ptr_d]
+            valores_g_trad = super_lote_traducido[ptr_d:]
+            
+            # Re-asignamos las variables del caché de sesión de Streamlit de forma segura
+            st.session_state.tx_traducido_cache = dict(zip(llaves_m, valores_m_trad))
+            st.session_state.tx_dictamen_cache = dict(zip(llaves_d, valores_d_trad))
             
             gl_tr = {}
-            # 🍊 CORRECCIÓN DE RAÍZ: Enlazamos correctamente al diccionario estático unificado
-            for gk, gv in GLOSARIO_CLINICO_ESTÁTICO.items(): 
-                gl_tr[gk] = {
-                    "sig": ejecutar_traduccion_neuronal(gv if isinstance(gv, str) else gv.get("sig", ""), idioma_sel), 
-                    "rec": "" if isinstance(gv, str) else ejecutar_traduccion_neuronal(gv.get("rec", ""), idioma_sel)
-                }
+            for idx, gk in enumerate(llaves_g):
+                # Como las sugerencias son strings puros, barremos errores de asignación
+                texto_clinico_traducido = valores_g_trad[idx]
+                gl_tr[gk] = {"sig": texto_clinico_traducido, "rec": ""}
+                
             st.session_state.glosario_traducido_cache = gl_tr
             st.session_state.cache_lang_check = idioma_sel
             
-        tx, tx_dictamen = st.session_state.tx_traducido_cache, st.session_state.tx_dictamen_cache
+        tx = st.session_state.tx_traducido_cache
+        tx_dictamen = st.session_state.tx_dictamen_cache
     else:
         tx = {k: str(v) for k, v in CENTRO_MANDO_TEXTOS.items()}
         tx_dictamen = {k: str(v) for k, v in TEXTOS_DICTAMEN_COMPLEMENTARIOS.items()}
