@@ -47,7 +47,7 @@ st.markdown(
 # PARTE 2: CONSTANTES GLOBALES, CATÁLOGOS PLANETA Y ONTOLOGÍAS BASE
 # =================================================================
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app/?lang=hy"
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 
 MAPA_IDIOMAS_GLOBAL = {
