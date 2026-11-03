@@ -438,14 +438,25 @@ def main():
     idioma_sel = st.query_params.get("lang", "es")
     st.session_state.idioma_activo_actual = idioma_sel
 
+    # =================================================================
+# ENTRADA REVISADA PARA LA FUNCIÓN MAIN() DENTRO DE LA FRACCIÓN 5A
+# =================================================================
+    # Hidratación optimizada de la caché lingüística de red por instancia
     if idioma_sel != "es":
         if "tx_traducido_cache" not in st.session_state or st.session_state.get("cache_lang_check") != idioma_sel:
             st.session_state.tx_traducido_cache = dict(zip(list(CENTRO_MANDO_TEXTOS.keys()), traducir_lote_neuronal_master(list(CENTRO_MANDO_TEXTOS.values()), idioma_sel)))
             st.session_state.tx_dictamen_cache = dict(zip(list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.keys()), traducir_lote_neuronal_master(list(TEXTOS_DICTAMEN_COMPLEMENTARIOS.values()), idioma_sel)))
+            
             gl_tr = {}
-            for gk, gv in GLOSARIO_BASE.items(): gl_tr[gk] = {"sig": ejecutar_traduccion_neuronal(gv["sig"], idioma_sel), "rec": ejecutar_traduccion_neuronal(gv["rec"], idioma_sel)}
+            # 🍊 CORRECCIÓN DE RAÍZ: Enlazamos correctamente al diccionario estático unificado
+            for gk, gv in GLOSARIO_CLINICO_ESTÁTICO.items(): 
+                gl_tr[gk] = {
+                    "sig": ejecutar_traduccion_neuronal(gv if isinstance(gv, str) else gv.get("sig", ""), idioma_sel), 
+                    "rec": "" if isinstance(gv, str) else ejecutar_traduccion_neuronal(gv.get("rec", ""), idioma_sel)
+                }
             st.session_state.glosario_traducido_cache = gl_tr
             st.session_state.cache_lang_check = idioma_sel
+            
         tx, tx_dictamen = st.session_state.tx_traducido_cache, st.session_state.tx_dictamen_cache
     else:
         tx = {k: str(v) for k, v in CENTRO_MANDO_TEXTOS.items()}
