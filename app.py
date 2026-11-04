@@ -476,14 +476,15 @@ def main():
     if ocultar_bar_css:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
 
-    # =================================================================
+       # =================================================================
     # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GRADUACIÓN (CORE)
     # =================================================================
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
             st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
             dict_ids = {"spanish": "es", "english": "en"}
-            sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=["Spanish", "English"], index=0 if idioma_sel == "es" else 1, key="sb_part_lang_unq")
+            # 🍊 CORRECCIÓN DE VARIABLE: Cambiado idioma_sel por iso para sintonizar con la fracción 5A
+            sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=["Spanish", "English"], index=0 if iso == "es" else 1, key="sb_part_lang_unq")
             if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_fixed"):
                 iso_f = dict_ids.get(str(sel_v).lower().strip(), "en")
                 st.query_params["lang"] = iso_f
@@ -509,7 +510,8 @@ def main():
         resultados_totales = {}
         if not es_likert:
             st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
-            gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, idioma_sel)
+            # 🍊 CORRECCIÓN DE VARIABLE: Cambiado idioma_sel por iso
+            gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, iso)
             for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
@@ -541,19 +543,22 @@ def main():
             resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
             
             st.write("### 📋 BATERÍA DE REACTIVOS C&K")
-            reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, idioma_sel)
+            # 🍊 CORRECCIÓN DE VARIABLE: Cambiado idioma_sel por iso para el motor de reactivos vinculados por audiencia
+            reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
-        gateway_bt(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
+        # 🍊 CORRECCIÓN DE FUNCIÓN: Mapeado correcto hacia gateway_bt con la variable local iso
+        gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
         st.markdown(tx.get("thanks_sub", "Descarga tu reporte abajo."))
         st.toast(tx.get("toast_msg", "Descarga lista."), icon="📥")
         
-        rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), idioma_sel)
+        # 🍊 CORRECCIÓN DE VARIABLE: Cambiado idioma_sel por iso
+        rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
         
         dip = generar_reconocimiento_honorifico_dinamico()
@@ -610,4 +615,3 @@ def generar_reconocimiento_honorifico_dinamico():
 
 if __name__ == "__main__": 
     main()
-
