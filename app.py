@@ -394,118 +394,8 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
     return bytes(pdf.output())
 
-# =================================================================
-# PARTE 5A: PROCESAMIENTO TRANSACCIONAL Y LIMPIEZA DE FORMULARIOS
-# =================================================================
-def gateway_bt(n, w, r, lk, lg, t):
-    st.divider()
-    c1, c2, c3 = st.columns(3)
-    vld = bool(n.strip()) and bool(w.strip())
-    with c1:
-        if st.button(t["btn_save"], type="primary", use_container_width=True):
-            if not vld: st.error(t["err_fields"])
-            else:
-                guardar_en_google_sheets(st.session_state.audiencia_activa, n, w, r, "TK_10M", lk)
-                st.session_state.nombre_usuario_persistente = n
-                st.session_state.whatsapp_usuario_persistente = w
-                st.session_state.resultados_usuario_persistente = r
-                st.session_state.es_modo_likert_persistente = lk
-                st.session_state.flujo_finalizado = True
-                st.rerun()
-    with c2:
-        if vld:
-            pdf_bytes = generar_pdf_diagnostico(n, w, r, st.session_state.audiencia_activa, lk, lg)
-            st.download_button(t["btn_pdf"], data=pdf_bytes, file_name="Reporte.pdf", mime="application/pdf", use_container_width=True)
-        else: st.info(t["fields_msg"])
-    with c3:
-        if vld:
-            tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
-            wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
-            st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-
-def main():
-    if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
-    if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
-    if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
-    if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
-    if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
-    
-    # Inicialización limpia de llaves de texto efímeras para resetear labels
-    if "tmp_pass_val" not in st.session_state: st.session_state.tmp_pass_val = ""
-    if "tmp_aud_val" not in st.session_state: st.session_state.tmp_aud_val = ""
-
-    iso = st.query_params.get("lang", "es")
-    if iso not in ["es", "en"]: iso = "es"
-    st.session_state.idioma_activo_actual = iso
-
-    tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
-    dc_bil = TEXTOS_DICTAMEN_BILINGUE.get(iso, TEXTOS_DICTAMEN_BILINGUE["es"])
-
-    tk_t = hashlib.md5(f"m_sec_{int(time.time() // 600)}".encode()).hexdigest()[:8]
-    es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
-    
-    if es_cel and st.query_params.get("diag_tipo"): 
-        st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
-
-    lnk_qr = f"{URL_PRODUCCION}/?token={tk_t}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={iso}"
-
-    if not st.session_state.estructuras_inicializadas:
-        for t in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(t)
-        st.session_state.estructuras_inicializadas = True
-
-    ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
-
-    with st.sidebar:
-        st.markdown(tx.get("side_title", "## 🔐 Control"))
-        if not ocultar_bar_css:
-            lbl_password = tx.get("side_pwd") if tx.get("side_pwd") else "Contraseña Ponente:"
-            lbl_boton = tx.get("side_btn") if tx.get("side_btn") else "Desbloquear Tableros"
-            
-            if not st.session_state.admin_autenticado:
-                # 🍊 TRUCO COMPATIBLE: El widget lee de una variable efímera controlable
-                p_in = st.text_input(lbl_password, type="password", value=st.session_state.tmp_pass_val, key="p_master")
-                if st.button(lbl_boton, key="btn_unlock_master"):
-                    if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): 
-                        st.session_state.admin_autenticado = True
-                        # Limpiamos de forma legal alterando la variable semilla de arriba
-                        st.session_state.tmp_pass_val = ""
-                        st.rerun()
-                    else: 
-                        lbl_error = tx.get("side_pwd_err") if tx.get("side_pwd_err") else "Contraseña incorrecta."
-                        st.error(lbl_error)
-            
-            if st.session_state.admin_autenticado:
-                st.success(tx.get("side_success", "Modo Ponente Activo"))
-                
-                # Widget enlazado a la semilla efímera de audiencias
-                n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:"), value=st.session_state.tmp_aud_val, key="add_aud_master").strip()
-                
-                if st.button("➕ " + tx.get("side_add", "Añadir Audiencia").replace("➕ ", ""), key="btn_add_audience_action"):
-                    if n_aud and n_aud not in st.session_state.audiences_custom_list:
-                        st.session_state.audiences_custom_list.append(n_aud)
-                        st.session_state.audiencia_activa = n_aud
-                        # Limpiamos de forma legal la semilla para el próximo ciclo
-                        st.session_state.tmp_aud_val = ""
-                        st.rerun()
-                
-                op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
-                if sel_aud != st.session_state.audiencia_activa:
-                    st.session_state.audiencia_activa = sel_aud
-                    st.rerun()
-                    
-                if st.button(tx.get("side_close", "Cerrar"), key="btn_close_master"):
-                    st.session_state.admin_autenticado = False
-                    st.session_state.tmp_pass_val = ""
-                    st.session_state.tmp_aud_val = ""
-                    st.rerun()
-
-    if ocultar_bar_css:
-        st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
-
-
     # =================================================================
-    # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GRADUACIÓN (CORE)
+    # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y CONTROL DE EXPOSICIÓN
     # =================================================================
     if "mostrar_bateria" not in st.session_state:
         st.session_state.mostrar_bateria = True
@@ -550,47 +440,65 @@ def main():
             if not es_likert:
                 st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
                 gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, iso)
-                
-                # 🍊 CORRECCIÓN DE RAÍZ: Extracción secuencial del vector de ítems único por gajo
                 for g_idx, (g_name, lista_items_gajo) in enumerate(gajos.items()):
                     with st.container(border=True):
                         st.markdown(f"#### {g_name}")
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            t0 = lista_items_gajo[0] if len(lista_items_gajo) > 0 else "S0"
-                            t1 = lista_items_gajo[1] if len(lista_items_gajo) > 1 else "S1"
+                            t0 = lista_items_gajo if len(lista_items_gajo) > 0 else "S0"
+                            t1 = lista_items_gajo if len(lista_items_gajo) > 1 else "S1"
                             cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
                             cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
                         with col_b:
-                            t2 = lista_items_gajo[2] if len(lista_items_gajo) > 2 else "S2"
-                            t3 = lista_items_gajo[3] if len(lista_items_gajo) > 3 else "S3"
+                            t2 = lista_items_gajo if len(lista_items_gajo) > 2 else "S2"
+                            t3 = lista_items_gajo if len(lista_items_gajo) > 3 else "S3"
                             cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
                             cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
             else:
-                st.subheader(tx.get("sec1", "Sección I"))
+                # 📋 SECCIÓN II: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS REALES
+                st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
                 resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
                 resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
-                resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], horizontal=True)
+                resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], horizontal=True, key="nacionalidad_unq_choice")
                 
                 if "mex" in resultados_totales["Nacionalidad"].lower():
-                    resultados_totales["Estado Residencia"] = st.selectbox(tx.get("res", "Residencia:"), [""] + ESTADOS_MEXICO)
+                    resultados_totales["Estado Origen"] = st.selectbox("4. Estado mexicano de origen:", [""] + ESTADOS_MEXICO, key="sel_origen_mex_unq")
+                    resultados_totales["Estado Residencia"] = st.selectbox("5. Estado mexicano de residencia actual:", [""] + ESTADOS_MEXICO, key="sel_residencia_mex_unq")
                     resultados_totales["País Origen"] = "México"
-                else: 
-                    resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
-                    
-                st.subheader(tx.get("sec2", "Sección II"))
-                resultados_totales["C1_Escuchado"] = st.radio(tx.get("kn1"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec2")
-                resultados_totales["C2_Leído"] = st.radio(tx.get("kn2"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec2")
-                resultados_totales["C3_Enseñado"] = st.radio(tx.get("kn3"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec2")
-                resultados_totales["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0", "Se impone"), tx.get("kn4_opt1", "Se hereda"), tx.get("kn4_opt2", "No sé")], horizontal=True, key="rad_kn4_unq_sec2")
-                resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
+                    resultados_totales["Continente Extranjero"] = "América"
+                else:
+                    resultados_totales["País Origen"] = st.text_input("País de Origen / Country of Origin:", key="txt_pais_origen_extranjero")
+                    resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq")
+                    resultados_totales["Estado Origen"] = "N/A"
+                    resultados_totales["Estado Residencia"] = "N/A"
+                # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (RESTAURADO EXACTO)
+                st.subheader("📋 Sección III: Conocimiento sobre el tema")
                 
-                st.write("### 📋 BATERÍA DE REACTIVOS C&K")
+                k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
+                k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
+                k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
+                k4_txt = "4. El modelo temporal:" if iso == "es" else "4. The temporal model:"
+                k5_txt = "5. Hablar de modelos temporales es hablar de:" if iso == "es" else "5. Talking about temporal models means talking about:"
+                k6_txt = "6. Soy persona:" if iso == "es" else "6. I am a person:"
+
+                k4_opts = ["Se impone", "Se hereda", "No sé"] if iso == "es" else ["Is imposed", "Is inherited", "I don't know"]
+                k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
+                k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
+
+                resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec3")
+                resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec3")
+                resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec3")
+                resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, horizontal=True, key="rad_kn4_unq_sec3")
+                resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
+                resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
+                
+                # 📋 SECCIÓN IV: BATERÍA DE REACTIVOS PSICOMÉTRICOS ADAPTATIVOS C&K
+                st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
+                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}_unq_active")
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
     else:
@@ -639,18 +547,6 @@ def main():
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
-# =================================================================
-# CORRECCIÓN DE INDENTACIÓN: CIERRE HERMÉTICO DE APP.PY
-# =================================================================
-            st.download_button(
-                label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), 
-                data=bytes(pdf_auditoria.output()), 
-                file_name="Dictamen_Doctoral.pdf", 
-                mime="application/pdf", 
-                key="btn_download_admin_macro_report"
-            )
-
-# 🍊 ALINEACIÓN RAÍZ COMPILATORIA: Esta función debe ir pegada al margen izquierdo sin un solo espacio inicial
 def generar_reconocimiento_honorifico_dinamico():
     pdf = FPDF(orientation="L", unit="mm", format="A4")
     pdf.add_page()
@@ -668,4 +564,5 @@ def generar_reconocimiento_honorifico_dinamico():
 
 if __name__ == "__main__": 
     main()
+
 
