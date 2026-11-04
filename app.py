@@ -38,7 +38,7 @@ st.markdown(
 # PARTE 2A: CONSTANTES GLOBALES Y CONFIGURACIÓN GENERATIVA BILINGÜE
 # =================================================================
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
-URL_PRODUCCION = "https://streamlit.app"
+URL_PRODUCCION = "ttps://dsimandarina.streamlit.app"
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 
 DIMENSIONES_MANDARINA_MAESTRAS = [
@@ -108,23 +108,47 @@ def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
 # PARTE 2B: DICCIONARIO DE DICTAMEN E INTERPRETACIÓN BILINGÜE
 # =================================================================
 # =================================================================
-# 🎛️ CENTRO DE MANDO BILINGÜE (EL CONTROL TOTAL SIN APIS EXTERNAS)
+# VERIFICACIÓN DE LLAVES DENTRO DE TU FRACCIÓN 1 (AL INICIO DEL ARCHIVO)
 # =================================================================
-# 🍊 ASEGÚRATE DE QUE ESTA VARIABLE SE LLAME EXACTAMENTE ASÍ AL INICIO DEL ARCHIVO:
 CENTRO_MANDO_BILINGUE = {
     "es": {
         "intl_title": "🌐 Internationalization Gateway / Control Políglota",
         "intl_select": "Selecciona tu Idioma Objetivo / Select Language:",
         "intl_btn": "🔄 APLICAR IDIOMA SELECCIONADO / APPLY LANGUAGE",
+        "nombre": "Nombre Completo / Participant Name:",
+        "wha": "WhatsApp o Celular (Con lada, ej. +52):",
+        "err_fields": "🚨 Por favor, rellena todos los campos obligatorios.",
+        "fields_msg": "💡 Introduce Nombre y WhatsApp para habilitar la descarga.",
+        
+        # 🍊 VALIDACIÓN DOCTORAL: Asegúrate de que estas dos líneas existan aquí
+        "btn_save": "💾 Guardar Diagnóstico y Procesar",
+        "btn_pdf": "DESCARGAR EN PDF 📥",
+        
+        "thanks": "¡Diagnóstico Completado con Éxito! 🎉",
+        "thanks_sub": "Hemos compilado tu reporte individual multilingüe. Descárgalo abajo.",
+        "toast_msg": "Descarga del reporte disponible en el panel inferior.",
         # ... resto de tus llaves en español ...
     },
     "en": {
         "intl_title": "🌐 Internationalization Gateway / Polyglot Control",
         "intl_select": "Select tu Idioma Objetivo / Select Language:",
         "intl_btn": "🔄 APLICAR IDIOMA SELECCIONADO / APPLY LANGUAGE",
+        "nombre": "Full Name / Nombre Completo:",
+        "wha": "WhatsApp or Cellphone (With country code, e.g. +1):",
+        "err_fields": "🚨 Please, fill in all required fields.",
+        "fields_msg": "💡 Enter Name and WhatsApp to enable the download resource.",
+        
+        # 🍊 VALIDACIÓN DOCTORAL: Asegúrate de que estas dos líneas existan aquí en inglés
+        "btn_save": "💾 Save Diagnosis and Process Data",
+        "btn_pdf": "DOWNLOAD PDF REPORT 📥",
+        
+        "thanks": "Diagnosis Successfully Completed! 🎉",
+        "thanks_sub": "We have compiled your individual multilingual report. Download it below.",
+        "toast_msg": "Report download is now available in the bottom panel.",
         # ... resto de tus llaves en inglés ...
     }
 }
+
 
 TEXTOS_DICTAMEN_BILINGUE = {
     "es": {
