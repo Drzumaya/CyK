@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import segno  # Generador nativo de códigos QR
 import io
+import base64  # Para incrustar la gráfica de mandarina en el PDF
+import matplotlib.pyplot as plt # Librería para la gráfica Mandarina
 
 # 1. Configuración de la página institucional
 st.set_page_config(
@@ -83,7 +85,7 @@ if st.session_state.mostrar_felicitacion:
     if st.button("🔄 Volver a realizar la prueba"):
         st.session_state.mostrar_felicitacion = False
         st.rerun()
-    st.stop() # Detiene la ejecución para ocultar el test de abajo por completo
+    st.stop() # Detiene la ejecución para ocultar el test por completo
 
 # --- PANTALLA PRINCIPAL DEL TEST ---
 st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
@@ -135,11 +137,11 @@ consecuencias_texto = {
         "largo": "Legado de madurez espiritual, estabilidad emocional duradera y capacidad de guiar a otros."
     }
 }
-# REQUERIMIENTO 1: Invitación a responder con total honestidad
+# REQUERIMIENTO: Invitación a responder con total honestidad
 st.warning("""
 ### 🧠 Invitación a la Honestidad Profunda
 Antes de iniciar, tómate un momento de silencio. Este diagnóstico no es una calificación ni un examen para ser juzgado, sino un mapa real de tu estado actual. 
-**Responde con total honestidad**, reconociendo tanto tus victorias como tus debilidades. La verdadera transformación comienza únicamente cuando somos capaces de aceptar nuestra realidad con humildad.
+**Responde con total honestidad**, reconociendo tanto tus victorias como tus debilidades. La verdadera transformación comienza únicamente cuando somos capaces de aceptar nuestra reality con humildad.
 """)
 
 st.header("📋 Autoevaluación")
@@ -188,9 +190,41 @@ if enviar or st.session_state.get("guardar_progreso", False):
     nombre_final = nombre_usuario if nombre_usuario.strip() != "" else "Invitado"
     
     st.header(f"📊 Resultados de {nombre_final}")
-    df = pd.DataFrame(list(puntajes.items()), columns=["Fruto del Espíritu", "Puntaje"])
-    st.bar_chart(data=df.set_index("Fruto del Espíritu"))
+    st.subheader("🍊 Distribución Porcentual (Gráfica Mandarina)")
     
+    labels = list(puntajes.keys())
+    valores = list(puntajes.values())
+    colores_mandarina = ['#FF6B35', '#FF9F1C', '#F15BB5', '#E63946', '#FFD166', '#06D6A0', '#118AB2', '#073B4C', '#8338EC']
+    
+    # 1. Crear gráfico Mandarina en memoria
+    fig, ax = plt.subplots(figsize=(5, 5))
+    wedges, texts, autotexts = ax.pie(
+        valores, labels=labels, autopct='%1.1f%%', startangle=90, colors=colores_mandarina,
+        textprops=dict(color="black", weight="bold"), pctdistance=0.75
+    )
+    circulo_centro = plt.Circle((0,0), 0.55, fc='white')
+    fig.gca().add_artist(circulo_centro)
+    
+    for autotext in autotexts:
+        autotext.set_color('white')
+        autotext.set_fontsize(9)
+        
+    ax.axis('equal')  
+    plt.tight_layout()
+    
+    # Mostrar en la pantalla de Streamlit
+    st.pyplot(fig)
+    
+    # 2. CONVERTIR GRÁFICA A BASE64 PARA EL PDF
+    buffer_img = io.BytesIO()
+    plt.savefig(buffer_img, format='png', dpi=150, bbox_inches='tight')
+    buffer_img.seek(0)
+    img_base64 = base64.b64encode(buffer_img.read()).decode('utf-8')
+    plt.close(fig) # Liberar memoria
+    
+    st.markdown("---")
+    
+    # Procesar tabla analítica
     fortalezas, atencion, criticos = [], [], []
     tabla_html = ""
     
@@ -207,27 +241,63 @@ if enviar or st.session_state.get("guardar_progreso", False):
             
         tabla_html += f"<tr><td style='font-weight: bold; color: #2e7d32;'>{fruto}</td><td style='text-align: center; font-weight: bold;'>{score}/10</td><td><strong>{cons['estado']}</strong></td><td>{cons['corto']}</td><td>{cons['mediano']}</td><td>{cons['largo']}</td></tr>"
         
-    if fortalezas:
-        st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {', '.join(fortalezas)}.")
-    if atencion:
-        st.warning(f"⚠️ **Áreas en desarrollo (Puntaje 5-7):** {', '.join(atencion)}.")
-    if criticos:
-        st.error(f"🚨 **Áreas críticas (Puntaje 1-4):** {', '.join(criticos)}.")
+    if fortalezas: st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {', '.join(fortalezas)}.")
+    if atencion: st.warning(f"⚠️ **Áreas en desarrollo (Puntaje 5-7):** {', '.join(atencion)}.")
+    if criticos: st.error(f"🚨 **Áreas críticas (Puntaje 1-4):** {', '.join(criticos)}.")
 
-    # REQUERIMIENTO 2: Botón de descarga con actualización de pantalla integrada
-    html_reporte = f"<html><head><meta charset='utf-8'><style>body{{font-family:Arial;padding:20px;}}table{{width:100%;border-collapse:collapse;font-size:11px;}}th,td{{border:1px solid #ddd;padding:8px;}}th{{background-color:#f4fbf7;color:#2e7d32;}}</style></head><body><h2>🌱 Reporte de {nombre_final}</h2><table><thead><tr><th>Fruto</th><th>Puntaje</th><th>Estado</th><th>Corto Plazo</th><th>Mediano Plazo</th><th>Largo Plazo</th></tr></thead><tbody>{tabla_html}</tbody></table></body></html>"
+    # 3. REPORTE DEL PDF (HTML) CON LA IMAGEN INCRUSTADA
+    html_reporte = f"""
+    <html>
+    <head>
+        <meta charset='utf-8'>
+        <style>
+            body {{ font-family: Arial, sans-serif; color: #333; line-height: 1.4; padding: 20px; }}
+            .header {{ text-align: center; border-bottom: 3px solid #2e7d32; padding-bottom: 10px; }}
+            .header h1 {{ color: #2e7d32; margin: 0; }}
+            .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; }}
+            .contenedor-grafica {{ text-align: center; margin: 20px 0; }}
+            .contenedor-grafica img {{ width: 320px; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }}
+            th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
+            th {{ background-color: #f4fbf7; color: #2e7d32; }}
+            .promo-box {{ background-color: #e8f5e9; border-left: 5px solid #2e7d32; padding: 15px; margin-top: 20px; }}
+        </style>
+    </head>
+    <body>
+        <div class='header'>
+            <h1>🌱 Reporte de Diagnóstico Espiritual</h1>
+            <p>Los 9 Frutos del Espíritu (Gálatas 5:22-23)</p>
+        </div>
+        <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
+        
+        <!-- AQUÍ SE IMPRIME LA GRÁFICA MANDARINA DENTRO DEL REPORTE -->
+        <div class='contenedor-grafica'>
+            <h3>🍊 Gráfica Mandarina de Proporciones</h3>
+            <img src='data:image/png;base64,{img_base64}' />
+        </div>
+
+        <table>
+            <thead>
+                <tr><th>Fruto</th><th>Puntaje</th><th>Estado</th><th>Corto Plazo</th><th>Mediano Plazo</th><th>Largo Plazo</th></tr>
+            </thead>
+            <tbody>{tabla_html}</tbody>
+        </table>
+        <div class='promo-box'>
+            <h3>🤝 Invitación Especial: Consulta Personalizada Gratuita</h3>
+            <p>Si deseas profundizar en tus resultados o estructurar un plan de acción guiado, te invitamos a <strong>acercarte directamente con el ponente</strong> para recibir una <strong>sesión de consultoría privada y completamente gratuita</strong>.</p>
+        </div>
+    </body>
+    </html>
+    """
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
-    
-    # Al hacer clic en descargar, el navegador procesa el archivo
-    descarga = st.download_button(
+    st.download_button(
         label="Descargar Reporte Completo (PDF / HTML)",
         data=html_reporte,
         file_name=f"diagnostico_{nombre_final.lower()}.html",
         mime="text/html"
     )
     
-    # REQUERIMIENTO 2: Un botón confirmatorio para activar el siguiente paso y limpiar la pantalla
     st.markdown("---")
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
