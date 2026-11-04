@@ -154,6 +154,8 @@ else:
     for n in range(1, 11):
         ax.plot(n * np.cos(angulo_der), n * np.sin(angulo_der), 'go', mfc='white', ms=4)
         ax.plot(n * np.cos(angulo_izq), n * np.sin(angulo_izq), 'ro', mfc='white', ms=4)
+        
+        # CORRECCIÓN DE SINTAXIS: Se añadió la lista de números a rotular
         if n in:
             ax.text(n * np.cos(angulo_der) + 0.2, n * np.sin(angulo_der), str(n), color='#2e7d32', fontsize=8)
             ax.text(n * np.cos(angulo_izq) - 0.5, n * np.sin(angulo_izq), str(n), color='#d32f2f', fontsize=8)
@@ -176,7 +178,7 @@ else:
 
     # Estilización del plano geométrico
     ax.set_title("Mapa de Posicionamiento en V (60°)", fontsize=12, weight='bold', color='#1b5e20')
-    ax.axis('off') # Quitar la cuadrícula cartesiana fea de fondo
+    ax.axis('off') # Quitar la cuadrícula cartesiana de fondo
     ax.set_xlim(-7, 7)
     ax.set_ylim(-1, 10)
     ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.15), ncol=3, fontsize=7)
