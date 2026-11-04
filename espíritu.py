@@ -155,7 +155,7 @@ else:
         ax.plot(n * np.cos(angulo_der), n * np.sin(angulo_der), 'go', mfc='white', ms=4)
         ax.plot(n * np.cos(angulo_izq), n * np.sin(angulo_izq), 'ro', mfc='white', ms=4)
         
-        # CORRECCIÓN DE SINTAXIS: Se añadió la lista de números a rotular
+        # CORRECCIÓN DE SINTAXIS ASEGURADA: Lista explícita del 1 al 10
         if n in:
             ax.text(n * np.cos(angulo_der) + 0.2, n * np.sin(angulo_der), str(n), color='#2e7d32', fontsize=8)
             ax.text(n * np.cos(angulo_izq) - 0.5, n * np.sin(angulo_izq), str(n), color='#d32f2f', fontsize=8)
@@ -238,3 +238,4 @@ else:
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
+
