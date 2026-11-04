@@ -9,7 +9,7 @@ st.set_page_config(
     layout="centered"
 )
 
-# 2. Título de la aplicación y bienvenida
+# 2. Título de la aplicación y bienvenida principal
 st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
 st.markdown("Este diagnóstico te ayudará a evaluar el estado actual de tu carácter basándose en **Gálatas 5:22-23**.")
 
@@ -18,26 +18,22 @@ nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu re
 
 st.markdown("---")
 
-# 4. Obtención automática de la URL de la App para el código QR principal
-try:
-    host_url = st.context.headers.get("Host", "share.streamlit.io")
-    protocol = "https" if "localhost" not in host_url else "http"
-    url_actual = f"{protocol}://{host_url}"
-except Exception:
-    url_actual = "https://streamlit.io"
+# 4. ENLACE FIJO DEL QR (Modifica 'https://share.streamlit.io/' si tu URL cambia en la nube)
+url_final_app = "https://share.streamlit.io/"
 
-# 5. Renderizado del QR al inicio de la batería (Estructura centralizada)
+# 5. Renderizado Garantizado del QR al inicio de la batería
 st.markdown("### 📱 Escanea y Responde en tu Móvil")
-col_qr, col_txt = st.columns([1, 2])
+col_qr, col_txt = st.columns([1, 2]) # Distribución de tamaño para que el QR quepa perfecto
 
 with col_qr:
-    url_codificada = urllib.parse.quote(url_actual)
+    # Genera una URL limpia para que la API de Google dibuje el QR de inmediato
+    url_codificada = urllib.parse.quote(url_final_app.strip())
     qr_api_url = f"https://googleapis.com{url_codificada}&choe=UTF-8"
-    st.image(qr_api_url, use_container_width=False)
+    st.image(qr_api_url, width=180)
 
 with col_txt:
     st.markdown(f"""
-     Si eres parte de la audiencia, acerca la cámara de tu celular al código QR de la izquierda para abrir este test directamente en tu dispositivo.
+    Si eres parte de la audiencia, acerca la cámara de tu celular al código QR de la izquierda para responder el test desde tu asiento.
     
     **Usuario actual:** {nombre_usuario}  
     *Mueve los deslizadores según cómo te sientas hoy: el extremo izquierdo representa una debilidad y el derecho un fruto maduro en tu vida.*
@@ -69,7 +65,7 @@ consecuencias_texto = {
 st.header("📋 Autoevaluación")
 st.subheader("Selecciona el punto intermedio con el que te identifiques hoy:")
 
-# Diccionario con enunciados en primera persona (Cortos y Claros)
+# Diccionario con enunciados cotidianos (Cortos, Claros y en Primera Persona)
 frutos_info = {
     "Amor": {"izq": "A veces guardo rencor o indiferencia.", "der": "Amo y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
     "Gozo": {"izq": "Me gana la queja, la amargura o la tristeza.", "der": "Siento una alegría profunda que no cambia por las crisis.", "cita": "Gálatas 5:22"},
