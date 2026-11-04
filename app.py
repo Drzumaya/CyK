@@ -550,5 +550,6 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
 
 # Cierre reglamentario de la aplicación
 if __name__ == "__main__": 
+   
     main()
 
