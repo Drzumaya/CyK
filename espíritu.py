@@ -73,7 +73,7 @@ if not st.session_state.diagnostico_generado:
     nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu reporte:", value="")
     st.markdown("---")
 
-    url_base_app = "https://share.streamlit.io/"
+    url_base_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
     if "view" not in st.query_params:
         st.markdown("### 📱 Escanea y Responde en tu Móvil")
         col_qr, col_txt = st.columns(2)
