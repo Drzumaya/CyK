@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import segno  # Generador nativa de códigos QR sin APIs externas
+import segno  # Generador nativo de códigos QR
 import io
 
 # 1. Configuración de la página institucional
@@ -14,39 +14,39 @@ st.set_page_config(
 st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
 st.markdown("Este diagnóstico te ayudará a evaluar el estado actual de tu carácter basándose en **Gálatas 5:22-23**.")
 
-# 3. Personalización por Nombre
-nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu reporte:", value="Invitado")
+# 3. Personalización por Nombre (Actúa como detonador para ocultar el QR)
+nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu reporte:", value="")
 
 st.markdown("---")
 
 # 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link cuando la subas a la nube)
-url_final_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
+url_final_app = "https://streamlit.io"
 
-# 5. Renderizado local y seguro del código QR
-st.markdown("### 📱 Escanea y Responde en tu Móvil")
-col_qr, col_txt = st.columns([1, 2]) # 1 parte para el QR, 2 partes para el texto
-
-with col_qr:
-    try:
-        # Generar el QR de forma interna en memoria como formato PNG
-        qr = segno.make_qr(url_final_app.strip())
-        buffer_qr = io.BytesIO()
-        qr.save(buffer_qr, kind='png', scale=5)
-        
-        # Mostrar la imagen nativa sin llamadas externas de red
-        st.image(buffer_qr.getvalue(), use_container_width=True)
-    except Exception as e:
-        st.error("No se pudo generar el código QR localmente.")
-
-with col_txt:
-    st.markdown(f"""
-    Si eres parte de la audiencia, acerca la cámara de tu celular al código QR de la izquierda para responder el test desde tu asiento.
+# 5. Lógica inteligente para ocultar el QR
+# Si el usuario ya escribió su nombre (es decir, ya escaneó y está respondiendo), el QR se oculta.
+if nombre_usuario == "" or nombre_usuario.strip().lower() == "invitado":
+    st.markdown("### 📱 Escanea y Responde en tu Móvil")
+    col_qr, col_txt = st.columns([1, 2]) # 1 parte para el QR, 2 partes para el texto
     
-    **Usuario actual:** {nombre_usuario}  
-    *Mueve los deslizadores según cómo te sientas hoy: el extremo izquierdo representa una debilidad y el derecho un fruto maduro en tu vida.*
-    """)
-
-st.markdown("---")
+    with col_qr:
+        try:
+            # Generar el QR de forma interna en memoria
+            qr = segno.make_qr(url_final_app.strip())
+            buffer_qr = io.BytesIO()
+            qr.save(buffer_qr, kind='png', scale=5)
+            
+            # Mostrar la imagen de forma nativa
+            st.image(buffer_qr.getvalue(), use_container_width=True)
+        except Exception as e:
+            st.error("No se pudo generar el código QR.")
+            
+    with col_txt:
+        st.markdown("""
+        Si eres parte de la audiencia, acerca la cámara de tu celular al código QR de la izquierda para responder el test desde tu asiento.
+        
+        *Al ingresar tu nombre abajo, este recuadro se ocultará para darte más espacio.*
+        """)
+    st.markdown("---")
 
 # 6. Diccionario de proyecciones para el reporte PDF final
 consecuencias_texto = {
