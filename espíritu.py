@@ -21,16 +21,18 @@ st.markdown("---")
 # 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link cuando la subas a la nube)
 url_final_app = "https://streamlit.io"
 
-# 5. Renderizado del QR usando la API activa de QuickChart
+# 5. Renderizado del QR usando la API activa de QuickChart (Corregido)
 st.markdown("### 📱 Escanea y Responde en tu Móvil")
-col_qr, col_txt = st.columns()
+
+# CORRECCIÓN: Le asignamos la cantidad de columnas [1, 3] para dar espacio proporcional
+col_qr, col_txt = st.columns([1, 3])
 
 with col_qr:
     # Codificamos la URL de forma segura
     url_codificada = urllib.parse.quote(url_final_app.strip())
-    # API Actualizada y Activa (Reemplazo de Google Charts)
+    # API de QuickChart
     qr_api_url = f"https://quickchart.io{url_codificada}&size=180"
-    st.image(qr_api_url, width=180)
+    st.image(qr_api_url, use_container_width=True)
 
 with col_txt:
     st.markdown(f"""
@@ -40,7 +42,6 @@ with col_txt:
     *Mueve los deslizadores según cómo te sientas hoy: el extremo izquierdo representa una debilidad y el derecho un fruto maduro en tu vida.*
     """)
 
-st.markdown("---")
 
 # 6. Diccionario de proyecciones para el reporte PDF final
 consecuencias_texto = {
