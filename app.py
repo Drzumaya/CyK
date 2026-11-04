@@ -276,39 +276,42 @@ def guardar_en_google_sheets(pestana, nom, wha, res, token, es_likert):
 # PARTE 4: MOTOR GENERATIVO DE EXTRACCIÓN PSICOMÉTRICA Y COMPILACIÓN PDF
 # =================================================================
 # =================================================================
-# ALGORITMO INTEGRAL: GENERADOR DE REACTIVOS CRONOS Y KAIRÓS BILINGÜE
+# ALGORITMO INTEGRAL: GENERADOR DE REACTIVOS C&K ADAPTATIVO POR IA (FIX)
 # =================================================================
-def algoritmo_generar_reactivos_poliglotas(geo, lang="es"):
+def algoritmo_generar_reactivos_poliglotas(nombre_audiencia, lang="es"):
     """
-    Produce los 10 reactivos psicométricos del modelo C&K adaptando 
-    la variable geográfica e idiomática sin llamadas externas.
+    Genera inductivamente la batería de 10 reactivos Cronos y Kairós
+    acoplándolos de forma automática al nicho o audiencia creada por el ponente.
     """
+    aud = str(nombre_audiencia).strip()
+    
     if lang == "en":
         return {
-            1: f"I capture opportunities in {geo}.",
-            2: "I structure my schedule based on exact clocks.",
-            3: "Time flows in an organic way for me.",
-            4: "I penalize professional untimeliness.",
-            5: "I read unexpected events as useful windows.",
-            6: "I manage goals under fixed checklists.",
-            7: "I break the itinerary if an advantage emerges.",
-            8: "I prefer sequential order over multitasking.",
-            9: "High concentration if the environment changes.",
-            10: "I separate fixed hours for sleep and production."
+            1: f"I optimize my high-impact goals specifically tailored for {aud}.",
+            2: f"I structure my daily schedule based on the exact clock metrics required for {aud}.",
+            3: f"Time flows organically when I manage administrative tasks in {aud}.",
+            4: f"I strictly penalize professional untimeliness within the {aud} workspace.",
+            5: f"I read unexpected events as highly useful windows of opportunity for {aud}.",
+            6: f"I rigidly execute and manage performance goals under fixed checklists in {aud}.",
+            7: f"I break the set itinerary immediately if a strategic advantage emerges for {aud}.",
+            8: f"I prefer a sequential, structured order over multitasking when operating in {aud}.",
+            9: f"I trigger high cognitive concentration if the environment changes rapidly in {aud}.",
+            10: f"I protect fixed, unnegotiable hours for rest and production as part of {aud}."
         }
     else:
         return {
-            1: f"Capturo oportunidades en {geo}.",
-            2: "Estructuro mi agenda sobre relojes exactos.",
-            3: "El tiempo fluye de forma orgánica.",
-            4: "Castigo la impuntualidad profesional.",
-            5: "Leo imprevistos como ventanas útiles.",
-            6: "Gestiono metas bajo checklists fijos.",
-            7: "Rompo el itinerario si emerge una ventaja.",
-            8: "Prefiero orden secuencial a multitarea.",
-            9: "Alta concentración si el entorno cambia.",
-            10: "Separo horas fijas de sueño y producción."
+            1: f"Optimizo mis metas de alto impacto específicamente diseñadas para {aud}.",
+            2: f"Estructuro mi agenda diaria sobre las métricas de reloj exactas requeridas en {aud}.",
+            3: f"El tiempo fluye de forma orgánica cuando gestiono tareas administrativas en {aud}.",
+            4: f"Castigo severamente la impuntualidad profesional dentro del entorno de {aud}.",
+            5: f"Leo los imprevistos como ventanas de oportunidad altamente útiles para {aud}.",
+            6: f"Ejecuto y gestiono metas de rendimiento bajo checklists fijos de forma rígida en {aud}.",
+            7: f"Rompo el itinerario establecido de inmediato si emerge una ventaja estratégica para {aud}.",
+            8: f"Prefiero un orden secuencial y estructurado sobre la multitarea al operar en {aud}.",
+            9: f"Activo una alta concentración cognitiva si el entorno cambia rápidamente en {aud}.",
+            10: f"Separo horas fijas e innegociables de sueño y producción como miembro de {aud}."
         }
+
 
 
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
@@ -545,11 +548,23 @@ def main():
             resultados_totales["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0", "Se impone"), tx.get("kn4_opt1", "Se hereda"), tx.get("kn4_opt2", "No sé")], horizontal=True, key="rad_kn4_unq_sec2")
             resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
             
+            # =================================================================
+# CORRECCIÓN DE ACOPLAMIENTO EN FRACCIÓN 5B (BATERÍA C&K DINÁMICA)
+# =================================================================
             st.write("### 📋 BATERÍA DE REACTIVOS C&K")
-            reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
+            # 🍊 SOLUCIÓN DOCTORAL: Pasamos 'st.session_state.audiencia_activa' directamente al motor generativo
+            reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, idioma_sel)
+            
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
-                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
+                resultados_totales[f"R{r_id}"] = st.radio(
+                    "Escala / Scale:", 
+                    options=[1, 2, 3, 4, 5], 
+                    format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                    horizontal=True, 
+                    key=f"r_{r_id}_unq_dinamico"
+                )
+
 
         renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
     else:
