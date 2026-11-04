@@ -394,6 +394,9 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
     return bytes(pdf.output())
 
+# =================================================================
+# PARTE 5A: PROCESAMIENTO TRANSACCIONAL Y ENRUTAMIENTO GENERAL (FIX)
+# =================================================================
 def gateway_bt(n, w, r, lk, lg, t):
     st.divider()
     c1, c2, c3 = st.columns(3)
@@ -446,35 +449,42 @@ def main():
         for t in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(t)
         st.session_state.estructuras_inicializadas = True
 
-    # 🍊 CORE BLINDAJE: Control de renderizado y ocultación por CSS de la barra lateral
+    # Control de renderizado y ocultación por CSS de la barra lateral
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
 
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
         if not ocultar_bar_css:
-            p_in = st.text_input(tx.get("side_pwd"), type="password", key="p_master")
-            if st.button(tx.get("side_btn"), key="btn_unlock_master"):
+            lbl_password = tx.get("side_pwd") if tx.get("side_pwd") else "Contraseña Ponente:"
+            lbl_boton = tx.get("side_btn") if tx.get("side_btn") else "Desbloquear Tableros"
+            
+            p_in = st.text_input(lbl_password, type="password", key="p_master")
+            if st.button(lbl_boton, key="btn_unlock_master"):
                 if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): 
                     st.session_state.admin_autenticado = True
                     st.rerun()
-                else: st.error(tx.get("side_pwd_err"))
+                else: 
+                    lbl_error = tx.get("side_pwd_err") if tx.get("side_pwd_err") else "Contraseña incorrecta."
+                    st.error(lbl_error)
+            
             if st.session_state.admin_autenticado:
-                st.success(tx.get("side_success"))
-                n_aud = st.text_input(tx.get("side_add"), key="add_aud_master").strip()
+                st.success(tx.get("side_success", "Modo Ponente Activo"))
+                n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:"), key="add_aud_master").strip()
                 if n_aud and n_aud not in st.session_state.audiences_custom_list:
                     st.session_state.audiences_custom_list.append(n_aud)
                     st.rerun()
                 op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-                sel_aud = st.selectbox(tx.get("side_select_aud"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
+                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
                 if sel_aud != st.session_state.audiencia_activa:
                     st.session_state.audiencia_activa = sel_aud
                     st.rerun()
-                if st.button(tx.get("side_close"), key="btn_close_master"):
+                if st.button(tx.get("side_close", "Cerrar"), key="btn_close_master"):
                     st.session_state.admin_autenticado = False
                     st.rerun()
 
     if ocultar_bar_css:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+
 
        # =================================================================
     # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GRADUACIÓN (CORE)
