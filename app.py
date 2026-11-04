@@ -584,11 +584,22 @@ def main():
                 resultados_totales["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0", "Se impone"), tx.get("kn4_opt1", "Se hereda"), tx.get("kn4_opt2", "No sé")], horizontal=True, key="rad_kn4_unq_sec2")
                 resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
                 
-                st.write("### 📋 BATERÍA DE REACTIVOS C&K")
-                reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
-                for r_id, r_txt in reactivos.items():
-                    st.write(f"Reactivo {r_id}: {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=, format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
+# =================================================================
+# CORRECCIÓN DE SINTAXIS EN LA BATERÍA DE REACTIVOS (LÍNEA 591)
+# =================================================================
+            st.write("### 📋 BATERÍA DE REACTIVOS C&K")
+            reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
+            for r_id, r_txt in reactivos.items():
+                st.write(f"Reactivo {r_id}: {r_txt}")
+                # 🍊 CORRECCIÓN DE RAÍZ: Asignamos el vector numérico del 1 al 5 en el parámetro options
+                resultados_totales[f"R{r_id}"] = st.radio(
+                    "Escala / Scale:", 
+                    options=[1, 2, 3, 4, 5], 
+                    format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                    horizontal=True, 
+                    key=f"r_{r_id}"
+                )
+
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
     else:
