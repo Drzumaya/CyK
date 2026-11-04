@@ -50,7 +50,7 @@ if st.session_state.mostrar_felicitacion:
     st.stop()
 # BASE DE DATOS LOCAL: Consecuencias según rango
 consecuencias_texto = {
-    "critico": {"estado": "Tendencia al Antónimo", "corto": "Afectación inmediata en tus relaciones por reacciones carnales.", "mediano": "Desgaste de tu paz por vivir bajo el dominio de impulsos negativos.", "largo": "Aislamiento emocional y estancamiento crónico en tu madurez de fe."},
+    "critico": {"estado": "Tendencia al Antónimo", "corto": "Afectación inmediata en tus relaciones por reacciones carnales.", "mediano": "Desgaste de tu paz por vivir bajo el dominio de impulsivos negativos.", "largo": "Aislamiento emocional y estancamiento crónico en tu madurez de fe."},
     "atencion": {"estado": "Estado de Transición", "corto": "Inconsistencia. Te debates constantemente entre la carne y el espíritu.", "mediano": "Relaciones con altibajos. Sensación de estancamiento en el punto de inicio.", "largo": "Riesgo de quedarte en la mediocridad sin experimentar el poder del Fruto."},
     "fortaleza": {"estado": "Tendencia al Fruto", "corto": "Respuestas sabias ante problemas, paz interior e impacto positivo diario.", "mediano": "Relaciones saludables y duraderas respaldadas por el Espíritu.", "largo": "Estabilidad espiritual duradera y capacidad de guiar a otros con tu ejemplo."}
 }
@@ -67,13 +67,13 @@ frutos_info = {
     "Templanza": {"izq": "Descontrol / Desenfreno", "der": "Templanza / Dominio Propio", "cita": "Gálatas 5:23"}
 }
 
-# FLUJO CONDICIONAL: EVALUACIÓN EN V
-if not st.session_state.diagnostico_generated:
+# FLUJO CONDICIONAL: EVALUACIÓN EN V (CORREGIDO: Ahora coincide exactamente con la inicialización)
+if not st.session_state.diagnostico_generado:
     st.title("🌱 Diagnóstico Espiritual en V: Los 9 Frutos")
     nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu reporte:", value="")
     st.markdown("---")
 
-    url_base_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
+    url_base_app = "https://share.streamlit.io/"
     if "view" not in st.query_params:
         st.markdown("### 📱 Escanea y Responde en tu Móvil")
         col_qr, col_txt = st.columns(2)
@@ -95,6 +95,8 @@ if not st.session_state.diagnostico_generated:
     """)
 
     st.header("📋 Evaluación de Carácter")
+
+    
     with st.form("diagnostico_form"):
         puntajes_temporales = {}
         
