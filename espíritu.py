@@ -144,56 +144,63 @@ else:
     # --- CONSTRUCCIÓN GEOMÉTRICA DE LA GRÁFICA EN V (60 GRADOS) ---
     fig, ax = plt.subplots(figsize=(7, 6))
     
-    # Dibujar líneas guía de la V a 60° (Ángulos de 60 y 120 grados con respecto a la horizontal)
+    # IMPORTANTE: Forzar que el eje X y el eje Y tengan la misma escala para que no se aplane la V
+    ax.set_aspect('equal', adjustable='box')
+    
+    # Ángulos de 60° y 120° calculados matemáticamente
     angulo_der = np.radians(60)
     angulo_izq = np.radians(120)
     
-    # Trazar ejes de la V (Del nivel 1 al 10)
+    # Trazar ejes angulares principales de la V (Del nivel 0 al 10)
     ax.plot([0, 10 * np.cos(angulo_der)], [0, 10 * np.sin(angulo_der)], color='#2e7d32', linewidth=3, label="Brazo del Fruto (Virtud)")
     ax.plot([0, 10 * np.cos(angulo_izq)], [0, 10 * np.sin(angulo_izq)], color='#d32f2f', linewidth=3, label="Brazo del Antónimo (Debilidad)")
     
-    # Dibujar las marcas de graduación del 1 al 10 en la V
+    # Marcas y textos del 1 al 10 dibujados a lo largo de cada brazo de la V
     for n in range(1, 11):
+        # Nodos en el brazo derecho
         ax.plot(n * np.cos(angulo_der), n * np.sin(angulo_der), 'go', mfc='white', ms=4)
-        ax.plot(n * np.cos(angulo_izq), n * np.sin(angulo_izq), 'ro', mfc='white', ms=4)
+        ax.text(n * np.cos(angulo_der) + 0.3, n * np.sin(angulo_der), str(n), color='#2e7d32', fontsize=8, va='center')
         
-        # SOLUCIÓN: Eliminamos la condición conflictiva y rotulamos los números de forma directa
-        ax.text(n * np.cos(angulo_der) + 0.2, n * np.sin(angulo_der), str(n), color='#2e7d32', fontsize=8)
-        ax.text(n * np.cos(angulo_izq) - 0.5, n * np.sin(angulo_izq), str(n), color='#d32f2f', fontsize=8)
+        # Nodos en el brazo izquierdo
+        ax.plot(n * np.cos(angulo_izq), n * np.sin(angulo_izq), 'ro', mfc='white', ms=4)
+        ax.text(n * np.cos(angulo_izq) - 0.6, n * np.sin(angulo_izq), str(n), color='#d32f2f', fontsize=8, va='center')
 
-    # Graficar las respuestas del usuario sobre la V
+    # Graficar los resultados específicos obtenidos por el usuario
     colores_nodos = ['#FF6B35', '#FF9F1C', '#F15BB5', '#E63946', '#FFD166', '#06D6A0', '#118AB2', '#073B4C', '#8338EC']
     
     for idx, (fruto, valor) in enumerate(puntajes.items()):
-        # Determinar en qué brazo cae según el signo guardado
+        # Si el valor guardado es negativo, se proyecta en el brazo izquierdo; si no, en el derecho
         ang = angulo_izq if valor < 0 else angulo_der
         mag = abs(valor)
         
-        # Calcular posición en el plano cartesiano
+        # Coordenadas trigonométricas para posicionar cada fruto
         x_pos = mag * np.cos(ang)
         y_pos = mag * np.sin(ang)
         
-        # Dibujar punto del fruto en la V
-        ax.plot(x_pos, y_pos, 'o', color=colores_nodos[idx], markersize=10, label=f"{fruto} ({mag})")
-        ax.text(x_pos + 0.1, y_pos + 0.2, fruto, fontsize=8, weight='bold')
+        # Dibujar e identificar el nodo del fruto
+        ax.plot(x_pos, y_pos, 'o', color=colores_nodos[idx], markersize=10, zorder=5)
+        ax.text(x_pos + 0.1, y_pos + 0.3, f"{idx+1}.{fruto}", fontsize=8, weight='bold', ha='center')
 
-    # Estilización del plano geométrico
-    ax.set_title("Mapa de Posicionamiento en V (60°)", fontsize=12, weight='bold', color='#1b5e20')
-    ax.axis('off') # Quitar la cuadrícula cartesiana de fondo
-    ax.set_xlim(-7, 7)
-    ax.set_ylim(-1, 10)
-    ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.15), ncol=3, fontsize=7)
+    # Ajustes finales del plano de vectores
+    ax.set_title("Mapa de Posicionamiento en V (60°)\n(1 es el centro / 10 es el extremo)", fontsize=11, weight='bold', color='#1b5e20')
+    ax.axis('off') # Elimina el recuadro gris cartesiano sobrante
     
+    # Límites para asegurar que se encuadre de forma perfecta toda la V
+    ax.set_xlim(-8, 8)
+    ax.set_ylim(-1, 10)
+    ax.legend(loc='lower center', bbox_to_anchor=(0.5, -0.15), ncol=2, fontsize=8)
+    
+    # Renderizar la gráfica finalizada en Streamlit
     st.pyplot(fig)
     
-    # Guardar gráfico en base64 para insertarlo en el PDF
+    # Guardar la figura en base64 para inyectarla de forma nativa en el PDF
     buffer_img = io.BytesIO()
     plt.savefig(buffer_img, format='png', dpi=150, bbox_inches='tight')
     buffer_img.seek(0)
     img_base64 = base64.b64encode(buffer_img.read()).decode('utf-8')
     plt.close(fig)
 
-    # Procesar tabla de diagnósticos cualitativos para la pantalla y el reporte
+    # Procesar la sección analítica detallada
     st.subheader("🔍 Análisis de Alineación")
     tabla_html = ""
     
@@ -211,14 +218,14 @@ else:
             
         tabla_html += f"<tr><td style='font-weight:bold;'>{fruto}</td><td style='text-align:center;'>{mag}/10</td><td>{cons['estado']}</td><td>{cons['corto']}</td><td>{cons['mediano']}</td><td>{cons['largo']}</td></tr>"
 
-    # Maquetación del PDF
+    # Maquetación estructural del reporte imprimible
     html_reporte = f"""
     <html>
     <head><meta charset='utf-8'><style>body{{font-family:Arial;color:#333;}}table{{width:100%;border-collapse:collapse;font-size:11px;}}th,td{{border:1px solid #ddd;padding:6px;}}th{{background-color:#f4fbf7;color:#2e7d32;}}</style></head>
     <body>
         <h2>🌱 Reporte de Diagnóstico en V: {nombre_final}</h2>
         <div style='text-align:center; margin:20px 0;'>
-            <img src='data:image/png;base64,{img_base64}' width='380'/>
+            <img src='data:image/png;base64,{img_base64}' width='420'/>
         </div>
         <table>
             <thead><tr><th>Fruto</th><th>Intensidad</th><th>Alineación</th><th>Corto Plazo</th><th>Mediano Plazo</th><th>Largo Plazo</th></tr></thead>
@@ -239,3 +246,4 @@ else:
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
+
