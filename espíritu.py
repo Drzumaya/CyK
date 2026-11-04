@@ -15,6 +15,8 @@ st.set_page_config(
 # Inicializar los estados de la aplicación para el control de pantallas
 if "mostrar_felicitacion" not in st.session_state:
     st.session_state.mostrar_felicitacion = False
+if "finalizado" not in st.session_state:
+    st.session_state.finalizado = False
 
 # --- INYECCIÓN CSS ROBUSTA PARA REEMPLAZAR EL PUNTO POR EL MONITO ---
 st.markdown("""
@@ -71,6 +73,17 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# LÓGICA DE CIERRE: Si el usuario presionó Terminar, mostramos la pantalla de cierre definitivo
+if st.session_state.finalizado:
+    st.success("👋 ¡Gracias por tu participación!")
+    st.markdown("""
+    ### El diagnóstico ha concluido de forma exitosa
+    Tu sesión se ha cerrado de manera segura. Si descargaste tu reporte, no olvides guardarlo muy bien y ponerte en contacto con el ponente para tu consulta de seguimiento gratuita.
+    
+    *Que este mapa sea el inicio de un gran caminar espiritual.*
+    """)
+    st.stop()
+
 # LÓGICA DE PANTALLAS: Si ya descargó el PDF, ocultamos todo y mostramos la felicitación
 if st.session_state.mostrar_felicitacion:
     st.balloons()
@@ -82,10 +95,13 @@ if st.session_state.mostrar_felicitacion:
     1. **Toma acciones para el cambio:** Elige el fruto con menor puntaje y realiza un acto consciente enfocado en él durante las próximas 48 horas.
     2. **Agenda tu Consulta Gratuita:** No camines solo. Acércate directamente con el ponente para revisar juntos tu reporte personalizado y estructurar un plan de acción guiado y 100% gratuito.
     """)
-    if st.button("🔄 Volver a realizar la prueba"):
+    
+    # REQUERIMIENTO: Botón para dar por terminada la aplicación por completo
+    if st.button("🏁 Terminar Diagnóstico"):
+        st.session_state.finalizado = True
         st.session_state.mostrar_felicitacion = False
         st.rerun()
-    st.stop() # Detiene la ejecución para ocultar el test por completo
+    st.stop() # Detiene la ejecución para ocultar el test de abajo por completo
 
 # --- PANTALLA PRINCIPAL DEL TEST ---
 st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
@@ -137,6 +153,7 @@ consecuencias_texto = {
         "largo": "Legado de madurez espiritual, estabilidad emocional duradera y capacidad de guiar a otros."
     }
 }
+
 # REQUERIMIENTO: Invitación a responder con total honestidad
 st.warning("""
 ### 🧠 Invitación a la Honestidad Profunda
