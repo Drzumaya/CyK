@@ -646,8 +646,19 @@ def main():
                 txt_bib = dc_bil.get(ref_key, "Hair, J. F., Black, W. C. (2019).")
                 pdf_auditoria.multi_cell(190, 4.5, str(txt_bib).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 pdf_auditoria.ln(2)
-            st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
+            
+# =================================================================
+# CIERRE Y ALINEACIÓN RAÍZ DE FUNCIONES AL FINAL DEL ARCHIVO APP.PY
+# =================================================================
+            st.download_button(
+                label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), 
+                data=bytes(pdf_auditoria.output()), 
+                file_name="Dictamen_Doctoral.pdf", 
+                mime="application/pdf", 
+                key="btn_download_admin_macro_report"
+            )
 
+# 🍊 CORRECCIÓN DE INDENTACIÓN: Esta función se declara pegada a la izquierda, libre de espacios o tabuladores
 def generar_reconocimiento_honorifico_dinamico():
     pdf = FPDF(orientation="L", unit="mm", format="A4")
     pdf.add_page()
@@ -661,8 +672,8 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10)
     pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
-return bytes(pdf.output())
-
+    return bytes(pdf.output())
 
 if __name__ == "__main__": 
     main()
+
