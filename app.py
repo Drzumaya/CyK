@@ -116,111 +116,121 @@ CENTRO_MANDO_TEXTOS = {
     "side_pwd_err": "Contraseña incorrecta."
 }
 # =================================================================
-# PARTE 2: CATÁLOGOS LINGÜÍSTICOS Y MOTOR GENERATIVO DE ÍTEMS EN VIVO
+# ENTORNO BILINGÜE INMUNE: CENTRO DE MANDO ESTÁTICO (ESPAÑOL / INGLÉS)
 # =================================================================
-MAPA_IDIOMAS_GLOBAL = {
-    "Español (Spanish)": "es", "English (Inglés)": "en", "Français (Francés)": "fr", "Deutsch (Alemán)": "de", 
-    "Italiano (Italiano)": "it", "Português (Portugués)": "pt", "Ελληνικά (Griego)": "el", "한국어 (Coreano)": "ko", 
-    "日本語 (Japonés)": "ja", "简体中文 (Chino Simplificado)": "zh-CN", "繁體中文 (Chino Tradicional)": "zh-TW", 
-    "العربية (Árabe)": "ar", "Русский (Ruso)": "ru", "हिन्दी (Hindi)": "hi", "Tiếng Việt (Vietnamita)": "vi", 
-    "Nederlands (Neerlandés)": "nl", "Polski (Polaco)": "pl", "Türkçe (Turco)": "tr", "Svenska (Sueco)": "sv"
-}
+import streamlit as st
+import pandas as pd
+import numpy as np
+import datetime
+import time
+import hashlib
+import base64
+import gspread
+import qrcode 
+import html
+import urllib.parse
+import matplotlib.pyplot as plt
+from io import BytesIO
+from fpdf import FPDF
 
-# Las dimensiones maestras permanecen fijas, pero sus ítems internos ahora son 100% dinámicos
-DIMENSIONES_MANDARINA_MAESTRAS = [
-    "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", 
-    "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"
-]
+# Configuración estructural de la página web en producción
+st.set_page_config(
+    page_title="Informe Psicometrico - Modelos Temporales y Salud Integral",
+    page_icon="🍊",
+    layout="wide"
+)
 
-@st.cache_data(show_spinner=False)
-def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
-    """
-    Algoritmo Ontológico Generativo. Produce inductivamente una matriz de 4 vulnerabilidades
-    críticas para cualquier nicho profesional ingresado por el ponente, traduciéndolo al vuelo.
-    """
-    # Banco de semillas semánticas base para adaptación contextual en español
-    semillas_por_defecto = {
-        "física": ["Fatiga Ocupacional por Desgaste", "Trastornos del Ciclo del Sueño", "Sedentarismo Musculoesquelético", "Descuido en Nutrición Homeostática"],
-        "mental": ["Saturación y Bloqueo Cognitivo", "Rumiación Mental Prolongada", "Sobrecarga de Datos Críticos", "Apatía y Disminución del Foco"],
-        "emocional": ["Síndrome de Burnout Latente", "Irritabilidad Reactiva Excesiva", "Desmotivación Vocacional", "Inestabilidad y Ansiedad Aguda"],
-        "social": ["Aislamiento Relacional Preventivo", "Conflictos de Interacción", "Falta de Red de Contención", "Ausencia de Límites Asertivos"],
-        "económica": ["Estrés Presupuestal Agudo", "Desorden Financiero o Deudas", "Falta de Fondo de Emergencia", "Ausencia de Diversificación de Ingresos"],
-        "temporal": ["Procrastinación por Sobrecarga", "Invasión Horaria Laboral", "Ausencia de Margen de Descanso", "Desequilibrio Métrico Cronos/Kairós"],
-        "espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
+# Inyección de estilos CSS síncronos formato APA
+st.markdown(
+    """<style>
+    .st_radio label, div[data-testid="stMarkdownContainer"] p, .stCheckbox label { white-space: normal !important; word-break: break-word !important; overflow-wrap: break-word !important; }
+    div[row-data-id="stRadioHorizontal"] { flex-wrap: wrap !important; gap: 12px !important; }
+    div[data-testid="stDataFrame"] table { border-top: 2px solid #333 !important; border-bottom: 2px solid #333 !important; }
+    div[data-testid="stDataFrame"] th { border-bottom: 1px solid #333 !important; background-color: #fff !important; font-weight: bold !important; }
+    </style>""", 
+    unsafe_allow_html=True
+)
+
+# =================================================================
+# 🎛️ CENTRO DE MANDO BILINGÜE (EL CONTROL TOTAL SIN APIS EXTERNAS)
+# =================================================================
+CENTRO_MANDO_BILINGUE = {
+    "es": {
+        "intl_title": "🌐 Internationalization Gateway / Control Políglota",
+        "intl_select": "Selecciona tu Idioma Objetivo / Select Language:",
+        "intl_btn": "🔄 APLICAR IDIOMA SELECCIONADO / APPLY LANGUAGE",
+        "nombre": "Nombre Completo / Participant Name:",
+        "wha": "WhatsApp o Celular (Con lada, ej. +52):",
+        "err_fields": "🚨 Por favor, rellena todos los campos obligatorios.",
+        "fields_msg": "💡 Introduce Nombre y WhatsApp para habilitar la descarga.",
+        "btn_save": "💾 Guardar Diagnóstico y Procesar",
+        "btn_pdf": "DESCARGAR EN PDF 📥",
+        "thanks": "¡Diagnóstico Completado con Éxito! 🎉",
+        "thanks_sub": "Hemos compilado tu reporte individual multilingüe. Descárgalo abajo.",
+        "toast_msg": "Descarga del reporte disponible en el panel inferior.",
+        "mand_title": "### 🍊 Diagnóstico de Salud Adaptativo - Enfoque Ontológico",
+        "mand_subtitle": "Selecciona los vectores sintomatológicos detectados de forma automatizada para tu perfil:",
+        "qr_title": "📢 Proyección del Código QR para el Auditorio",
+        "qr_sub1": "Escanea este código con tu smartphone para acceder al formulario en tiempo real.",
+        "sec1": "Sección I. Contexto Demográfico y Geográfico",
+        "sec2": "Sección II. Evaluación de Nivel de Conocimiento del Modelo",
+        "edad": "Edad / Age:", "genero": "Género / Gender:", "nac": "Nacionalidad / Nationality:",
+        "res": "Estado de Residencia / State of Residence:", "pais": "País de Origen / Country of Origin:",
+        "part": "Participante:", "cont_label": "Contacto/WhatsApp:", "fecha": "Fecha de Emisión:",
+        "lbl_descriptivos": "Resultados Descriptivos de Vectores Colectivos",
+        "lbl_medias_pdf": "Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}",
+        "lbl_nota_pdf": "Reporte de Evaluacion Psicometrica Individual",
+        "side_title": "## 🔐 Control del Ponente", "side_pwd": "Contraseña Ponente:", "side_btn": "Desbloquear Tableros",
+        "side_success": "Modo Ponente Activo", "side_add": "➕ Crear Nueva Audiencia Generativa (AI):",
+        "side_select_aud": "Audiencia en Vivo (Foco Actual):", "side_close": "🚪 Cerrar Centro de Control", "side_pwd_err": "Contraseña incorrecta.",
+        "lbl_titulo_aud": "🔬 Oficina de Investigación y Alta Analítica del Ponente", "lbl_tabla_select": "Seleccionar Tabla para Extracción Histórica:",
+        "lbl_crm_buscar": "🔍 Buscador Exclusivo de Participantes", "lbl_crm_input": "📝 Filtrar por Nombre o WhatsApp:",
+        "lbl_btn_auditoria": "📊 Ejecutar Auditoría Macro-Estadística de Nivel Doctoral", "lbl_pdf_dictamen": "DICTAMEN MACRO-ESTADISTICO E INFORME PSICOMETRICO",
+        "lbl_pdf_ref_title": "Referencias Bibliográficas (APA Format)", "lbl_btn_download_macro": "📥 DESCARGAR INFORME DOCTORAL", "lbl_btn_download_diploma": "🏆 DESCARGAR RECONOCIMIENTO HONORÍFICO",
+        "kn1": "1. ¿Has escuchado hablar del modelo temporal Cronos y Kairós?", "kn2": "2. ¿Has leído algún libro o artículo científico sobre estos constructos?",
+        "kn3": "3. ¿Te han enseñado formalmente a gestionar tus metas bajo este enfoque?", "kn4": "4. El modelo temporal dominante en tu entorno:", "kn5": "5. Hablar de modelos temporales es hablar de:",
+        "kn4_opt0": "Se impone", "kn4_opt1": "Se hereda", "kn4_opt2": "No sé", "kn5_opt0": "Teología", "kn5_opt1": "Cultura", "kn5_opt2": "No sé",
+        "likert_1": "1 - Totalmente en Desacuerdo", "likert_2": "2 - En Desacuerdo", "likert_3": "3 - Neutral", "likert_4": "4 - De Acuerdo", "likert_5": "5 - Totalmente de Acuerdo"
+    },
+    "en": {
+        "intl_title": "🌐 Internationalization Gateway / Polyglot Control",
+        "intl_select": "Select tu Idioma Objetivo / Select Language:",
+        "intl_btn": "🔄 APLICAR IDIOMA SELECCIONADO / APPLY LANGUAGE",
+        "nombre": "Full Name / Nombre Completo:",
+        "wha": "WhatsApp or Cellphone (With country code, e.g. +1):",
+        "err_fields": "🚨 Please, fill in all required fields.",
+        "fields_msg": "💡 Enter Name and WhatsApp to enable the download resource.",
+        "btn_save": "💾 Save Diagnosis and Process Data",
+        "btn_pdf": "DOWNLOAD PDF REPORT 📥",
+        "thanks": "Diagnosis Successfully Completed! 🎉",
+        "thanks_sub": "We have compiled your individual multilingual report. Download it below.",
+        "toast_msg": "Report download is now available in the bottom panel.",
+        "mand_title": "### 🍊 Adaptive Health Diagnosis - Ontological Approach",
+        "mand_subtitle": "Select the symptomatological vectors automatically detected for your profile:",
+        "qr_title": "📢 QR Code Projection for the Audience",
+        "qr_sub1": "Scan this code with your smartphone to access the form in real time.",
+        "sec1": "Section I. Demographic and Geographic Context",
+        "sec2": "Section II. Evaluation of Level of Knowledge of the Model",
+        "edad": "Age / Edad:", "genero": "Gender / Género:", "nac": "Nationality / Nacionalidad:",
+        "res": "State of Residence / Estado de Residencia:", "pais": "Country of Origin / País de Origen:",
+        "part": "Participant:", "cont_label": "Contact/WhatsApp:", "fecha": "Date of Issuance:",
+        "lbl_descriptivos": "Descriptive Results of Collective Vectors",
+        "lbl_medias_pdf": "Cronos Vector Mean: {avg_c:.2f} | Kairos Vector Mean: {avg_k:.2f}",
+        "lbl_nota_pdf": "Individual Psychometric Evaluation Report",
+        "side_title": "## 🔐 Speaker Control Panel", "side_pwd": "Speaker Password:", "side_btn": "Unlock Dashboards",
+        "side_success": "Speaker Mode Active", "side_add": "➕ Create New Generative Audience (AI):",
+        "side_select_aud": "Live Audience (Current Focus):", "side_close": "🚪 Close Control Center", "side_pwd_err": "Incorrect password.",
+        "lbl_titulo_aud": "🔬 Speaker's Research and High Analytics Office", "lbl_tabla_select": "Select Table for Historical Extraction:",
+        "lbl_crm_buscar": "🔍 Exclusive Participant Search Engine", "lbl_crm_input": "📝 Filter by Name or WhatsApp:",
+        "lbl_btn_auditoria": "📊 Run Doctoral Level Macro-Statistical Audit", "lbl_pdf_dictamen": "MACRO-STATISTICAL DICTAMEN AND PSYCHOMETRIC REPORT",
+        "lbl_pdf_ref_title": "Bibliographic References (APA Format)", "lbl_btn_download_macro": "📥 DOWNLOAD DOCTORAL REPORT", "lbl_btn_download_diploma": "🏆 DOWNLOAD HONORARY RECOGNITION",
+        "kn1": "1. Have you ever heard of the Cronos and Kairos temporal model?", "kn2": "2. Have you read any book or scientific article on these constructs?",
+        "kn3": "3. Have you been formally taught to manage your goals under this approach?", "kn4": "4. The dominant temporal model in your environment:", "kn5": "5. Talking about temporal models means talking about:",
+        "kn4_opt0": "Is imposed", "kn4_opt1": "Is inherited", "kn4_opt2": "I don't know", "kn5_opt0": "Theology", "kn5_opt1": "Culture", "kn5_opt2": "I don't know",
+        "likert_1": "1 - Strongly Disagree", "likert_2": "2 - Disagree", "likert_3": "3 - Neutral", "likert_4": "4 - Agree", "likert_5": "5 - Strongly Agree"
     }
-    
-    # Si la audiencia no es la base genérica, el motor adapta las semillas al contexto semántico del nicho
-    audiencia_limpia = str(nombre_audiencia).strip().lower()
-    es_generico = audiencia_limpia in ["", "salud integral", "🍊 salud integral", "general"]
-    
-    matriz_salida_es = {}
-    claves_limpias = ["física", "mental", "emocional", "social", "económica", "temporal", "espiritual"]
-    
-    for i, dim_completa in enumerate(DIMENSIONES_MANDARINA_MAESTRAS):
-        clave = claves_limpias[i]
-        items_base = semillas_por_defecto[clave]
-        
-        if es_generico:
-            matriz_salida_es[dim_completa] = items_base
-        else:
-            # Contextualización dinámica del vector semántico acoplado al nicho ingresado
-            matriz_salida_es[dim_completa] = [
-                f"{items_base[0]} en Contexto {nombre_audiencia}",
-                f"{items_base[1]} por Exigencia del Rol",
-                f"{items_base[2]} Asociado a la Práctica",
-                f"{items_base[3]} debido a Vulnerabilidad Corporativa"
-            ]
-            
-    if lang_code == "es":
-        return matriz_salida_es
-        
-    # Si el participante requiere otro idioma, el lote se traduce entero mediante la pasarela neuronal
-    try:
-        matriz_traducida = {}
-        for dim_es, items_es in matriz_salida_es.items():
-            # Traducimos la dimensión (removiendo transitoriamente el emoji)
-            emj = dim_es[:2]
-            dim_limpia = dim_es[2:].strip()
-            dim_trad = ejecutar_traduccion_neuronal(dim_limpia, lang_code)
-            dim_final = f"{emj} {dim_trad}"
-            
-            # Traducimos su respectivo lote indexado de 4 síntomas de forma masiva
-            items_trad = traducir_lote_neuronal_master(items_es, lang_code)
-            matriz_traducida[dim_final] = items_trad
-        return matriz_traducida
-    except Exception:
-        return matriz_salida_es
-
-# Diccionario Maestro de Directrices Clínicas fijas para Reportes PDF
-GLOSARIO_CLINICO_ESTÁTICO = {
-    "💪 Salud Física": "Sugerencia Corporal: Fija anclajes innegociables de descanso reactivo, planifica colaciones de alta densidad nutricional y ejecuta activación metabólica regular.",
-    "🧠 Salud Mental": "Sugerencia Cognitiva: Restringe la exposición a pantallas mediante ventanas de ayuno digital y programa pausas de silencio absoluto entre bloques.",
-    "❤️ Salud Emocional": "Sugerencia Anímica: Externaliza indicadores de sobrecarga con tus redes de confianza e implementa ejercicios de respiración diafragmática consciente.",
-    "👥 Salud Social": "Sugerencia Interpersonal: Entrena el establecimiento asertivo de límites operativos y resguarda espacios inamovibles para tu núcleo cercano.",
-    "💰 Salud Económica": "Sugerencia Financiera: Automatiza el desvío de un porcentaje base hacia un fondo de contingencia blindado y suprime gastos reactivos de impulso.",
-    "⏳ Salud Temporal": "Sugerencia de Simbiosis: Sincroniza tus bloques inamovibles sobre la cuadrícula del reloj, reservando intencionalmente un 20% de margen libre diario.",
-    "🙏 Salud Espiritual": "Sugerencia Vocacional: Dedica los primeros minutos de tu jornada a la introspección profunda, la oración o meditación sobre tus valores esenciales."
 }
 
-TEXTOS_DICTAMEN_COMPLEMENTARIOS = {
-    "ctrl_f0": "Vectores de Atención Crítica Detectados en la Muestra",
-    "ctrl_f1": "Dimensión Evaluada",
-    "ctrl_f2": "Indicadores de vulnerabilidad reportados por el usuario",
-    "ctrl_f3": "Análisis e implicación del constructo latente",
-    "ctrl_f4": "Directriz de intervención estratégica sugerida",
-    "ctrl_f5": "Canalización y Seguimiento Clínico de Caso",
-    "ctrl_f6": "Nota Metódica: El ecosistema analizado se encuentra en un estado funcional óptimo. No se registraron indicadores de riesgo.",
-    "lbl_interpretacion": "Interpretación de Constructo y Perfil Dominante",
-    "lbl_sugerencias_ck": "Recomendaciones de Acompañamiento Metodológico",
-    "txt_ck_recom": "Optimizar la simbiosis entre el tiempo métrico (Cronos) y el tempo de oportunidad (Kairós) es vital para reducir la fatiga cognitiva. Si tu perfil presenta una inclinación polarizada o rígida, se sugiere acudir directamente con el ponente para solicitar una consulta personalizada o asesoría estratégica.",
-    "txt_p_simbiosis": "Simbiosis Temporal Equilibrada (C&K): Balanceas la precisión cronométrica con la agilidad adaptativa de ventanas de oportunidad. Sugerencia: Mantén bloques fijos para tareas repetitivas y reserva un margen diario para imprevistos.",
-    "txt_p_kairos": "Perfil Temporal Kairótico Puro (Adaptativo): Destacas capturando oportunidades en caliente, pero corres el riesgo de descuidar hitos administrativos organizacionales fijos. Sugerencia: Desarrolla anclajes operativos con alarmas digitales estrictas para tus entregas regulatorias.",
-    "txt_p_cronos": "Perfil Temporal Cronocéntrico Puro (Rígido): Posees una rigidez estructural alta. Experimentas estrés cuando los checklists sufren alteraciones imprevistas. Sugerencia: Entrena la tolerancia a la incertidumbre delegando actividades y pautando simulacros de cambio.",
-    "msg_apoyo_frecuencias": "El auto-reporte es el primer paso en la detección de vulnerabilidades institucionales. Si has registrado indicadores críticos en tus gajos de salud, se extiende una invitación cordial para contactar directamente al ponente para coordinar una consulta privada o asesoría personalizada para el diseño de planes de contención oportuna.",
-    "lbl_ref1": "Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2019). Multivariate data analysis (8th ed.). Cengage Learning.",
-    "lbl_ref2": "Kline, R. B. (2023). Principles and practice of structural equation modeling (5th ed.). Guilford Press.",
-    "lbl_ref3": "Norris, J. R. (1998). Markov chains. Cambridge University Press."
-}
 # =================================================================
 # PARTE 3: PASARELA NEURONAL GRATUITA Y CONFIGURACIÓN GOOGLE SHEETS
 # =================================================================
