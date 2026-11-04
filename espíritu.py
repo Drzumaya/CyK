@@ -20,7 +20,7 @@ nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu re
 st.markdown("---")
 
 # 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link cuando la subas a la nube)
-url_final_app = "https://streamlit.io"
+url_final_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
 
 # 5. Lógica inteligente para ocultar el QR
 # Si el usuario ya escribió su nombre (es decir, ya escaneó y está respondiendo), el QR se oculta.
