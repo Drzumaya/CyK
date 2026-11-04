@@ -508,11 +508,13 @@ def main():
                 contenedor_variables_analiticas["País Origen"] = st.text_input(tx.get("pais"))
                 
             st.subheader(tx.get("sec2"))
-            contenedor_variables_analiticas["C1_Escuchado"] = st.radio(tx.get("kn1"), ["Sí / Yes", "No"], horizontal=True)
-            contenedor_variables_analiticas["C2_Leído"] = st.radio(tx.get("kn2"), ["Sí / Yes", "No"], horizontal=True)
-            contenedor_variables_analiticas["C3_Enseñado"] = st.radio(tx.get("kn3"), ["Sí / Yes", "No"], horizontal=True)
-            contenedor_variables_analiticas["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0"), tx.get("kn4_opt1"), tx.get("kn4_opt2")], horizontal=True)
-            contenedor_variables_analiticas["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0"), tx.get("kn5_opt1"), tx.get("kn5_opt2")], horizontal=True)
+            # Inyectamos el parámetro key único a cada reactivo para aislar su ID en Streamlit
+            contenedor_variables_analiticas["C1_Escuchado"] = st.radio(tx.get("kn1"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec2")
+            contenedor_variables_analiticas["C2_Leído"] = st.radio(tx.get("kn2"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec2")
+            contenedor_variables_analiticas["C3_Enseñado"] = st.radio(tx.get("kn3"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec2")
+            contenedor_variables_analiticas["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0"), tx.get("kn4_opt1"), tx.get("kn4_opt2")], horizontal=True, key="rad_kn4_unq_sec2")
+            contenedor_variables_analiticas["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0"), tx.get("kn5_opt1"), tx.get("kn5_opt2")], horizontal=True, key="rad_kn5_unq_sec2")
+
             
             st.write("### 📋 BATERÍA DE REACTIVOS C&K")
             diccionario_reactivos_estaticos = algoritmo_generar_reactivos_poliglotas(str(contenedor_variables_analiticas.get("País Origen", "Región")), idioma_sel)
