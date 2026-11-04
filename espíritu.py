@@ -10,27 +10,46 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- ESTILOS CSS AVANZADOS: ÍCONO DE PERSONA EN EL CURSOR ---
+# --- ESTILOS CSS AVANZADOS: ELIMINAR PUNTO Y PONER PERSONA ---
 st.markdown("""
 <style>
-    /* Cambia el punto azul del cursor de Streamlit por una persona caminando */
+    /* Ocultar el punto original de Streamlit por completo */
     div[data-testid="stSlider"] div[role="slider"] {
         background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        width: 28px !important;
-        height: 28px !important;
+        width: 30px !important;
+        height: 30px !important;
     }
+    /* En su lugar, inyectar el emoji de la persona */
     div[data-testid="stSlider"] div[role="slider"]::after {
-        content: "🚶"; /* Ícono de la persona que se desplaza */
-        font-size: 26px;
-        position: absolute;
-        top: -10px;
-        left: -2px;
+        content: "🚶" !important;
+        font-size: 28px !important;
+        position: absolute !important;
+        top: -12px !important;
+        left: -2px !important;
+        visibility: visible !important;
     }
-    /* Estilización complementaria de la barra */
+    /* Ocultar los números flotantes nativos que salen arriba del control */
+    div[data-testid="stSlider"] div[data-testid="stWidgetMarkdownClaim"] {
+        display: none !important;
+    }
+    /* Estilizar la barra para que se vea más limpia */
     div[data-testid="stSlider"] div[data-inner-slider="true"] {
         background-color: #e8f5e9 !important;
+        height: 8px !important;
+    }
+    /* Ajustar los textos de la escala manual */
+    .escala-numerica {
+        font-family: monospace;
+        display: flex;
+        justify-content: space-between;
+        padding-left: 10px;
+        padding-right: 10px;
+        color: #2e7d32;
+        font-weight: bold;
+        margin-top: -10px;
+        margin-bottom: 15px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -48,7 +67,6 @@ st.markdown("---")
 url_base_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
 
 # 5. DETECCIÓN AUTOMÁTICA DEL ESCANEO: Ocultar QR al instante en el celular
-# Añadimos un parámetro '?view=mobile' al QR para identificar al participante
 query_params = st.query_params
 
 if "view" not in query_params:
@@ -57,7 +75,6 @@ if "view" not in query_params:
     
     with col_qr:
         try:
-            # Creamos un enlace dinámico que le avisa a la app que es un celular
             url_con_parametro = f"{url_base_app.strip()}?view=mobile"
             qr = segno.make_qr(url_con_parametro)
             buffer_qr = io.BytesIO()
@@ -113,20 +130,30 @@ frutos_info = {
 
 puntajes = {}
 
-# Formulario estructurado con numeración y escala del 1 al 10
+# Formulario estructurado con numeración, escala visual y avatar
 with st.form("diagnostico_form"):
     for i, (fruto, info) in enumerate(frutos_info.items(), 1):
         st.markdown(f"#### **{i}. {fruto}** <small>({info['cita']})</small>", unsafe_allow_html=True)
+        st.markdown(f"*De: {info['izq']} ➔ Hacia: {info['der']}*")
         
-        # CORRECCIÓN: Escala explícita del 1 al 10 (mínimo 1, máximo 10)
+        # El deslizador interno se limita estrictamente del 1 al 10
         puntaje = st.slider(
-            label=f"Desplaza el cursor: {info['izq']} ➔ {info['der']}",
+            label=f"Selecciona tu nivel para {fruto}",
             min_value=1,
             max_value=10,
             value=5,
-            key=fruto
+            key=fruto,
+            label_visibility="collapsed" # Ocultamos la etiqueta nativa redundante
         )
         puntajes[fruto] = puntaje
+        
+        # Inyección de la escala numérica visual alineada bajo el control deslizante
+        st.markdown("""
+        <div class="escala-numerica">
+            <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+            <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+        </div>
+        """, unsafe_allow_html=True)
         st.markdown("---")
     
     enviar = st.form_submit_button("Generar Diagnóstico")
@@ -135,7 +162,7 @@ if enviar:
     nombre_final = nombre_usuario if nombre_usuario.strip() != "" else "Invitado"
     st.header(f"📊 Resultados de {nombre_final}")
     
-    # Gráfico interactivo
+    # Gráfico interactivo de barras
     df = pd.DataFrame(list(puntajes.items()), columns=["Fruto del Espíritu", "Puntaje"])
     st.bar_chart(data=df.set_index("Fruto del Espíritu"))
     
@@ -143,7 +170,6 @@ if enviar:
     fortalezas, atencion, criticos = [], [], []
     tabla_html = ""
     
-    # Adaptación de rangos para la escala 1-10
     for fruto, score in puntajes.items():
         if score >= 8:
             fortalezas.append(fruto)
@@ -223,7 +249,7 @@ if enviar:
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button(
-        label=f"Descargar Reporte de {nombre_final} (PDF / HTML)",
+        label="Descargar Reporte Completo (PDF / HTML)",
         data=html_reporte,
         file_name=f"diagnostico_{nombre_final.lower().replace(' ', '_')}.html",
         mime="text/html"
