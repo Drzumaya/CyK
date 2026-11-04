@@ -505,14 +505,19 @@ def main():
 
 
 
-       # =================================================================
+    # =================================================================
     # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GRADUACIÓN (CORE)
     # =================================================================
+    # Inicialización del estado del interruptor de visualización explicativa
+    if "mostrar_bateria" not in st.session_state:
+        st.session_state.mostrar_bateria = True
+
+    interruptor_movil = es_cel
+    
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
             st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
             dict_ids = {"spanish": "es", "english": "en"}
-            # 🍊 CORRECCIÓN DE VARIABLE: Cambiado idioma_sel por iso para sintonizar con la fracción 5A
             sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=["Spanish", "English"], index=0 if iso == "es" else 1, key="sb_part_lang_unq")
             if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_fixed"):
                 iso_f = dict_ids.get(str(sel_v).lower().strip(), "en")
@@ -521,7 +526,7 @@ def main():
                 if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
-        if not es_cel:
+        if not interruptor_movil:
             with st.container(border=True):
                 st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=4)
@@ -531,54 +536,60 @@ def main():
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
                 st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea'))
 
+        # 🍊 BOTÓN SOLICITADO: Interruptor Dinámico Explicativo justo debajo del QR
+        txt_toggle = "🙈 OCULTAR CUESTIONARIO ADAPTATIVO" if st.session_state.mostrar_bateria else "👁️ MOSTRAR CUESTIONARIO PARA EXPLICAR"
+        if st.button(txt_toggle, type="secondary", use_container_width=True, key="btn_toggle_visibility_bateria_master"):
+            st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
+            st.rerun()
+
         st.header(f"📋 {st.session_state.audiencia_activa}")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
         
         resultados_totales = {}
-        if not es_likert:
-            st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
-            # 🍊 CORRECCIÓN DE VARIABLE: Cambiado idioma_sel por iso
-            gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, iso)
-            for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
-                with st.container(border=True):
-                    st.markdown(f"#### {g_name}")
-                    col_a, col_b = st.columns(2)
-                    with col_a:
-                        cb0 = st.checkbox(alertas_especificas[0] if len(alertas_especificas)>0 else "S0", key=f"c_{g_idx}_0_f")
-                        cb1 = st.checkbox(alertas_especificas[1] if len(alertas_especificas)>1 else "S1", key=f"c_{g_idx}_1_f")
-                    with col_b:
-                        cb2 = st.checkbox(alertas_especificas[2] if len(alertas_especificas)>2 else "S2", key=f"c_{g_idx}_2_f")
-                        cb3 = st.checkbox(alertas_especificas[3] if len(alertas_especificas)>3 else "S3", key=f"c_{g_idx}_3_f")
-                    resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
-        else:
-            st.subheader(tx.get("sec1", "Sección I"))
-            resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
-            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
-            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], horizontal=True)
-            
-            if "mex" in resultados_totales["Nacionalidad"].lower():
-                resultados_totales["Estado Residencia"] = st.selectbox(tx.get("res", "Residencia:"), [""] + ESTADOS_MEXICO)
-                resultados_totales["País Origen"] = "México"
-            else: 
-                resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
+        
+        # 🍊 CONTROL DE EXPOSICIÓN VINCULADO AL BOTÓN INTERRUPTOR
+        if st.session_state.mostrar_bateria:
+            if not es_likert:
+                st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
+                gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, iso)
+                for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
+                    with st.container(border=True):
+                        st.markdown(f"#### {g_name}")
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            cb0 = st.checkbox(alertas_especificas if len(alertas_especificas)>0 else "S0", key=f"c_{g_idx}_0_f")
+                            cb1 = st.checkbox(alertas_especificas if len(alertas_especificas)>1 else "S1", key=f"c_{g_idx}_1_f")
+                        with col_b:
+                            cb2 = st.checkbox(alertas_especificas if len(alertas_especificas)>2 else "S2", key=f"c_{g_idx}_2_f")
+                            cb3 = st.checkbox(alertas_especificas if len(alertas_especificas)>3 else "S3", key=f"c_{g_idx}_3_f")
+                        resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
+            else:
+                st.subheader(tx.get("sec1", "Sección I"))
+                resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
+                resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
+                resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], horizontal=True)
                 
-            st.subheader(tx.get("sec2", "Sección II"))
-            resultados_totales["C1_Escuchado"] = st.radio(tx.get("kn1"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec2")
-            resultados_totales["C2_Leído"] = st.radio(tx.get("kn2"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec2")
-            resultados_totales["C3_Enseñado"] = st.radio(tx.get("kn3"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec2")
-            resultados_totales["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0", "Se impone"), tx.get("kn4_opt1", "Se hereda"), tx.get("kn4_opt2", "No sé")], horizontal=True, key="rad_kn4_unq_sec2")
-            resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
-            
-            st.write("### 📋 BATERÍA DE REACTIVOS C&K")
-            # 🍊 CORRECCIÓN DE VARIABLE: Cambiado idioma_sel por iso para el motor de reactivos vinculados por audiencia
-            reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
-            for r_id, r_txt in reactivos.items():
-                st.write(f"Reactivo {r_id}: {r_txt}")
-                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
+                if "mex" in resultados_totales["Nacionalidad"].lower():
+                    resultados_totales["Estado Residencia"] = st.selectbox(tx.get("res", "Residencia:"), [""] + ESTADOS_MEXICO)
+                    resultados_totales["País Origen"] = "México"
+                else: 
+                    resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
+                    
+                st.subheader(tx.get("sec2", "Sección II"))
+                resultados_totales["C1_Escuchado"] = st.radio(tx.get("kn1"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec2")
+                resultados_totales["C2_Leído"] = st.radio(tx.get("kn2"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec2")
+                resultados_totales["C3_Enseñado"] = st.radio(tx.get("kn3"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec2")
+                resultados_totales["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0", "Se impone"), tx.get("kn4_opt1", "Se hereda"), tx.get("kn4_opt2", "No sé")], horizontal=True, key="rad_kn4_unq_sec2")
+                resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
+                
+                st.write("### 📋 BATERÍA DE REACTIVOS C&K")
+                reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
+                for r_id, r_txt in reactivos.items():
+                    st.write(f"Reactivo {r_id}: {r_txt}")
+                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=, format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
-        # 🍊 CORRECCIÓN DE FUNCIÓN: Mapeado correcto hacia gateway_bt con la variable local iso
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
     else:
         st.balloons()
@@ -586,7 +597,6 @@ def main():
         st.markdown(tx.get("thanks_sub", "Descarga tu reporte abajo."))
         st.toast(tx.get("toast_msg", "Descarga lista."), icon="📥")
         
-        # 🍊 CORRECCIÓN DE VARIABLE: Cambiado idioma_sel por iso
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
         
@@ -604,7 +614,7 @@ def main():
         sheet = conectar_google_sheets(tabla_analizar)
         todas_las_filas = sheet.get_all_values() if sheet else []
         if todas_las_filas and len(todas_las_filas) >= 2:
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
             st.subheader(tx.get("lbl_crm_buscar", "Buscar"))
             c_busq = st.text_input(tx.get("lbl_crm_input", "Filtro:"), key="crm_search_input").strip().lower()
             if c_busq and not df_doc.empty:
@@ -640,7 +650,8 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10)
     pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
-    return bytes(pdf.output())
+return bytes(pdf.output())
+
 
 if __name__ == "__main__": 
     main()
