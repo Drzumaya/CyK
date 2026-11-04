@@ -273,47 +273,8 @@ def guardar_en_google_sheets(pestana, nom, wha, res, token, es_likert):
         return False
 
 # =================================================================
-# PARTE 4: MOTOR GENERATIVO DE EXTRACCIÓN PSICOMÉTRICA Y COMPILACIÓN PDF
+# PARTE 4: MOTOR GENERATIVO DE EXTRACCIÓN PSICOMÉTRICA Y COMPILACIÓN PDF (REVISADO)
 # =================================================================
-# =================================================================
-# ALGORITMO INTEGRAL: GENERADOR DE REACTIVOS C&K ADAPTATIVO POR IA (FIX)
-# =================================================================
-def algoritmo_generar_reactivos_poliglotas(nombre_audiencia, lang="es"):
-    """
-    Genera inductivamente la batería de 10 reactivos Cronos y Kairós
-    acoplándolos de forma automática al nicho o audiencia creada por el ponente.
-    """
-    aud = str(nombre_audiencia).strip()
-    
-    if lang == "en":
-        return {
-            1: f"I optimize my high-impact goals specifically tailored for {aud}.",
-            2: f"I structure my daily schedule based on the exact clock metrics required for {aud}.",
-            3: f"Time flows organically when I manage administrative tasks in {aud}.",
-            4: f"I strictly penalize professional untimeliness within the {aud} workspace.",
-            5: f"I read unexpected events as highly useful windows of opportunity for {aud}.",
-            6: f"I rigidly execute and manage performance goals under fixed checklists in {aud}.",
-            7: f"I break the set itinerary immediately if a strategic advantage emerges for {aud}.",
-            8: f"I prefer a sequential, structured order over multitasking when operating in {aud}.",
-            9: f"I trigger high cognitive concentration if the environment changes rapidly in {aud}.",
-            10: f"I protect fixed, unnegotiable hours for rest and production as part of {aud}."
-        }
-    else:
-        return {
-            1: f"Optimizo mis metas de alto impacto específicamente diseñadas para {aud}.",
-            2: f"Estructuro mi agenda diaria sobre las métricas de reloj exactas requeridas en {aud}.",
-            3: f"El tiempo fluye de forma orgánica cuando gestiono tareas administrativas en {aud}.",
-            4: f"Castigo severamente la impuntualidad profesional dentro del entorno de {aud}.",
-            5: f"Leo los imprevistos como ventanas de oportunidad altamente útiles para {aud}.",
-            6: f"Ejecuto y gestiono metas de rendimiento bajo checklists fijos de forma rígida en {aud}.",
-            7: f"Rompo el itinerario establecido de inmediato si emerge una ventaja estratégica para {aud}.",
-            8: f"Prefiero un orden secuencial y estructurado sobre la multitarea al operar en {aud}.",
-            9: f"Activo una alta concentración cognitiva si el entorno cambia rápidamente en {aud}.",
-            10: f"Separo horas fijas e innegociables de sueño y producción como miembro de {aud}."
-        }
-
-
-
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     pdf = FPDF()
     pdf.core_fonts_encoding = "cp1252"
@@ -326,24 +287,24 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     tx_pdf = CENTRO_MANDO_BILINGUE.get(lang, CENTRO_MANDO_BILINGUE["es"])
     dictamen_bilingue = TEXTOS_DICTAMEN_BILINGUE.get(lang, TEXTOS_DICTAMEN_BILINGUE["es"])
     
-    base_title = tx_pdf.get("lbl_nota_pdf", "Reporte de Evaluacion Psicometrica Individual")
+    base_title = "Reporte de Evaluacion Psicometrica Individual" if lang == "es" else "Individual Psychometric Evaluation Report"
     titulo_seguro = str(base_title).encode('ascii', 'ignore').decode('ascii')
     
     pdf.set_font(font_family, "B", 14)
     pdf.cell(190, 10, titulo_seguro, new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.ln(2)
     
     pdf.set_font(font_family, "", 10)
     nombre_seguro = str(nombre).encode('ascii', 'ignore').decode('ascii') if nombre else "Anonimo"
     whatsapp_seguro = str(whatsapp).encode('ascii', 'ignore').decode('ascii') if whatsapp else "N/A"
     
-    lbl_part_pdf = str(tx_pdf.get("part", "Participante:")).encode('ascii', 'ignore').decode('ascii')
-    lbl_cont_pdf = str(tx_pdf.get("cont_label", "Contacto/WhatsApp:")).encode('ascii', 'ignore').decode('ascii')
-    
+    lbl_part_pdf = "Participante / Participant:"
+    lbl_cont_pdf = "Contacto / Contact:"
     pdf.cell(190, 6, f"{lbl_part_pdf} {nombre_seguro} | {lbl_cont_pdf} {whatsapp_seguro}", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
     
     if not es_likert:
-        # Recuperación de la matriz ontológica dinámica estática sin APIs de red
+        # --- MÓDULO A: EVALUACIÓN DE SALUD INTEGRAL MULTIVARIADA ---
         g_trad = motor_generativo_items_audiencia(tabla, lang_code=lang)
         
         for idx, dim_traducida_emoji in enumerate(g_trad.keys()):
@@ -353,46 +314,110 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     key_segura = key_segura.replace(emj, "")
                     
                 pdf.set_font(font_family, "B", 11)
-                pdf.cell(190, 6, key_segura.strip(), new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(190, 6, f"Dimensión: {key_segura.strip()}", new_x="LMARGIN", new_y="NEXT")
                 
-                # Inyección descriptiva de las alertas calculadas dinámicamente por IA
+                # Indicadores reportados por el usuario
                 indices_marcados = resultados.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], [])
                 sintomas_origen_nicho = list(g_trad.values())[idx]
                 sintomas_reportados = [sintomas_origen_nicho[int(i)] for i in indices_marcados if int(i) < len(sintomas_origen_nicho)]
                 
                 pdf.set_font(font_family, "I", 9.5)
-                pdf.set_text_color(100, 100, 100)
-                pdf.multi_cell(190, 4.5, str(", ".join(sintomas_reportados)).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                pdf.set_text_color(120, 30, 30)
+                pdf.multi_cell(190, 4.5, f"Indicadores detectados: {', '.join(sintomas_reportados)}".encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 
-                # Directriz clínica fija indexada de contención
+                # Directriz clínica de recomendación estándar
                 glosario_seguro = str(dictamen_bilingue.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], "")).encode('cp1252', 'ignore').decode('cp1252')
-                
                 pdf.set_font(font_family, "", 9.5)
                 pdf.set_text_color(50, 50, 50)
-                pdf.multi_cell(190, 4.5, glosario_seguro.strip(), new_x="LMARGIN", new_y="NEXT")
-                pdf.ln(2)
+                pdf.multi_cell(190, 4.5, f"Sugerencia base: {glosario_seguro.strip()}".encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                
+                # 🍊 INYECCIÓN ADICIONAL CONSECUENCIAS TEMPORALES (Si es la dimensión temporal)
+                if "⏳" in dim_traducida_emoji or "temporal" in dim_traducida_emoji.lower():
+                    pdf.ln(1)
+                    pdf.set_font(font_family, "B", 9.5)
+                    pdf.set_text_color(150, 50, 0)
+                    pdf.cell(190, 5, "ANÁLISIS DE RIESGO PROSPECTIVO Y CONSECUENCIAS:", new_x="LMARGIN", new_y="NEXT")
+                    pdf.set_font(font_family, "", 9)
+                    pdf.set_text_color(60, 60, 60)
+                    
+                    c_corto = "- Corto Plazo: Elevación de fatiga cognitiva, saturación horaria y pérdida de ventanas de oportunidad." if lang == "es" else "- Short Term: Increased cognitive fatigue, schedule saturation, and lost windows of opportunity."
+                    c_medio = "- Mediano Plazo: Síndrome de Burnout latente, desequilibrio en dinámicas familiares y fricción operacional." if lang == "es" else "- Medium Term: Latent Burnout syndrome, imbalance in family dynamics, and operational friction."
+                    c_largo = "- Largo Plazo: Cronificación del estrés, colapso de efectividad y pérdida del propósito estratégico vocacional." if lang == "es" else "- Long Term: Chronification of stress, collapse of personal effectiveness, and loss of vocational purpose."
+                    
+                    pdf.multi_cell(190, 4, str(c_corto).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                    pdf.multi_cell(190, 4, str(c_medio).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                    pdf.multi_cell(190, 4, str(c_largo).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                    
+                    pdf.ln(1)
+                    pdf.set_font(font_family, "B", 9.5)
+                    pdf.set_text_color(180, 0, 0)
+                    r_especializada = "💡 RECOMENDACIÓN CRÍTICA: Debido al nivel de riesgo detectado en tu vector dimensional temporal, es indispensable solicitar una consulta especializada personal o familiar de forma directa con el ponente para el diseño de un plan de contención de ventanas de oportunidad (Kairós)." if lang == "es" else "💡 CRITICAL RECOMMENDATION: Due to the risk level detected in your temporal dimensional vector, it is essential to request a personal or family specialized consultation directly with the speaker to design a strategic containment plan for windows of opportunity (Kairos)."
+                    pdf.multi_cell(190, 4.5, str(r_especializada).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                
+                pdf.ln(3)
+                pdf.set_text_color(0, 0, 0)
     else:
+        # --- MÓDULO B: RESULTADOS DE LA ENCUESTA PSICOMÉTRICA LIKERT C&K ---
         k_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         c_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_c = sum(c_v) / 5
         avg_k = sum(k_v) / 5
         
-        lbl_m_pdf = tx_pdf.get("lbl_medias_pdf", "Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}").format(avg_c=avg_c, avg_k=avg_k)
-        pdf.cell(190, 5, str(lbl_m_pdf).encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-        
-        pdf.ln(4)
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, str(dictamen_bilingue.get("lbl_interpretacion", "Interpretacion")).encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "1. RESULTADOS DE LA EVALUACIÓN CUANTITATIVA", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_font(font_family, "", 10)
+        lbl_m_pdf = f"Media Vector Cronos (Métrico / Checlists): {avg_c:.2f} | Media Vector Kairós (Oportunidad / Adaptativo): {avg_k:.2f}"
+        pdf.cell(190, 5, str(lbl_m_pdf).encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(3)
+        
+        # Apartado de Análisis Perfilario Dominante
+        pdf.set_font(font_family, "B", 11)
+        pdf.cell(190, 6, "2. APARTADO DE ANÁLISIS Y PERFIL DOMINANTE", new_x="LMARGIN", new_y="NEXT")
         
         dif = abs(avg_c - avg_k)
         if dif <= 0.4: txt_p = dictamen_bilingue.get("txt_p_simbiosis")
         elif avg_k > avg_c: txt_p = dictamen_bilingue.get("txt_p_kairos")
         else: txt_p = dictamen_bilingue.get("txt_p_cronos")
             
-        pdf.set_font(font_family, "", 10)
+        pdf.set_font(font_family, "I", 10)
         pdf.multi_cell(190, 5, str(txt_p).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(3)
         
+        # 🍊 APARTADO DE PROSPECTIVA DE RIESGO: Corto, Mediano y Largo Plazo
+        pdf.set_font(font_family, "B", 11)
+        pdf.cell(190, 6, "3. PROSPECTIVA DE RIESGO TEMPORAL Y CONSECUENCIAS", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_font(font_family, "", 10)
+        
+        if avg_c > avg_k:
+            r_c_corto = "- Corto Plazo: Incremento agudo de rigidez mental, estrés ante imprevistos cotidianos y checklists inconclusos."
+            r_c_medio = "- Mediano Plazo: Pérdida sistémica de ventanas de oportunidad (Kairós) de negocio, académicas o relacionales por exceso de apego a la métrica horaria."
+            r_c_largo = "- Largo Plazo: Obsolescencia adaptativa, mecanización del estilo de vida y colapso de la plasticidad cognitiva estructural."
+        else:
+            r_c_corto = "- Corto Plazo: Desorden administrativo inmediato, desalineación de plazos obligatorios y acumulación de pasivos organizacionales."
+            r_c_medio = "- Mediano Plazo: Pérdida de credibilidad profesional institucional por impuntualidad sistemática o desatención de hitos del reloj."
+            r_c_largo = "- Largo Plazo: Crisis de estabilidad familiar, incapacidad estructural para consolidar proyectos a largo plazo y desbordamiento cronocéntrico."
+            
+        pdf.multi_cell(190, 5, str(r_c_corto).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 5, str(r_c_medio).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 5, str(r_c_largo).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(3)
+        
+        # Apartado de Recomendaciones Metodológicas Específicas
+        pdf.set_font(font_family, "B", 11)
+        pdf.cell(190, 6, "4. RECOMENDACIONES METODOLÓGICAS DE CONTENCIÓN", new_x="LMARGIN", new_y="NEXT")
+        pdf.set_font(font_family, "", 10)
+        gl_recom = str(dictamen_bilingue.get("txt_ck_recom", "")).encode('cp1252', 'ignore').decode('cp1252')
+        pdf.multi_cell(190, 5, gl_recom, new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(2)
+        
+        # 🍊 LLAMADO DIRECTO EXCLUSIVO AL PONENTE SOLICITADO
+        pdf.set_font(font_family, "B", 10)
+        pdf.set_text_color(180, 0, 0)
+        req_ponente = "🚨 ATENCIÓN DIRECTA: Al tratarse de un diagnóstico de asimetría dimensional temporal del Modelo C&K, se le recomienda al participante agendar a la brevedad una consulta especializada de carácter personal o familiar con el ponente para el establecimiento de un mapa de ruta e intervención conductual equilibrada." if lang == "es" else "🚨 DIRECT ATTENTION: Being a diagnostic of temporal dimensional asymmetry of the C&K Model, the participant is strongly advised to schedule as soon as possible a specialized personal or family consultation with the speaker to establish a balanced behavioral intervention roadmap."
+        pdf.multi_cell(190, 4.5, str(req_ponente).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.set_text_color(0, 0, 0)
     return bytes(pdf.output())
+
 
  # =================================================================
 # PARTE 5-1: PUERTA DE ENLACE DE ALMACENAMIENTO Y ENRUTAMIENTO GENERAL
