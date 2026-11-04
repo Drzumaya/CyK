@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
-import urllib.parse
+import segno  # Generador nativa de códigos QR sin APIs externas
+import io
 
 # 1. Configuración de la página institucional
 st.set_page_config(
@@ -21,18 +22,21 @@ st.markdown("---")
 # 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link cuando la subas a la nube)
 url_final_app = "https://streamlit.io"
 
-# 5. Renderizado del QR usando la API activa de QuickChart (Corregido)
+# 5. Renderizado local y seguro del código QR
 st.markdown("### 📱 Escanea y Responde en tu Móvil")
-
-# CORRECCIÓN: Le asignamos la cantidad de columnas [1, 3] para dar espacio proporcional
-col_qr, col_txt = st.columns([1, 3])
+col_qr, col_txt = st.columns([1, 2]) # 1 parte para el QR, 2 partes para el texto
 
 with col_qr:
-    # Codificamos la URL de forma segura
-    url_codificada = urllib.parse.quote(url_final_app.strip())
-    # API de QuickChart
-    qr_api_url = f"https://quickchart.io{url_codificada}&size=180"
-    st.image(qr_api_url, use_container_width=True)
+    try:
+        # Generar el QR de forma interna en memoria como formato PNG
+        qr = segno.make_qr(url_final_app.strip())
+        buffer_qr = io.BytesIO()
+        qr.save(buffer_qr, kind='png', scale=5)
+        
+        # Mostrar la imagen nativa sin llamadas externas de red
+        st.image(buffer_qr.getvalue(), use_container_width=True)
+    except Exception as e:
+        st.error("No se pudo generar el código QR localmente.")
 
 with col_txt:
     st.markdown(f"""
@@ -42,6 +46,7 @@ with col_txt:
     *Mueve los deslizadores según cómo te sientas hoy: el extremo izquierdo representa una debilidad y el derecho un fruto maduro en tu vida.*
     """)
 
+st.markdown("---")
 
 # 6. Diccionario de proyecciones para el reporte PDF final
 consecuencias_texto = {
@@ -64,6 +69,7 @@ consecuencias_texto = {
         "largo": "Legado de madurez espiritual, estabilidad emocional duradera y capacidad de guiar efectivamente a otros."
     }
 }
+
 
 st.header("📋 Autoevaluación")
 st.subheader("Selecciona el punto intermedio con el que te identifiques hoy:")
