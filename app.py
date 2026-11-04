@@ -516,22 +516,6 @@ def main():
                 pdf_macro_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro"), data=bytes(pdf_macro_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="descarga_final_dictamen_pdf_macro_doctoral")
 
-def generar_reconocimiento_honorifico_dinamico():
-    pdf_reconocimiento_academico = FPDF(orientation="L", unit="mm", format="A4")
-    pdf_reconocimiento_academico.add_page()
-    pdf_reconocimiento_academico.set_auto_page_break(auto=False)
-    pdf_reconocimiento_academico.set_draw_color(212, 175, 55)
-    pdf_reconocimiento_academico.set_line_width(1.2)
-    pdf_reconocimiento_academico.rect(10, 10, 277, 190)
-    pdf_reconocimiento_academico.set_font("Helvetica", "B", 14)
-    pdf_reconocimiento_academico.set_text_color(50, 50, 50)
-    pdf_reconocimiento_academico.cell(277, 15, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf_reconocimiento_academico.ln(10)
-    pdf_reconocimiento_academico.set_font("Times", "B", 26)
-    pdf_reconocimiento_academico.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
-return bytes(pdf_reconocimiento_academico.output())
-
-
 
 
 # =================================================================
