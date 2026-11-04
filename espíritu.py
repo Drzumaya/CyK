@@ -190,6 +190,7 @@ else:
     nombre_final = st.session_state.nombre_final
     puntajes = st.session_state.respuestas_usuario
 
+    # INICIO EXACTO CON EL TÍTULO SOLICITADO
     st.title("📊 Tu Diagnóstico Espiritual")
     st.header(f"Resultados preparados para: {nombre_final}")
     
