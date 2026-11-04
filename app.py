@@ -392,7 +392,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     return bytes(pdf.output())
 
 # =================================================================
-# PARTE 5A: PROCESAMIENTO TRANSACCIONAL Y ENRUTAMIENTO GENERAL (FIXED)
+# PARTE 5A: PROCESAMIENTO TRANSACCIONAL Y ENRUTAMIENTO GENERAL FIX
 # =================================================================
 def renderizar_botones_transaccionales(nom, wha, res, es_lk, lang, tx):
     st.divider()
@@ -416,8 +416,8 @@ def renderizar_botones_transaccionales(nom, wha, res, es_lk, lang, tx):
         else: st.info(tx["fields_msg"])
     with col3:
         if ok:
-            telefono_limpio = "".join(c for c in str(wha) if c.isdigit() or c == '+')
-            u_wa = f"https://whatsapp.com{urllib.parse.quote(telefono_limpio)}&text=Diagnostico+Completado"
+            t_limpio = "".join(c for c in str(wha) if c.isdigit() or c == '+')
+            u_wa = f"https://whatsapp.com{urllib.parse.quote(t_limpio)}&text=Diagnostico+Completado"
             st.markdown(f'<a href="{u_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;cursor:pointer;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
 
 def main():
@@ -428,18 +428,17 @@ def main():
     if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
 
     idioma_sel = st.query_params.get("lang", "es")
-    if idioma_sel not in ["es", "en"]:
-        idioma_sel = "es"
+    if idioma_sel not in ["es", "en"]: idioma_sel = "es"
     st.session_state.idioma_activo_actual = idioma_sel
 
     tx = CENTRO_MANDO_BILINGUE.get(idioma_sel, CENTRO_MANDO_BILINGUE["es"])
     dictamen_bilingue = TEXTOS_DICTAMEN_BILINGUE.get(idioma_sel, TEXTOS_DICTAMEN_BILINGUE["es"])
 
-    minuto_bloque_10 = int(time.time() // 600)
-    token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
+    min_10 = int(time.time() // 600)
+    token_tiempo = hashlib.md5(f"mandarina_secret_{min_10}".encode()).hexdigest()[:8]
     
-    modo_admin_url = st.query_params.get("modo_admin", "true")
-    es_celular_del_publico = str(modo_admin_url).strip().lower() == "false"
+    m_admin = st.query_params.get("modo_admin", "true")
+    es_celular_del_publico = str(m_admin).strip().lower() == "false"
     
     if es_celular_del_publico and st.query_params.get("diag_tipo", None): 
         st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
@@ -450,37 +449,35 @@ def main():
         for t in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(t)
         st.session_state.estructuras_inicializadas = True
 
-    # 🍊 CORE REFIX: Si el ponente ya está autenticado en sesión, el blindaje de ocultación CSS se desactiva
-    ocultar_sidebar_por_completo = es_celular_del_publico and not st.session_state.admin_autenticado
-
+    # Renderizado explícito y sin bloqueos de la barra lateral
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
-        if not ocultar_sidebar_por_completo:
-            if not st.session_state.admin_autenticado:
-                p_in = st.text_input(tx.get("side_pwd", "Contraseña:"), type="password", key="p_sec")
-                if st.button(tx.get("side_btn", "Desbloquear")):
-                    if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): 
-                        st.session_state.admin_autenticado = True
-                        st.rerun()
-                    else: st.error(tx.get("side_pwd_err", "Error"))
-            else:
-                st.success(tx.get("side_success", "Activo"))
-                n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:")).strip()
-                if n_aud and n_aud not in st.session_state.audiences_custom_list: 
-                    st.session_state.audiences_custom_list.append(n_aud)
+        if not st.session_state.admin_autenticado:
+            p_in = st.text_input(tx.get("side_pwd", "Contraseña:"), type="password", key="p_sec_master_fixed")
+            if st.button(tx.get("side_btn", "Desbloquear"), key="btn_desbloquear_sidebar_master"):
+                if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): 
+                    st.session_state.admin_autenticado = True
                     st.rerun()
-                op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master_ponente")
-                if sel_aud != st.session_state.audiencia_activa: 
-                    st.session_state.audiencia_activa = sel_aud
-                    st.rerun()
-                if st.button(tx.get("side_close", "Cerrar")): 
-                    st.session_state.admin_autenticado = False
-                    st.rerun()
+                else: st.error(tx.get("side_pwd_err", "Error"))
+        else:
+            st.success(tx.get("side_success", "Activo"))
+            n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:"), key="input_add_audiencia_sidebar_master").strip()
+            if n_aud and n_aud not in st.session_state.audiences_custom_list: 
+                st.session_state.audiences_custom_list.append(n_aud)
+                st.rerun()
+            op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+            sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master_ponente_fixed_final")
+            if sel_aud != st.session_state.audiencia_activa: 
+                st.session_state.audiencia_activa = sel_aud
+                st.rerun()
+            if st.button(tx.get("side_close", "Cerrar"), key="btn_close_admin_sidebar_master"): 
+                st.session_state.admin_autenticado = False
+                st.rerun()
 
-    # Inyección condicional segura para no romper la pantalla del ponente
-    if ocultar_sidebar_por_completo:
+    # Ocultación por CSS limpia únicamente si el usuario es público y NO se ha autenticado
+    if es_celular_del_publico and not st.session_state.admin_autenticado:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+
 
     # =================================================================
     # PARTE 5B: MOTOR DE INTERFAZ INTEGRAL BILINGÜE Y RECONOCIMIENTO
