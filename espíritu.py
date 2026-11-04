@@ -9,8 +9,16 @@ st.set_page_config(
     layout="centered"
 )
 
-# 2. Obtención automática de la URL de la App para el código QR
-# Si está local usa localhost, si está en la nube detecta la URL real automáticamente
+# 2. Título de la aplicación y bienvenida
+st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
+st.markdown("Este diagnóstico te ayudará a evaluar el estado actual de tu carácter basándose en **Gálatas 5:22-23**.")
+
+# 3. Personalización por Nombre
+nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu reporte:", value="Invitado")
+
+st.markdown("---")
+
+# 4. Obtención automática de la URL de la App para el código QR principal
 try:
     host_url = st.context.headers.get("Host", "share.streamlit.io")
     protocol = "https" if "localhost" not in host_url else "http"
@@ -18,15 +26,26 @@ try:
 except Exception:
     url_actual = "https://streamlit.io"
 
-# 3. Renderizado directo del Código QR en la barra lateral
-st.sidebar.header("📱 Escanea y Responde")
-url_codificada = urllib.parse.quote(url_actual)
-qr_api_url = f"https://googleapis.com{url_codificada}&choe=UTF-8"
+# 5. Renderizado del QR al inicio de la batería (Estructura centralizada)
+st.markdown("### 📱 Escanea y Responde en tu Móvil")
+col_qr, col_txt = st.columns([1, 2])
 
-st.sidebar.image(qr_api_url, caption="Abre este diagnóstico en tu celular", use_container_width=True)
-st.sidebar.markdown("---")
+with col_qr:
+    url_codificada = urllib.parse.quote(url_actual)
+    qr_api_url = f"https://googleapis.com{url_codificada}&choe=UTF-8"
+    st.image(qr_api_url, use_container_width=False)
 
-# 4. Diccionario de proyecciones para el reporte PDF final
+with col_txt:
+    st.markdown(f"""
+     Si eres parte de la audiencia, acerca la cámara de tu celular al código QR de la izquierda para abrir este test directamente en tu dispositivo.
+    
+    **Usuario actual:** {nombre_usuario}  
+    *Mueve los deslizadores según cómo te sientas hoy: el extremo izquierdo representa una debilidad y el derecho un fruto maduro en tu vida.*
+    """)
+
+st.markdown("---")
+
+# 6. Diccionario de proyecciones para el reporte PDF final
 consecuencias_texto = {
     "critico": {
         "estado": "Crítico / Alerta",
@@ -47,13 +66,6 @@ consecuencias_texto = {
         "largo": "Legado de madurez espiritual, estabilidad emocional duradera y capacidad de guiar efectivamente a otros."
     }
 }
-# 5. Título de la aplicación
-st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
-st.markdown("""
-Este diagnóstico te ayudará a evaluar el estado actual de tu carácter basándose en **Gálatas 5:22-23**. 
-Mueve el deslizador según cómo te sientas hoy: el extremo izquierdo representa una debilidad y el derecho un fruto maduro en tu vida.
-""")
-
 st.header("📋 Autoevaluación")
 st.subheader("Selecciona el punto intermedio con el que te identifiques hoy:")
 
@@ -89,9 +101,9 @@ with st.form("diagnostico_form"):
         st.markdown("---")
     
     enviar = st.form_submit_button("Generar Diagnóstico")
-# 6. Procesamiento posterior al envío
+# 7. Procesamiento posterior al envío
 if enviar:
-    st.header("📊 Tus Resultados")
+    st.header(f"📊 Resultados de {nombre_usuario}")
     
     # Gráfico interactivo
     df = pd.DataFrame(list(puntajes.items()), columns=["Fruto del Espíritu", "Puntaje"])
@@ -123,13 +135,13 @@ if enviar:
         </tr>
         """
         
-    # Alertas visuales
+    # Alertas visuales personalizadas
     if Clean_Fortalezas := ", ".join(fortalezas):
-        st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {Clean_Fortalezas}. ¡Sigue cultivándolas!")
+        st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {Clean_Fortalezas}. ¡Sigue cultivándolas, {nombre_usuario}!")
     if Clean_Atencion := ", ".join(atencion):
         st.warning(f"⚠️ **Áreas en desarrollo (Puntaje 5-7):** {Clean_Atencion}. Tienes espacio para madurar.")
     if Clean_Criticos := ", ".join(criticos):
-        st.error(f"🚨 **Áreas críticas (Puntaje 0-4):** {Clean_Criticos}. Cuidado con las tendencias reactivas.")
+        st.error(f"🚨 **Áreas críticas (Puntaje 0-4):** {Clean_Criticos}. Atención con estas conductas dominantes.")
 
     # Recomendaciones y cierre
     st.header("💡 Recomendaciones Generales")
@@ -137,9 +149,9 @@ if enviar:
                 "2. **Acción Intencional:** Elige una virtud en desarrollo y practícala conscientemente esta semana.\n"
                 "3. **Acompañamiento:** Comparte este mapa con un mentor o persona de confianza.")
     
-    st.info("🤝 **¿Deseas profundizar?** Te invitamos a acercarte con el ponente para agendar una **consulta espiritual complementaria y 100% gratuita** para estructurar un plan personalizado.")
+    st.info(f"🤝 **¿Deseas profundizar, {nombre_usuario}?** Te invitamos a acercarte con el ponente para agendar una **consulta espiritual complementaria y 100% gratuita** para estructurar un plan personalizado.")
 
-    # Reporte HTML adaptado para impresión limpia (Guardar como PDF)
+    # Reporte HTML adaptado con el nombre insertado dinámicamente
     html_reporte = f"""
     <!DOCTYPE html>
     <html>
@@ -149,6 +161,7 @@ if enviar:
             body {{ font-family: Arial, sans-serif; color: #333; line-height: 1.4; padding: 20px; }}
             .header {{ text-align: center; border-bottom: 3px solid #2e7d32; padding-bottom: 10px; }}
             .header h1 {{ color: #2e7d32; margin: 0; }}
+            .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; }}
             table {{ width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }}
             th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
             th {{ background-color: #f4fbf7; color: #2e7d32; }}
@@ -160,6 +173,7 @@ if enviar:
             <h1>🌱 Reporte de Diagnóstico Espiritual</h1>
             <p>Los 9 Frutos del Espíritu (Gálatas 5:22-23)</p>
         </div>
+        <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_usuario}</strong></div>
         <table>
             <thead>
                 <tr>
@@ -178,8 +192,8 @@ if enviar:
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button(
-        label="Descargar Reporte Completo (PDF / HTML)",
+        label=f"Descargar Reporte de {nombre_usuario} (PDF / HTML)",
         data=html_reporte,
-        file_name="diagnostico_frutos_espiritu.html",
+        file_name=f"diagnostico_{nombre_usuario.lower().replace(' ', '_')}.html",
         mime="text/html"
     )
