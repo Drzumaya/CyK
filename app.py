@@ -639,6 +639,18 @@ def main():
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
+# =================================================================
+# CORRECCIÓN DE INDENTACIÓN: CIERRE HERMÉTICO DE APP.PY
+# =================================================================
+            st.download_button(
+                label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), 
+                data=bytes(pdf_auditoria.output()), 
+                file_name="Dictamen_Doctoral.pdf", 
+                mime="application/pdf", 
+                key="btn_download_admin_macro_report"
+            )
+
+# 🍊 ALINEACIÓN RAÍZ COMPILATORIA: Esta función debe ir pegada al margen izquierdo sin un solo espacio inicial
 def generar_reconocimiento_honorifico_dinamico():
     pdf = FPDF(orientation="L", unit="mm", format="A4")
     pdf.add_page()
@@ -652,7 +664,8 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10)
     pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
-return bytes(pdf.output())
+    return bytes(pdf.output())
 
-if name == "main":
+if __name__ == "__main__": 
     main()
+
