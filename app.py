@@ -394,34 +394,31 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
     return bytes(pdf.output())
 
-# =================================================================
-# PARTE 5A: PROCESAMIENTO TRANSACCIONAL Y ENRUTAMIENTO GENERAL FIX
-# =================================================================
-def renderizar_botones_transaccionales(nom, wha, res, es_lk, lang, tx):
+def gateway_bt(n, w, r, lk, lg, t):
     st.divider()
-    c1, c2, col3 = st.columns(3)
-    ok = bool(nom.strip()) and bool(wha.strip())
+    c1, c2, c3 = st.columns(3)
+    vld = bool(n.strip()) and bool(w.strip())
     with c1:
-        if st.button(tx["btn_save"], type="primary", use_container_width=True):
-            if not ok: st.error(tx["err_fields"])
+        if st.button(t["btn_save"], type="primary", use_container_width=True):
+            if not vld: st.error(t["err_fields"])
             else:
-                guardar_en_google_sheets(st.session_state.audiencia_activa, nom, wha, res, "TOKEN_10MIN", es_lk)
-                st.session_state.nombre_usuario_persistente = nom
-                st.session_state.whatsapp_usuario_persistente = wha
-                st.session_state.resultados_usuario_persistente = res
-                st.session_state.es_modo_likert_persistente = es_lk
+                guardar_en_google_sheets(st.session_state.audiencia_activa, n, w, r, "TK_10M", lk)
+                st.session_state.nombre_usuario_persistente = n
+                st.session_state.whatsapp_usuario_persistente = w
+                st.session_state.resultados_usuario_persistente = r
+                st.session_state.es_modo_likert_persistente = lk
                 st.session_state.flujo_finalizado = True
                 st.rerun()
     with c2:
-        if ok:
-            r = generar_pdf_diagnostico(nom, wha, res, st.session_state.audiencia_activa, es_lk, lang)
-            st.download_button(tx["btn_pdf"], data=r, file_name="Reporte.pdf", mime="application/pdf", use_container_width=True)
-        else: st.info(tx["fields_msg"])
-    with col3:
-        if ok:
-            t_limpio = "".join(c for c in str(wha) if c.isdigit() or c == '+')
-            u_wa = f"https://whatsapp.com{urllib.parse.quote(t_limpio)}&text=Diagnostico+Completado"
-            st.markdown(f'<a href="{u_wa}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;cursor:pointer;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
+        if vld:
+            pdf_bytes = generar_pdf_diagnostico(n, w, r, st.session_state.audiencia_activa, lk, lg)
+            st.download_button(t["btn_pdf"], data=pdf_bytes, file_name="Reporte.pdf", mime="application/pdf", use_container_width=True)
+        else: st.info(t["fields_msg"])
+    with c3:
+        if vld:
+            tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
+            wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
+            st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
 
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
@@ -430,63 +427,58 @@ def main():
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
     if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
 
-    idioma_sel = st.query_params.get("lang", "es")
-    if idioma_sel not in ["es", "en"]: idioma_sel = "es"
-    st.session_state.idioma_activo_actual = idioma_sel
+    iso = st.query_params.get("lang", "es")
+    if iso not in ["es", "en"]: iso = "es"
+    st.session_state.idioma_activo_actual = iso
 
-    tx = CENTRO_MANDO_BILINGUE.get(idioma_sel, CENTRO_MANDO_BILINGUE["es"])
-    dictamen_bilingue = TEXTOS_DICTAMEN_BILINGUE.get(idioma_sel, TEXTOS_DICTAMEN_BILINGUE["es"])
+    tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
+    dc_bil = TEXTOS_DICTAMEN_BILINGUE.get(iso, TEXTOS_DICTAMEN_BILINGUE["es"])
 
-    min_10 = int(time.time() // 600)
-    token_tiempo = hashlib.md5(f"mandarina_secret_{min_10}".encode()).hexdigest()[:8]
+    tk_t = hashlib.md5(f"m_sec_{int(time.time() // 600)}".encode()).hexdigest()[:8]
+    es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
     
-    m_admin = st.query_params.get("modo_admin", "true")
-    es_celular_del_publico = str(m_admin).strip().lower() == "false"
-    
-    if es_celular_del_publico and st.query_params.get("diag_tipo", None): 
+    if es_cel and st.query_params.get("diag_tipo"): 
         st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
 
-    url_con_token = f"{URL_PRODUCCION}/?token={token_tiempo}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={idioma_sel}"
+    lnk_qr = f"{URL_PRODUCCION}/?token={tk_t}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={iso}"
 
     if not st.session_state.estructuras_inicializadas:
         for t in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(t)
         st.session_state.estructuras_inicializadas = True
 
-    # Renderizado explícito y sin bloqueos de la barra lateral
+    # 🍊 CORE BLINDAJE: Control de renderizado y ocultación por CSS de la barra lateral
+    ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
+
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
-        if not st.session_state.admin_autenticado:
-            p_in = st.text_input(tx.get("side_pwd", "Contraseña:"), type="password", key="p_sec_master_fixed")
-            if st.button(tx.get("side_btn", "Desbloquear"), key="btn_desbloquear_sidebar_master"):
+        if not ocultar_bar_css:
+            p_in = st.text_input(tx.get("side_pwd"), type="password", key="p_master")
+            if st.button(tx.get("side_btn"), key="btn_unlock_master"):
                 if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): 
                     st.session_state.admin_autenticado = True
                     st.rerun()
-                else: st.error(tx.get("side_pwd_err", "Error"))
-        else:
-            st.success(tx.get("side_success", "Activo"))
-            n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:"), key="input_add_audiencia_sidebar_master").strip()
-            if n_aud and n_aud not in st.session_state.audiences_custom_list: 
-                st.session_state.audiences_custom_list.append(n_aud)
-                st.rerun()
-            op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-            sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master_ponente_fixed_final")
-            if sel_aud != st.session_state.audiencia_activa: 
-                st.session_state.audiencia_activa = sel_aud
-                st.rerun()
-            if st.button(tx.get("side_close", "Cerrar"), key="btn_close_admin_sidebar_master"): 
-                st.session_state.admin_autenticado = False
-                st.rerun()
+                else: st.error(tx.get("side_pwd_err"))
+            if st.session_state.admin_autenticado:
+                st.success(tx.get("side_success"))
+                n_aud = st.text_input(tx.get("side_add"), key="add_aud_master").strip()
+                if n_aud and n_aud not in st.session_state.audiences_custom_list:
+                    st.session_state.audiences_custom_list.append(n_aud)
+                    st.rerun()
+                op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+                sel_aud = st.selectbox(tx.get("side_select_aud"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
+                if sel_aud != st.session_state.audiencia_activa:
+                    st.session_state.audiencia_activa = sel_aud
+                    st.rerun()
+                if st.button(tx.get("side_close"), key="btn_close_master"):
+                    st.session_state.admin_autenticado = False
+                    st.rerun()
 
-    # Ocultación por CSS limpia únicamente si el usuario es público y NO se ha autenticado
-    if es_celular_del_publico and not st.session_state.admin_autenticado:
+    if ocultar_bar_css:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
 
-
-       # =================================================================
+    # =================================================================
     # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GRADUACIÓN (CORE)
     # =================================================================
-    interruptor_movil = es_celular_del_publico
-
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
             st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
@@ -499,11 +491,11 @@ def main():
                 if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
-        if not interruptor_movil:
+        if not es_cel:
             with st.container(border=True):
                 st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=4)
-                qr.add_data(url_con_token)
+                qr.add_data(lnk_qr)
                 qr.make(fit=True)
                 buf_qr = BytesIO()
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
@@ -548,25 +540,13 @@ def main():
             resultados_totales["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0", "Se impone"), tx.get("kn4_opt1", "Se hereda"), tx.get("kn4_opt2", "No sé")], horizontal=True, key="rad_kn4_unq_sec2")
             resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
             
-            # =================================================================
-# CORRECCIÓN DE ACOPLAMIENTO EN FRACCIÓN 5B (BATERÍA C&K DINÁMICA)
-# =================================================================
             st.write("### 📋 BATERÍA DE REACTIVOS C&K")
-            # 🍊 SOLUCIÓN DOCTORAL: Pasamos 'st.session_state.audiencia_activa' directamente al motor generativo
             reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, idioma_sel)
-            
             for r_id, r_txt in reactivos.items():
                 st.write(f"Reactivo {r_id}: {r_txt}")
-                resultados_totales[f"R{r_id}"] = st.radio(
-                    "Escala / Scale:", 
-                    options=[1, 2, 3, 4, 5], 
-                    format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                    horizontal=True, 
-                    key=f"r_{r_id}_unq_dinamico"
-                )
+                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
-
-        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
+        gateway_bt(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
@@ -583,7 +563,7 @@ def main():
             st.rerun()
 
     # --- INVESTIGACIÓN ALTA ANALÍTICA DEL PONENTE ---
-    if st.session_state.admin_autenticado and not interruptor_movil:
+    if st.session_state.admin_autenticado and not es_cel:
         st.markdown("---")
         st.header(tx.get("lbl_titulo_aud", "🔬 Oficina Analítica"))
         tabla_analizar = st.selectbox(tx.get("lbl_tabla_select", "Tabla:"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_tabla_analizar_master_office")
@@ -608,7 +588,7 @@ def main():
             pdf_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title", "Referencias")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
             pdf_auditoria.set_font("Helvetica", "", 9)
             for ref_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
-                txt_bib = dictamen_bilingue.get(ref_key, "Hair, J. F., Black, W. C. (2019).")
+                txt_bib = dc_bil.get(ref_key, "Hair, J. F., Black, W. C. (2019).")
                 pdf_auditoria.multi_cell(190, 4.5, str(txt_bib).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
