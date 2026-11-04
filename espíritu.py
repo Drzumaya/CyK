@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Diagnóstico: Los 9 Frutos del Espíritu",
     page_icon="🌱",
     layout="centered"
-) 
+)
 
 # 2. Título de la aplicación y bienvenida principal
 st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
@@ -18,17 +18,18 @@ nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu re
 
 st.markdown("---")
 
-# 4. ENLACE FIJO DEL QR (Modifica 'https://share.streamlit.io/' si tu URL cambia en la nube)
-url_final_app = "https://diagnosticofrutosdelespiritu.streamlit.app/"
+# 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link cuando la subas a la nube)
+url_final_app = "https://streamlit.io"
 
-# 5. Renderizado Garantizado del QR al inicio de la batería
+# 5. Renderizado del QR usando la API activa de QuickChart
 st.markdown("### 📱 Escanea y Responde en tu Móvil")
-col_qr, col_txt = st.columns([1, 2]) # Distribución de tamaño para que el QR quepa perfecto
+col_qr, col_txt = st.columns()
 
 with col_qr:
-    # Genera una URL limpia para que la API de Google dibuje el QR de inmediato
+    # Codificamos la URL de forma segura
     url_codificada = urllib.parse.quote(url_final_app.strip())
-    qr_api_url = f"https://googleapis.com{url_codificada}&choe=UTF-8"
+    # API Actualizada y Activa (Reemplazo de Google Charts)
+    qr_api_url = f"https://quickchart.io{url_codificada}&size=180"
     st.image(qr_api_url, width=180)
 
 with col_txt:
@@ -62,6 +63,7 @@ consecuencias_texto = {
         "largo": "Legado de madurez espiritual, estabilidad emocional duradera y capacidad de guiar efectivamente a otros."
     }
 }
+
 st.header("📋 Autoevaluación")
 st.subheader("Selecciona el punto intermedio con el que te identifiques hoy:")
 
