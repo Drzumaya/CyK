@@ -472,7 +472,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq")
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
-                # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (RESTAURADO EXACTO)
+                               # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (RESTAURADO EXACTO)
                 st.subheader("📋 Sección III: Conocimiento sobre el tema")
                 
                 k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
@@ -510,8 +510,6 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
         
-        dip = generar_reconocimiento_honorifico_dinamico()
-        st.download_button(tx.get("lbl_btn_download_diploma", "🏆 DIPLOMA"), data=dip, file_name="Diploma_Excelencia.pdf", mime="application/pdf", use_container_width=True)
         if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
             st.session_state.flujo_finalizado = False
             st.rerun()
@@ -546,21 +544,6 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 pdf_auditoria.multi_cell(190, 4.5, str(txt_bib).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
-
-def generar_reconocimiento_honorifico_dinamico():
-    pdf = FPDF(orientation="L", unit="mm", format="A4")
-    pdf.add_page()
-    pdf.set_auto_page_break(auto=False)
-    pdf.set_draw_color(212, 175, 55)
-    pdf.set_line_width(1.2)
-    pdf.rect(10, 10, 277, 190)
-    pdf.set_font("Helvetica", "B", 14)
-    pdf.set_text_color(50, 50, 50)
-    pdf.cell(277, 15, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.ln(10)
-    pdf.set_font("Times", "B", 26)
-    pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
-    return bytes(pdf.output())
 
 if __name__ == "__main__": 
     main()
