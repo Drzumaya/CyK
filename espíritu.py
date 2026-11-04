@@ -10,46 +10,61 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- ESTILOS CSS AVANZADOS: ELIMINAR PUNTO Y PONER PERSONA ---
+# --- INYECCIÓN CSS ACTUALIZADA: REEMPLAZO ABSOLUTO DEL PUNTO POR EL MONITO ---
 st.markdown("""
 <style>
-    /* Ocultar el punto original de Streamlit por completo */
-    div[data-testid="stSlider"] div[role="slider"] {
+    /* 1. Apuntar directamente al botón deslizador (Thumb) moderno de Streamlit */
+    div[data-testid="stSlider"] [data-thumb="true"] {
         background-color: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        width: 30px !important;
-        height: 30px !important;
+        width: 35px !important;
+        height: 35px !important;
     }
-    /* En su lugar, inyectar el emoji de la persona */
-    div[data-testid="stSlider"] div[role="slider"]::after {
+    
+    /* 2. Inyectar el monito exactamente encima del control invisible */
+    div[data-testid="stSlider"] [data-thumb="true"]::after {
         content: "🚶" !important;
-        font-size: 28px !important;
+        font-size: 30px !important;
         position: absolute !important;
         top: -12px !important;
         left: -2px !important;
         visibility: visible !important;
+        display: block !important;
     }
-    /* Ocultar los números flotantes nativos que salen arriba del control */
+
+    /* 3. Evitar que el punto azul vuelva a aparecer al hacer clic o arrastrar */
+    div[data-testid="stSlider"] [data-thumb="true"]:focus,
+    div[data-testid="stSlider"] [data-thumb="true"]:active,
+    div[data-testid="stSlider"] [data-thumb="true"]:hover {
+        background-color: transparent !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    /* 4. Ocultar los números flotantes nativos redundantes sobre la barra */
     div[data-testid="stSlider"] div[data-testid="stWidgetMarkdownClaim"] {
         display: none !important;
     }
-    /* Estilizar la barra para que se vea más limpia */
+
+    /* 5. Darle un aspecto limpio y verde a la barra de seguimiento */
     div[data-testid="stSlider"] div[data-inner-slider="true"] {
         background-color: #e8f5e9 !important;
         height: 8px !important;
     }
-    /* Ajustar los textos de la escala manual */
+
+    /* 6. Estilizar la escala numérica manual del 1 al 10 */
     .escala-numerica {
         font-family: monospace;
         display: flex;
         justify-content: space-between;
-        padding-left: 10px;
-        padding-right: 10px;
+        padding-left: 8px;
+        padding-right: 8px;
         color: #2e7d32;
         font-weight: bold;
-        margin-top: -10px;
-        margin-bottom: 15px;
+        margin-top: -12px;
+        margin-bottom: 18px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -64,14 +79,14 @@ nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu re
 st.markdown("---")
 
 # 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link final de Streamlit Cloud)
-url_base_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
+url_base_app = "https://streamlit.io"
 
 # 5. DETECCIÓN AUTOMÁTICA DEL ESCANEO: Ocultar QR al instante en el celular
 query_params = st.query_params
 
 if "view" not in query_params:
     st.markdown("### 📱 Escanea y Responde en tu Móvil")
-    col_qr, col_txt = st.columns([1, 2])
+    col_qr, col_txt = st.columns(2)
     
     with col_qr:
         try:
@@ -112,6 +127,7 @@ consecuencias_texto = {
         "largo": "Legado de madurez espiritual, estabilidad emocional duradera y capacidad de guiar efectivamente a otros."
     }
 }
+
 st.header("📋 Autoevaluación")
 st.subheader("Usa el cursor del caminante (🚶) para marcar tu posición en la escala del 1 al 10:")
 
