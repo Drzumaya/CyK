@@ -126,7 +126,7 @@ CENTRO_MANDO_BILINGUE = {
     }
 }
 
-CENTRO_MANDO_BILINGUE = {
+TEXTOS_DICTAMEN_BILINGUE = {
     "es": {
         "ctrl_f0": "Vectores de Atencion Critica Detectados",
         "ctrl_f1": "Dimension Evaluada",
