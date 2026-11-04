@@ -275,6 +275,135 @@ def guardar_en_google_sheets(pestana, nom, wha, res, token, es_likert):
 # =================================================================
 # PARTE 4: MOTOR GENERATIVO DE EXTRACCIÓN PSICOMÉTRICA Y COMPILACIÓN PDF (REVISADO)
 # =================================================================
+# =================================================================
+# PARTE 4-1: GENERADOR ONTOLÓGICO DE REACTIVOS INDUCTIVOS ADAPTATIVOS
+# =================================================================
+def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
+    """
+    Genera la batería de 10 reactivos C&K en primera persona, adaptando 
+    el estilo semántico según edad, género y conocimiento previo del usuario,
+    sin exponer explícitamente el nombre de la audiencia en las oraciones.
+    Ítems impares = Cronos (Reloj/Listas) | Ítems pares = Kairós (Oportunidad).
+    """
+    edad = int(datos_participante.get("Edad", 30))
+    ha_leido = "sí" in str(datos_participante.get("C2_Leído", "")).lower()
+    es_experto = "sí" in str(datos_participante.get("C3_Enseñado", "")).lower()
+    
+    estilo = "reflexivo"
+    if edad > 45: estilo = "institucional"
+    elif edad < 25: estilo = "dinamico"
+    if ha_leido or es_experto: estilo = "tecnico"
+
+    if lang == "es":
+        if estilo == "institucional":
+            return {
+                1: "Estructuro mis compromisos diarios basándome rigurosamente en la métrica exacta del reloj.",
+                2: "Optimizo mis metas estratégicas capitalizando los momentos de máxima oportunidad operativa.",
+                3: "Ejecuto mis planes de rendimiento bajo listas de verificación rígidas e inalterables.",
+                4: "Experimento un flujo orgánico y natural al gestionar mis responsabilidades cotidianas.",
+                5: "Castigo severamente la falta de puntualidad y la desalineación horaria en mi entorno laboral.",
+                6: "Identifico los imprevistos de la jornada como ventanas estratégicas de alta utilidad analítica.",
+                7: "Prefiero un orden secuencial y estructurado antes de comprometerme con múltiples tareas.",
+                8: "Rompo mi itinerario establecido de forma inmediata si detecto una ventaja competitiva clara.",
+                9: "Resguardo bloques innegociables de tiempo dedicados exclusivamente a mi descanso biológico.",
+                10: "Activo una alta concentración intelectual si las condiciones de mi entorno cambian súbitamente."
+            }
+        elif estilo == "dinamico":
+            return {
+                1: "Organizo cada hora de mi día siguiendo el control exacto de mis alarmas y agendas.",
+                2: "Me enfoco en atrapar las mejores oportunidades en el instante preciso en que aparecen.",
+                3: "Sigo mis checklists al pie de la letra para asegurar el cumplimiento de mis entregas.",
+                4: "Dejo que mis tareas fluyan de forma natural sin forzar un horario rígido de oficina.",
+                5: "Me molesta profundamente perder minutos valiosos debido a la impuntualidad de otros.",
+                6: "Aprovecho los cambios de planes inesperados para dar un giro creativo a mis actividades.",
+                7: "Necesito terminar por completo una actividad antes de saltar al siguiente pendiente.",
+                8: "Cambio mis planes al momento si surge una opción mucho más atractiva o ventajosa.",
+                9: "Mantengo una rutina estricta para asegurar mis horas de sueño y rendimiento óptimo.",
+                10: "Duplico mi energía y foco de atención cuando las circunstancias me obligan a improvisar."
+            }
+        elif estilo == "tecnico":
+            return {
+                1: "Sincronizo mis bloques operativos sobre matrices cronométricas de alta precisión temporal.",
+                2: "Maximizo mi rendimiento asumiendo vectores de oportunidad basados en el factor Kairós.",
+                3: "Administro mis procesos de ejecución bajo un esquema cerrado de checklists secuenciales.",
+                4: "Evidencio una baja resistencia cognitiva cuando la transición de tareas es orgánica.",
+                5: "Monitoreo y penalizo las desviaciones horarias dentro de mis flujos de producción.",
+                6: "Decodifico las contingencias del entorno como ventanas analíticas óptimas para innovar.",
+                7: "Mitigo el error operativo priorizando la ejecución lineal sobre la multitarea saturada.",
+                8: "Interrumpo la planificación estructural si emerge una ventana adaptativa preferente.",
+                9: "Blindo mis parámetros homeostáticos separando franjas fijas de recuperación biológica.",
+                10: "Estabilizo mi foco atencional ante incrementos críticos en la entropía del contexto."
+            }
+        else:
+            return {
+                1: "Estructuro mi agenda sobre plazos estrictos determinados por relojes exactos.",
+                2: "Alineo mis esfuerzos diarios para actuar con agilidad en los momentos clave.",
+                3: "Gestiono el avance de mis metas mediante el uso de listas de control organizadas.",
+                4: "Siento que el tiempo transcurre de forma más libre cuando realizo mis labores.",
+                5: "Considero la impuntualidad profesional como una falta de respeto metodológica.",
+                6: "Encuentro un valor profundo en los imprevistos cuando revelan nuevas alternativas.",
+                7: "Prefiero concentrarme en un solo problema estructurado en lugar de diversificarme.",
+                8: "Dejo de lado mi itinerario si se presenta una oportunidad superior para avanzar.",
+                9: "Establezco límites claros para proteger mis tiempos de descanso y desconexión laboral.",
+                10: "Mantengo la calma y la claridad analítica cuando todo a mi alrededor cambia rápidamente."
+            }
+    else:
+        if estilo == "institucional":
+            return {
+                1: "I structure my daily commitments based strictly on exact clock metrics.",
+                2: "I optimize my strategic goals by capitalizing on moments of maximum operational opportunity.",
+                3: "I execute my performance plans under rigid and unalterable checklists.",
+                4: "I experience an organic and natural flow when managing my daily responsibilities.",
+                5: "I strictly penalize untimeliness and schedule misalignment within my workspace.",
+                6: "I read unexpected events during the day as highly useful strategic windows.",
+                7: "I prefer a sequential, structured order before committing to multiple concurrent tasks.",
+                8: "I break my established itinerary immediately if I detect a clear competitive advantage.",
+                9: "I safeguard non-negotiable blocks of time dedicated exclusively to biological rest.",
+                10: "I trigger high intellectual concentration if my environmental conditions change rapidly."
+            }
+        elif estilo == "dinamico":
+            return {
+                1: "I organize every hour of my day following the exact control of alarms and calendars.",
+                2: "I focus on catching the best opportunities at the precise instant they appear.",
+                3: "I follow my checklists to the letter to ensure the timely completion of my tasks.",
+                4: "I let my work flow naturally without forcing a rigid administrative office schedule.",
+                5: "I get deeply annoyed by losing valuable minutes due to other people's untimeliness.",
+                6: "I take advantage of unexpected changes in plans to give a creative twist to my workflow.",
+                7: "I need to completely finish one activity before jumping to the next pending item.",
+                8: "I change my plans on the spot if a much more attractive or advantageous option emerges.",
+                9: "I maintain a strict routine to secure my hours of sleep and optimal daily performance.",
+                10: "I double my focus and energy level when circumstances force me to improvise."
+            }
+        elif estilo == "tecnico":
+            return {
+                1: "I synchronize my operational blocks on highly precise chronometric time matrices.",
+                2: "I maximize my output by leveraging opportunity vectors based on the Kairos factor.",
+                3: "I manage my execution processes under a closed sequence of structured checklists.",
+                4: "I demonstrate low cognitive resistance when the task transition is organic.",
+                5: "I strictly monitor and penalize schedule deviations within my production flows.",
+                6: "I decode environmental contingencies as optimal analytical windows for innovation.",
+                7: "I mitigate operational errors by prioritizing linear execution over saturated multitasking.",
+                8: "I interrupt structural planning if a preferential adaptive window emerges.",
+                9: "I shield my homeostatic parameters by separating fixed slots for biological recovery.",
+                10: "I stabilize my attentional focus during critical increases in context entropy."
+            }
+        else:
+            return {
+                1: "I structure my timeline based on strict deadlines determined by exact clocks.",
+                2: "I align my daily efforts to act with agility during key opportunities.",
+                3: "I manage the progress of my goals through organized checking matrices.",
+                4: "I feel that time flows more freely when I perform my administrative work.",
+                5: "I consider professional untimeliness as a serious methodological failure.",
+                6: "I find a profound value in unexpected events when they reveal new alternatives.",
+                7: "I prefer to concentrate on a single structured problem instead of dividing my focus.",
+                8: "I leave my itinerary aside if a superior opportunity to advance presents itself.",
+                9: "I establish clear boundaries to protect my resting time and digital fasting hours.",
+                10: "I maintain my analytical clarity when everything around me changes rapidly."
+            }
+            
+# =================================================================
+# PARTE 4-2: LIENZO DE EXTRACCIÓN HISTÓRICA E INICIALIZACIÓN PDF
+# =================================================================
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     pdf = FPDF()
     pdf.core_fonts_encoding = "cp1252"
@@ -283,7 +412,6 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     
     font_family = "Helvetica"
     
-    # Sincronización estática con el Centro de Mando Bilingüe
     tx_pdf = CENTRO_MANDO_BILINGUE.get(lang, CENTRO_MANDO_BILINGUE["es"])
     dictamen_bilingue = TEXTOS_DICTAMEN_BILINGUE.get(lang, TEXTOS_DICTAMEN_BILINGUE["es"])
     
@@ -302,11 +430,11 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     lbl_cont_pdf = "Contacto / Contact:"
     pdf.cell(190, 6, f"{lbl_part_pdf} {nombre_seguro} | {lbl_cont_pdf} {whatsapp_seguro}", new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
-    
+# =================================================================
+# PARTE 4-3: SUB-MÓDULO DE PROCESAMIENTO DE SALUD INTEGRAL MULTIVARIADA
+# =================================================================
     if not es_likert:
-        # --- MÓDULO A: EVALUACIÓN DE SALUD INTEGRAL MULTIVARIADA ---
         g_trad = motor_generativo_items_audiencia(tabla, lang_code=lang)
-        
         for idx, dim_traducida_emoji in enumerate(g_trad.keys()):
             if len(resultados.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], [])) > 0:
                 key_segura = str(dim_traducida_emoji).encode('cp1252', 'ignore').decode('cp1252')
@@ -314,9 +442,8 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     key_segura = key_segura.replace(emj, "")
                     
                 pdf.set_font(font_family, "B", 11)
-                pdf.cell(190, 6, f"Dimensión: {key_segura.strip()}", new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(190, 6, f"Dimension: {key_segura.strip()}", new_x="LMARGIN", new_y="NEXT")
                 
-                # Indicadores reportados por el usuario
                 indices_marcados = resultados.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], [])
                 sintomas_origen_nicho = list(g_trad.values())[idx]
                 sintomas_reportados = [sintomas_origen_nicho[int(i)] for i in indices_marcados if int(i) < len(sintomas_origen_nicho)]
@@ -325,13 +452,11 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 pdf.set_text_color(120, 30, 30)
                 pdf.multi_cell(190, 4.5, f"Indicadores detectados: {', '.join(sintomas_reportados)}".encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 
-                # Directriz clínica de recomendación estándar
                 glosario_seguro = str(dictamen_bilingue.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], "")).encode('cp1252', 'ignore').decode('cp1252')
                 pdf.set_font(font_family, "", 9.5)
                 pdf.set_text_color(50, 50, 50)
                 pdf.multi_cell(190, 4.5, f"Sugerencia base: {glosario_seguro.strip()}".encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 
-                # 🍊 INYECCIÓN ADICIONAL CONSECUENCIAS TEMPORALES (Si es la dimensión temporal)
                 if "⏳" in dim_traducida_emoji or "temporal" in dim_traducida_emoji.lower():
                     pdf.ln(1)
                     pdf.set_font(font_family, "B", 9.5)
@@ -340,9 +465,9 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     pdf.set_font(font_family, "", 9)
                     pdf.set_text_color(60, 60, 60)
                     
-                    c_corto = "- Corto Plazo: Elevación de fatiga cognitiva, saturación horaria y pérdida de ventanas de oportunidad." if lang == "es" else "- Short Term: Increased cognitive fatigue, schedule saturation, and lost windows of opportunity."
-                    c_medio = "- Mediano Plazo: Síndrome de Burnout latente, desequilibrio en dinámicas familiares y fricción operacional." if lang == "es" else "- Medium Term: Latent Burnout syndrome, imbalance in family dynamics, and operational friction."
-                    c_largo = "- Largo Plazo: Cronificación del estrés, colapso de efectividad y pérdida del propósito estratégico vocacional." if lang == "es" else "- Long Term: Chronification of stress, collapse of personal effectiveness, and loss of vocational purpose."
+                    c_corto = "- Corto Plazo: Elevacion de fatiga cognitiva, saturacion horaria y perdida de ventanas de oportunidad." if lang == "es" else "- Short Term: Increased cognitive fatigue, schedule saturation, and lost windows of opportunity."
+                    c_medio = "- Mediano Plazo: Sindrome de Burnout latente, desequilibrio en dinamicas familiares y friccion operacional." if lang == "es" else "- Medium Term: Latent Burnout syndrome, imbalance in family dynamics, and operational friction."
+                    c_largo = "- Largo Plazo: Cronificacion del estres, colapso de efectividad y perdida del proposito estrategico vocacional." if lang == "es" else "- Long Term: Chronification of stress, collapse of personal effectiveness, and loss of vocational purpose."
                     
                     pdf.multi_cell(190, 4, str(c_corto).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                     pdf.multi_cell(190, 4, str(c_medio).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
@@ -356,23 +481,24 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 
                 pdf.ln(3)
                 pdf.set_text_color(0, 0, 0)
+# =================================================================
+# PARTE 4-4: COMPILACIÓN CUANTITATIVA C&K Y RETORNO DE BYTES
+# =================================================================
     else:
-        # --- MÓDULO B: RESULTADOS DE LA ENCUESTA PSICOMÉTRICA LIKERT C&K ---
         k_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         c_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_c = sum(c_v) / 5
         avg_k = sum(k_v) / 5
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "1. RESULTADOS DE LA EVALUACIÓN CUANTITATIVA", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "1. RESULTADOS DE LA EVALUACION CUANTITATIVA", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font(font_family, "", 10)
-        lbl_m_pdf = f"Media Vector Cronos (Métrico / Checlists): {avg_c:.2f} | Media Vector Kairós (Oportunidad / Adaptativo): {avg_k:.2f}"
+        lbl_m_pdf = f"Media Vector Cronos (Metrico / Checklists): {avg_c:.2f} | Media Vector Kairos (Oportunidad / Adaptativo): {avg_k:.2f}"
         pdf.cell(190, 5, str(lbl_m_pdf).encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
         
-        # Apartado de Análisis Perfilario Dominante
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "2. APARTADO DE ANÁLISIS Y PERFIL DOMINANTE", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "2. APARTADO DE ANALISIS Y PERFIL DOMINANTE", new_x="LMARGIN", new_y="NEXT")
         
         dif = abs(avg_c - avg_k)
         if dif <= 0.4: txt_p = dictamen_bilingue.get("txt_p_simbiosis")
@@ -383,43 +509,41 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         pdf.multi_cell(190, 5, str(txt_p).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
         
-        # 🍊 APARTADO DE PROSPECTIVA DE RIESGO: Corto, Mediano y Largo Plazo
         pdf.set_font(font_family, "B", 11)
         pdf.cell(190, 6, "3. PROSPECTIVA DE RIESGO TEMPORAL Y CONSECUENCIAS", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font(font_family, "", 10)
         
         if avg_c > avg_k:
-            r_c_corto = "- Corto Plazo: Incremento agudo de rigidez mental, estrés ante imprevistos cotidianos y checklists inconclusos."
-            r_c_medio = "- Mediano Plazo: Pérdida sistémica de ventanas de oportunidad (Kairós) de negocio, académicas o relacionales por exceso de apego a la métrica horaria."
-            r_c_largo = "- Largo Plazo: Obsolescencia adaptativa, mecanización del estilo de vida y colapso de la plasticidad cognitiva estructural."
+            r_c_corto = "- Corto Plazo: Incremento agudo de rigidez mental, estres ante imprevistos cotidianos y checklists inconclusos."
+            r_c_medio = "- Mediano Plazo: Perdida sistemica de ventanas de oportunidad (Kairos) de negocio, academicas o relacionales por exceso de apego a la metrica horaria."
+            r_c_largo = "- Largo Plazo: Obsolescencia adaptativa, mecanizacion del estilo de vida y colapso de la plasticidad cognitiva estructural."
         else:
-            r_c_corto = "- Corto Plazo: Desorden administrativo inmediato, desalineación de plazos obligatorios y acumulación de pasivos organizacionales."
-            r_c_medio = "- Mediano Plazo: Pérdida de credibilidad profesional institucional por impuntualidad sistemática o desatención de hitos del reloj."
-            r_c_largo = "- Largo Plazo: Crisis de estabilidad familiar, incapacidad estructural para consolidar proyectos a largo plazo y desbordamiento cronocéntrico."
+            r_c_corto = "- Corto Plazo: Desorden administrativo inmediato, desalineacion de plazos obligatorios y acumulacion de pasivos organizacionales."
+            r_c_medio = "- Mediano Plazo: Perdida de credibilidad profesional institucional por impuntualidad sistemica o desatencion de hitos del reloj."
+            r_c_largo = "- Largo Plazo: Crisis de estabilidad familiar, incapacidad estructural para consolidar proyectos a largo plazo y desbordamiento cronocentrico."
             
         pdf.multi_cell(190, 5, str(r_c_corto).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         pdf.multi_cell(190, 5, str(r_c_medio).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         pdf.multi_cell(190, 5, str(r_c_largo).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
         
-        # Apartado de Recomendaciones Metodológicas Específicas
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "4. RECOMENDACIONES METODOLÓGICAS DE CONTENCIÓN", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "4. RECOMENDACIONES METODOLOGICAS DE CONTENCION", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font(font_family, "", 10)
         gl_recom = str(dictamen_bilingue.get("txt_ck_recom", "")).encode('cp1252', 'ignore').decode('cp1252')
         pdf.multi_cell(190, 5, gl_recom, new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         
-        # 🍊 LLAMADO DIRECTO EXCLUSIVO AL PONENTE SOLICITADO
         pdf.set_font(font_family, "B", 10)
         pdf.set_text_color(180, 0, 0)
-        req_ponente = "🚨 ATENCIÓN DIRECTA: Al tratarse de un diagnóstico de asimetría dimensional temporal del Modelo C&K, se le recomienda al participante agendar a la brevedad una consulta especializada de carácter personal o familiar con el ponente para el establecimiento de un mapa de ruta e intervención conductual equilibrada." if lang == "es" else "🚨 DIRECT ATTENTION: Being a diagnostic of temporal dimensional asymmetry of the C&K Model, the participant is strongly advised to schedule as soon as possible a specialized personal or family consultation with the speaker to establish a balanced behavioral intervention roadmap."
+        req_ponente = "🚨 ATENCION DIRECTA: Al tratarse de un diagnostico de asimetria dimensional temporal del Modelo C&K, se le recomienda al participante agendar a la brevedad una consulta especializada de caracter personal o familiar con el ponente para el establecimiento de un mapa de ruta e intervención conductual equilibrada." if lang == "es" else "🚨 DIRECT ATTENTION: Being a diagnostic of temporal dimensional asymmetry of the C&K Model, the participant is strongly advised to schedule as soon as possible a specialized personal or family consultation with the speaker to establish a balanced behavioral intervention roadmap."
         pdf.multi_cell(190, 4.5, str(req_ponente).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         pdf.set_text_color(0, 0, 0)
+        
     return bytes(pdf.output())
 
 
- # =================================================================
+# =================================================================
 # PARTE 5-1: PUERTA DE ENLACE DE ALMACENAMIENTO Y ENRUTAMIENTO GENERAL
 # =================================================================
 def gateway_bt(n, w, r, lk, lg, t):
