@@ -89,10 +89,12 @@ frutos_info = {
 
 puntajes = {}
 
-# Creación del formulario estructurado
+# Creación del formulario estructurado con enumeración automática
 with st.form("diagnostico_form"):
-    for fruto, info in frutos_info.items():
-        st.markdown(f"#### **{fruto}** <small>({info['cita']})</small>", unsafe_allow_html=True)
+    # enumerate(..., 1) empieza a contar desde el número 1
+    for i, (fruto, info) in enumerate(frutos_info.items(), 1):
+        # Muestra el número antes del nombre del fruto
+        st.markdown(f"#### **{i}. {fruto}** <small>({info['cita']})</small>", unsafe_allow_html=True)
         
         # Deslizador con las frases en primera persona en los extremos
         puntaje = st.slider(
@@ -106,6 +108,7 @@ with st.form("diagnostico_form"):
         st.markdown("---")
     
     enviar = st.form_submit_button("Generar Diagnóstico")
+
 # 7. Procesamiento posterior al envío
 if enviar:
     st.header(f"📊 Resultados de {nombre_usuario}")
