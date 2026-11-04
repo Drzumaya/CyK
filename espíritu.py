@@ -10,41 +10,67 @@ st.set_page_config(
     layout="centered"
 )
 
+# --- ESTILOS CSS AVANZADOS: ÍCONO DE PERSONA EN EL CURSOR ---
+st.markdown("""
+<style>
+    /* Cambia el punto azul del cursor de Streamlit por una persona caminando */
+    div[data-testid="stSlider"] div[role="slider"] {
+        background-color: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        width: 28px !important;
+        height: 28px !important;
+    }
+    div[data-testid="stSlider"] div[role="slider"]::after {
+        content: "🚶"; /* Ícono de la persona que se desplaza */
+        font-size: 26px;
+        position: absolute;
+        top: -10px;
+        left: -2px;
+    }
+    /* Estilización complementaria de la barra */
+    div[data-testid="stSlider"] div[data-inner-slider="true"] {
+        background-color: #e8f5e9 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # 2. Título de la aplicación y bienvenida principal
 st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
 st.markdown("Este diagnóstico te ayudará a evaluar el estado actual de tu carácter basándose en **Gálatas 5:22-23**.")
 
-# 3. Personalización por Nombre (Actúa como detonador para ocultar el QR)
+# 3. Personalización por Nombre
 nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu reporte:", value="")
 
 st.markdown("---")
 
-# 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link cuando la subas a la nube)
-url_final_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
+# 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link final de Streamlit Cloud)
+url_base_app = "https://share.streamlit.io/"
 
-# 5. Lógica inteligente para ocultar el QR
-# Si el usuario ya escribió su nombre (es decir, ya escaneó y está respondiendo), el QR se oculta.
-if nombre_usuario == "" or nombre_usuario.strip().lower() == "invitado":
+# 5. DETECCIÓN AUTOMÁTICA DEL ESCANEO: Ocultar QR al instante en el celular
+# Añadimos un parámetro '?view=mobile' al QR para identificar al participante
+query_params = st.query_params
+
+if "view" not in query_params:
     st.markdown("### 📱 Escanea y Responde en tu Móvil")
-    col_qr, col_txt = st.columns([1, 2]) # 1 parte para el QR, 2 partes para el texto
+    col_qr, col_txt = st.columns([1, 2])
     
     with col_qr:
         try:
-            # Generar el QR de forma interna en memoria
-            qr = segno.make_qr(url_final_app.strip())
+            # Creamos un enlace dinámico que le avisa a la app que es un celular
+            url_con_parametro = f"{url_base_app.strip()}?view=mobile"
+            qr = segno.make_qr(url_con_parametro)
             buffer_qr = io.BytesIO()
             qr.save(buffer_qr, kind='png', scale=5)
-            
-            # Mostrar la imagen de forma nativa
             st.image(buffer_qr.getvalue(), use_container_width=True)
-        except Exception as e:
+        except Exception:
             st.error("No se pudo generar el código QR.")
             
     with col_txt:
         st.markdown("""
-        Si eres parte de la audiencia, acerca la cámara de tu celular al código QR de la izquierda para responder el test desde tu asiento.
+        Si eres parte de la audiencia, acerca la cámara de tu celular al código QR de la izquierda. 
         
-        *Al ingresar tu nombre abajo, este recuadro se ocultará para darte más espacio.*
+        *¡Al escanearlo, este recuadro con el QR desaparecerá por completo de tu pantalla móvil para darte máxima comodidad al responder!*
         """)
     st.markdown("---")
 
@@ -69,14 +95,12 @@ consecuencias_texto = {
         "largo": "Legado de madurez espiritual, estabilidad emocional duradera y capacidad de guiar efectivamente a otros."
     }
 }
-
-
 st.header("📋 Autoevaluación")
-st.subheader("Selecciona el punto intermedio con el que te identifiques hoy:")
+st.subheader("Usa el cursor del caminante (🚶) para marcar tu posición en la escala del 1 al 10:")
 
-# Diccionario con enunciados cotidianos (Cortos, Claros y en Primera Persona)
+# Diccionario con enunciados en primera persona
 frutos_info = {
-    "Amor": {"izq": "A veces guardo rencor o indiferencia.", "der": "Amo y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
+    "Amor": {"izq": "A veces guardo rencor o elijo la indiferencia.", "der": "Amo y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
     "Gozo": {"izq": "Me gana la queja, la amargura o la tristeza.", "der": "Siento una alegría profunda que no cambia por las crisis.", "cita": "Gálatas 5:22"},
     "Paz": {"izq": "Vivo con ansiedad, discusiones o conflictos.", "der": "Tengo tranquilidad interna y busco la reconciliación.", "cita": "Gálatas 5:22"},
     "Paciencia": {"izq": "Me desespero o me irrito con facilidad.", "der": "Sé esperar con calma y tolerar los errores ajenos.", "cita": "Gálatas 5:22"},
@@ -89,17 +113,15 @@ frutos_info = {
 
 puntajes = {}
 
-# Creación del formulario estructurado con enumeración automática
+# Formulario estructurado con numeración y escala del 1 al 10
 with st.form("diagnostico_form"):
-    # enumerate(..., 1) empieza a contar desde el número 1
     for i, (fruto, info) in enumerate(frutos_info.items(), 1):
-        # Muestra el número antes del nombre del fruto
         st.markdown(f"#### **{i}. {fruto}** <small>({info['cita']})</small>", unsafe_allow_html=True)
         
-        # Deslizador con las frases en primera persona en los extremos
+        # CORRECCIÓN: Escala explícita del 1 al 10 (mínimo 1, máximo 10)
         puntaje = st.slider(
-            label=f"De: {info['izq']} ➔ Hacia: {info['der']}",
-            min_value=0,
+            label=f"Desplaza el cursor: {info['izq']} ➔ {info['der']}",
+            min_value=1,
             max_value=10,
             value=5,
             key=fruto
@@ -108,10 +130,10 @@ with st.form("diagnostico_form"):
         st.markdown("---")
     
     enviar = st.form_submit_button("Generar Diagnóstico")
-
 # 7. Procesamiento posterior al envío
 if enviar:
-    st.header(f"📊 Resultados de {nombre_usuario}")
+    nombre_final = nombre_usuario if nombre_usuario.strip() != "" else "Invitado"
+    st.header(f"📊 Resultados de {nombre_final}")
     
     # Gráfico interactivo
     df = pd.DataFrame(list(puntajes.items()), columns=["Fruto del Espíritu", "Puntaje"])
@@ -121,6 +143,7 @@ if enviar:
     fortalezas, atencion, criticos = [], [], []
     tabla_html = ""
     
+    # Adaptación de rangos para la escala 1-10
     for fruto, score in puntajes.items():
         if score >= 8:
             fortalezas.append(fruto)
@@ -143,13 +166,13 @@ if enviar:
         </tr>
         """
         
-    # Alertas visuales personalizadas
-    if Clean_Fortalezas := ", ".join(fortalezas):
-        st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {Clean_Fortalezas}. ¡Sigue cultivándolas, {nombre_usuario}!")
-    if Clean_Atencion := ", ".join(atencion):
-        st.warning(f"⚠️ **Áreas en desarrollo (Puntaje 5-7):** {Clean_Atencion}. Tienes espacio para madurar.")
-    if Clean_Criticos := ", ".join(criticos):
-        st.error(f"🚨 **Áreas críticas (Puntaje 0-4):** {Clean_Criticos}. Atención con estas conductas dominantes.")
+    # Alertas visuales en pantalla
+    if fortalezas:
+        st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {', '.join(fortalezas)}. ¡Sigue cultivándolas, {nombre_final}!")
+    if atencion:
+        st.warning(f"⚠️ **Áreas en desarrollo (Puntaje 5-7):** {', '.join(atencion)}. Tienes espacio para madurar.")
+    if criticos:
+        st.error(f"🚨 **Áreas críticas (Puntaje 1-4):** {', '.join(criticos)}. Mucha atención con estas conductas.")
 
     # Recomendaciones y cierre
     st.header("💡 Recomendaciones Generales")
@@ -157,9 +180,9 @@ if enviar:
                 "2. **Acción Intencional:** Elige una virtud en desarrollo y practícala conscientemente esta semana.\n"
                 "3. **Acompañamiento:** Comparte este mapa con un mentor o persona de confianza.")
     
-    st.info(f"🤝 **¿Deseas profundizar, {nombre_usuario}?** Te invitamos a acercarte con el ponente para agendar una **consulta espiritual complementaria y 100% gratuita** para estructurar un plan personalizado.")
+    st.info(f"🤝 **¿Deseas profundizar, {nombre_final}?** Te invitamos a acercarte con el ponente para agendar una **consulta espiritual complementaria y 100% gratuita** para estructurar un plan personalizado.")
 
-    # Reporte HTML adaptado con el nombre insertado dinámicamente
+    # Reporte HTML adaptable para impresión limpia
     html_reporte = f"""
     <!DOCTYPE html>
     <html>
@@ -181,7 +204,7 @@ if enviar:
             <h1>🌱 Reporte de Diagnóstico Espiritual</h1>
             <p>Los 9 Frutos del Espíritu (Gálatas 5:22-23)</p>
         </div>
-        <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_usuario}</strong></div>
+        <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
         <table>
             <thead>
                 <tr>
@@ -200,8 +223,8 @@ if enviar:
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button(
-        label=f"Descargar Reporte de {nombre_usuario} (PDF / HTML)",
+        label=f"Descargar Reporte de {nombre_final} (PDF / HTML)",
         data=html_reporte,
-        file_name=f"diagnostico_{nombre_usuario.lower().replace(' ', '_')}.html",
+        file_name=f"diagnostico_{nombre_final.lower().replace(' ', '_')}.html",
         mime="text/html"
     )
