@@ -1,43 +1,32 @@
-
 import streamlit as st
 import pandas as pd
 import urllib.parse
 
-# 1. Configuración inicial de la página
+# 1. Configuración de la página institucional
 st.set_page_config(
     page_title="Diagnóstico: Los 9 Frutos del Espíritu",
     page_icon="🌱",
     layout="centered"
 )
 
-# 2. Generación dinámica de Código QR en la barra lateral
-st.sidebar.header("📱 Acceso para la Audiencia")
-url_app = st.sidebar.text_input(
-    "URL de esta aplicación:", 
-    value="https://streamlit.io"
-)
+# 2. Obtención automática de la URL de la App para el código QR
+# Si está local usa localhost, si está en la nube detecta la URL real automáticamente
+try:
+    host_url = st.context.headers.get("Host", "share.streamlit.io")
+    protocol = "https" if "localhost" not in host_url else "http"
+    url_actual = f"{protocol}://{host_url}"
+except Exception:
+    url_actual = "https://streamlit.io"
 
-if url_app:
-    url_codificada = urllib.parse.quote(url_app)
-    qr_api_url = f"https://googleapis.com{url_codificada}&choe=UTF-8"
-    st.sidebar.image(qr_api_url, caption="¡Escanea para responder en tu móvil!", use_container_width=True)
+# 3. Renderizado directo del Código QR en la barra lateral
+st.sidebar.header("📱 Escanea y Responde")
+url_codificada = urllib.parse.quote(url_actual)
+qr_api_url = f"https://googleapis.com{url_codificada}&choe=UTF-8"
 
+st.sidebar.image(qr_api_url, caption="Abre este diagnóstico en tu celular", use_container_width=True)
 st.sidebar.markdown("---")
 
-# 3. Estructura de Datos: Frutos, Citas y Antónimos
-frutos_info = {
-    "Amor": {"antonimo": "Odio", "cita": "Gálatas 5:22"},
-    "Gozo": {"antonimo": "Tristeza / Amargura", "cita": "Gálatas 5:22"},
-    "Paz": {"antonimo": "Discordia / Conflicto", "cita": "Gálatas 5:22"},
-    "Paciencia": {"antonimo": "Impaciencia / Intolerancia", "cita": "Gálatas 5:22"},
-    "Benignidad": {"antonimo": "Crueldad / Aspereza", "cita": "Gálatas 5:22"},
-    "Bondad": {"antonimo": "Malicia / Maldad", "cita": "Gálatas 5:22"},
-    "Fe": {"antonimo": "Infidelidad / Deslealtad", "cita": "Gálatas 5:22"},
-    "Mansedumbre": {"antonimo": "Arrogancia / Ira", "cita": "Gálatas 5:23"},
-    "Templanza": {"antonimo": "Descontrol / Desenfreno", "cita": "Gálatas 5:23"}
-}
-
-# 4. Diccionario de proyecciones y consecuencias
+# 4. Diccionario de proyecciones para el reporte PDF final
 consecuencias_texto = {
     "critico": {
         "estado": "Crítico / Alerta",
@@ -58,26 +47,39 @@ consecuencias_texto = {
         "largo": "Legado de madurez espiritual, estabilidad emocional duradera y capacidad de guiar efectivamente a otros."
     }
 }
-# 5. Título principal de la aplicación
+# 5. Título de la aplicación
 st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
 st.markdown("""
 Este diagnóstico te ayudará a evaluar el estado actual de tu carácter basándose en **Gálatas 5:22-23**. 
-Mueve el deslizador según cómo te identifiques hoy: el extremo izquierdo representa la tendencia negativa (antónimos) y el extremo derecho representa el fruto reflejado en tu vida.
+Mueve el deslizador según cómo te sientas hoy: el extremo izquierdo representa una debilidad y el derecho un fruto maduro en tu vida.
 """)
 
 st.header("📋 Autoevaluación")
-st.subheader("Escala del 0 (Antónimo) al 10 (Fruto)")
+st.subheader("Selecciona el punto intermedio con el que te identifiques hoy:")
 
-# Inicializar diccionario para capturar las respuestas del usuario
+# Diccionario con enunciados en primera persona (Cortos y Claros)
+frutos_info = {
+    "Amor": {"izq": "A veces guardo rencor o indiferencia.", "der": "Amo y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
+    "Gozo": {"izq": "Me gana la queja, la amargura o la tristeza.", "der": "Siento una alegría profunda que no cambia por las crisis.", "cita": "Gálatas 5:22"},
+    "Paz": {"izq": "Vivo con ansiedad, discusiones o conflictos.", "der": "Tengo tranquilidad interna y busco la reconciliación.", "cita": "Gálatas 5:22"},
+    "Paciencia": {"izq": "Me desespero o me irrito con facilidad.", "der": "Sé esperar con calma y tolerar los errores ajenos.", "cita": "Gálatas 5:22"},
+    "Benignidad": {"izq": "Puedo llegar a ser duro o cortante al hablar.", "der": "Trato a todos con dulzura, empatía y amabilidad.", "cita": "Gálatas 5:22"},
+    "Bondad": {"izq": "Pienso primero en mi beneficio o actúo con malicia.", "der": "Busco hacer el bien de forma activa y generosa.", "cita": "Gálatas 5:22"},
+    "Fe": {"izq": "Dudo con frecuencia o rompo mis promesas.", "der": "Soy alguien fiel, confiable y que confía plenamente.", "cita": "Gálatas 5:22"},
+    "Mansedumbre": {"izq": "Me defiendo con orgullo, soberbia o enojo.", "der": "Reacciono con humildad, suavidad y sin prepotencia.", "cita": "Gálatas 5:23"},
+    "Templanza": {"izq": "Cedo fácil a los antojos, impulsos o vicios.", "der": "Tengo dominio propio y controlo mis emociones.", "cita": "Gálatas 5:23"}
+}
+
 puntajes = {}
 
-# Formulario de entrada
+# Creación del formulario estructurado
 with st.form("diagnostico_form"):
     for fruto, info in frutos_info.items():
         st.markdown(f"#### **{fruto}** <small>({info['cita']})</small>", unsafe_allow_html=True)
         
+        # Deslizador con las frases en primera persona en los extremos
         puntaje = st.slider(
-            label=f"De {info['antonimo']} ➔ Hacia {fruto}",
+            label=f"De: {info['izq']} ➔ Hacia: {info['der']}",
             min_value=0,
             max_value=10,
             value=5,
@@ -86,13 +88,12 @@ with st.form("diagnostico_form"):
         puntajes[fruto] = puntaje
         st.markdown("---")
     
-    # Botón de activación del diagnóstico
     enviar = st.form_submit_button("Generar Diagnóstico")
-# 6. Procesamiento posterior al envío del formulario
+# 6. Procesamiento posterior al envío
 if enviar:
     st.header("📊 Tus Resultados")
     
-    # Renderizar gráfico de barras interactivo
+    # Gráfico interactivo
     df = pd.DataFrame(list(puntajes.items()), columns=["Fruto del Espíritu", "Puntaje"])
     st.bar_chart(data=df.set_index("Fruto del Espíritu"))
     
@@ -100,7 +101,6 @@ if enviar:
     fortalezas, atencion, criticos = [], [], []
     tabla_html = ""
     
-    # Clasificación por rangos y ensamblaje de la tabla para el PDF
     for fruto, score in puntajes.items():
         if score >= 8:
             fortalezas.append(fruto)
@@ -123,23 +123,23 @@ if enviar:
         </tr>
         """
         
-    # Mensajes visuales en pantalla
-    if fortalezas:
-        st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {', '.join(fortalezas)}. ¡Sigue cultivándolas!")
-    if atencion:
-        st.warning(f"⚠️ **Áreas en desarrollo (Puntaje 5-7):** {', '.join(atencion)}. Espacio para madurar.")
-    if criticos:
-        st.error(f"🚨 **Áreas críticas (Puntaje 0-4):** {', '.join(criticos)}. Alerta hacia tendencias restrictivas.")
+    # Alertas visuales
+    if Clean_Fortalezas := ", ".join(fortalezas):
+        st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {Clean_Fortalezas}. ¡Sigue cultivándolas!")
+    if Clean_Atencion := ", ".join(atencion):
+        st.warning(f"⚠️ **Áreas en desarrollo (Puntaje 5-7):** {Clean_Atencion}. Tienes espacio para madurar.")
+    if Clean_Criticos := ", ".join(criticos):
+        st.error(f"🚨 **Áreas críticas (Puntaje 0-4):** {Clean_Criticos}. Cuidado con las tendencias reactivas.")
 
-    # Caja de recomendaciones y llamado a la acción
+    # Recomendaciones y cierre
     st.header("💡 Recomendaciones Generales")
-    st.markdown("1. **Oración Enfocada:** Prioriza en intimidad las áreas de menor puntaje.\n"
-                "2. **Acción Intencional:** Elige un fruto en desarrollo y haz un acto consciente esta semana.\n"
-                "3. **Rendición de Cuentas:** Comparte este diagnóstico con alguien de confianza.")
+    st.markdown("1. **Oración Enfocada:** Pide dirección específica por tus puntajes más bajos.\n"
+                "2. **Acción Intencional:** Elige una virtud en desarrollo y practícala conscientemente esta semana.\n"
+                "3. **Acompañamiento:** Comparte este mapa con un mentor o persona de confianza.")
     
-    st.info("🤝 **¿Deseas profundizar?** Acércate con el ponente para agendar una **consulta espiritual complementaria y 100% gratuita**.")
+    st.info("🤝 **¿Deseas profundizar?** Te invitamos a acercarte con el ponente para agendar una **consulta espiritual complementaria y 100% gratuita** para estructurar un plan personalizado.")
 
-    # Compilación final del Reporte HTML imprimible a PDF
+    # Reporte HTML adaptado para impresión limpia (Guardar como PDF)
     html_reporte = f"""
     <!DOCTYPE html>
     <html>
@@ -170,13 +170,12 @@ if enviar:
         </table>
         <div class='promo-box'>
             <h3>🤝 Invitación Especial: Consulta Personalizada Gratuita</h3>
-            <p>Si deseas profundizar en tus resultados o estructurar un plan de acción guiado, te invitamos a <strong>acercarte con el ponente</strong> para recibir una <strong>sesión de consultoría privada y completamente gratuita</strong>.</p>
+            <p>Si deseas profundizar en tus resultados o estructurar un plan de acción guiado, te invitamos a <strong>acercarte directamente con el ponente</strong> para recibir una <strong>sesión de consultoría privada y completamente gratuita</strong>.</p>
         </div>
     </body>
     </html>
     """
 
-    # Botón de Descarga
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button(
         label="Descargar Reporte Completo (PDF / HTML)",
