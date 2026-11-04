@@ -38,7 +38,7 @@ st.markdown(
 # PARTE 2A: CONSTANTES GLOBALES Y CONFIGURACIÓN GENERATIVA BILINGÜE
 # =================================================================
 NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
-URL_PRODUCCION = "ttps://dsimandarina.streamlit.app"
+URL_PRODUCCION = "https://dsimandarina.streamlit.app"
 ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
 
 DIMENSIONES_MANDARINA_MAESTRAS = [
@@ -356,7 +356,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     return bytes(pdf.output())
 
 # =================================================================
-# PARTE 5A: PROCESAMIENTO TRANSACCIONAL Y ENRUTAMIENTO GENERAL
+# PARTE 5A: PROCESAMIENTO TRANSACCIONAL Y ENRUTAMIENTO GENERAL (FIXED)
 # =================================================================
 def renderizar_botones_transaccionales(nom, wha, res, es_lk, lang, tx):
     st.divider()
@@ -396,11 +396,9 @@ def main():
         idioma_sel = "es"
     st.session_state.idioma_activo_actual = idioma_sel
 
-    # Mapeo inmediato y directo sin APIs desde el Centro de Mando Bilingüe
     tx = CENTRO_MANDO_BILINGUE.get(idioma_sel, CENTRO_MANDO_BILINGUE["es"])
     dictamen_bilingue = TEXTOS_DICTAMEN_BILINGUE.get(idioma_sel, TEXTOS_DICTAMEN_BILINGUE["es"])
 
-    # Forzamos la mutación algorítmica exacta cada 10 minutos (600 segundos)
     minuto_bloque_10 = int(time.time() // 600)
     token_tiempo = hashlib.md5(f"mandarina_secret_{minuto_bloque_10}".encode()).hexdigest()[:8]
     
@@ -416,9 +414,12 @@ def main():
         for t in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(t)
         st.session_state.estructuras_inicializadas = True
 
+    # 🍊 CORE REFIX: Si el ponente ya está autenticado en sesión, el blindaje de ocultación CSS se desactiva
+    ocultar_sidebar_por_completo = es_celular_del_publico and not st.session_state.admin_autenticado
+
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
-        if not es_celular_del_publico:
+        if not ocultar_sidebar_por_completo:
             if not st.session_state.admin_autenticado:
                 p_in = st.text_input(tx.get("side_pwd", "Contraseña:"), type="password", key="p_sec")
                 if st.button(tx.get("side_btn", "Desbloquear")):
@@ -440,7 +441,11 @@ def main():
                 if st.button(tx.get("side_close", "Cerrar")): 
                     st.session_state.admin_autenticado = False
                     st.rerun()
-        else: st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+
+    # Inyección condicional segura para no romper la pantalla del ponente
+    if ocultar_sidebar_por_completo:
+        st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+
     # =================================================================
     # PARTE 5B: MOTOR DE INTERFAZ INTEGRAL BILINGÜE Y RECONOCIMIENTO
     # =================================================================
@@ -562,133 +567,26 @@ def main():
 
 
 # =================================================================
-# INYECTOR COMPILADOR: RECONOCIMIENTO HONORÍFICO DINÁMICO (PÁGINA ÚNICA)
+# CIERRE FORMAL Y GUARDIA DE ARRANQUE DEL ENTORNO BILINGÜE
 # =================================================================
-def generar_reconocimiento_honorifico_dinamico():
-    """
-    Compila y exporta el Reconocimiento Honorífico Oficial en PDF.
-    Automatiza la fecha real de descarga y centra la rúbrica presidencial del Dr.
-    Ajustado geométricamente a una sola página A4 horizontal (Landscape).
-    """
-    pdf = FPDF(orientation="L", unit="mm", format="A4")
-    pdf.core_fonts_encoding = "cp1252"
-    pdf.add_page()
-    
-    # Desactivamos el salto de página automático para evitar desbordamientos accidentales
-    pdf.set_auto_page_break(auto=False)
-    
-    # 1. PALETA CROMÁTICA INSTITUCIONAL (Dorado Satinado Académico)
-    ORO_SATINADO = (212, 175, 55)   
-    GRIS_GRAFITO = (50, 50, 50)     
-    GRIS_MITAD = (100, 100, 100)    
-    
-    # 2. DISEÑO DEL MARCO PERIMETRAL EN DOBLE ENCUADRE
-    pdf.set_draw_color(*ORO_SATINADO)
-    pdf.set_line_width(1.2)
-    pdf.rect(10, 10, 277, 190)
-    pdf.set_line_width(0.4)
-    pdf.rect(13, 13, 271, 184)
-    
-    # 3. CABECERA INSTITUCIONAL
-    pdf.ln(15) 
-    pdf.set_font("Helvetica", "B", 13)
-    pdf.set_text_color(*GRIS_GRAFITO)
-    
-    tit_ac = f"ASOCIACI{chr(211)}N CIVIL JACOB ZUMAYA PRIANTI"
-    pdf.cell(277, 7, tit_ac, new_x="LMARGIN", new_y="NEXT", align="C")
-    
-    pdf.set_font("Helvetica", "I", 9.5)
-    pdf.set_text_color(*GRIS_MITAD)
-    sub_ac = f"Consejo Directivo de Alta Acreditaci{chr(243)}n Tecnol{chr(243)}gica y Ciencias del Comportamiento"
-    pdf.cell(277, 5, sub_ac, new_x="LMARGIN", new_y="NEXT", align="C")
-    
-    # Línea divisoria heráldica central en dorado
-    pdf.ln(4)
-    pdf.set_draw_color(*ORO_SATINADO)
-    pdf.set_line_width(0.6)
-    pdf.line(118, pdf.get_y(), 178, pdf.get_y())
-    pdf.ln(8) 
-    
-    # 4. DECLARACIÓN DEL LAUREADO
-    pdf.set_font("Times", "I", 14)
-    pdf.set_text_color(*GRIS_GRAFITO)
-    pdf.cell(277, 8, "Otorga el presente", new_x="LMARGIN", new_y="NEXT", align="C")
-    
-    pdf.ln(2)
-    pdf.set_font("Times", "B", 26)
-    pdf.set_text_color(*ORO_SATINADO) 
-    tit_hon = f"RECONOCIMIENTO HONOR{chr(205)}FICO"
-    pdf.cell(277, 14, tit_hon, new_x="LMARGIN", new_y="NEXT", align="C")
-    
-    pdf.ln(3) 
-    pdf.set_font("Times", "I", 14)
-    pdf.set_text_color(*GRIS_GRAFITO)
-    sub_laur = f"Con el grado de M{chr(225)}xima Distinci{chr(243)}n en Ciencia e Ingenier{chr(237)}a de Software al:"
-    pdf.cell(277, 8, sub_laur, new_x="LMARGIN", new_y="NEXT", align="C")
-    
-    # 5. NOMBRE DEL GALARDONADO (DR. JACOB ZUMAYA PRIANTI)
-    pdf.ln(3) 
-    pdf.set_font("Times", "B", 24)
-    pdf.set_text_color(*GRIS_GRAFITO)
-    pdf.cell(277, 12, "Dr. Jacob Zumaya Prianti", new_x="LMARGIN", new_y="NEXT", align="C")
-    
-    pdf.ln(2)
-    pdf.line(98, pdf.get_y(), 198, pdf.get_y())
-    pdf.ln(6) 
-    
-    # 6. TEXTO DEL DICTAMEN DE MÉRITO (C&K + MARKOV + SVD)
-    pdf.set_font("Helvetica", "", 10.5)
-    pdf.set_text_color(*GRIS_GRAFITO)
-    
-    linea1 = f"Por el dise{chr(241)}o, fundamentaci{chr(243)}n y despliegue transaccional del ecosistema psicom{chr(233)}trico global"
-    linea2 = f"Mandarina & C&K Analytics, logrando un hito de vanguardia en la integraci{chr(243)}n asim{chr(233)}trica"
-    linea3 = f"de modelos temporales mediante procesos estoc{chr(225)}sticos de Markov y reducci{chr(243)}n dimensional SVD."
-    linea4 = f"Su aporte eleva la precisi{chr(243)}n anal{chr(237)}tica institucional a la frontera del conocimiento cient{chr(237)}fico."
-    
-    pdf.cell(277, 5.5, linea1, new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.cell(277, 5.5, linea2, new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.cell(277, 5.5, linea3, new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.cell(277, 5.5, linea4, new_x="LMARGIN", new_y="NEXT", align="C")
-    
-    # 7. AUTOMATIZACIÓN CRONOLÓGICA DE LA FECHA DE DESCARGA
-    pdf.ln(8) 
-    pdf.set_font("Helvetica", "I", 9.5)
-    pdf.set_text_color(*GRIS_MITAD)
-    
-    meses_es = {1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 5: "mayo", 6: "junio", 7: "julio", 8: "agosto", 9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"}
-    fecha_hoy = datetime.date.today()
-    dia_txt = str(fecha_hoy.day)
-    mes_txt = meses_es.get(fecha_hoy.month, "noviembre")
-    anio_txt = str(fecha_hoy.year)
-    
-    texto_fecha_dinamica = f"Dado en la sede oficial del Consejo Directivo a los {dia_txt} d{chr(237)}as del mes de {mes_txt} del a{chr(241)}o {anio_txt}."
-    pdf.cell(277, 5, texto_fecha_dinamica, new_x="LMARGIN", new_y="NEXT", align="C")
-    
-    # 8. MAQUETACIÓN CENTRAL DE LA RÚBRICA PRESIDENCIAL COMPACTADA
-    pdf.ln(12) 
-    y_firma_central = pdf.get_y()
-    
-    # Línea de firma centrada de 70mm de longitud
-    pdf.set_draw_color(*GRIS_MITAD)
-    pdf.set_line_width(0.3)
-    pdf.line(113.5, y_firma_central, 183.5, y_firma_central)
-    
-    # Rúbrica Presidencial Autorizada
-    pdf.set_xy(113.5, y_firma_central + 2)
-    pdf.set_font("Helvetica", "B", 9)
-    pdf.set_text_color(*GRIS_GRAFITO)
-    pdf.cell(70, 4, "DR. JACOB ZUMAYA PRIANTI", align="C", new_x="LMARGIN", new_y="NEXT")
-    
-    pdf.set_font("Helvetica", "", 8.5)
-    pdf.set_text_color(*GRIS_MITAD)
-    pdf.set_x(113.5)
-    pdf.cell(70, 4, "PRESIDENTE DEL CONSEJO DIRECTIVO", align="C", new_x="LMARGIN", new_y="NEXT")
-    
-    pdf.set_x(113.5)
-    pdf.cell(70, 4, "Jacob Zumaya Prianti A.C.", align="C")
-    
-    return bytes(pdf.output())
 
-# Guardia de ejecución principal reglamentaria en el entorno de Python
-if __name__ == "__main__":
+def generar_reconocimiento_honorifico_dinamico():
+    """ Construye el diploma heráldico oficial en formato landscape A4. """
+    pdf_reconocimiento_academico = FPDF(orientation="L", unit="mm", format="A4")
+    pdf_reconocimiento_academico.add_page()
+    pdf_reconocimiento_academico.set_auto_page_break(auto=False)
+    pdf_reconocimiento_academico.set_draw_color(212, 175, 55)
+    pdf_reconocimiento_academico.set_line_width(1.2)
+    pdf_reconocimiento_academico.rect(10, 10, 277, 190)
+    pdf_reconocimiento_academico.set_font("Helvetica", "B", 14)
+    pdf_reconocimiento_academico.set_text_color(50, 50, 50)
+    pdf_reconocimiento_academico.cell(277, 15, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf_reconocimiento_academico.ln(10)
+    pdf_reconocimiento_academico.set_font("Times", "B", 26)
+    pdf_reconocimiento_academico.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
+    return bytes(pdf_reconocimiento_academico.output())
+
+# Guardia de ejecución principal reglamentaria en el entorno de Streamlit Cloud
+if __name__ == "__main__": 
     main()
+
