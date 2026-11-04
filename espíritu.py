@@ -73,15 +73,22 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# LÓGICA DE CIERRE: Si el usuario presionó Terminar, mostramos la pantalla de cierre definitivo
-if st.session_state.finalizado:
-    st.success("👋 ¡Gracias por tu participación!")
+# LÓGICA DE PANTALLAS: Si ya descargó el PDF, ocultamos todo y mostramos la felicitación
+if st.session_state.mostrar_felicitacion:
+    st.balloons()
+    st.success("🎉 ¡Muchas felicidades por completar este paso fundamental!")
     st.markdown("""
-    ### El diagnóstico ha concluido de forma exitosa
-    Tu sesión se ha cerrado de manera segura. Si descargaste tu reporte, no olvides guardarlo muy bien y ponerte en contacto con el ponente para tu consulta de seguimiento gratuita.
+    ### 🚀 Tu camino de transformación empieza hoy
+    Has descargado con éxito tu diagnóstico espiritual. El conocimiento sin acción no produce transformación; por ello, te invitamos a dar el **siguiente paso**:
     
-    *Que este mapa sea el inicio de un gran caminar espiritual.*
+    1. **Toma acciones para el cambio:** Elige el fruto con menor puntaje y realiza un acto consciente enfocado en él durante las próximas 48 horas.
+    2. **Busca Consejo Pastoral:** No camines solo. Te animamos a acercarte directamente con tu **pastor o con un anciano de confianza** de tu iglesia para revisar juntos tu reporte personalizado, recibir guía espiritual y estructurar un plan de crecimiento guiado.
     """)
+    
+    if st.button("🏁 Terminar Diagnóstico"):
+        st.session_state.finalizado = True
+        st.session_state.mostrar_felicitacion = False
+        st.rerun()
     st.stop()
 
 # LÓGICA DE PANTALLAS: Si ya descargó el PDF, ocultamos todo y mostramos la felicitación
@@ -258,11 +265,20 @@ if enviar or st.session_state.get("guardar_progreso", False):
             
         tabla_html += f"<tr><td style='font-weight: bold; color: #2e7d32;'>{fruto}</td><td style='text-align: center; font-weight: bold;'>{score}/10</td><td><strong>{cons['estado']}</strong></td><td>{cons['corto']}</td><td>{cons['mediano']}</td><td>{cons['largo']}</td></tr>"
         
+        # Alertas visuales en pantalla
     if fortalezas: st.success(f"🌟 **Fortalezas (Puntaje 8-10):** {', '.join(fortalezas)}.")
     if atencion: st.warning(f"⚠️ **Áreas en desarrollo (Puntaje 5-7):** {', '.join(atencion)}.")
     if criticos: st.error(f"🚨 **Áreas críticas (Puntaje 1-4):** {', '.join(criticos)}.")
 
-    # 3. REPORTE DEL PDF (HTML) CON LA IMAGEN INCRUSTADA
+    # Recomendaciones en pantalla actualizadas hacia el entorno eclesiástico
+    st.header("💡 Recomendaciones Generales")
+    st.markdown("1. **Oración Enfocada:** Pide dirección específica por tus puntajes más bajos.\n"
+                "2. **Acción Intencional:** Elige una virtud en desarrollo y practícala conscientemente esta semana.\n"
+                "3. **Acompañamiento:** Comparte este mapa con tu pastor o un líder de madurez probada.")
+    
+    st.info(f"🤝 **¿Deseas profundizar, {nombre_final}?** Te invitamos a acercarte con tu **pastor o con un anciano de confianza** para compartir estos resultados y recibir consejería espiritual personalizada.")
+
+    # 3. REPORTE DEL PDF (HTML) CON LA LÓGICA PASTORAL INCRUSTADA
     html_reporte = f"""
     <html>
     <head>
@@ -287,7 +303,6 @@ if enviar or st.session_state.get("guardar_progreso", False):
         </div>
         <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
         
-        <!-- AQUÍ SE IMPRIME LA GRÁFICA MANDARINA DENTRO DEL REPORTE -->
         <div class='contenedor-grafica'>
             <h3>🍊 Gráfica Mandarina de Proporciones</h3>
             <img src='data:image/png;base64,{img_base64}' />
@@ -299,9 +314,11 @@ if enviar or st.session_state.get("guardar_progreso", False):
             </thead>
             <tbody>{tabla_html}</tbody>
         </table>
+        
+        <!-- CAMBIO: Cuadro de acompañamiento espiritual en el PDF -->
         <div class='promo-box'>
-            <h3>🤝 Invitación Especial: Consulta Personalizada Gratuita</h3>
-            <p>Si deseas profundizar en tus resultados o estructurar un plan de acción guiado, te invitamos a <strong>acercarte directamente con tu pastor o con un anciano de confianza</strong> para recibir una <strong>sesión de consultoría privada y completamente gratuita</strong>.</p>
+            <h3>🤝 Acompañamiento y Cuidado Espiritual</h3>
+            <p>Si deseas profundizar en estos resultados, comprender mejor las áreas en desarrollo detectadas o estructurar un plan de madurez guiado, te invitamos a <strong>acercarte directamente con tu pastor o con un anciano de confianza</strong> de tu congregación. Compartir este reporte facilitará un espacio de oración y edificación mutua.</p>
         </div>
     </body>
     </html>
