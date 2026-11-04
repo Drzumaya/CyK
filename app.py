@@ -719,8 +719,9 @@ def main():
                     resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq")
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
+        
         # =================================================================
-        # PARTE 5-4: SECCIÓN III CONOCIMIENTO FIJO Y SECCIÓN IV INTERALIADA (FIX)
+        # PARTE 5-4: SECCIÓN III CONOCIMIENTO FIJO Y SECCIÓN IV INTERALIADA (FIXED)
         # =================================================================
                 # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (ESTÁTICA FIJA)
                 st.subheader("📋 Sección III: Conocimiento sobre el tema")
@@ -744,16 +745,22 @@ def main():
                 
                 # 📋 SECCIÓN IV: BATERÍA DE REACTIVOS INTERALIADOS ADAPTATIVOS
                 st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
-                
-                # 🍊 CORRECCIÓN DE ENLACE CRÍTICO: Pasamos 'resultados_totales' para alimentar al diccionario ontológico
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 
                 for r_id, r_txt in reactivos.items():
                     tipo_vector = "(Cronos - Rígido)" if r_id % 2 != 0 else "(Kairós - Adaptativo)"
                     st.write(f"Reactivo {r_id} {tipo_vector}: {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}_unq_active")
+                    # 🍊 CORRECCIÓN DE FLUJO: Agregamos explícitamente el rango del 1 al 5 para liberar el spinner
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        "Escala / Scale:", 
+                        options=[1, 2, 3, 4, 5], 
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                        horizontal=True, 
+                        key=f"r_{r_id}_unq_active"
+                    )
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
+
 
         # =================================================================
         # PARTE 5-5: RESOLUCIÓN DE FLUJO, ALTA ANALÍTICA Y CIERRE OPERATIVO
