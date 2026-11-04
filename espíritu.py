@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="Diagnóstico: Los 9 Frutos del Espíritu",
     page_icon="🌱",
     layout="centered"
-)
+) 
 
 # 2. Título de la aplicación y bienvenida principal
 st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
@@ -19,7 +19,7 @@ nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu re
 st.markdown("---")
 
 # 4. ENLACE FIJO DEL QR (Modifica 'https://share.streamlit.io/' si tu URL cambia en la nube)
-url_final_app = "https://share.streamlit.io/"
+url_final_app = "https://diagnosticofrutosdelespiritu.streamlit.app/"
 
 # 5. Renderizado Garantizado del QR al inicio de la batería
 st.markdown("### 📱 Escanea y Responde en tu Móvil")
