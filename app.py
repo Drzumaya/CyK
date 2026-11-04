@@ -504,11 +504,9 @@ def main():
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
 
 
-
     # =================================================================
     # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GRADUACIÓN (CORE)
     # =================================================================
-    # Inicialización del estado del interruptor de visualización explicativa
     if "mostrar_bateria" not in st.session_state:
         st.session_state.mostrar_bateria = True
 
@@ -536,7 +534,6 @@ def main():
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
                 st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea'))
 
-        # 🍊 BOTÓN SOLICITADO: Interruptor Dinámico Explicativo justo debajo del QR
         txt_toggle = "🙈 OCULTAR CUESTIONARIO ADAPTATIVO" if st.session_state.mostrar_bateria else "👁️ MOSTRAR CUESTIONARIO PARA EXPLICAR"
         if st.button(txt_toggle, type="secondary", use_container_width=True, key="btn_toggle_visibility_bateria_master"):
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
@@ -549,21 +546,26 @@ def main():
         
         resultados_totales = {}
         
-        # 🍊 CONTROL DE EXPOSICIÓN VINCULADO AL BOTÓN INTERRUPTOR
         if st.session_state.mostrar_bateria:
             if not es_likert:
                 st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
                 gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, iso)
-                for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
+                
+                # 🍊 CORRECCIÓN DE RAÍZ: Extracción secuencial del vector de ítems único por gajo
+                for g_idx, (g_name, lista_items_gajo) in enumerate(gajos.items()):
                     with st.container(border=True):
                         st.markdown(f"#### {g_name}")
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            cb0 = st.checkbox(alertas_especificas if len(alertas_especificas)>0 else "S0", key=f"c_{g_idx}_0_f")
-                            cb1 = st.checkbox(alertas_especificas if len(alertas_especificas)>1 else "S1", key=f"c_{g_idx}_1_f")
+                            t0 = lista_items_gajo[0] if len(lista_items_gajo) > 0 else "S0"
+                            t1 = lista_items_gajo[1] if len(lista_items_gajo) > 1 else "S1"
+                            cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
+                            cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
                         with col_b:
-                            cb2 = st.checkbox(alertas_especificas if len(alertas_especificas)>2 else "S2", key=f"c_{g_idx}_2_f")
-                            cb3 = st.checkbox(alertas_especificas if len(alertas_especificas)>3 else "S3", key=f"c_{g_idx}_3_f")
+                            t2 = lista_items_gajo[2] if len(lista_items_gajo) > 2 else "S2"
+                            t3 = lista_items_gajo[3] if len(lista_items_gajo) > 3 else "S3"
+                            cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
+                            cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
             else:
                 st.subheader(tx.get("sec1", "Sección I"))
@@ -584,22 +586,11 @@ def main():
                 resultados_totales["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0", "Se impone"), tx.get("kn4_opt1", "Se hereda"), tx.get("kn4_opt2", "No sé")], horizontal=True, key="rad_kn4_unq_sec2")
                 resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
                 
-# =================================================================
-# CORRECCIÓN DE SINTAXIS EN LA BATERÍA DE REACTIVOS (LÍNEA 591)
-# =================================================================
-            st.write("### 📋 BATERÍA DE REACTIVOS C&K")
-            reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
-            for r_id, r_txt in reactivos.items():
-                st.write(f"Reactivo {r_id}: {r_txt}")
-                # 🍊 CORRECCIÓN DE RAÍZ: Asignamos el vector numérico del 1 al 5 en el parámetro options
-                resultados_totales[f"R{r_id}"] = st.radio(
-                    "Escala / Scale:", 
-                    options=[1, 2, 3, 4, 5], 
-                    format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                    horizontal=True, 
-                    key=f"r_{r_id}"
-                )
-
+                st.write("### 📋 BATERÍA DE REACTIVOS C&K")
+                reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
+                for r_id, r_txt in reactivos.items():
+                    st.write(f"Reactivo {r_id}: {r_txt}")
+                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
     else:
@@ -625,7 +616,7 @@ def main():
         sheet = conectar_google_sheets(tabla_analizar)
         todas_las_filas = sheet.get_all_values() if sheet else []
         if todas_las_filas and len(todas_las_filas) >= 2:
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
             st.subheader(tx.get("lbl_crm_buscar", "Buscar"))
             c_busq = st.text_input(tx.get("lbl_crm_input", "Filtro:"), key="crm_search_input").strip().lower()
             if c_busq and not df_doc.empty:
@@ -646,19 +637,8 @@ def main():
                 txt_bib = dc_bil.get(ref_key, "Hair, J. F., Black, W. C. (2019).")
                 pdf_auditoria.multi_cell(190, 4.5, str(txt_bib).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 pdf_auditoria.ln(2)
-            
-# =================================================================
-# CIERRE Y ALINEACIÓN RAÍZ DE FUNCIONES AL FINAL DEL ARCHIVO APP.PY
-# =================================================================
-            st.download_button(
-                label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), 
-                data=bytes(pdf_auditoria.output()), 
-                file_name="Dictamen_Doctoral.pdf", 
-                mime="application/pdf", 
-                key="btn_download_admin_macro_report"
-            )
+            st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
-# 🍊 CORRECCIÓN DE INDENTACIÓN: Esta función se declara pegada a la izquierda, libre de espacios o tabuladores
 def generar_reconocimiento_honorifico_dinamico():
     pdf = FPDF(orientation="L", unit="mm", format="A4")
     pdf.add_page()
@@ -672,8 +652,7 @@ def generar_reconocimiento_honorifico_dinamico():
     pdf.ln(10)
     pdf.set_font("Times", "B", 26)
     pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
-    return bytes(pdf.output())
+return bytes(pdf.output())
 
-if __name__ == "__main__": 
+if name == "main":
     main()
-
