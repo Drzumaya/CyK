@@ -35,6 +35,76 @@ st.markdown(
 )
 
 # =================================================================
+# PARTE 2A: CONSTANTES GLOBALES Y CONFIGURACIÓN GENERATIVA BILINGÜE
+# =================================================================
+NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
+URL_PRODUCCION = "https://streamlit.app"
+ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
+
+DIMENSIONES_MANDARINA_MAESTRAS = [
+    "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", 
+    "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"
+]
+
+@st.cache_data(show_spinner=False)
+def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
+    """
+    Algoritmo Ontológico Generativo Bilingüe Estático. Produce una matriz de 4 vulnerabilidades
+    contextualizadas sin requerir llamadas externas de red (Inmune a Rate-Limits).
+    """
+    audiencia_limpia = str(nombre_audiencia).strip().lower()
+    es_generico = audiencia_limpia in ["", "salud integral", "🍊 salud integral", "general"]
+    
+    # Semillas semánticas estáticas en Español
+    semillas_es = {
+        "física": ["Fatiga Ocupacional por Desgaste", "Trastornos del Ciclo del Sueño", "Sedentarismo Musculoesquelético", "Descuido en Nutrición Homeostática"],
+        "mental": ["Saturación y Bloqueo Cognitivo", "Rumiación Mental Prolongada", "Sobrecarga de Datos Críticos", "Apatía y Disminución del Foco"],
+        "emocional": ["Síndrome de Burnout Latente", "Irritabilidad Reactiva Excesiva", "Desmotivación Vocacional", "Inestabilidad Anímica y Ansiedad Aguda"],
+        "social": ["Aislamiento Relacional Preventivo", "Conflictos de Interacción", "Falta de Red de Contención", "Ausencia de Límites Asertivos"],
+        "económica": ["Estrés Presupuestal Agudo", "Desorden Financiero o Deudas", "Falta de Fondo de Emergencia", "Ausencia de Diversificación de Ingresos"],
+        "temporal": ["Procrastinación por Sobrecarga", "Invasión Horaria Laboral", "Ausencia de Margen de Descanso", "Desequilibrio Muestral Cronos/Kairós"],
+        "espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
+    }
+
+    # Semillas semánticas estáticas en Inglés
+    semillas_en = {
+        "física": ["Occupational Fatigue from Wear", "Sleep Cycle Disorders", "Musculoskeletal Sedentary State", "Neglect in Homeostatic Nutrition"],
+        "mental": ["Cognitive Saturation and Blockage", "Prolonged Mental Rumination", "Critical Data Overload", "Apathy and Decreased Focus"],
+        "emocional": ["Latent Burnout Syndrome", "Excessive Reactive Irritability", "Vocational Demotivation", "Instability and Acute Anxiety"],
+        "social": ["Preventive Relational Isolation", "Interaction Conflicts", "Lack of Containment Network", "Absence of Assertive Boundaries"],
+        "económica": ["Acute Budgetary Stress", "Financial Disorder or Debts", "Lack of Emergency Fund", "Absence of Income Diversification"],
+        "temporal": ["Procrastination due to Overload", "Work Hours Invasion", "Absence of Rest Margin", "Imbalance Metric Chronos/Kairos"],
+        "espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
+    }
+    
+    matriz_salida = {}
+    claves_limpias = ["física", "mental", "emocional", "social", "económica", "temporal", "espiritual"]
+    emojis = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]
+    
+    banco = semillas_es if lang_code == "es" else semillas_en
+    suffix = "en Contexto" if lang_code == "es" else "in Context of"
+    
+    for i, dim_es in enumerate(DIMENSIONES_MANDARINA_MAESTRAS):
+        clave = claves_limpias[i]
+        items_base = banco[clave]
+        
+        dim_limpia = dim_es[2:].strip()
+        dim_traducida = dim_limpia if lang_code == "es" else ["Physical Health", "Mental Health", "Emotional Health", "Social Health", "Economic Health", "Temporal Health", "Spiritual Health"][i]
+        cabecera_final = f"{emojis[i]} {dim_traducida}"
+        
+        if es_generico:
+            matriz_salida[cabecera_final] = items_base
+        else:
+            matriz_salida[cabecera_final] = [
+                f"{items_base} {suffix} {nombre_audiencia}",
+                f"{items_base} {suffix} {nombre_audiencia}",
+                f"{items_base} {suffix} {nombre_audiencia}",
+                f"{items_base} {suffix} {nombre_audiencia}"
+            ]
+            
+    return matriz_salida
+
+# =================================================================
 # 🎛️ CENTRO DE MANDO BILINGÜE (EL CONTROL TOTAL SIN APIS EXTERNAS)
 # =================================================================
 CENTRO_MANDO_BILINGUE = {
