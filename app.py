@@ -720,7 +720,7 @@ def main():
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
         # =================================================================
-        # PARTE 5-4: SECCIÓN III CONOCIMIENTO FIJO Y SECCIÓN IV INTERALIADA
+        # PARTE 5-4: SECCIÓN III CONOCIMIENTO FIJO Y SECCIÓN IV INTERALIADA (FIX)
         # =================================================================
                 # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (ESTÁTICA FIJA)
                 st.subheader("📋 Sección III: Conocimiento sobre el tema")
@@ -742,16 +742,19 @@ def main():
                 resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
                 resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
                 
-                # 📋 SECCIÓN IV: BATERÍA DE REACTIVOS INTERALIADOS (IMPARES = CRONOS / PARES = KAIRÓS)
+                # 📋 SECCIÓN IV: BATERÍA DE REACTIVOS INTERALIADOS ADAPTATIVOS
                 st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
-                reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
+                
+                # 🍊 CORRECCIÓN DE ENLACE CRÍTICO: Pasamos 'resultados_totales' para alimentar al diccionario ontológico
+                reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
+                
                 for r_id, r_txt in reactivos.items():
-                    # Marcaje metodológico visual síncrono formativo para la ponencia
                     tipo_vector = "(Cronos - Rígido)" if r_id % 2 != 0 else "(Kairós - Adaptativo)"
                     st.write(f"Reactivo {r_id} {tipo_vector}: {r_txt}")
                     resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}_unq_active")
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
+
         # =================================================================
         # PARTE 5-5: RESOLUCIÓN DE FLUJO, ALTA ANALÍTICA Y CIERRE OPERATIVO
         # =================================================================
