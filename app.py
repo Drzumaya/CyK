@@ -394,14 +394,111 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
     return bytes(pdf.output())
 
-        # =================================================================
-    # PARTE 5B-1: CONFIGURACIÓN INICIAL DE INTERFAZ Y EXPOSICIÓN VISUAL
-    # =================================================================
-    if "mostrar_bateria" not in st.session_state:
-        st.session_state.mostrar_bateria = True
+ # =================================================================
+# PARTE 5-1: PUERTA DE ENLACE DE ALMACENAMIENTO Y ENRUTAMIENTO GENERAL
+# =================================================================
+def gateway_bt(n, w, r, lk, lg, t):
+    st.divider()
+    c1, c2, c3 = st.columns(3)
+    vld = bool(n.strip()) and bool(w.strip())
+    with c1:
+        if st.button(t["btn_save"], type="primary", use_container_width=True):
+            if not vld: st.error(t["err_fields"])
+            else:
+                guardar_en_google_sheets(st.session_state.audiencia_activa, n, w, r, "TK_10M", lk)
+                st.session_state.nombre_usuario_persistente = n
+                st.session_state.whatsapp_usuario_persistente = w
+                st.session_state.resultados_usuario_persistente = r
+                st.session_state.es_modo_likert_persistente = lk
+                st.session_state.flujo_finalizado = True
+                st.rerun()
+    with c2:
+        if vld:
+            pdf_bytes = generar_pdf_diagnostico(n, w, r, st.session_state.audiencia_activa, lk, lg)
+            st.download_button(t["btn_pdf"], data=pdf_bytes, file_name="Reporte.pdf", mime="application/pdf", use_container_width=True)
+        else: st.info(t["fields_msg"])
+    with c3:
+        if vld:
+            tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
+            wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
+            st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
 
-    interruptor_movil = es_cel
+def main():
+    if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
+    if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
+    if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
+    if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
+    if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
+    if "tmp_pass_val" not in st.session_state: st.session_state.tmp_pass_val = ""
+    if "tmp_aud_val" not in st.session_state: st.session_state.tmp_aud_val = ""
+    if "mostrar_bateria" not in st.session_state: st.session_state.mostrar_bateria = True
+
+    iso = st.query_params.get("lang", "es")
+    if iso not in ["es", "en"]: iso = "es"
+    st.session_state.idioma_activo_actual = iso
+
+    tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
+    dc_bil = TEXTOS_DICTAMEN_BILINGUE.get(iso, TEXTOS_DICTAMEN_BILINGUE["es"])
+
+    tk_t = hashlib.md5(f"m_sec_{int(time.time() // 600)}".encode()).hexdigest()[:8]
+    es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
     
+    if es_cel and st.query_params.get("diag_tipo"): 
+        st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
+
+    lnk_qr = f"{URL_PRODUCCION}/?token={tk_t}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={iso}"
+
+    if not st.session_state.estructuras_inicializadas:
+        for t in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(t)
+        st.session_state.estructuras_inicializadas = True
+
+    ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
+    # =================================================================
+    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y COMPONENTES DE ENTORNO PUBLICO
+    # =================================================================
+    with st.sidebar:
+        st.markdown(tx.get("side_title", "## 🔐 Control"))
+        if not ocultar_bar_css:
+            lbl_password = tx.get("side_pwd") if tx.get("side_pwd") else "Contraseña Ponente:"
+            lbl_boton = tx.get("side_btn") if tx.get("side_btn") else "Desbloquear Tableros"
+            
+            if not st.session_state.admin_autenticado:
+                p_in = st.text_input(lbl_password, type="password", value=st.session_state.tmp_pass_val, key="p_master")
+                if st.button(lbl_boton, key="btn_unlock_master"):
+                    if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): 
+                        st.session_state.admin_autenticado = True
+                        st.session_state.tmp_pass_val = ""
+                        st.rerun()
+                    else: 
+                        lbl_error = tx.get("side_pwd_err") if tx.get("side_pwd_err") else "Contraseña incorrecta."
+                        st.error(lbl_error)
+            
+            if st.session_state.admin_autenticado:
+                st.success(tx.get("side_success", "Modo Ponente Activo"))
+                n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:"), value=st.session_state.tmp_aud_val, key="add_aud_master").strip()
+                
+                if st.button("➕ " + tx.get("side_add", "Añadir Audiencia").replace("➕ ", ""), key="btn_add_audience_action"):
+                    if n_aud and n_aud not in st.session_state.audiences_custom_list:
+                        st.session_state.audiences_custom_list.append(n_aud)
+                        st.session_state.audiencia_activa = n_aud
+                        st.session_state.tmp_aud_val = ""
+                        st.rerun()
+                
+                op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
+                if sel_aud != st.session_state.audiencia_activa:
+                    st.session_state.audiencia_activa = sel_aud
+                    st.rerun()
+                    
+                if st.button(tx.get("side_close", "Cerrar"), key="btn_close_master"):
+                    st.session_state.admin_autenticado = False
+                    st.session_state.tmp_pass_val = ""
+                    st.session_state.tmp_aud_val = ""
+                    st.rerun()
+
+    if ocultar_bar_css:
+        st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
             st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
@@ -411,10 +508,9 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 iso_f = dict_ids.get(str(sel_v).lower().strip(), "en")
                 st.query_params["lang"] = iso_f
                 st.session_state.idioma_activo_actual = iso_f
-                if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
-        if not interruptor_movil:
+        if not es_cel:
             with st.container(border=True):
                 st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=4)
@@ -436,7 +532,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
         resultados_totales = {}
         # =================================================================
-        # PARTE 5B-2: FORMULARIOS BASE Y DATOS GEOGRÁFICOS
+        # PARTE 5-3: DIAGNÓSTICO INTEGRAL Y SECCIÓN II DEMOGRÁFICA FIJA
         # =================================================================
         if st.session_state.mostrar_bateria:
             if not es_likert:
@@ -447,17 +543,18 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                         st.markdown(f"#### {g_name}")
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            t0 = lista_items_gajo if len(lista_items_gajo) > 0 else "S0"
-                            t1 = lista_items_gajo if len(lista_items_gajo) > 1 else "S1"
+                            t0 = lista_items_gajo[0] if len(lista_items_gajo) > 0 else "S0"
+                            t1 = lista_items_gajo[1] if len(lista_items_gajo) > 1 else "S1"
                             cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
                             cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
                         with col_b:
-                            t2 = lista_items_gajo if len(lista_items_gajo) > 2 else "S2"
-                            t3 = lista_items_gajo if len(lista_items_gajo) > 3 else "S3"
+                            t2 = lista_items_gajo[2] if len(lista_items_gajo) > 2 else "S2"
+                            t3 = lista_items_gajo[3] if len(lista_items_gajo) > 3 else "S3"
                             cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
                             cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
             else:
+                # 📋 SECCIÓN II: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS FIJOS (ESTÁTICOS)
                 st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
                 resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
                 resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
@@ -474,10 +571,10 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
         # =================================================================
-        # PARTE 5C-1: EVALUACIÓN DE CONOCIMIENTO Y REACTIVOS PSICOMÉTRICOS
+        # PARTE 5-4: SECCIÓN III CONOCIMIENTO FIJO Y SECCIÓN IV INTERALIADA
         # =================================================================
+                # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (ESTÁTICA FIJA)
                 st.subheader("📋 Sección III: Conocimiento sobre el tema")
-                
                 k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
                 k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
                 k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
@@ -496,16 +593,19 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
                 resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
                 
+                # 📋 SECCIÓN IV: BATERÍA DE REACTIVOS INTERALIADOS (IMPARES = CRONOS / PARES = KAIRÓS)
                 st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
                 for r_id, r_txt in reactivos.items():
-                    st.write(f"Reactivo {r_id}: {r_txt}")
+                    # Marcaje metodológico visual síncrono formativo para la ponencia
+                    tipo_vector = "(Cronos - Rígido)" if r_id % 2 != 0 else "(Kairós - Adaptativo)"
+                    st.write(f"Reactivo {r_id} {tipo_vector}: {r_txt}")
                     resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}_unq_active")
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
-    # =================================================================
-    # PARTE 5C-2: PANTALLA DE GRADUACIÓN, EXTRACCIÓN CRM Y GUARDIA DEL CORE
-    # =================================================================
+        # =================================================================
+        # PARTE 5-5: RESOLUCIÓN DE FLUJO, ALTA ANALÍTICA Y CIERRE OPERATIVO
+        # =================================================================
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
@@ -552,6 +652,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
-# Cierre estructural reglamentario en raíz sin un solo espacio inicial
+# Cierre estructural reglamentario a nivel de la raíz sin espacios iniciales
 if __name__ == "__main__": 
     main()
+
