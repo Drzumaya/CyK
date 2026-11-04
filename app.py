@@ -472,7 +472,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq")
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
-                # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (RESTAURADO EXACTO)
+                                # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (RESTAURADO EXACTO)
                 st.subheader("📋 Sección III: Conocimiento sobre el tema")
                 
                 k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
@@ -539,15 +539,16 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
             pdf_auditoria.set_font("Helvetica", "B", 12)
             pdf_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title", "Referencias")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
             pdf_auditoria.set_font("Helvetica", "", 9)
+            
+            # Sincronización atómica local para evitar el NameError de dc_bil
+            dc_bil_local = TEXTOS_DICTAMEN_BILINGUE.get(iso, TEXTOS_DICTAMEN_BILINGUE["es"])
             for ref_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
-                txt_bib = dc_bil.get(ref_key, "Hair, J. F., Black, W. C. (2019).")
+                txt_bib = dc_bil_local.get(ref_key, "Hair, J. F., Black, W. C. (2019).")
                 pdf_auditoria.multi_cell(190, 4.5, str(txt_bib).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
-# 🍊 ALINEACIÓN COMPLETAMENTE EN MARGEN IZQUIERDO SIN INDENTACIONES
+# Cierre reglamentario de la aplicación
 if __name__ == "__main__": 
     main()
-
-
 
