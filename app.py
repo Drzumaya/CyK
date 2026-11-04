@@ -394,8 +394,8 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
     return bytes(pdf.output())
 
-    # =================================================================
-    # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y CONTROL DE EXPOSICIÓN
+        # =================================================================
+    # PARTE 5B-1: CONFIGURACIÓN INICIAL DE INTERFAZ Y EXPOSICIÓN VISUAL
     # =================================================================
     if "mostrar_bateria" not in st.session_state:
         st.session_state.mostrar_bateria = True
@@ -435,7 +435,9 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
         
         resultados_totales = {}
-        
+        # =================================================================
+        # PARTE 5B-2: FORMULARIOS BASE Y DATOS GEOGRÁFICOS
+        # =================================================================
         if st.session_state.mostrar_bateria:
             if not es_likert:
                 st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
@@ -456,7 +458,6 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                             cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
             else:
-                # 📋 SECCIÓN II: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS REALES
                 st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
                 resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
                 resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
@@ -472,7 +473,9 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq")
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
-                                                  # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (RESTAURADO EXACTO)
+        # =================================================================
+        # PARTE 5C-1: EVALUACIÓN DE CONOCIMIENTO Y REACTIVOS PSICOMÉTRICOS
+        # =================================================================
                 st.subheader("📋 Sección III: Conocimiento sobre el tema")
                 
                 k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
@@ -493,7 +496,6 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
                 resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
                 
-                # 📋 SECCIÓN IV: BATERÍA DE REACTIVOS PSICOMÉTRICOS ADAPTATIVOS C&K
                 st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(st.session_state.audiencia_activa, iso)
                 for r_id, r_txt in reactivos.items():
@@ -501,6 +503,9 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}_unq_active")
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
+    # =================================================================
+    # PARTE 5C-2: PANTALLA DE GRADUACIÓN, EXTRACCIÓN CRM Y GUARDIA DEL CORE
+    # =================================================================
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
@@ -547,7 +552,6 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
-# Cierre reglamentario de la aplicación a nivel raíz (Sin sangrías iniciales)
+# Cierre estructural reglamentario en raíz sin un solo espacio inicial
 if __name__ == "__main__": 
     main()
-
