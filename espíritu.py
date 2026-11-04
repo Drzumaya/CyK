@@ -7,24 +7,34 @@ import base64
 # --- CONFIGURACIÓN E INICIALIZACIÓN ---
 st.set_page_config(page_title="Diagnóstico: Los 9 Frutos del Espíritu", page_icon="🌱", layout="centered")
 
-for var, val in [("mostrar_felicitacion", False), ("finalizado", False), ("diagnostico_generado", False), ("respuestas_usuario", {})]:
+# Declaración segura de variables de sesión
+for var, val in [("mostrar_felicitacion", False), ("diagnostico_generado", False), ("respuestas_usuario", {})]:
     if var not in st.session_state:
         st.session_state[var] = val
 
-# --- PANTALLAS DE CIERRE Y FELICITACIÓN ---
-if st.session_state.finalizado:
-    st.success("👋 ¡Gracias por tu participación!")
-    st.markdown("### El diagnóstico ha concluido de forma exitosa\nTu sesión se ha cerrado de manera segura. Guárdalo y contacta a tu pastor o anciano de confianza.")
-    st.stop()
-
+# --- PANTALLA DE FELICITACIÓN Y REINICIO ---
 if st.session_state.mostrar_felicitacion:
     st.balloons()
     st.success("🎉 ¡Muchas felicidades por completar este paso fundamental!")
-    st.markdown("### 🚀 Tu camino de transformación empieza hoy\n1. **Acción:** Elige el fruto menor y actúa en 48 horas.\n2. **Consejo Pastoral:** Acércate a tu líder o pastor para revisar el reporte.")
-    if st.button("🏁 Terminar Diagnóstico"):
-        st.session_state.update({"finalizado": True, "mostrar_felicitacion": False})
+    st.markdown("""
+    ### 🚀 Tu camino de transformación empieza hoy
+    Has descargado con éxito tu diagnóstico espiritual. El conocimiento sin acción no produce transformación; por ello, te invitamos a dar el **siguiente paso**:
+    
+    1. **Toma acciones para el cambio:** Elige el fruto con menor puntaje y realiza un acto consciente enfocado en él durante las próximas 48 horas.
+    2. **Busca Consejo Pastoral:** No camines solo. Te animamos a acercarte directamente con tu **pastor o con un anciano de confianza** de tu iglesia para revisar juntos tu reporte personalizado, recibir guía espiritual y estructurar un plan de crecimiento guiado.
+    """)
+    
+    st.markdown("---")
+    # REQUERIMIENTO: Botón modificado para reiniciar el test al instante y volver al inicio
+    if st.button("🔄 Nuevo diagnóstico"):
+        # Limpieza completa de variables para regresar a la pantalla principal limpia
+        st.session_state.diagnostico_generado = False
+        st.session_state.mostrar_felicitacion = False
+        st.session_state.respuestas_usuario = {}
         st.rerun()
-    st.stop()
+        
+    st.stop() # Detiene la ejecución para mantener oculta la batería de abajo
+
 # --- DICCIONARIOS DE DATOS ---
 consecuencias_texto = {
     "critico": {"estado": "Crítico / Alerta🔴", "corto": "Afectación inmediata en relaciones e impulsividad.", "mediano": "Desgaste físico y mental por estrés.", "largo": "Aislamiento emocional y desconexión."},
