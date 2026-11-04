@@ -479,149 +479,140 @@ def main():
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
 
 
-    # =================================================================
-    # PARTE 5B: MOTOR DE INTERFAZ INTEGRAL BILINGÜE Y RECONOCIMIENTO
+       # =================================================================
+    # PARTE 5B: ENTORNO MULTILINGÜE, CUESTIONARIOS Y GRADUACIÓN (CORE)
     # =================================================================
     interruptor_movil = es_celular_del_publico
 
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
-            st.markdown(f"### {tx.get('intl_title')}")
-            idioma_seleccionado_combo = st.selectbox(
-                tx.get("intl_select"), 
-                options=["Spanish", "English"], 
-                index=0 if idioma_sel == "es" else 1,
-                key="combo_bilingue_universal_unq"
-            )
-            if st.button(tx.get("intl_btn"), key="disparador_refresco_bilingue_master"):
-                st.query_params["lang"] = "es" if "span" in idioma_seleccionado_combo.lower() else "en"
-                st.session_state.idioma_activo_actual = st.query_params["lang"]
+            st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
+            dict_ids = {"spanish": "es", "english": "en"}
+            sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=["Spanish", "English"], index=0 if idioma_sel == "es" else 1, key="sb_part_lang_unq")
+            if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_fixed"):
+                iso_f = dict_ids.get(str(sel_v).lower().strip(), "en")
+                st.query_params["lang"] = iso_f
+                st.session_state.idioma_activo_actual = iso_f
+                if "tx_traducido_cache" in st.session_state: del st.session_state["tx_traducido_cache"]
                 st.rerun()
 
         if not interruptor_movil:
             with st.container(border=True):
-                st.markdown(f"### {tx.get('qr_title')}")
-                objeto_qr = qrcode.QRCode(version=1, box_size=10, border=4)
-                objeto_qr.add_data(url_con_token)
-                objeto_qr.make(fit=True)
-                buffer_grafico_qr = BytesIO()
-                objeto_qr.make_image(fill_color="black", back_color="white").save(buffer_grafico_qr, format="PNG")
-                st.image(buffer_grafico_qr.getvalue(), width=260, caption=tx.get('qr_sub1'))
+                st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR')}")
+                qr = qrcode.QRCode(version=1, box_size=10, border=4)
+                qr.add_data(url_con_token)
+                qr.make(fit=True)
+                buf_qr = BytesIO()
+                qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
+                st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea'))
 
         st.header(f"📋 {st.session_state.audiencia_activa}")
-        campo_nombre_usuario = st.text_input(tx.get("nombre"), key="input_nombre_registro_unq")
-        campo_whatsapp_usuario = st.text_input(tx.get("wha"), key="input_whatsapp_registro_unq")
-        es_modo_formulario_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
+        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
+        es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
         
-        contenedor_variables_analiticas = {}
-        if not es_modo_formulario_likert:
-            st.write(tx.get("mand_title"))
-            diccionario_matriz_ia = motor_generativo_items_audiencia(st.session_state.audiencia_activa, idioma_sel)
-            for indice_iteracion_gajo, (nombre_gajo, lista_sintomas_ia) in enumerate(diccionario_matriz_ia.items()):
+        resultados_totales = {}
+        if not es_likert:
+            st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
+            gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, idioma_sel)
+            for g_idx, (g_name, alertas_especificas) in enumerate(gajos.items()):
                 with st.container(border=True):
-                    st.markdown(f"#### {nombre_gajo}")
-                    bloque_columna_izquierda, bloque_columna_derecha = st.columns(2)
-                    with bloque_columna_izquierda:
-                        casilla_verificacion_0 = st.checkbox(lista_sintomas_ia[0] if len(lista_sintomas_ia)>0 else "S0", key=f"casilla_verif_{indice_iteracion_gajo}_0")
-                        casilla_verificacion_1 = st.checkbox(lista_sintomas_ia[1] if len(lista_sintomas_ia)>1 else "S1", key=f"casilla_verif_{indice_iteracion_gajo}_1")
-                    with bloque_columna_derecha:
-                        casilla_verificacion_2 = st.checkbox(lista_sintomas_ia[2] if len(lista_sintomas_ia)>2 else "S2", key=f"casilla_verif_{indice_iteracion_gajo}_2")
-                        casilla_verificacion_3 = st.checkbox(lista_sintomas_ia[3] if len(lista_sintomas_ia)>3 else "S3", key=f"casilla_verif_{indice_iteracion_gajo}_3")
-                    contenedor_variables_analiticas[nombre_gajo] = [str(pos) for pos, interruptor_activo in enumerate([casilla_verificacion_0, casilla_verificacion_1, casilla_verificacion_2, casilla_verificacion_3]) if interruptor_activo]
+                    st.markdown(f"#### {g_name}")
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        cb0 = st.checkbox(alertas_especificas[0] if len(alertas_especificas)>0 else "S0", key=f"c_{g_idx}_0_f")
+                        cb1 = st.checkbox(alertas_especificas[1] if len(alertas_especificas)>1 else "S1", key=f"c_{g_idx}_1_f")
+                    with col_b:
+                        cb2 = st.checkbox(alertas_especificas[2] if len(alertas_especificas)>2 else "S2", key=f"c_{g_idx}_2_f")
+                        cb3 = st.checkbox(alertas_especificas[3] if len(alertas_especificas)>3 else "S3", key=f"c_{g_idx}_3_f")
+                    resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
         else:
-            st.subheader(tx.get("sec1"))
-            contenedor_variables_analiticas["Edad"] = st.number_input(tx.get("edad"), 10, 100, 20)
-            contenedor_variables_analiticas["Género"] = st.radio(tx.get("genero"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
-            contenedor_variables_analiticas["Nacionalidad"] = st.radio(tx.get("nac"), ["Mexicana", "Extranjera"], horizontal=True)
+            st.subheader(tx.get("sec1", "Sección I"))
+            resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
+            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
+            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], horizontal=True)
             
-            if "mex" in contenedor_variables_analiticas["Nacionalidad"].lower():
-                contenedor_variables_analiticas["Estado Residencia"] = st.selectbox(tx.get("res"), [""] + ESTADOS_MEXICO)
-                contenedor_variables_analiticas["País Origen"] = "México"
+            if "mex" in resultados_totales["Nacionalidad"].lower():
+                resultados_totales["Estado Residencia"] = st.selectbox(tx.get("res", "Residencia:"), [""] + ESTADOS_MEXICO)
+                resultados_totales["País Origen"] = "México"
             else: 
-                contenedor_variables_analiticas["País Origen"] = st.text_input(tx.get("pais"))
+                resultados_totales["País Origen"] = st.text_input(tx.get("pais", "País:"))
                 
-            st.subheader(tx.get("sec2"))
-            # Inyectamos el parámetro key único a cada reactivo para aislar su ID en Streamlit
-            contenedor_variables_analiticas["C1_Escuchado"] = st.radio(tx.get("kn1"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec2")
-            contenedor_variables_analiticas["C2_Leído"] = st.radio(tx.get("kn2"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec2")
-            contenedor_variables_analiticas["C3_Enseñado"] = st.radio(tx.get("kn3"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec2")
-            contenedor_variables_analiticas["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0"), tx.get("kn4_opt1"), tx.get("kn4_opt2")], horizontal=True, key="rad_kn4_unq_sec2")
-            contenedor_variables_analiticas["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0"), tx.get("kn5_opt1"), tx.get("kn5_opt2")], horizontal=True, key="rad_kn5_unq_sec2")
-
+            st.subheader(tx.get("sec2", "Sección II"))
+            resultados_totales["C1_Escuchado"] = st.radio(tx.get("kn1"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec2")
+            resultados_totales["C2_Leído"] = st.radio(tx.get("kn2"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec2")
+            resultados_totales["C3_Enseñado"] = st.radio(tx.get("kn3"), ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec2")
+            resultados_totales["C4_Origen"] = st.radio(tx.get("kn4"), [tx.get("kn4_opt0", "Se impone"), tx.get("kn4_opt1", "Se hereda"), tx.get("kn4_opt2", "No sé")], horizontal=True, key="rad_kn4_unq_sec2")
+            resultados_totales["C5_Concepto"] = st.radio(tx.get("kn5"), [tx.get("kn5_opt0", "Teología"), tx.get("kn5_opt1", "Cultura"), tx.get("kn5_opt2", "No sé")], horizontal=True, key="rad_kn5_unq_sec2")
             
             st.write("### 📋 BATERÍA DE REACTIVOS C&K")
-            diccionario_reactivos_estaticos = algoritmo_generar_reactivos_poliglotas(str(contenedor_variables_analiticas.get("País Origen", "Región")), idioma_sel)
-            for id_reactivo_num, texto_reactivo_trad in diccionario_reactivos_estaticos.items():
-                st.write(f"Reactivo {id_reactivo_num}: {texto_reactivo_trad}")
-                contenedor_variables_analiticas[f"R{id_reactivo_num}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda valor_x: tx.get(f"likert_{valor_x}", str(valor_x)), horizontal=True, key=f"llave_reactivo_radiogroup_{id_reactivo_num}")
+            reactivos = algoritmo_generar_reactivos_poliglotas(str(resultados_totales.get("País Origen", "Región")), idioma_sel)
+            for r_id, r_txt in reactivos.items():
+                st.write(f"Reactivo {r_id}: {r_txt}")
+                resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), horizontal=True, key=f"r_{r_id}")
 
-        renderizar_botones_transaccionales(campo_nombre_usuario, campo_whatsapp_usuario, contenedor_variables_analiticas, es_modo_formulario_likert, idioma_sel, tx)
+        renderizar_botones_transaccionales(nombre, whatsapp, resultados_totales, es_likert, idioma_sel, tx)
     else:
         st.balloons()
-        st.success(tx.get("thanks"))
-        st.markdown(tx.get("thanks_sub"))
-        st.toast(tx.get("toast_msg"), icon="📥")
+        st.success(tx.get("thanks", "¡Completado!"))
+        st.markdown(tx.get("thanks_sub", "Descarga tu reporte abajo."))
+        st.toast(tx.get("toast_msg", "Descarga lista."), icon="📥")
         
-        objeto_archivo_pdf_individual = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), idioma_sel)
-        st.download_button(tx.get("btn_pdf"), data=objeto_archivo_pdf_individual, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
+        rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, st.session_state.get("es_modo_likert_persistente", False), idioma_sel)
+        st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
         
-        objeto_archivo_diploma_honor = generar_reconocimiento_honorifico_dinamico()
-        st.download_button(tx.get("lbl_btn_download_diploma"), data=objeto_archivo_diploma_honor, file_name="Diploma_Excelencia.pdf", mime="application/pdf", use_container_width=True)
-        if st.button("🔄 Volver al Diagnóstico Principal", key="reajuste_flujo_vista_principal_bilingue"): 
+        dip = generar_reconocimiento_honorifico_dinamico()
+        st.download_button(tx.get("lbl_btn_download_diploma", "🏆 DIPLOMA"), data=dip, file_name="Diploma_Excelencia.pdf", mime="application/pdf", use_container_width=True)
+        if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
             st.session_state.flujo_finalizado = False
             st.rerun()
 
     # --- INVESTIGACIÓN ALTA ANALÍTICA DEL PONENTE ---
     if st.session_state.admin_autenticado and not interruptor_movil:
         st.markdown("---")
-        st.header(tx.get("lbl_titulo_aud"))
-        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="selector_analitico_tablas_ponente_unq")
-        manejador_pestana_sheets = conectar_google_sheets(tabla_analizar)
-        coleccion_filas_matriz = manejador_pestana_sheets.get_all_values() if manejador_pestana_sheets else []
-        if coleccion_filas_matriz and len(coleccion_filas_matriz) >= 2:
-            data_frame_investigacion = pd.DataFrame(coleccion_filas_matriz[1:], columns=coleccion_filas_matriz[0])
-            st.subheader(tx.get("lbl_crm_buscar"))
-            criterio_busqueda_crm = st.text_input(tx.get("lbl_crm_input"), key="input_texto_filtro_crm_analisis").strip().lower()
-            if criterio_busqueda_crm and not data_frame_investigacion.empty:
-                st.write(data_frame_investigacion[data_frame_investigacion[data_frame_investigacion.columns].astype(str).str.lower().str.contains(criterio_busqueda_crm)])
+        st.header(tx.get("lbl_titulo_aud", "🔬 Oficina Analítica"))
+        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select", "Tabla:"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_tabla_analizar_master_office")
+        sheet = conectar_google_sheets(tabla_analizar)
+        todas_las_filas = sheet.get_all_values() if sheet else []
+        if todas_las_filas and len(todas_las_filas) >= 2:
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
+            st.subheader(tx.get("lbl_crm_buscar", "Buscar"))
+            c_busq = st.text_input(tx.get("lbl_crm_input", "Filtro:"), key="crm_search_input").strip().lower()
+            if c_busq and not df_doc.empty:
+                st.write(df_doc[df_doc[df_doc.columns].astype(str).str.lower().str.contains(c_busq)])
+            else:
+                st.dataframe(df_doc)
 
-        if st.button(tx.get("lbl_btn_auditoria"), key="ejecutor_compilacion_macro_informe_doctoral"):
-            pdf_macro_auditoria = FPDF()
-            pdf_macro_auditoria.add_page()
-            pdf_macro_auditoria.set_font("Helvetica", "B", 14)
-            pdf_macro_auditoria.cell(190, 10, str(tx.get("lbl_pdf_dictamen")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-            pdf_macro_auditoria.ln(6)
-            pdf_macro_auditoria.set_font("Helvetica", "B", 12)
-            pdf_macro_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-            pdf_macro_auditoria.set_font("Helvetica", "", 9)
-            for identificador_referencia_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
-                pdf_macro_auditoria.multi_cell(190, 4.5, str(dictamen_bilingue.get(identificador_referencia_key)).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
-                pdf_macro_auditoria.ln(2)
-            st.download_button(label=tx.get("lbl_btn_download_macro"), data=bytes(pdf_macro_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="descarga_final_dictamen_pdf_macro_doctoral")
-
-
-
-# =================================================================
-# CIERRE FORMAL Y GUARDIA DE ARRANQUE DEL ENTORNO BILINGÜE
-# =================================================================
+        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
+            pdf_auditoria = FPDF()
+            pdf_auditoria.add_page()
+            pdf_auditoria.set_font("Helvetica", "B", 14)
+            pdf_auditoria.cell(190, 10, str(tx.get("lbl_pdf_dictamen", "DICTAMEN")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+            pdf_auditoria.ln(6)
+            pdf_auditoria.set_font("Helvetica", "B", 12)
+            pdf_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title", "Referencias")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+            pdf_auditoria.set_font("Helvetica", "", 9)
+            for ref_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
+                txt_bib = dictamen_bilingue.get(ref_key, "Hair, J. F., Black, W. C. (2019).")
+                pdf_auditoria.multi_cell(190, 4.5, str(txt_bib).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                pdf_auditoria.ln(2)
+            st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
 def generar_reconocimiento_honorifico_dinamico():
-    """ Construye el diploma heráldico oficial en formato landscape A4. """
-    pdf_reconocimiento_academico = FPDF(orientation="L", unit="mm", format="A4")
-    pdf_reconocimiento_academico.add_page()
-    pdf_reconocimiento_academico.set_auto_page_break(auto=False)
-    pdf_reconocimiento_academico.set_draw_color(212, 175, 55)
-    pdf_reconocimiento_academico.set_line_width(1.2)
-    pdf_reconocimiento_academico.rect(10, 10, 277, 190)
-    pdf_reconocimiento_academico.set_font("Helvetica", "B", 14)
-    pdf_reconocimiento_academico.set_text_color(50, 50, 50)
-    pdf_reconocimiento_academico.cell(277, 15, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf_reconocimiento_academico.ln(10)
-    pdf_reconocimiento_academico.set_font("Times", "B", 26)
-    pdf_reconocimiento_academico.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
-    return bytes(pdf_reconocimiento_academico.output())
+    pdf = FPDF(orientation="L", unit="mm", format="A4")
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=False)
+    pdf.set_draw_color(212, 175, 55)
+    pdf.set_line_width(1.2)
+    pdf.rect(10, 10, 277, 190)
+    pdf.set_font("Helvetica", "B", 14)
+    pdf.set_text_color(50, 50, 50)
+    pdf.cell(277, 15, "ASOCIACION CIVIL JACOB ZUMAYA PRIANTI", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.ln(10)
+    pdf.set_font("Times", "B", 26)
+    pdf.cell(277, 14, "RECONOCIMIENTO HONORIFICO", new_x="LMARGIN", new_y="NEXT", align="C")
+    return bytes(pdf.output())
 
-# Guardia de ejecución principal reglamentaria en el entorno de Streamlit Cloud
 if __name__ == "__main__": 
     main()
 
