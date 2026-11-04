@@ -45,7 +45,7 @@ nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu re
 st.markdown("---")
 
 # 4. ENLACE DE TU APLICACIÓN (Copia aquí tu link final de Streamlit Cloud)
-url_base_app = "https://share.streamlit.io/"
+url_base_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
 
 # 5. DETECCIÓN AUTOMÁTICA DEL ESCANEO: Ocultar QR al instante en el celular
 # Añadimos un parámetro '?view=mobile' al QR para identificar al participante
