@@ -284,7 +284,7 @@ if enviar or st.session_state.get("guardar_progreso", False):
         </table>
         <div class='promo-box'>
             <h3>🤝 Invitación Especial: Consulta Personalizada Gratuita</h3>
-            <p>Si deseas profundizar en tus resultados o estructurar un plan de acción guiado, te invitamos a <strong>acercarte directamente con el ponente</strong> para recibir una <strong>sesión de consultoría privada y completamente gratuita</strong>.</p>
+            <p>Si deseas profundizar en tus resultados o estructurar un plan de acción guiado, te invitamos a <strong>acercarte directamente con tu pastor o con un anciano de confianza</strong> para recibir una <strong>sesión de consultoría privada y completamente gratuita</strong>.</p>
         </div>
     </body>
     </html>
