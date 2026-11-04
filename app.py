@@ -107,7 +107,26 @@ def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
 # =================================================================
 # PARTE 2B: DICCIONARIO DE DICTAMEN E INTERPRETACIÓN BILINGÜE
 # =================================================================
-TEXTOS_DICTAMEN_BILINGUE = {
+# =================================================================
+# 🎛️ CENTRO DE MANDO BILINGÜE (EL CONTROL TOTAL SIN APIS EXTERNAS)
+# =================================================================
+# 🍊 ASEGÚRATE DE QUE ESTA VARIABLE SE LLAME EXACTAMENTE ASÍ AL INICIO DEL ARCHIVO:
+CENTRO_MANDO_BILINGUE = {
+    "es": {
+        "intl_title": "🌐 Internationalization Gateway / Control Políglota",
+        "intl_select": "Selecciona tu Idioma Objetivo / Select Language:",
+        "intl_btn": "🔄 APLICAR IDIOMA SELECCIONADO / APPLY LANGUAGE",
+        # ... resto de tus llaves en español ...
+    },
+    "en": {
+        "intl_title": "🌐 Internationalization Gateway / Polyglot Control",
+        "intl_select": "Select tu Idioma Objetivo / Select Language:",
+        "intl_btn": "🔄 APLICAR IDIOMA SELECCIONADO / APPLY LANGUAGE",
+        # ... resto de tus llaves en inglés ...
+    }
+}
+
+CENTRO_MANDO_BILINGUE = {
     "es": {
         "ctrl_f0": "Vectores de Atencion Critica Detectados",
         "ctrl_f1": "Dimension Evaluada",
