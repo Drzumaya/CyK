@@ -275,6 +275,42 @@ def guardar_en_google_sheets(pestana, nom, wha, res, token, es_likert):
 # =================================================================
 # PARTE 4: MOTOR GENERATIVO DE EXTRACCIÓN PSICOMÉTRICA Y COMPILACIÓN PDF
 # =================================================================
+# =================================================================
+# ALGORITMO INTEGRAL: GENERADOR DE REACTIVOS CRONOS Y KAIRÓS BILINGÜE
+# =================================================================
+def algoritmo_generar_reactivos_poliglotas(geo, lang="es"):
+    """
+    Produce los 10 reactivos psicométricos del modelo C&K adaptando 
+    la variable geográfica e idiomática sin llamadas externas.
+    """
+    if lang == "en":
+        return {
+            1: f"I capture opportunities in {geo}.",
+            2: "I structure my schedule based on exact clocks.",
+            3: "Time flows in an organic way for me.",
+            4: "I penalize professional untimeliness.",
+            5: "I read unexpected events as useful windows.",
+            6: "I manage goals under fixed checklists.",
+            7: "I break the itinerary if an advantage emerges.",
+            8: "I prefer sequential order over multitasking.",
+            9: "High concentration if the environment changes.",
+            10: "I separate fixed hours for sleep and production."
+        }
+    else:
+        return {
+            1: f"Capturo oportunidades en {geo}.",
+            2: "Estructuro mi agenda sobre relojes exactos.",
+            3: "El tiempo fluye de forma orgánica.",
+            4: "Castigo la impuntualidad profesional.",
+            5: "Leo imprevistos como ventanas útiles.",
+            6: "Gestiono metas bajo checklists fijos.",
+            7: "Rompo el itinerario si emerge una ventaja.",
+            8: "Prefiero orden secuencial a multitarea.",
+            9: "Alta concentración si el entorno cambia.",
+            10: "Separo horas fijas de sueño y producción."
+        }
+
+
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     pdf = FPDF()
     pdf.core_fonts_encoding = "cp1252"
