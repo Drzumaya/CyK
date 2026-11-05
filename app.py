@@ -760,12 +760,23 @@ def main():
                     st.session_state.paso_cyk = True
                     st.rerun()
 
+# =================================================================
+# SINTAXIS EN LA BATERÍA LIKERT COMPACTA (LÍNEA 768)
+# =================================================================
             if st.session_state.paso_cyk:
                 st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=, format_func=lambda x: tx.get(f"likert_{x}", str(x)), index=None, horizontal=True, key=f"rcyk_{r_id}")
+                    # 🍊 CORRECCIÓN DE RAÍZ: Asignamos el vector numérico explícito del 1 al 5 en el parámetro options
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        "Escala / Scale:", 
+                        options=[1, 2, 3, 4, 5], 
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                        index=None, 
+                        horizontal=True, 
+                        key=f"rcyk_{r_id}"
+                    )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
     else:
