@@ -307,4 +307,4 @@ else:
     st.markdown("---")
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
-            st.rerun()
+        st.rerun()
