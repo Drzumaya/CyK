@@ -563,7 +563,7 @@ else:
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
-    # --- PARTE 7A: ANÁLISIS DE RÚBRICA Y MAQUETACIÓN INICIAL DEL PDF ---
+     # --- SEGMENTO 7A: ANÁLISIS DE RÚBRICA Y MAQUETACIÓN DE TABLAS DEL PDF ---
     st.subheader("🔍 Análisis Detallado de Madurez")
     
     filas_rubrica_pdf = ""
@@ -586,16 +586,15 @@ else:
         else:
             st.error(f"🚨 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
             
-        # Maquetación simétrica con fuentes duplicadas para la rúbrica del PDF
-        filas_rubrica_pdf += f"""
-        <tr>
-            <td style='font-weight:bold; color:#2E7D32; font-size:22px; padding:14px;'>{fruto}</td>
-            <td style='text-align:center; font-weight:bold; font-size:22px; background-color:#f4fbf7; padding:14px;'>{score}/10</td>
-            <td style='font-size:20px; padding:14px; font-weight:bold;'>{info_rubrica['estado']}</td>
-            <td style='font-size:20px; padding:14px; text-align:justify;'>{info_rubrica['criterio']}</td>
-        </tr>
-        """
-        lista_consecuencias_pdf += f"<li style='font-size:20px; margin-bottom:14px; text-align:justify;'><b>{fruto} ({score}/10):</b> {cons_global['corto']} {cons_global['mediano']}</li>"
+        # Construcción segura de filas mediante concatenación estándar de texto plano
+        filas_rubrica_pdf += "<tr>"
+        filas_rubrica_pdf += "<td style='font-weight:bold; color:#2E7D32; font-size:22px; padding:14px;'>" + str(fruto) + "</td>"
+        filas_rubrica_pdf += "<td style='text-align:center; font-weight:bold; font-size:22px; background-color:#f4fbf7; padding:14px;'>" + str(score) + "/10</td>"
+        filas_rubrica_pdf += "<td style='font-size:20px; padding:14px; font-weight:bold;'>" + str(info_rubrica['estado']) + "</td>"
+        filas_rubrica_pdf += "<td style='font-size:20px; padding:14px; text-align:justify;'>" + str(info_rubrica['criterio']) + "</td>"
+        filas_rubrica_pdf += "</tr>"
+        
+        lista_consecuencias_pdf += "<li style='font-size:20px; margin-bottom:14px; text-align:justify;'><b>" + str(fruto) + " (" + str(score) + "/10):</b> " + str(cons_global['corto']) + " " + str(cons_global['mediano']) + "</li>"
 
     st.header("💡 Recomendaciones Generales para el Crecimiento")
     st.markdown("1. **Oración de Rendición:** Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.")
@@ -604,29 +603,29 @@ else:
     
     st.info(f"### 🤝 Una Invitación Especial a Caminar Juntos\nQuerido(a) **{nombre_final}**, te extendemos una invitación sincera para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.")
 
-    # Inicio de la maquetación completa de la Rúbrica en formato imprimible PDF
-    html_reporte = f"""
+    # Ensamblaje modular del documento HTML con textos planos concatenados (Inmune a fallas de f-strings)
+    html_inicial = """
     <html>
     <head>
         <meta charset='utf-8'>
         <style>
-            body {{ font-family: Arial, sans-serif; padding: 30px; color: #333; line-height: 1.5; }}
-            .header {{ text-align: center; border-bottom: 4px solid #2e7d32; padding-bottom: 15px; }}
-            .header h1 {{ color: #2e7d32; margin: 0; font-size: 44px; }}
-            .header p {{ font-size: 24px; margin: 5px 0 0 0; color: #666; }}
-            .user-info {{ text-align: right; font-style: italic; margin-top: 15px; color: #555; font-size: 22px; }}
-            .grafica-box {{ text-align: center; margin: 25px auto; width: 50%; }}
-            .grafica-box img {{ width: 100%; max-width: 100%; height: auto; display: block; }}
-            table {{ width: 100%; border-collapse: collapse; margin-top: 25px; table-layout: fixed; }}
-            th, td {{ border: 2px solid #cccccc; padding: 14px; vertical-align: top; word-wrap: break-word; }}
-            th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 22px; font-weight: bold; }}
-            .seccion-titulo {{ color: #2e7d32; font-size: 30px; font-weight: bold; margin-top: 45px; border-bottom: 3px solid #2e7d32; padding-bottom: 6px; }}
-            .lista-estilo {{ padding-left: 25px; margin-top: 15px; }}
-            .lista-estilo li {{ font-size: 20px; margin-bottom: 14px; line-height: 1.6; text-align: justify; }}
-            .pastoral-box {{ background-color: #e8f5e9; padding: 25px; margin-top: 40px; border-left: 8px solid #2e7d32; border-radius: 6px; }}
-            .pastoral-box p {{ font-size: 20px; margin: 0; line-height: 1.6; }}
-            .apa-sangria-francesa {{ padding-left: 35px; text-indent: -35px; font-size: 18px; line-height: 1.6; margin-bottom: 15px; text-align: justify; }}
-            .footer-creditos {{ text-align: center; margin-top: 60px; font-size: 16px; color: #777777; border-top: 2px solid #eeeeee; padding-top: 15px; font-style: italic; }}
+            body { font-family: Arial, sans-serif; padding: 30px; color: #333; line-height: 1.5; }
+            .header { text-align: center; border-bottom: 4px solid #2e7d32; padding-bottom: 15px; }
+            .header h1 { color: #2e7d32; margin: 0; font-size: 44px; }
+            .header p { font-size: 24px; margin: 5px 0 0 0; color: #666; }
+            .user-info { text-align: right; font-style: italic; margin-top: 15px; color: #555; font-size: 22px; }
+            .grafica-box { text-align: center; margin: 25px auto; width: 50%; }
+            .grafica-box img { width: 100%; max-width: 100%; height: auto; display: block; }
+            table { width: 100%; border-collapse: collapse; margin-top: 25px; table-layout: fixed; }
+            th, td { border: 2px solid #cccccc; padding: 14px; vertical-align: top; word-wrap: break-word; }
+            th { background-color: #f4fbf7; color: #2e7d32; font-size: 22px; font-weight: bold; }
+            .seccion-titulo { color: #2e7d32; font-size: 30px; font-weight: bold; margin-top: 45px; border-bottom: 3px solid #2e7d32; padding-bottom: 6px; }
+            .lista-estilo { padding-left: 25px; margin-top: 15px; }
+            .lista-estilo li { font-size: 20px; margin-bottom: 14px; line-height: 1.6; text-align: justify; }
+            .pastoral-box { background-color: #e8f5e9; padding: 25px; margin-top: 40px; border-left: 8px solid #2e7d32; border-radius: 6px; }
+            .pastoral-box p { font-size: 20px; margin: 0; line-height: 1.6; }
+            .apa-sangria-francesa { padding-left: 35px; text-indent: -35px; font-size: 18px; line-height: 1.6; margin-bottom: 15px; text-align: justify; }
+            .footer-creditos { text-align: center; margin-top: 60px; font-size: 16px; color: #777777; border-top: 2px solid #eeeeee; padding-top: 15px; font-style: italic; }
         </style>
     </head>
     <body>
@@ -634,12 +633,11 @@ else:
             <h1>🌱 Reporte de Diagnóstico Espiritual</h1>
             <p>Los 9 Frutos del Espíritu (Gálatas 5:22-23)</p>
         </div>
-        <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
-        
-        <div class='grafica-box'>
-            <img src='data:image/png;base64,{img_base64}'/>
-        </div>
+    """
 
+    html_grafica = "<div class='user-info'>Diagnóstico preparado especialmente para: <strong>" + str(nombre_final) + "</strong></div><div class='grafica-box'><img src='data:image/png;base64," + str(img_base64) + "'/></div>"
+
+    html_tabla = """
         <div class='seccion-titulo'>🔍 1. Rúbrica de Diagnóstico Personalizado del Carácter</div>
         <table>
             <thead>
@@ -651,17 +649,18 @@ else:
                 </tr>
             </thead>
             <tbody>
-                {filas_rubrica_pdf}
+    """ + filas_rubrica_pdf + """
             </tbody>
         </table>
-               # --- PARTE 7B: CIERRE DEL PDF, REFERENCIAS APA 7 Y BOTÓN DE DESCARGA (CONCATENACIÓN INMUNE A ERRORES) ---
-        bloque_html_final = """
-    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+    """
+    # --- SEGMENTO 7B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA ---
+    html_bloque_final = """
+        <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
-        """ + lista_consecuencias_pdf + """
+    """ + lista_consecuencias_pdf + """
         </ul>
         
-    <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
+        <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
@@ -701,8 +700,8 @@ else:
     </html>
     """
     
-    # Concatenamos de forma segura las cadenas de texto plano de la parte 7A y 7B
-    html_reporte_completo = html_reporte + bloque_html_final
+    # Concatenación de tramos inmune a errores de formateo
+    html_reporte_completo = html_inicial + html_grafica + html_tabla + html_bloque_final
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button(
