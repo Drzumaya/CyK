@@ -144,7 +144,7 @@ if not st.session_state.diagnostico_generado:
     """)
    
     
-        st.header("📋 Autoevaluación")
+    st.header("📋 Autoevaluación")
     st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
     with st.form("diagnostico_form"):
