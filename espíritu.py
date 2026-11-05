@@ -5,6 +5,7 @@ import io
 import base64
 import matplotlib.pyplot as plt
 import numpy as np
+from datetime import datetime  # Para registrar la fecha de escaneo del QR
 
 # 1. Configuración de la página institucional y estados de sesión
 st.set_page_config(
@@ -18,7 +19,11 @@ for var, val in [("mostrar_felicitacion", False), ("finalizado", False), ("diagn
     if var not in st.session_state:
         st.session_state[var] = val
 
-# SOLUCIÓN DEFINITIVA: Declaración global fija de la base de datos de Gálatas
+# CAPTURA AUTOMÁTICA DE FECHA: Graba la fecha del día exacto en que se abre el enlace móvil
+if "fecha_apertura" not in st.session_state:
+    st.session_state.fecha_apertura = datetime.now().strftime("%d/%m/%Y")
+
+# Base de datos global fija de Gálatas 5
 frutos_info = {
     "Amor": {"izq": "Guardo rencor, elijo el egoísmo o la indiferencia.", "der": "Amo, perdono y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
     "Gozo": {"izq": "Me domina la queja constante, la amargura o la tristeza.", "der": "Siento una alegría profunda que no depende de las circunstancias.", "cita": "Gálatas 5:22"},
@@ -31,7 +36,7 @@ frutos_info = {
     "Templanza": {"izq": "Cedo con facilidad ante los antojos, impulsos o malos hábitos.", "der": "Tengo dominio propio, gobierno mis emociones y autodisciplina.", "cita": "Gálatas 5:23"}
 }
 
-# Estilos CSS para la regla numérica visible y alineación
+# Estilos CSS para la regla numérica visible
 st.markdown("""
 <style>
     .escala-numerica-fija {
@@ -57,7 +62,7 @@ if st.session_state.finalizado:
     st.caption("🎨 Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
     st.stop()
 
-# LÓGICA DE FELICITACIÓN: Se activa al terminar el flujo
+# LÓGICA DE FELICITACIÓN
 if st.session_state.mostrar_felicitacion:
     st.balloons()
     st.success("🎉 ¡Muchas felicidades por completar este paso fundamental!")
@@ -68,16 +73,16 @@ if st.session_state.mostrar_felicitacion:
     1. **Toma acciones para el cambio:** Elige el fruto con menor intensidad y genera hábitos guiados de forma proactiva.
     2. **Busca Consejo Pastoral:** Te animamos a acercarte directamente con tu **pastor o con un anciano de confianza** de tu iglesia local para compartir tus resultados y recibir guía espiritual.
     """)
-    
     st.markdown("---")
     if st.button("🔄 Nuevo diagnóstico", key="btn_reinicio_kiosco_global"):
         st.session_state.diagnostico_generado = False
         st.session_state.mostrar_felicitacion = False
         st.session_state.respuestas_usuario = {}
         st.rerun()
-        
     st.caption("🎨 Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
     st.stop()
+
+
 # --- MATRIZ DOCTRINAL ESPECÍFICA (AMOR, GOZO Y PAZ) ---
 rubrica_detallada = {
     "Amor": {
@@ -459,7 +464,9 @@ else:
     plt.close(fig)
     
     st.markdown("---")
-    # --- SEGMENTO 8A: ANÁLISIS DE RÚBRICA Y MAQUETACIÓN INICIAL DEL REPORTE ---
+    
+    
+    # --- SEGMENTO 8A ACTUALIZADO: ANÁLISIS DE RÚBRICA Y MAQUETACIÓN INICIAL DEL REPORTE CON FECHA ---
     st.subheader("🔍 Análisis Detallado de Madurez")
     
     filas_rubrica_pdf = ""
@@ -475,7 +482,6 @@ else:
         info_rubrica = rubrica_detallada[fruto][rango]
         cons_global = consecuencias_texto[rango]
         
-        # Despliegue único y semaforizado en la interfaz web de Streamlit
         if score >= 8:
             st.success(f"🟢 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
         elif score >= 5:
@@ -483,7 +489,6 @@ else:
         else:
             st.error(f"🚨 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
             
-        # Construcción de filas mediante concatenación estándar de texto plano (Inmune a fallas de f-strings)
         filas_rubrica_pdf += "<tr>"
         filas_rubrica_pdf += "<td style='font-weight:bold; color:#2E7D32; font-size:22px; padding:14px;'>" + str(fruto) + "</td>"
         filas_rubrica_pdf += "<td style='text-align:center; font-weight:bold; font-size:22px; background-color:#f4fbf7; padding:14px;'>" + str(score) + "/10</td>"
@@ -510,8 +515,13 @@ else:
             .header { text-align: center; border-bottom: 4px solid #2e7d32; padding-bottom: 15px; }
             .header h1 { color: #2e7d32; margin: 0; font-size: 44px; }
             .header p { font-size: 24px; margin: 5px 0 0 0; color: #666; }
-            .user-info { text-align: right; font-style: italic; margin-top: 15px; color: #555; font-size: 22px; }
-            .grafica-box { text-align: center; margin: 25px auto; width: 50%; }
+            
+            /* REQUERIMIENTO ESPECIAL DE FECHA: Caja de flexión para mantener fecha a la izq y nombre a la der en una misma línea */
+            .meta-info-row { width: 100%; margin-top: 15px; display: block; overflow: hidden; }
+            .meta-fecha { float: left; font-style: italic; color: #555; font-size: 22px; font-weight: bold; }
+            .meta-usuario { float: right; font-style: italic; color: #555; font-size: 22px; }
+            
+            .grafica-box { text-align: center; margin: 25px auto; width: 50%; clear: both; }
             .grafica-box img { width: 100%; max-width: 100%; height: auto; display: block; }
             table { width: 100%; border-collapse: collapse; margin-top: 25px; table-layout: fixed; }
             th, td { border: 2px solid #cccccc; padding: 14px; vertical-align: top; word-wrap: break-word; }
@@ -532,7 +542,8 @@ else:
         </div>
     """
 
-    html_grafica = "<div class='user-info'>Diagnóstico preparado especialmente para: <strong>" + str(nombre_final) + "</strong></div><div class='grafica-box'><img src='data:image/png;base64," + str(img_base64) + "'/></div>"
+    # Inyección matemática del renglón simétrico: Fecha en el extremo izquierdo y Nombre en el extremo derecho
+    html_grafica = "<div class='meta-info-row'><div class='meta-fecha'>Fecha de Apertura: " + str(st.session_state.fecha_apertura) + "</div><div class='meta-usuario'>Diagnóstico preparado especialmente para: <strong>" + str(nombre_final) + "</strong></div></div><div class='grafica-box'><img src='data:image/png;base64," + str(img_base64) + "'/></div>"
 
     html_tabla = """
         <div class='seccion-titulo'>🔍 1. Rúbrica de Diagnóstico Personalizado del Carácter</div>
@@ -550,14 +561,15 @@ else:
             </tbody>
         </table>
     """
-    # --- SEGMENTO 8B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA (BLINDADO Y SIN ERRORES) ---
+
+    # --- SEGMENTO 8B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA ---
     html_bloque_final = """
-        <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
     """ + lista_consecuencias_pdf + """
         </ul>
         
-        <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
+    <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
@@ -597,7 +609,6 @@ else:
     </html>
     """
     
-    # Concatenación de tramos inmune a errores de formateo
     html_reporte_completo = html_inicial + html_grafica + html_tabla + html_bloque_final
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
@@ -617,3 +628,4 @@ else:
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso", key="btn_avanzar_felicitacion"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
+
