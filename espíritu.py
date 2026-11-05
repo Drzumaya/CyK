@@ -562,7 +562,7 @@ else:
         </table>
     """
 
-    # --- SEGMENTO 8B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA ---
+    # --- SEGMENTO 8B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y DISPARADORES ADAPTATIVOS (PONENTE VS MOVIL) ---
     html_bloque_final = """
     <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
@@ -623,9 +623,27 @@ else:
     
     st.markdown("---")
     st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
-    
     st.markdown("---")
-    if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso", key="btn_avanzar_felicitacion"):
-        st.session_state.mostrar_felicitacion = True
-        st.rerun()
+
+    # --- LÓGICA DE CONDICIONAL INTELIGENTE (PONENTE VS PARTICIPANTE) ---
+    es_movil_participante = "view" in st.query_params and st.query_params["view"] == "mobile"
+
+    if es_movil_participante:
+        # PANTALLA DEL PARTICIPANTE: Botón Finalizar que destruye/cierra la pestaña mediante JS nativo
+        if st.button("🏁 Finalizar", key="btn_finalizar_participante_movil"):
+            st.markdown("""
+                <script>
+                    window.parent.close();
+                    window.close();
+                </script>
+            """, unsafe_allow_html=True)
+            st.success("🔒 Sesión concluida. Ya puedes cerrar esta ventana.")
+    else:
+        # PANTALLA DEL PONENTE: Botón de reinicio de Kiosco para vaciar el test y recibir al siguiente
+        if st.button("🔄 Nuevo diagnóstico", key="btn_ponente_nuevo_diagnostico"):
+            st.session_state.diagnostico_generado = False
+            st.session_state.mostrar_felicitacion = False
+            st.session_state.respuestas_usuario = {}
+            st.rerun()
+
 
