@@ -135,19 +135,21 @@ if not st.session_state.diagnostico_generado:
             st.markdown("*¡Al escanearlo, este recuadro desaparecerá de tu pantalla móvil para darte máxima comodidad!*")
         st.markdown("---")
 
-    # AJUSTE SOLICITADO: Invitación explícita a no temerle al 1 ni al 10
+    # Invitación explícita a no temerle al 1 ni al 10
     st.warning("""
     ### 🧠 Invitación a la Honestidad Profunda y Transparente
     Antes de iniciar, tómate un momento de silencio y reverencia. Este ejercicio no tiene el propósito de condenarte ni de calificarte bajo estándares humanos, sino de servir como un espejo espiritual fidedigno. 
     
     **No tengas miedo ni vergüenza de marcar un 1 o un 10.** Si hay un área donde la carne te domina por completo, marcar un **1** es el primer paso de humildad hacia la restauración. De igual manera, si el Espíritu Santo te ha dado la victoria absoluta y constante en un fruto, pon un **10** reconociendo Su poder en ti con gratitud. Responde con absoluta sinceridad delante de Dios.
     """)
-    st.header("📋 Autoevaluación")
+   
+    
+       st.header("📋 Autoevaluación")
     st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
     with st.form("diagnostico_form"):
         puntajes_temporales = {}
-        # Mapeo textual con esferas semaforizadas
+        # Lista de opciones con esferas semaforizadas
         esferas = ["1 🔴", "2 🔴", "3 🔴", "4 🔴", "5 🟡", "6 🟡", "7 🟡", "8 🟢", "9 🟢", "10 🟢"]
         
         for i, (fruto, info) in enumerate(frutos_info.items(), 1):
@@ -161,9 +163,11 @@ if not st.session_state.diagnostico_generado:
                     key=f"esfera_{fruto}",
                     label_visibility="collapsed"
                 )
+                
+                # CORRECCIÓN DEFINITIVA: Extrae de forma segura solo el carácter numérico antes del emoji
                 puntajes_temporales[fruto] = int(sel.split()[0])
                 
-                # AJUSTE SOLICITADO: Escala numérica explícita y visible debajo de la barra
+                # Escala numérica explícita y visible debajo de la barra
                 st.markdown("""
                 <div class="escala-numerica-fija">
                     <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
@@ -179,6 +183,7 @@ if not st.session_state.diagnostico_generado:
                 "diagnostico_generado": True
             })
             st.rerun()
+
 else:
     nombre_final = st.session_state.nombre_final
     puntajes = st.session_state.respuestas_usuario
@@ -186,7 +191,7 @@ else:
     st.title("📊 Tu Diagnóstico Espiritual")
     st.header(f"Resultados preparados para: {nombre_final}")
     
-    # --- GRÁFICA DE BARRAS VERTICALES ANCHAS ---
+    # --- CONSTRUCCIÓN DE LA GRÁFICA DE BARRAS VERTICALES ANCHAS ---
     st.subheader("📈 Gráfica de Crecimiento Espiritual")
     frutos_labels = list(puntajes.keys())
     valores_barras = list(puntajes.values())
