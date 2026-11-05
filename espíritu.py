@@ -336,12 +336,14 @@ if not st.session_state.diagnostico_generado:
     **No tengas miedo ni vergüenza de marcar un 1 o un 10.** Si hay un área donde la carne te domina por completo, marcar un **1** es el primer paso de humildad hacia la restauración. De igual manera, si el Espíritu Santo te ha dado la victoria absoluta y constante en un fruto, pon un **10** reconociendo Su poder en ti con gratitud. Responde con absoluta sinceridad delante de Dios.
     """)
 
+       # --- CUESTIONARIO MODULAR INTERACTIVO (ESCALA LIMPIA DEL 1 AL 10) ---
     st.header("📋 Autoevaluación")
     st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
     with st.form("diagnostico_form"):
         puntajes_temporales = {}
-        esferas = ["1 🔴", "2 🔴", "3 🔴", "4 🔴", "5 🟡", "6 🟡", "7 🟡", "8 🟢", "9 🟢", "10 🟢"]
+        # CORRECCIÓN: Arreglo de opciones limpio del 1 al 10 sin emojis ni textos agregados
+        escala_limpia = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         
         for i, (fruto, info) in enumerate(frutos_info.items(), 1):
             with st.expander(f"✨ {i}. {fruto} ({info['cita']})"):
@@ -349,13 +351,16 @@ if not st.session_state.diagnostico_generado:
                 
                 sel = st.select_slider(
                     f"Selecciona tu nivel para {fruto}:", 
-                    options=esferas, 
-                    value="3 🔴", 
+                    options=escala_limpia, 
+                    value="3", # Inicialización fija en la opción "3"
                     key=f"esfera_{fruto}",
                     label_visibility="collapsed"
                 )
-                puntajes_temporales[fruto] = int(sel.split()[0])
                 
+                # Conversión directa y segura a número entero
+                puntajes_temporales[fruto] = int(sel)
+                
+                # Escala numérica explícita y visible debajo de la barra
                 st.markdown("""
                 <div class="escala-numerica-fija">
                     <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
@@ -371,6 +376,7 @@ if not st.session_state.diagnostico_generado:
                 "diagnostico_generado": True
             })
             st.rerun()
+
 # --- PARTE 6: EXTRACCIÓN Y PANTALLA EXCLUSIVA DE RESULTADOS ---
 else:
     nombre_final = st.session_state.nombre_final
