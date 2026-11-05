@@ -554,11 +554,10 @@ def main():
             </style>
         """, unsafe_allow_html=True)
 # =================================================================
-# PARTE 9-A: MARCO DE VENTANA WINDOWS Y META-ANÁLISIS DE AUDIENCIAS
+# PARTE 9: CONSOLA ANALÍTICA FLOTANTE WINDOWS COMPACTA (INMUNE A INTERRUPCIONES)
 # =================================================================
     if st.session_state.admin_autenticado:
         with st.container():
-            # Inyección de hoja de estilos avanzada estilo Windows OS para el marco flotante
             st.markdown("""
                 <style>
                 .windows-header-bar {
@@ -567,52 +566,28 @@ def main():
                     padding: 6px 12px; margin: -20px -20px 20px -20px;
                     border-top-left-radius: 8px; border-top-right-radius: 8px; color: white;
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    border-bottom: 1px solid #112233;
                 }
                 .windows-btn-group { display: flex; gap: 2px; }
                 .win-btn {
-                    width: 32px; height: 22px; display: flex; align-items: center;
-                    justify-content: center; font-size: 11px; font-family: sans-serif;
-                    cursor: pointer; user-select: none; transition: background 0.1s; border-radius: 2px;
+                    width: 32px; height: 22px; display: flex; align-items: center; justify-content: center;
+                    font-size: 11px; cursor: pointer; user-select: none; border-radius: 2px;
                 }
-                .win-btn-min:hover, .win-btn-max:hover { background-color: rgba(255, 255, 255, 0.2); }
                 .win-btn-close:hover { background-color: #e81123 !important; color: white !important; }
                 </style>
             """, unsafe_allow_html=True)
 
-            # Barra superior con los tres botones operativos simulando la botonera clásica de Windows
-            st.markdown(f"""
-                <div class="floating-office-window">
-                    <div class="windows-header-bar">
-                        <div style="display: flex; align-items: center; gap: 6px;">
-                            <span style="font-size: 13px;">💻</span>
-                            <span style="font-weight: 500; font-size: 13px; letter-spacing: 0.3px;">🔬 CONSOLA DE ALTA ANALÍTICA CIENTÍFICA — AUDIENCIA EVALUADA: {tabla_analizar}</span>
-                        </div>
-                        <div class="windows-btn-group">
-                            <div class="win-btn win-btn-min" style="color: white;" title="Minimizar">─</div>
-                            <div class="win-btn win-btn-max" style="color: white;" title="Maximizar/Restaurar">🗖</div>
-                            <div class="win-btn win-btn-close" style="color: #cccccc;" title="Cerrar">✕</div>
-                        </div>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div>💻 🔬 CONSOLA CIENTÍFICA — EVALUACIÓN: {tabla_analizar}</div><div class="windows-btn-group"><div class="win-btn">─</div><div class="win-btn">🗖</div><div class="win-btn win-btn-close">✕</div></div></div>', unsafe_allow_html=True)
 
-            # Compuertas físicas inferiores para disparar los cambios de estado en Streamlit
-            c_win_btn1, c_win_btn2, c_win_btn3 = st.columns(3)
-            with c_win_btn1:
-                if st.button("➖ Minimizar Consola", key="btn_win_minimize_action", use_container_width=True):
-                    st.toast("Oficina replegada temporalmente en la barra del ponente.")
-            with c_win_btn2:
-                txt_sz = "🗖 Maximizar Pantalla" if not st.session_state.oficina_maximizada else "🗗 Restaurar Ventana"
-                if st.button(txt_sz, key="btn_win_maximize_toggle", use_container_width=True):
+            c_wb1, c_wb2, c_wb3 = st.columns(3)
+            with c_wb2:
+                txt_sz = "🗖 Maximizar" if not st.session_state.oficina_maximizada else "🗗 Restaurar"
+                if st.button(txt_sz, key="btn_win_max_nav", use_container_width=True):
                     st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
                     st.rerun()
-            with c_win_btn3:
-                if st.button("❌ Cerrar Consola Master", key="btn_win_close_terminate", use_container_width=True):
+            with c_wb3:
+                if st.button("❌ Cerrar Consola", key="btn_win_close_nav", use_container_width=True):
                     st.session_state.admin_autenticado = False
                     st.rerun()
-
-            st.markdown("---")
 
             sheet = conectar_google_sheets(tabla_analizar)
             todas_las_filas = sheet.get_all_values() if sheet else []
@@ -620,178 +595,62 @@ def main():
             if todas_las_filas and len(todas_las_filas) >= 2:
                 df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
                 col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-                
-                t1, t2, t3 = st.tabs([
-                    "👥 Módulo I: Meta-Análisis de Datos Colectivos y Macrorregiones", 
-                    "👤 Módulo II: Gestión de Expedientes Clínicos y CRM de Casos Individuales", 
-                    "📐 Módulo III: Validación Multifactorial y Fiabilidad de los Constructos (SVD & Alpha)"
-                ])
+                t1, t2, t3 = st.tabs(["👥 Módulo I: Macrorregiones", "👤 Módulo II: CRM Clínico", "📐 Módulo III: SVD & Alpha"])
                 
                 with t1:
-                    st.markdown("**Dataset Consolidado Global de Participantes:**")
                     st.dataframe(df_doc, use_container_width=True)
-                    
-                    m_cronos, m_kairos = 3.0, 3.0
+                    m_c, m_k = 3.0, 3.0
                     if len(col_reactivos) >= 2:
                         matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        m_cronos = np.mean(matriz_num[:, 0::2]) if matriz_num.shape > 0 else 3.0
-                        m_kairos = np.mean(matriz_num[:, 1::2]) if matriz_num.shape > 1 else 3.0
-                    
-                    col_m1, col_m2 = st.columns(2)
-                    col_m1.metric("Media Colectiva Cronos (Reloj)", f"{m_cronos:.4f}")
-                    col_m2.metric("Media Colectiva Kairós (Oportunidad)", f"{m_kairos:.4f}")
+                        m_c = np.mean(matriz_num[:, 0::2]) if matriz_num.shape > 0 else 3.0
+                        m_k = np.mean(matriz_num[:, 1::2]) if matriz_num.shape > 1 else 3.0
                     
                     pdf_m1 = FPDF()
                     pdf_m1.add_page()
                     pdf_m1.set_font("Helvetica", "B", 14)
-                    pdf_m1.cell(190, 10, f"METAMACRO ANALYSIS AND CENTROID COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                    pdf_m1.ln(5)
-                    pdf_m1.set_font("Helvetica", "B", 11)
-                    pdf_m1.cell(190, 6, "1. COEFFICIENTS OF CENTRAL TENDENCY VECTOR", new_x="LMARGIN", new_y="NEXT")
-                    pdf_m1.set_font("Helvetica", "", 10)
-                    pdf_m1.cell(190, 5, f"Sample Size (N): {len(df_doc)} cases.".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                    
-                    b64_m1 = base64.b64encode(bytes(pdf_m1.output())).decode('utf-8')
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="450px" style="border:1px solid #c0c0c0; border-radius:4px; margin-top:8px;"></iframe>', unsafe_allow_html=True)
-                    st.ln(1)
-                    st.download_button("📥 EXPORTAR INFORME DE ANÁLISIS DE POBLACIÓN MACRO (PDF)", data=bytes(pdf_m1.output()), file_name=f"Macro_Report_{tabla_analizar}.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
-# =================================================================
-# PARTE 9-B: CRM INDUSTRIAL DE CASOS Y CÁLCULO PSICOMÉTRICO EXPANSIBLE
-# =================================================================
+                    pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+                    st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
+
                 with t2:
                     if "Nombre" in df_doc.columns:
-                        sujeto_sel = st.selectbox("Selecciona un Participante para Auditoría de Caso:", df_doc["Nombre"].unique().tolist(), key="sb_sujeto_central")
-                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc[0]
-                        
-                        pdf_m2 = FPDF()
-                        pdf_m2.add_page()
-                        pdf_m2.set_font("Helvetica", "B", 14)
-                        pdf_m2.cell(190, 10, f"INDIVIDUAL CASE FILE REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                        pdf_m2.ln(5)
-                        pdf_m2.set_font("Helvetica", "", 10)
-                        pdf_m2.cell(190, 5, f"Target Identification Node: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                        pdf_m2.cell(190, 5, f"Registered WhatsApp Channel: {fila_sujeto.get('WhatsApp', 'N/A')}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                        
-                        b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode('utf-8')
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="450px" style="border:1px solid #c0c0c0; border-radius:4px; margin-top:8px;"></iframe>', unsafe_allow_html=True)
-                        st.ln(1)
-                        
-                        col_crm_btn1, col_crm_btn2 = st.columns(2)
-                        with col_crm_btn1:
-                            st.download_button(label="📥 EXPORTAR EXPEDIENTE CLÍNICO DE INTEGRACIÓN (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_File_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                        with col_crm_btn2:
-                            tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
-                            st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Estimado+participante" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ESTABLECER CONTACTO DIRECTO EN VÍA CRM WHATSAPP</div></a>', unsafe_allow_html=True)
-                    else: 
-                        st.info("Estructura de indexación ausente para esta cohorte.")
-
-                with t3:
-                    st.subheader("Rigor Estadístico Multivariado Estructural")
-                    alfa_calc, s1_val, s2_val = 0.0, 0.0, 0.0
-                    
-                    if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        K = matriz_num.shape[1]
-                        var_items = np.var(matriz_num, ddof=1, axis=0)
-                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        if var_total > 0: 
-                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                        
-                        matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                        _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                        s1_val = S[0] if len(S) > 0 else 0.0
-                        s2_val = S[1] if len(S) > 1 else 0.0
-                    
-                    col_stat1, col_s2, col_s3 = st.columns(3)
-                    col_stat1.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}", delta="Fiabilidad Admitida (>=0.7)" if alfa_calc >= 0.7 else "Ajuste Requerido")
-                    col_s2.metric("Eje Maestro Latente (SVD)", f"{s1_val:.2f}")
-                    col_s3.metric("Eje Secundario Latente (SVD)", f"{s2_val:.2f}")
-                    
-                    pdf_m3 = FPDF()
-                    pdf_m3.add_page()
-                    pdf_m3.set_font("Helvetica", "B", 14)
-                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT (APA-STANDARDS)", new_x="LMARGIN", new_y="NEXT", align="C")
-                    pdf_m3.ln(5)
-                    pdf_m3.set_font("Helvetica", "", 10)
-                    pdf_m3.cell(190, 5, f"Cronbach Alpha Matrix Index: {alfa_calc:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                    pdf_m3.cell(190, 5, f"Singular Value Principal Lambda 1: {s1_val:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                    pdf_m3.cell(190, 5, f"Singular Value Secondary Lambda 2: {s2_val:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                    
-                    b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="450px" style="border:1px solid #c0c0c0; border-radius:4px; margin-top:8px;"></iframe>', unsafe_allow_html=True)
-                    st.ln(1)
-                    st.download_button(label="📥 EXPORTAR REPORTE DE PROPIEDADES PSICOMÉTRICAS DOCTORALES (PDF)", data=bytes(pdf_m3.output()), file_name="Validation_Alpha_SVD.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-            else: 
-                st.info("ℹ️ Se requieren al menos 3 registros con respuestas Likert completas en la tabla activa para computar las varianzas doctorales.")
-            
-            st.markdown("</div>", unsafe_allow_html=True)
-
-# =================================================================
-# PARTE 9-B: CRM INDIVIDUAL, CÁLCULO VECTORIAL SVD Y CIERRE FLOTANTE
-# =================================================================
-                with t2:
-                    if "Nombre" in df_doc.columns:
-                        sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive Individual:", df_doc["Nombre"].unique().tolist(), key="sb_sujeto_central")
+                        sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
                         fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
-                        
                         pdf_m2 = FPDF()
                         pdf_m2.add_page()
                         pdf_m2.set_font("Helvetica", "B", 14)
-                        pdf_m2.cell(190, 10, f"INDIVIDUAL EVALUATION REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                        pdf_m2.ln(5)
-                        pdf_m2.set_font("Helvetica", "", 10)
-                        pdf_m2.cell(190, 5, f"Target WhatsApp: {fila_sujeto.get('WhatsApp', 'N/A')}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+                        pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                        st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                         
-                        b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode('utf-8')
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="350px" style="border:1px solid #c0c0c0; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-                        st.ln(1)
-                        
-                        col_crm_btn1, col_crm_btn2 = st.columns(2)
-                        with col_crm_btn1:
-                            st.download_button(label="📥 DESCARGAR EXPEDIENTE CLÍNICO INDIVIDUAL (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                        with col_crm_btn2:
+                        c_crm1, c_crm2 = st.columns(2)
+                        with c_crm1:
+                            st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name="Clinical.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
+                        with c_crm2:
                             tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
-                            st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Estimado+participante" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR DICTAMEN VÍA WHATSAPP CRM</div></a>', unsafe_allow_html=True)
-                    else: 
-                        st.info("No se encontró la columna de Nombres para indexar expedientes.")
+                            st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
+                    else: st.info("Columna Nombre ausente.")
 
                 with t3:
-                    st.subheader("Rigor Estadístico Doctoral Computado en Vivo")
-                    alfa_calc, s1_val, s2_val = 0.0, 0.0, 0.0
-                    
+                    alfa_calc, s1, s2 = 0.0, 0.0, 0.0
                     if len(df_doc) >= 3 and len(col_reactivos) >= 2:
                         matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        K = matriz_num.shape[0]
+                        K = matriz_num.shape
                         var_items = np.var(matriz_num, ddof=1, axis=0)
                         var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        if var_total > 0: 
-                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                        
+                        if var_total > 0: alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
                         matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
                         _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                        s1_val = S[0] if len(S) > 0 else 0.0
-                        s2_val = S[1] if len(S) > 1 else 0.0
+                        s1 = S if len(S) > 0 else 0.0
+                        s2 = S if len(S) > 1 else 0.0
                     
-                    col_stat1, col_s2, col_s3 = st.columns(3)
-                    col_stat1.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
-                    col_s2.metric("Componente Maestro $\sigma_1$ (SVD)", f"{s1_val:.2f}")
-                    col_s3.metric("Componente Secundario $\sigma_2$ (SVD)", f"{s2_val:.2f}")
-                    
+                    st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
                     pdf_m3 = FPDF()
                     pdf_m3.add_page()
                     pdf_m3.set_font("Helvetica", "B", 14)
-                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                    pdf_m3.ln(5)
-                    pdf_m3.set_font("Helvetica", "", 10)
-                    pdf_m3.cell(190, 5, f"Dataset Coef: {alfa_calc:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                    
-                    b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="350px" style="border:1px solid #c0c0c0; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-                    st.ln(1)
-                    st.download_button(label="📥 EXPORTAR VALIDACIÓN PSICOMÉTRICA DOCTORAL (PDF)", data=bytes(pdf_m3.output()), file_name="Validation_Alpha_SVD.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-            else: 
-                st.info("Se requieren al menos 3 registros con respuestas Likert completas en la tabla activa para computar las varianzas doctorales.")
-            
+                    pdf_m3.cell(190, 10, "PSYCHOMETRIC REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
+            else: st.info("Se requieren al menos 3 registros completos.")
             st.markdown("</div>", unsafe_allow_html=True)
 
 # =================================================================
