@@ -673,14 +673,13 @@ def main():
 
     es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
     
-    # =================================================================
-    # PARTE 5B: ENTORNO POLÍGLOTA, PROYECCIÓN Y SECCIONES BASE ESTÁTICAS (REVISADO)
+       # =================================================================
+    # PARTE 5B: ENTORNO BASE LIMPIO SIN SELECCIONES PREVIAS (INDEX=NONE)
     # =================================================================
     if "paso_salud_desbloqueado" not in st.session_state: st.session_state.paso_salud_desbloqueado = False
     if "paso_cyk_desbloqueado" not in st.session_state: st.session_state.paso_cyk_desbloqueado = False
 
     if not st.session_state.flujo_finalizado:
-        # 🍊 INYECCIÓN CRÍTICA: Título absoluto del sitio colocado en el cenit del código principal
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
 
@@ -709,32 +708,38 @@ def main():
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        # 🍊 OPTIMIZACIÓN REQUERIDA: Título formal, apropiado y estructurado de la Sección I
-        st.header(f"📋 Sección I. Perfil de Identificación {st.session_state.audiencia_activa}")
+        st.header(f"📋 Sección I. Perfil de Identificación y Segmentación de la Audiencia: {st.session_state.audiencia_activa}")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         
         resultados_totales = {}
         
         if st.session_state.mostrar_bateria:
-            # 📋 SECCIÓN II: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS REALES (SIEMPRE VISIBLE)
+            # 📋 SECCIÓN II: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS REALES (LIMPIOS DE ENTRADA)
             st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
             resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
-            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
-            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], horizontal=True, key="nacionalidad_unq_choice")
             
-            if "mex" in resultados_totales["Nacionalidad"].lower():
+            # 🍊 BLINDAJE INDEX=NONE: Evita que el primer elemento se pre-marque solo al encender la app
+            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True)
+            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="nacionalidad_unq_choice")
+            
+            if resultados_totales["Nacionalidad"] == "Mexicana":
                 resultados_totales["Estado Origen"] = st.selectbox("4. Estado mexicano de origen:", [""] + ESTADOS_MEXICO, key="sel_origen_mex_unq")
                 resultados_totales["Estado Residencia"] = st.selectbox("5. Estado mexicano de residencia actual:", [""] + ESTADOS_MEXICO, key="sel_residencia_mex_unq")
                 resultados_totales["País Origen"] = "México"
                 resultados_totales["Continente Extranjero"] = "América"
-            else:
+            elif resultados_totales["Nacionalidad"] == "Extranjera":
                 resultados_totales["País Origen"] = st.text_input("País de Origen / Country of Origin:", key="txt_pais_origen_extranjero")
                 resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq")
                 resultados_totales["Estado Origen"] = "N/A"
                 resultados_totales["Estado Residencia"] = "N/A"
+            else:
+                resultados_totales["Estado Origen"] = None
+                resultados_totales["Estado Residencia"] = None
+                resultados_totales["País Origen"] = None
+                resultados_totales["Continente Extranjero"] = None
 
-            # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (SIEMPRE VISIBLE)
+            # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (LIMPIOS DE ENTRADA)
             st.subheader("📋 Sección III: Conocimiento sobre el tema")
             k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
             k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
@@ -747,34 +752,49 @@ def main():
             k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
             k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
 
-            resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec3")
-            resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec3")
-            resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec3")
-            resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, horizontal=True, key="rad_kn4_unq_sec3")
-            resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
-            resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
-
-
-            # --- DETONADOR PROGRESIVO 1: GENERAR SALUD INTEGRAL ---
+            # 🍊 BLINDAJE INDEX=NONE: Ninguna respuesta de conocimiento sesga o gatilla el flujo por accidente
+            resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn1_unq_sec3")
+            resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn2_unq_sec3")
+            resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn3_unq_sec3")
+            resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, index=None, horizontal=True, key="rad_kn4_unq_sec3")
+            resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, index=None, horizontal=True, key="rad_kn5_unq_sec3")
+            resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, index=None, horizontal=True, key="rad_kn6_unq_sec3")
+            # --- VALIDACIÓN DE TRÁFICO COMPLETO PARA EL EMBUTO SECUENCIAL ---
             st.markdown("---")
+            
+            # Verificación estructural síncrona de que todos los radios base posean una respuesta real
+            campos_completos = all([
+                bool(nombre.strip()),
+                bool(whatsapp.strip()),
+                resultados_totales["Género"] is not None,
+                resultados_totales["Nacionalidad"] is not None,
+                resultados_totales["C1_Escuchado"] is not None,
+                resultados_totales["C2_Leído"] is not None,
+                resultados_totales["C3_Enseñado"] is not None,
+                resultados_totales["C4_Origen"] is not None,
+                resultados_totales["C5_Concepto"] is not None,
+                resultados_totales["C6_Perfil_Auto"] is not None
+            ])
+
             if not st.session_state.paso_salud_desbloqueado:
-                if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="secondary", key="btn_trigger_step_salud"):
-                    if nombre.strip() and whatsapp.strip():
+                # El botón solo se renderiza si el participante ha contestado físicamente las secciones superiores
+                if campos_completos:
+                    if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="primary", key="btn_trigger_step_salud"):
                         st.session_state.paso_salud_desbloqueado = True
                         st.rerun()
-                    else:
-                        st.warning("Por favor, ingrese Nombre y WhatsApp para activar los instrumentos.")
+                else:
+                    st.info("⏳ El botón para Generar el Diagnóstico de la Salud Integral aparecerá de forma automática una vez que respondas todas las preguntas demográficas y de conocimiento de arriba.")
 
             if st.session_state.paso_salud_desbloqueado:
                 st.write("### 🍊 Diagnóstico de la Salud Integral")
                 MATRIZ_SINTOMAS_FIJA = {
-                    "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"] if iso == "es" else ["Occupational fatigue", "Sleep cycle disorders", "Sedentary stiffness", "Nutritional neglect"],
-                    "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"] if iso == "es" else ["Cognitive block", "Prolonged rumination", "Information overload", "Decreased analytical focus"],
-                    "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"] if iso == "es" else ["Emotional exhaustion", "Interpersonal irritability", "Acute vocational demotivation", "Intermittent anxiety"],
-                    "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"] if iso == "es" else ["Relational isolation", "Frequent conflicts", "Lack of support networks", "Difficulty setting boundaries"],
-                    "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"] if iso == "es" else ["Acute budget stress", "Liabilities exceeding liquidity", "No contingency fund", "Single income dependence"],
-                    "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"] if iso == "es" else ["Reactive procrastination", "Work invasion of free time", "Suppressed rest margins", "Cronos/Kairos imbalance"],
-                    "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"] if iso == "es" else ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
+                    "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
+                    "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
+                    "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
+                    "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
+                    "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
+                    "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
+                    "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
                 }
                 
                 for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_FIJA.items()):
@@ -782,17 +802,16 @@ def main():
                         st.markdown(f"#### {g_name}")
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            cb0 = st.checkbox(lista_items_gajo[0], key=f"c_seq_salud_{g_idx}_0")
-                            cb1 = st.checkbox(lista_items_gajo[1], key=f"c_seq_salud_{g_idx}_1")
+                            cb0 = st.checkbox(lista_items_gajo, key=f"c_seq_salud_{g_idx}_0")
+                            cb1 = st.checkbox(lista_items_gajo, key=f"c_seq_salud_{g_idx}_1")
                         with col_b:
-                            cb2 = st.checkbox(lista_items_gajo[2], key=f"c_seq_salud_{g_idx}_2")
-                            cb3 = st.checkbox(lista_items_gajo[3], key=f"c_seq_salud_{g_idx}_3")
+                            cb2 = st.checkbox(lista_items_gajo, key=f"c_seq_salud_{g_idx}_2")
+                            cb3 = st.checkbox(lista_items_gajo, key=f"c_seq_salud_{g_idx}_3")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
-                # --- DETONADOR PROGRESIVO 2: GENERAR MODELOS TEMPORALES C&K ---
                 st.markdown("---")
                 if not st.session_state.paso_cyk_desbloqueado:
-                    if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="secondary", key="btn_trigger_step_cyk"):
+                    if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary", key="btn_trigger_step_cyk"):
                         st.session_state.paso_cyk_desbloqueado = True
                         st.rerun()
 
@@ -804,8 +823,9 @@ def main():
                         st.write(f"Reactivo {r_id}: {r_txt}")
                         resultados_totales[f"R{r_id}"] = st.radio(
                             "Escala / Scale:", 
-                            options=[1, 2, 3, 4, 5], 
+                            options=, 
                             format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                            index=None, # 🍊 BLINDAJE LIKERT: Aparece limpio para forzar respuesta consciente
                             horizontal=True, 
                             key=f"r_seq_cyk_{r_id}"
                         )
@@ -859,6 +879,5 @@ def main():
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
-# Cierre estructural a nivel raíz
 if __name__ == "__main__": 
     main()
