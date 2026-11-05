@@ -601,7 +601,7 @@ def gateway_bt(n, w, r, lk, lg, t):
                     else: 
                         st.info("No se encontró la columna de Nombres.")
 
-                with t3:
+            with t3:
                     st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
                     alfa_calc = 0.0
                     if len(df_doc) >= 3 and len(col_reactivos) >= 2:
