@@ -556,12 +556,12 @@ def gateway_bt(n, w, r, lk, lg, t):
             tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
             wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
             st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-   # =================================================================
+  # =================================================================
 # PARTE 5 D-E (PARTE 1): EXPEDIENTES GRANULARES, SVD DOCTORAL Y CIERRE MODAL
 # =================================================================
-            with t2:
-                st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
-                if "Nombre" in df_doc.columns:
+                with t2:
+                    st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
+                    if "Nombre" in df_doc.columns:
                         sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_sujeto_central")
                         fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
                         
@@ -582,8 +582,8 @@ def gateway_bt(n, w, r, lk, lg, t):
                     else: 
                         st.info("No se encontró la columna de Nombres.")
 
-            with t3:
-                st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
+                with t3:
+                    st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
                     alfa_calc = 0.0
                     if len(df_doc) >= 3 and len(col_reactivos) >= 2:
                         matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
@@ -707,4 +707,3 @@ def gateway_bt(n, w, r, lk, lg, t):
 # Cierre reglamentario de la aplicación a nivel raíz
 if __name__ == "__main__":
     main()
-
