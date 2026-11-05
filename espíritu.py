@@ -563,3 +563,156 @@ else:
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
+    # --- PARTE 7A: ANÁLISIS DE RÚBRICA Y MAQUETACIÓN INICIAL DEL PDF ---
+    st.subheader("🔍 Análisis Detallado de Madurez")
+    
+    filas_rubrica_pdf = ""
+    lista_consecuencias_pdf = ""
+    
+    for fruto, score in puntajes.items():
+        if score == 10: rango = "10"
+        elif score >= 8: rango = "8-9"
+        elif score >= 6: rango = "6-7"
+        elif score >= 4: rango = "4-5"
+        else: rango = "1-3"
+            
+        info_rubrica = rubrica_detallada[fruto][rango]
+        cons_global = consecuencias_texto[rango]
+        
+        if score >= 8:
+            st.success(f"🟢 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
+        elif score >= 5:
+            st.warning(f"⚠️ **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
+        else:
+            st.error(f"🚨 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
+            
+        # Maquetación simétrica con fuentes duplicadas para la rúbrica del PDF
+        filas_rubrica_pdf += f"""
+        <tr>
+            <td style='font-weight:bold; color:#2E7D32; font-size:22px; padding:14px;'>{fruto}</td>
+            <td style='text-align:center; font-weight:bold; font-size:22px; background-color:#f4fbf7; padding:14px;'>{score}/10</td>
+            <td style='font-size:20px; padding:14px; font-weight:bold;'>{info_rubrica['estado']}</td>
+            <td style='font-size:20px; padding:14px; text-align:justify;'>{info_rubrica['criterio']}</td>
+        </tr>
+        """
+        lista_consecuencias_pdf += f"<li style='font-size:20px; margin-bottom:14px; text-align:justify;'><b>{fruto} ({score}/10):</b> {cons_global['corto']} {cons_global['mediano']}</li>"
+
+    st.header("💡 Recomendaciones Generales para el Crecimiento")
+    st.markdown("1. **Oración de Rendición:** Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.")
+    st.markdown("2. **Pasos Prácticos de Fe:** Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas.")
+    st.markdown("3. **Caminar en Comunidad:** Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón.")
+    
+    st.info(f"### 🤝 Una Invitación Especial a Caminar Juntos\nQuerido(a) **{nombre_final}**, te extendemos una invitación sincera para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.")
+
+    # Inicio de la maquetación completa de la Rúbrica en formato imprimible PDF
+    html_reporte = f"""
+    <html>
+    <head>
+        <meta charset='utf-8'>
+        <style>
+            body {{ font-family: Arial, sans-serif; padding: 30px; color: #333; line-height: 1.5; }}
+            .header {{ text-align: center; border-bottom: 4px solid #2e7d32; padding-bottom: 15px; }}
+            .header h1 {{ color: #2e7d32; margin: 0; font-size: 44px; }}
+            .header p {{ font-size: 24px; margin: 5px 0 0 0; color: #666; }}
+            .user-info {{ text-align: right; font-style: italic; margin-top: 15px; color: #555; font-size: 22px; }}
+            .grafica-box {{ text-align: center; margin: 25px auto; width: 50%; }}
+            .grafica-box img {{ width: 100%; max-width: 100%; height: auto; display: block; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 25px; table-layout: fixed; }}
+            th, td {{ border: 2px solid #cccccc; padding: 14px; vertical-align: top; word-wrap: break-word; }}
+            th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 22px; font-weight: bold; }}
+            .seccion-titulo {{ color: #2e7d32; font-size: 30px; font-weight: bold; margin-top: 45px; border-bottom: 3px solid #2e7d32; padding-bottom: 6px; }}
+            .lista-estilo {{ padding-left: 25px; margin-top: 15px; }}
+            .lista-estilo li {{ font-size: 20px; margin-bottom: 14px; line-height: 1.6; text-align: justify; }}
+            .pastoral-box {{ background-color: #e8f5e9; padding: 25px; margin-top: 40px; border-left: 8px solid #2e7d32; border-radius: 6px; }}
+            .pastoral-box p {{ font-size: 20px; margin: 0; line-height: 1.6; }}
+            .apa-sangria-francesa {{ padding-left: 35px; text-indent: -35px; font-size: 18px; line-height: 1.6; margin-bottom: 15px; text-align: justify; }}
+            .footer-creditos {{ text-align: center; margin-top: 60px; font-size: 16px; color: #777777; border-top: 2px solid #eeeeee; padding-top: 15px; font-style: italic; }}
+        </style>
+    </head>
+    <body>
+        <div class='header'>
+            <h1>🌱 Reporte de Diagnóstico Espiritual</h1>
+            <p>Los 9 Frutos del Espíritu (Gálatas 5:22-23)</p>
+        </div>
+        <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
+        
+        <div class='grafica-box'>
+            <img src='data:image/png;base64,{img_base64}'/>
+        </div>
+
+        <div class='seccion-titulo'>🔍 1. Rúbrica de Diagnóstico Personalizado del Carácter</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style='width: 20%;'>Fruto</th>
+                    <th style='width: 13%;'>Puntaje</th>
+                    <th style='width: 27%;'>Clasificación Teórica</th>
+                    <th style='width: 40%;'>Criterio de Evaluación Real (Biblia / EGW)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {filas_rubrica_pdf}
+            </tbody>
+        </table>
+        # --- PARTE 7B: CIERRE DEL PDF, REFERENCIAS APA 7 Y BOTÓN DE DESCARGA ---
+        html_reporte_completo = html_reporte + f"""
+        <div class='seccion-titulo'>⚠️ 2. Posibles Consecuencias en el Carácter</div>
+        <ul class='lista-estilo'>
+            {lista_consecuencias_pdf}
+        </ul>
+        
+        <div class='seccion-titulo'>💡 3. Recomendaciones Generales para el Crecimiento</div>
+        <ol class='lista-estilo'>
+            <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
+            <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
+            <li><strong>Caminar en Comunidad:</strong> Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura y transparente.</li>
+        </ol>
+
+        <div class='pastoral-box'>
+            <p>Estimado(a) <strong>{nombre_final}</strong>, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
+        </div>
+
+        <div class='seccion-titulo'>📚 Referencias</div>
+        <div style='margin-top: 15px;'>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1900). <i>La educación</i>. Asociación Casa Editora Sudamericana.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1911). <i>El conflicto de los siglos</i>. Publicaciones Interamericanas.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1930). <i>Mensajes para los jóvenes</i>. Asociación Casa Editora Sudamericana.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1934). <i>Consejos sobre el régimen alimenticio</i>. Publicaciones Interamericanas.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1943). <i>Testimonios para la iglesia</i> (Vol. 6). Pacific Press Publishing Association.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1944). <i>Palabras de vida del gran maestro</i>. Pacific Press Publishing Association.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1947). <i>El ministerio de curación</i>. Publicaciones Interamericanas.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1951). <i>Testimonios para la iglesia</i> (Vol. 4). Pacific Press Publishing Association.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1952). <i>Testimonios para la iglesia</i> (Vol. 5). Pacific Press Publishing Association.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1953). <i>Joyas de los testimonios</i> (Vols. 1-3). Asociación Casa Editora Sudamericana.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1954). <i>El discurso maestro de Jesucristo</i>. Pacific Press Publishing Association.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1955). <i>El deseado de todas las gentes</i>. Publicaciones Interamericanas.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1958). <i>Mensajes selectos</i> (Vol. 1). Asociación Casa Editora Sudamericana.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1959). <i>Mente, carácter y personalidad</i> (Vols. 1-2). Inter-American Division Publishing Association.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1962). <i>Hijos e hijas de Dios</i>. Asociación Casa Editora Sudamericana.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1980a). <i>La temperancia</i>. Pacific Press Publishing Association.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (1980b). <i>El ministerio de la bondad</i>. Asociación Casa Editora Sudamericana.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (2007). <i>El camino a Cristo</i>. Publicaciones Interamericanas.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (2009). <i>Consejos para la iglesia</i>. Pacific Press Publishing Association.</div>
+            <div class='apa-sangria-francesa'>White, E. G. d. (2012). <i>Reflejemos a Jesús</i>. Asociación Casa Editora Sudamericana.</div>
+        </div>
+
+        <div class='footer-creditos'>Este diagnóstico espiritual fue creado y desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados.</div>
+    </body>
+    </html>
+    """
+
+    st.markdown("### 📥 Descarga tu Reporte Oficial")
+    st.download_button(
+        label="Descargar Reporte Completo (PDF / HTML)", 
+        data=html_reporte_completo, 
+        file_name=f"diagnostico_{nombre_final.lower()}.html", 
+        mime="text/html"
+    )
+    
+    st.markdown("---")
+    st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
+    
+    st.markdown("---")
+    if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
+        st.session_state.mostrar_felicitacion = True
+        st.rerun()
