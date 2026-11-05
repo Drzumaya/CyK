@@ -561,7 +561,7 @@ def gateway_bt(n, w, r, lk, lg, t):
 # =================================================================
             with t2:
                 st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
-                    if "Nombre" in df_doc.columns:
+                if "Nombre" in df_doc.columns:
                         sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_sujeto_central")
                         fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
                         
