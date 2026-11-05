@@ -710,7 +710,7 @@ def main():
             st.rerun()
 
         # 🍊 OPTIMIZACIÓN REQUERIDA: Título formal, apropiado y estructurado de la Sección I
-        st.header(f"📋 Sección I. Perfil de Identificación y Segmentación de la Audiencia: {st.session_state.audiencia_activa}")
+        st.header(f"📋 Sección I. Perfil de Identificación {st.session_state.audiencia_activa}")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         
