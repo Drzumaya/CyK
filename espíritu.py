@@ -654,14 +654,14 @@ else:
                 {filas_rubrica_pdf}
             </tbody>
         </table>
-                # --- PARTE 7B: CIERRE DEL PDF, REFERENCIAS APA 7 Y BOTÓN DE DESCARGA ---
+            # --- PARTE 7B: CIERRE DEL PDF, REFERENCIAS APA 7 Y BOTÓN DE DESCARGA (SIN EMOJIS) ---
         html_reporte_completo = html_reporte + f"""
-    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+        <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
             {lista_consecuencias_pdf}
         </ul>
         
-    <div class='seccion-titulo'>💡 3. Recomendaciones Generales para el Crecimiento</div>
+        <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
