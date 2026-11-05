@@ -337,8 +337,8 @@ if not st.session_state.diagnostico_generado:
     """)
 
        # --- CUESTIONARIO MODULAR INTERACTIVO (ESCALA LIMPIA DEL 1 AL 10) ---
-    st.header("📋 Autoevaluación")
-    st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
+        st.header("📋 Autoevaluación")
+        st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
     with st.form("diagnostico_form"):
         puntajes_temporales = {}
