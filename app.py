@@ -673,14 +673,17 @@ def main():
 
     es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
     
-       # =================================================================
-    # PARTE 5B: ENTORNO POLÍGLOTA, PROYECCIÓN Y SECCIONES BASE ESTÁTICAS
+        # =================================================================
+    # PARTE 5B: ENTORNO POLÍGLOTA, PROYECCIÓN Y SECCIONES BASE ESTÁTICAS (REVISADO)
     # =================================================================
-    # Inicialización síncrona de los estados de progresión secuencial requeridos
     if "paso_salud_desbloqueado" not in st.session_state: st.session_state.paso_salud_desbloqueado = False
     if "paso_cyk_desbloqueado" not in st.session_state: st.session_state.paso_cyk_desbloqueado = False
 
     if not st.session_state.flujo_finalizado:
+        # 🍊 INYECCIÓN CRÍTICA: Título absoluto del sitio colocado en el cenit del código principal
+        st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
+        st.divider()
+
         with st.container(border=True):
             st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
             dict_ids = {"spanish": "es", "english": "en"}
@@ -706,7 +709,8 @@ def main():
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        st.header(f"Sección I. Audiencia: {st.session_state.audiencia_activa}")
+        # 🍊 OPTIMIZACIÓN REQUERIDA: Título formal, apropiado y estructurado de la Sección I
+        st.header(f"📋 Sección I. Perfil de Identificación y Segmentación de la Audiencia: {st.session_state.audiencia_activa}")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         
