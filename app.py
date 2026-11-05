@@ -603,8 +603,8 @@ def main():
 
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
     
-         # =================================================================
-    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y COMPONENTES DE ENTORNO PÚBLICO (VISTA SEGREGADA)
+    # =================================================================
+    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y COMPONENTES DE ENTORNO PÚBLICO (TITULACIÓN FIX)
     # =================================================================
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
@@ -675,17 +675,19 @@ def main():
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        # 🍊 CONDICIONAL ESTRICTA: Aplica el prefijo de Sección I solo si NO es el formulario de Salud Integral
+        # 🍊 CONFIGURACIÓN DE TÍTULOS SEGREGADOS PARA LA PONENCIA
         es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
         if es_likert:
             st.header(f"Sección I. Audiencia: {st.session_state.audiencia_activa}")
         else:
-            st.header(f"📋 {st.session_state.audiencia_activa}")
+            # Título formal plano sin emojis solicitado para el bloque clínico
+            st.header("Diagnóstico de la Salud Integral")
             
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         
         resultados_totales = {}
+
 
         # =================================================================
         # PARTE 5-3: DIAGNÓSTICO INTEGRAL Y SECCIÓN II DEMOGRÁFICA FIJA
