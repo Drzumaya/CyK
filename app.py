@@ -603,10 +603,9 @@ def main():
 
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
     
-        # =================================================================
-    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y BOTONES DE FLUJO ELEGIDO
+          # =================================================================
+    # PARTE 5A: INICIALIZACIÓN DE ESTADOS Y CONTROL DE BOTONES EN SIDEBAR
     # =================================================================
-    # Inicialización legal del interruptor de diagnóstico activo en el Core
     if "tipo_diagnostico_activo" not in st.session_state:
         st.session_state.tipo_diagnostico_activo = "salud_integral"
 
@@ -638,7 +637,6 @@ def main():
                         st.session_state.tmp_aud_val = ""
                         st.rerun()
                 
-                # 🍊 1. LOS DOS NUEVOS BOTONES SOLICITADOS (JUSTO DEBAJO DE AÑADIR AUDIENCIA)
                 st.markdown("---")
                 st.markdown("### 🛠️ Activar Instrumento")
                 
@@ -649,17 +647,15 @@ def main():
                     
                 if st.button("⏳ Abrir Cuestionario C&K", use_container_width=True, key="btn_set_cyk_instrument"):
                     st.session_state.tipo_diagnostico_activo = "modelos_temporales"
-                    # Si está en el default de salud, lo movemos al primer nicho psicométrico
                     if st.session_state.audiencia_activa == "🍊 Salud Integral":
                         st.session_state.audiencia_activa = "Docentes"
                     st.rerun()
                 st.markdown("---")
                 
                 op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-                sel_aud = st.selectbox(tx.get("side_select_aud"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
+                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
                 if sel_aud != st.session_state.audiencia_activa:
                     st.session_state.audiencia_activa = sel_aud
-                    # Sincronización inteligente del interruptor al cambiar en el combo
                     if sel_aud == "🍊 Salud Integral":
                         st.session_state.tipo_diagnostico_activo = "salud_integral"
                     else:
@@ -675,6 +671,10 @@ def main():
     if ocultar_bar_css:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
 
+    es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
+    # =================================================================
+    # PARTE 5B: ENTORNO POLÍGLOTA, PROYECCIÓN Y FORMULARIO DE SALUD INTEGRAL
+    # =================================================================
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
             st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
@@ -701,8 +701,6 @@ def main():
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        # 🍊 CONFIGURACIÓN DE TÍTULOS EN BASE AL INTERRUPTOR MAESTRO DE LOS BOTONES
-        es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
         if es_likert:
             st.header(f"Sección I. Audiencia: {st.session_state.audiencia_activa}")
         else:
@@ -712,14 +710,9 @@ def main():
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         
         resultados_totales = {}
-
-
-
-              # =================================================================
-        # PARTE 5-3: FILTRADO DINÁMICO DE VISIBILIDAD DE SALUD INTEGRAL
-        # =================================================================
+        
         if st.session_state.mostrar_bateria:
-            # 🍊 BLINDAJE DE EXPOSICIÓN: Se dibuja Salud Integral SOLO si su botón fue presionado
+            # 🍊 CONDICIONAL CRÍTICA: Se renderiza Salud Integral ÚNICAMENTE si está activa en la compuerta
             if st.session_state.tipo_diagnostico_activo == "salud_integral" and not es_likert:
                 st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
                 gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, iso)
@@ -738,8 +731,7 @@ def main():
                             cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
                             cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
-                        
-            # 🍊 CAPTURA DEMOGRÁFICA DE SECCIÓN II: Se ejecuta solo si está activo el cuestionario C&K
+            # 🍊 CONDICIONAL CRÍTICA: Se renderiza C&K ÚNICAMENTE si está activa en la compuerta
             elif st.session_state.tipo_diagnostico_activo == "modelos_temporales" and es_likert:
                 st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
                 resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
@@ -757,50 +749,39 @@ def main():
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
 
-        
-               # =================================================================
-        # PARTE 5-4: FILTRADO DINÁMICO DE VISIBILIDAD DE MODELOS TEMPORALES
-        # =================================================================
-                if st.session_state.tipo_diagnostico_activo == "modelos_temporales":
-                    st.subheader("📋 Sección III: Conocimiento sobre el tema")
-                    k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
-                    k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
-                    k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
-                    k4_txt = "4. El modelo temporal:" if iso == "es" else "4. The temporal model:"
-                    k5_txt = "5. Hablar de modelos temporales es hablar de:" if iso == "es" else "5. Talking about temporal models means talking about:"
-                    k6_txt = "6. Soy persona:" if iso == "es" else "6. I am a person:"
+                st.subheader("📋 Sección III: Conocimiento sobre el tema")
+                k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
+                k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
+                k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
+                k4_txt = "4. El modelo temporal:" if iso == "es" else "4. The temporal model:"
+                k5_txt = "5. Hablar de modelos temporales es hablar de:" if iso == "es" else "5. Talking about temporal models means talking about:"
+                k6_txt = "6. Soy persona:" if iso == "es" else "6. I am a person:"
 
-                    k4_opts = ["Se impone", "Se hereda", "No sé"] if iso == "es" else ["Is imposed", "Is inherited", "I don't know"]
-                    k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
-                    k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
+                k4_opts = ["Se impone", "Se hereda", "No sé"] if iso == "es" else ["Is imposed", "Is inherited", "I don't know"]
+                k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
+                k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
 
-                    resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec3")
-                    resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec3")
-                    resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec3")
-                    resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, horizontal=True, key="rad_kn4_unq_sec3")
-                    resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
-                    resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
-                    
-                    st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
-                    reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
-                    
-                    for r_id, r_txt in reactivos.items():
-                        st.write(f"Reactivo {r_id}: {r_txt}")
-                        resultados_totales[f"R{r_id}"] = st.radio(
-                            "Escala / Scale:", 
-                            options=[1, 2, 3, 4, 5], 
-                            format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                            horizontal=True, 
-                            key=f"r_{r_id}_unq_active"
-                        )
+                resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec3")
+                resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec3")
+                resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec3")
+                resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, horizontal=True, key="rad_kn4_unq_sec3")
+                resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
+                resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
+                
+                st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
+                reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
+                
+                for r_id, r_txt in reactivos.items():
+                    st.write(f"Reactivo {r_id}: {r_txt}")
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        "Escala / Scale:", 
+                        options=[1, 2, 3, 4, 5], 
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                        horizontal=True, 
+                        key=f"r_{r_id}_unq_active"
+                    )
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
-
-
-    
-        # =================================================================
-        # PARTE 5-5: RESOLUCIÓN DE FLUJO, ALTA ANALÍTICA Y CIERRE OPERATIVO
-        # =================================================================
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
@@ -822,7 +803,7 @@ def main():
         sheet = conectar_google_sheets(tabla_analizar)
         todas_las_filas = sheet.get_all_values() if sheet else []
         if todas_las_filas and len(todas_las_filas) >= 2:
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
             st.subheader(tx.get("lbl_crm_buscar", "Buscar"))
             c_busq = st.text_input(tx.get("lbl_crm_input", "Filtro:"), key="crm_search_input").strip().lower()
             if c_busq and not df_doc.empty:
@@ -847,7 +828,6 @@ def main():
                 pdf_auditoria.ln(2)
             st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
-# Cierre estructural reglamentario a nivel de la raíz sin espacios iniciales
+# Cierre estructural en raíz libre de espacios iniciales
 if __name__ == "__main__": 
     main()
-
