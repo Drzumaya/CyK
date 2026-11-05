@@ -672,7 +672,7 @@ else:
             <p>Estimado(a) <strong>{nombre_final}</strong>, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
         </div>
 
-        <div class='seccion-titulo'>📚 Referencias</div>
+        <div class='seccion-titulo'> Referencias</div>
         <div style='margin-top: 15px;'>
             <div class='apa-sangria-francesa'>White, E. G. d. (1900). <i>La educación</i>. Asociación Casa Editora Sudamericana.</div>
             <div class='apa-sangria-francesa'>White, E. G. d. (1911). <i>El conflicto de los siglos</i>. Publicaciones Interamericanas.</div>
