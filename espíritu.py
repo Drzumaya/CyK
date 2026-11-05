@@ -552,11 +552,11 @@ else:
             <div class='apa-sangria-francesa'>White, E. G. d. (2009). <i>Consejos para la iglesia</i>. Pacific Press Publishing Association.</div>
             <div class='apa-sangria-francesa'>White, E. G. d. (2012). <i>Reflejemos a Jesús</i>. Asociación Casa Editora Sudamericana.</div>
             </div> Este diagnóstico espiritual fue creado y desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados."""
-        st.markdown("### 📥 Descarga tu Reporte Oficial")
-        st.download_button("Descargar Reporte Completo (PDF / HTML)", data=html_reporte, file_name=f"diagnostico_{nombre_final.lower()}.html", mime="text/html")
-        st.markdown("---")
-        st.caption("🎨 Diseño y Creación: Diagnóstico Espiritual desarrollado por Jacob Zumaya Prianti.")
-        st.markdown("---")
+    st.markdown("### 📥 Descarga tu Reporte Oficial")
+    st.download_button("Descargar Reporte Completo (PDF / HTML)", data=html_reporte, file_name=f"diagnostico_{nombre_final.lower()}.html", mime="text/html")
+    st.markdown("---")
+    st.caption("🎨 Diseño y Creación: Diagnóstico Espiritual desarrollado por Jacob Zumaya Prianti.")
+    st.markdown("---")
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
