@@ -148,46 +148,35 @@ else:
     
     colores_barras = []
     for v in valores_barras:
-        if v >= 8: colores_barras.append('#2E7D32')     # Verde Esmeralda Vivo
-        elif v >= 5: colores_barras.append('#FBC02D')   # Amarillo Oro Intenso
-        else: colores_barras.append('#D32F2F')         # Rojo Carmesí Alerta
+        if v >= 8: colores_barras.append('#2E7D32')     # Verde Esmeralda
+        elif v >= 5: colores_barras.append('#FBC02D')   # Amarillo Oro
+        else: colores_barras.append('#D32F2F')         # Rojo Carmesí
         
-    # AJUSTE: Ampliamos el ancho de la figura a 10 pulgadas para máxima extensión horizontal
     fig, ax = plt.subplots(figsize=(10, 4.5))
-    
-    # Dibujamos las barras anchas ocupando el espacio proporcional
     barras = ax.bar(frutos_labels, valores_barras, color=colores_barras, edgecolor='none', width=0.7)
     
-    # Configuración estricta de la escala del 1 al 10
     ax.set_ylim(0, 11)
     ax.set_yticks(range(1, 11))
     ax.set_ylabel("Nivel de Intensidad", fontsize=10, weight='bold', color='#222222')
     ax.grid(axis='y', linestyle='--', alpha=0.6, color='#e0e0e0')
-    
-    # AJUSTE: Pegar las barras al extremo izquierdo y derecho para acoplarse al ancho de la tabla
     ax.set_xmargin(0.02)
     
-    # Colocar los números de los puntajes con fuente negrita arriba de cada barra
     for barra in barras:
         alto = barra.get_height()
         ax.annotate(f'{alto}', xy=(barra.get_x() + barra.get_width() / 2, alto),
                     xytext=(0, 4), textcoords="offset points",
                     ha='center', va='bottom', fontsize=10, weight='bold', color='#111111')
                     
-    # Estilización estética de los ejes del plano
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_color('#cccccc')
     ax.spines['bottom'].set_color('#cccccc')
     
-    # Rotación leve de las etiquetas para lectura óptima
     plt.xticks(rotation=0, ha='center', fontsize=9, weight='bold', color='#333333')
     plt.tight_layout()
     
-    # Mostrar la tabla de barras en Streamlit
     st.pyplot(fig)
     
-    # Guardar la gráfica con alta resolución (dpi=200) para nitidez de impresión
     buf_img = io.BytesIO()
     plt.savefig(buf_img, format='png', dpi=200, bbox_inches='tight')
     buf_img.seek(0)
@@ -199,30 +188,31 @@ else:
     
     resumen_consecuencias_pdf = ""
     
+    # --- PROCESAMIENTO ANALÍTICO PROACTIVO Y DETALLADO ---
     for fruto, score in puntajes.items():
         if score >= 8:
             cons = consecuencias_texto["fortaleza"]
-            st.success(f"🟢 **{fruto}:** {score}/10 — {cons['estado']}. Reflejo sólido de la obra transformadora del Espíritu.")
-            interpretacion_pdf = "Evidencia estabilidad y madurez espiritual."
-            consecuencia_pdf = "Trae bendición constante a tu vida y edifica saludablemente a quienes te rodean."
+            st.success(f"🟢 **{fruto}:** {score}/10 — {cons['estado']}. Reflejo sólido de la obra transformadora del Espíritu Santo.")
+            interpretacion_pdf = f"**Crecimiento Consolidado:** Muestras una alineación madura con el carácter de Cristo en esta área. El desafío proactivo ahora es discipular a otros y proteger esta virtud mediante la rendición de cuentas constante."
+            consecuencia_pdf = f"Funge como un escudo protector en tus decisiones diarias, inspira estabilidad en tu entorno eclesial y actúa como un canal directo de edificación comunitaria."
         elif score >= 5:
             cons = consecuencias_texto["atencion"]
             st.warning(f"⚠️ **{fruto}:** {score}/10 — {cons['estado']}. Requieres mayor intencionalidad para consolidar la constancia.")
-            interpretacion_pdf = "Virtud en desarrollo con altibajos emocionales."
-            consecuencia_pdf = "Produce inconsistencia en tu testimonio y vulnerabilidad ante problemas o presiones."
+            interpretacion_pdf = f"**Desarrollo Intermitente:** Existe un cimiento espiritual, pero experimentas quiebres emocionales bajo alta presión. Se requiere transicionar urgentemente de un esfuerzo intermitente a disciplinas espirituales diarias."
+            consecuencia_pdf = f"Provoca una doble respuesta en tus hábitos: edificas en tiempos de paz pero vulneras tu testimonio cristiano y tus lazos interpersonales ante las crisis."
         else:
             cons = consecuencias_texto["critico"]
             st.error(f"🚨 **{fruto}:** {score}/10 — {cons['estado']}. Demanda atención urgente en oración y sumisión al Señor.")
-            interpretacion_pdf = "Punto crítico con urgente necesidad de atención."
-            consecuencia_pdf = "Provoca reacciones impulsivas, daña tus relaciones cercanas y estanca tu crecimiento de fe."
+            interpretacion_pdf = f"**Alerta de Contención:** Zona de vulnerabilidad crítica donde la carne domina sobre el Espíritu. Exige un cese inmediato de justificaciones personales y una intervención intencional de quebrantamiento y consejería."
+            consecuencia_pdf = f"Produce fricciones crónicas en tus relaciones cercanas, debilita tu comunión íntima con Dios y bloquea el despliegue del propósito eterno en tu vida."
         
-        # Filas simplificadas para el documento impreso
+        # Inyección exacta en las filas del reporte
         resumen_consecuencias_pdf += f"""
         <tr>
             <td style='font-weight:bold; color:#2E7D32; font-size:12px;'>{fruto}</td>
-            <td style='text-align:center; font-weight:bold; font-size:12px; background-color:#f9f9f9;'>{score}/10</td>
-            <td style='font-size:11px;'>{interpretacion_pdf}</td>
-            <td style='font-size:11px;'>{consecuencia_pdf}</td>
+            <td style='text-align:center; font-weight:bold; font-size:12px; background-color:#f4fbf7;'>{score}/10</td>
+            <td style='font-size:11px; padding:8px; text-align:justify;'>{interpretacion_pdf}</td>
+            <td style='font-size:11px; padding:8px; text-align:justify;'>{consecuencia_pdf}</td>
         </tr>
         """
 
@@ -234,21 +224,18 @@ else:
     Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.
     """)
 
-    # --- DISEÑO FINAL DEL PDF CON ALINEACIÓN SIMÉTRICA AL 100% DE ANCHO ---
+    # --- DISEÑO FINAL DEL PDF CON LA GRÁFICA ALINEADA Y TEXTOS ENRIQUECIDOS ---
     html_reporte = f"""
     <html>
     <head>
         <meta charset='utf-8'>
         <style>
-            body {{ font-family: Arial, sans-serif; padding: 25px; color: #333; line-height: 1.4; }}
+            body {{ font-family: Arial, sans-serif; padding: 25px; color: #333; line-height: 1.5; }}
             .header {{ text-align: center; border-bottom: 3px solid #2e7d32; padding-bottom: 12px; }}
             .header h1 {{ color: #2e7d32; margin: 0; font-size: 24px; }}
             .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; font-size: 12px; }}
-            
-            /* AJUSTE: El contenedor fuerza a la gráfica a ocupar el 100% del bloque, igual que la tabla */
             .grafica-box {{ text-align: center; margin: 25px 0; width: 100%; }}
             .grafica-box img {{ width: 100%; max-width: 100%; height: auto; display: block; }}
-            
             table {{ width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }}
             th, td {{ border: 1px solid #cccccc; padding: 10px; vertical-align: top; word-wrap: break-word; }}
             th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 12px; font-weight: bold; }}
@@ -265,19 +252,18 @@ else:
         </div>
         <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
         
-        <!-- SECCIÓN DE LA GRÁFICA ALINEADA CON EL ANCHO RECTANGULAR DE LA TABLA -->
         <div class='grafica-box'>
-            <img src='data:image/png;base64,{img_base64}'/>
+            <img src='data:image/png;data:image/png;base64,{img_base64}'/>
         </div>
 
         <div class='seccion-titulo'>🔍 Interpretación y Posibles Consecuencias</div>
         <table>
             <thead>
                 <tr>
-                    <th style='width: 20%;'>Fruto del Espíritu</th>
-                    <th style='width: 12%;'>Puntaje</th>
-                    <th style='width: 34%;'>Interpretación de tu Estado</th>
-                    <th style='width: 34%;'>Posibles Consecuencias en tu Carácter</th>
+                    <th style='width: 22%;'>Fruto del Espíritu</th>
+                    <th style='width: 13%;'>Puntaje</th>
+                    <th style='width: 32%;'>Interpretación Proactiva de tu Estado</th>
+                    <th style='width: 33%;'>Efectos Reales en tu Carácter</th>
                 </tr>
             </thead>
             <tbody>
@@ -309,4 +295,6 @@ else:
     st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
     
     st.markdown("---")
-
+    if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
+        st.session_state.mostrar_felicitacion = True
+        st.rerun()
