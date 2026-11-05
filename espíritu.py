@@ -191,7 +191,7 @@ else:
     for fruto, score in puntajes.items():
         if score >= 8:
             cons = consecuencias_texto["fortaleza"]
-            st.success(f"🟢 **{fruto}:** {score}/10 — {cons['estado']}. Reflejo sólido de la obra transformadora del Espíritu Santo.")
+            st.success(f"🟢 **{fruto}:** {score}/10 — {cons['estado']}. Reflejo sólido de la obra transformadora del Espíritu.")
             interpretacion_pdf = "**Crecimiento Consolidado:** Muestras una alineación madura con el carácter de Cristo. El desafío proactivo ahora es discipular a otros y proteger esta virtud."
             consecuencia_pdf = "Funge como un escudo protector en tus decisiones diarias e inspira estabilidad en tu entorno."
         elif score >= 5:
@@ -205,12 +205,13 @@ else:
             interpretacion_pdf = "**Alerta de Contención:** Zona de vulnerabilidad crítica donde la carne domina sobre el Espíritu. Exige quebrantamiento y consejería."
             consecuencia_pdf = "Provoca reacciones impulsivas, daña tus relaciones cercanas y estanca tu crecimiento de fe."
         
+        # Filas estructuradas para el PDF con tipografía grande y clara
         resumen_consecuencias_pdf += f"""
         <tr>
-            <td style='font-weight:bold; color:#2E7D32; font-size:11px; padding:6px;'>{fruto}</td>
-            <td style='text-align:center; font-weight:bold; font-size:11px; background-color:#f4fbf7; padding:6px;'>{score}/10</td>
-            <td style='font-size:10px; padding:6px; text-align:justify;'>{interpretacion_pdf}</td>
-            <td style='font-size:10px; padding:6px; text-align:justify;'>{consecuencia_pdf}</td>
+            <td style='font-weight:bold; color:#2E7D32; font-size:22px; padding:12px;'>{fruto}</td>
+            <td style='text-align:center; font-weight:bold; font-size:22px; background-color:#f4fbf7; padding:12px;'>{score}/10</td>
+            <td style='font-size:20px; padding:12px; text-align:justify;'>{interpretacion_pdf}</td>
+            <td style='font-size:20px; padding:12px; text-align:justify;'>{consecuencia_pdf}</td>
         </tr>
         """
 
@@ -222,29 +223,37 @@ else:
     Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.
     """)
 
-    # --- DISEÑO FINAL DEL PDF CON LA TABLA REDUCIDA AL 70% ---
+    # --- DISEÑO FINAL DEL PDF CON MÁXIMO ANCHO Y TIPOGRAFÍA AL DOBLE ---
     html_reporte = f"""
     <html>
     <head>
         <meta charset='utf-8'>
         <style>
-            body {{ font-family: Arial, sans-serif; padding: 25px; color: #333; line-height: 1.4; }}
-            .header {{ text-align: center; border-bottom: 3px solid #2e7d32; padding-bottom: 12px; }}
-            .header h1 {{ color: #2e7d32; margin: 0; font-size: 24px; }}
-            .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; font-size: 11px; }}
+            body {{ font-family: Arial, sans-serif; padding: 30px; color: #333; line-height: 1.5; }}
+            .header {{ text-align: center; border-bottom: 4px solid #2e7d32; padding-bottom: 15px; }}
+            .header h1 {{ color: #2e7d32; margin: 0; font-size: 44px; }}
+            .header p {{ font-size: 24px; margin: 5px 0 0 0; color: #666; }}
+            .user-info {{ text-align: right; font-style: italic; margin-top: 15px; color: #555; font-size: 22px; }}
             
-            .grafica-box {{ text-align: center; margin: 20px auto; width: 85%; }}
+            /* Ajuste de simetría: La gráfica abarca el 100% de la hoja */
+            .grafica-box {{ text-align: center; margin: 30px 0; width: 100%; }}
             .grafica-box img {{ width: 100%; max-width: 100%; height: auto; display: block; }}
             
-            /* MODIFICACIÓN CRÍTICA: Forzamos el ancho de la tabla al 70% y la centramos de forma limpia */
-            table {{ width: 70%; border-collapse: collapse; margin: 15px auto; table-layout: fixed; }}
-            th, td {{ border: 1px solid #cccccc; padding: 6px; vertical-align: top; word-wrap: break-word; }}
-            th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 11px; font-weight: bold; }}
+            /* MODIFICACIÓN: La tabla recupera el 100% de ancho igual que la gráfica de arriba */
+            table {{ width: 100%; border-collapse: collapse; margin-top: 25px; table-layout: fixed; }}
+            th, td {{ border: 2px solid #cccccc; padding: 14px; vertical-align: top; word-wrap: break-word; }}
             
-            .seccion-titulo {{ color: #2e7d32; font-size: 15px; font-weight: bold; margin-top: 25px; border-bottom: 2px solid #2e7d32; padding-bottom: 4px; }}
-            .pastoral-box {{ background-color: #e8f5e9; padding: 15px; margin-top: 25px; border-left: 5px solid #2e7d32; border-radius: 4px; }}
-            .pastoral-box h3 {{ margin-top: 0; color: #2e7d32; font-size: 14px; }}
-            .footer-creditos {{ text-align: center; margin-top: 40px; font-size: 9px; color: #777777; border-top: 1px solid #eeeeee; padding-top: 10px; font-style: italic; }}
+            /* MODIFICACIÓN: Duplicamos los tamaños de fuente (font-size) en todas las secciones */
+            th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 22px; font-weight: bold; }}
+            .seccion-titulo {{ color: #2e7d32; font-size: 30px; font-weight: bold; margin-top: 45px; border-bottom: 3px solid #2e7d32; padding-bottom: 6px; }}
+            
+            ol li {{ font-size: 20px; margin-bottom: 12px; line-height: 1.6; }}
+            
+            .pastoral-box {{ background-color: #e8f5e9; padding: 25px; margin-top: 40px; border-left: 8px solid #2e7d32; border-radius: 6px; }}
+            .pastoral-box h3 {{ margin-top: 0; color: #2e7d32; font-size: 26px; }}
+            .pastoral-box p {{ font-size: 20px; margin: 0; line-height: 1.6; }}
+            
+            .footer-creditos {{ text-align: center; margin-top: 60px; font-size: 16px; color: #777777; border-top: 2px solid #eeeeee; padding-top: 15px; font-style: italic; }}
         </style>
     </head>
     <body>
@@ -260,14 +269,14 @@ else:
 
         <div class='seccion-titulo'>🔍 Interpretación y Posibles Consecuencias</div>
         
-        <!-- LA TABLA SE DESPLEGARÁ COMPACTA AL 70% DE ANCHO EN LA HOJA -->
+        <!-- TABLA COMPLETA AL 100% COORDINADA CON LA GRÁFICA SUPERIOR -->
         <table>
             <thead>
                 <tr>
                     <th style='width: 22%;'>Fruto del Espíritu</th>
                     <th style='width: 14%;'>Puntaje</th>
                     <th style='width: 32%;'>Interpretación Proactiva</th>
-                    <th style='width: 32%;'>Efectos Reales</th>
+                    <th style='width: 32%;'>Efectos Reales en el Carácter</th>
                 </tr>
             </thead>
             <tbody>
@@ -276,7 +285,7 @@ else:
         </table>
         
         <div class='seccion-titulo'>💡 Recomendaciones Generales para el Crecimiento</div>
-        <ol style='font-size: 11px; margin-top: 8px; line-height: 1.5;'>
+        <ol>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
             <li><strong>Caminar en Comunidad:</strong> Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura y transparente.</li>
@@ -284,7 +293,7 @@ else:
 
         <div class='pastoral-box'>
             <h3>🤝 Un Llamado al Acompañamiento y Cuidado Espiritual</h3>
-            <p style='font-size: 11px; margin: 0;'>Estimado(a) **{nombre_final}**, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
+            <p>Estimado(a) **{nombre_final}**, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
         </div>
 
         <div class='footer-creditos'>Este diagnóstico espiritual fue creado y desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados.</div>
@@ -294,12 +303,9 @@ else:
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button("Descargar Reporte Completo (PDF / HTML)", data=html_reporte, file_name=f"diagnostico_{nombre_final.lower()}.html", mime="text/html")
-    
     st.markdown("---")
-    st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
-    
+    st.caption("🎨 Diseño y Creación: Diagnóstico Espiritual desarrollado por Jacob Zumaya Prianti.")
     st.markdown("---")
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
-
