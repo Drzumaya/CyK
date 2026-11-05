@@ -335,20 +335,32 @@ if not st.session_state.diagnostico_generado:
     
     **No tengas miedo ni vergüenza de marcar un 1 o un 10.** Si hay un área donde la carne te domina por completo, marcar un **1** es el primer paso de humildad hacia la restauración. De igual manera, si el Espíritu Santo te ha dado la victoria absoluta y constante en un fruto, pon un **10** reconociendo Su poder en ti con gratitud. Responde con absoluta sinceridad delante de Dios.
     """)
-    # --- SEGMENTO 6: FORMULARIO INTERACTIVO (ESCALA LIMPIA DEL 1 AL 10 INICIANDO EN NIVEL 1) ---
+       # --- SEGMENTO 6: FORMULARIO INTERACTIVO CON BASE DE DATOS ASEGURADA ---
+    
+    # SOLUCIÓN: Definición ruda y explícita para evitar pérdidas de alcance en los expanders
+    frutos_info = {
+        "Amor": {"izq": "Guardo rencor, elijo el egoísmo o la indiferencia.", "der": "Amo, perdono y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
+        "Gozo": {"izq": "Me domina la queja constante, la amargura o la tristeza.", "der": "Siento una alegría profunda que no depende de las circunstancias.", "cita": "Gálatas 5:22"},
+        "Paz": {"izq": "Vivo atrapado en la ansiedad, la preocupación o los conflictos.", "der": "Tengo tranquilidad interna y soy un agente de reconciliación.", "cita": "Gálatas 5:22"},
+        "Paciencia": {"izq": "Me desespero rápido, me irrito y soy intolerante.", "der": "Sé esperar los tiempos de Dios con calma y tolero las flaquezas ajenas.", "cita": "Gálatas 5:22"},
+        "Benignidad": {"izq": "Puedo llegar a ser duro, crítico o muy cortante al hablar.", "der": "Trato a todos con extrema dulzura, empatía y afabilidad.", "cita": "Gálatas 5:22"},
+        "Bondad": {"izq": "Pienso primero en mi beneficio o actúo con doblez.", "der": "Hago el bien de forma activa, generosa, íntegra y desinteresada.", "cita": "Gálatas 5:22"},
+        "Fe": {"izq": "Dudo constantemente de las promesas de Dios y soy desleal.", "der": "Soy una persona fiel, plenamente confiable y con fe inquebrantable.", "cita": "Gálatas 5:22"},
+        "Mansedumbre": {"izq": "Me defiendo con orgullo, soberbia, prepotencia o enojo.", "der": "Reacciono con humildad, suavidad de espíritu y total sumisión a Dios.", "cita": "Gálatas 5:23"},
+        "Templanza": {"izq": "Cedo con facilidad ante los antojos, impulsos o malos hábitos.", "der": "Tengo dominio propio, gobierno mis emociones y autodisciplina.", "cita": "Gálatas 5:23"}
+    }
+
     st.header("📋 Autoevaluación")
     st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
     with st.form("diagnostico_form"):
         puntajes_temporales = {}
-        # Opciones limpias para homologar con la regla visual inferior
         escala_limpia = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         
         for i, (fruto, info) in enumerate(frutos_info.items(), 1):
             with st.expander(f"✨ {i}. {fruto} ({info['cita']})"):
                 st.markdown(f"**De:** *{info['izq']}* \n\n **Hacia:** *{info['der']}*")
                 
-                # Se inicializa el valor por defecto rígidamente en la primera opción ("1")
                 sel = st.select_slider(
                     f"Selecciona tu nivel para {fruto}:", 
                     options=escala_limpia, 
@@ -356,11 +368,8 @@ if not st.session_state.diagnostico_generado:
                     key=f"esfera_{fruto}",
                     label_visibility="collapsed"
                 )
-                
-                # Conversión segura y unívoca para evitar colapsos tipográficos
                 puntajes_temporales[fruto] = int(sel)
                 
-                # Regla de escala estática inyectada debajo del slider
                 st.markdown("""
                 <div class="escala-numerica-fija">
                     <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
@@ -369,7 +378,6 @@ if not st.session_state.diagnostico_generado:
                 """, unsafe_allow_html=True)
                 
         st.markdown("---")
-        # El botón procesa y dispara el refresco de pantalla limpio para transicionar de inmediato
         enviar = st.form_submit_button("Generar Diagnóstico en Rúbrica")
         
         if enviar:
@@ -377,6 +385,7 @@ if not st.session_state.diagnostico_generado:
             st.session_state.nombre_final = nombre_usuario.strip() if nombre_usuario.strip() != "" else "Invitado"
             st.session_state.diagnostico_generado = True
             st.rerun()
+
 # --- SEGMENTO 7: PANTALLA EXCLUSIVA DE RESULTADOS Y CONSTRUCCIÓN DE GRÁFICA ---
 else:
     # Candado de seguridad: Evita el dibujo redundante o duplicaciones lineales de hilos
