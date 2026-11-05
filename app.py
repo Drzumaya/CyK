@@ -673,8 +673,8 @@ def main():
 
     es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
     
-       # =================================================================
-    # PARTE 5B: ENTORNO POLÍGLOTA, PROYECCIÓN Y FORMULARIO DE SALUD INTEGRAL (REPARADO)
+          # =================================================================
+    # PARTE 5B: ENTORNO POLÍGLOTA, PROYECCIÓN Y FORMULARIO DE SALUD INTEGRAL (LLAVES ÚNICAS)
     # =================================================================
     if not st.session_state.flujo_finalizado:
         with st.container(border=True):
@@ -713,11 +713,9 @@ def main():
         resultados_totales = {}
         
         if st.session_state.mostrar_bateria:
-            # 🍊 COMPUERTA DE RENDIMIENTO: Renderiza Salud Integral solo si se presionó su botón correspondiente
             if st.session_state.tipo_diagnostico_activo == "salud_integral" and not es_likert:
                 st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
                 
-                # Diccionario heráldico estático de respaldo para erradicar duplicados en pantalla
                 MATRIZ_SINTOMAS_FIJA = {
                     "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"] if iso == "es" else ["Occupational fatigue", "Sleep cycle disorders", "Sedentary stiffness", "Nutritional neglect"],
                     "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"] if iso == "es" else ["Cognitive block", "Prolonged rumination", "Information overload", "Decreased analytical focus"],
@@ -728,40 +726,23 @@ def main():
                     "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"] if iso == "es" else ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
                 }
                 
-                # Ejecutamos el renderizado sobre el mapa estático blindado inmune a residuos de memoria
                 for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_FIJA.items()):
                     with st.container(border=True):
                         st.markdown(f"#### {g_name}")
                         col_a, col_b = st.columns(2)
+                        
+                        # 🍊 SOLUCIÓN AL COLLISION KEY: Inyectamos el token tridimensional '_s_integral_v3_'
                         with col_a:
-                            cb0 = st.checkbox(lista_items_gajo, key=f"c_{g_idx}_0_f")
-                            cb1 = st.checkbox(lista_items_gajo, key=f"c_{g_idx}_1_f")
+                            cb0 = st.checkbox(lista_items_gajo, key=f"c_s_integral_v3_{g_idx}_0_f")
+                            cb1 = st.checkbox(lista_items_gajo, key=f"c_s_integral_v3_{g_idx}_1_f")
                         with col_b:
-                            cb2 = st.checkbox(lista_items_gajo, key=f"c_{g_idx}_2_f")
-                            cb3 = st.checkbox(lista_items_gajo, key=f"c_{g_idx}_3_f")
+                            cb2 = st.checkbox(lista_items_gajo, key=f"c_s_integral_v3_{g_idx}_2_f")
+                            cb3 = st.checkbox(lista_items_gajo, key=f"c_s_integral_v3_{g_idx}_3_f")
+                            
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
 
-            
-            # 🍊 CONDICIONAL CRÍTICA: Se renderiza Salud Integral ÚNICAMENTE si está activa en la compuerta
-            if st.session_state.tipo_diagnostico_activo == "salud_integral" and not es_likert:
-                st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
-                gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, iso)
-                for g_idx, (g_name, lista_items_gajo) in enumerate(gajos.items()):
-                    with st.container(border=True):
-                        st.markdown(f"#### {g_name}")
-                        col_a, col_b = st.columns(2)
-                        with col_a:
-                            t0 = lista_items_gajo if len(lista_items_gajo) > 0 else "S0"
-                            t1 = lista_items_gajo if len(lista_items_gajo) > 1 else "S1"
-                            cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
-                            cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
-                        with col_b:
-                            t2 = lista_items_gajo if len(lista_items_gajo) > 2 else "S2"
-                            t3 = lista_items_gajo if len(lista_items_gajo) > 3 else "S3"
-                            cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
-                            cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
-                        resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
+
             # 🍊 CONDICIONAL CRÍTICA: Se renderiza C&K ÚNICAMENTE si está activa en la compuerta
             elif st.session_state.tipo_diagnostico_activo == "modelos_temporales" and es_likert:
                 st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
