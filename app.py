@@ -559,8 +559,8 @@ def gateway_bt(n, w, r, lk, lg, t):
    # =================================================================
 # PARTE 5 D-E (PARTE 1): EXPEDIENTES GRANULARES, SVD DOCTORAL Y CIERRE MODAL
 # =================================================================
-                with t2:
-                    st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
+            with t2:
+                st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
                     if "Nombre" in df_doc.columns:
                         sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_sujeto_central")
                         fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
@@ -582,8 +582,8 @@ def gateway_bt(n, w, r, lk, lg, t):
                     else: 
                         st.info("No se encontró la columna de Nombres.")
 
-                with t3:
-                    st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
+            with t3:
+                st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
                     alfa_calc = 0.0
                     if len(df_doc) >= 3 and len(col_reactivos) >= 2:
                         matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
