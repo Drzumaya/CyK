@@ -821,14 +821,16 @@ def main():
                     
                     for r_id, r_txt in reactivos.items():
                         st.write(f"Reactivo {r_id}: {r_txt}")
+                        # 🍊 CORRECCIÓN DE SINTAXIS: Asignamos el vector numérico del 1 al 5 en el parámetro options
                         resultados_totales[f"R{r_id}"] = st.radio(
                             "Escala / Scale:", 
-                            options=, 
+                            options=[1, 2, 3, 4, 5], 
                             format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                            index=None, # 🍊 BLINDAJE LIKERT: Aparece limpio para forzar respuesta consciente
+                            index=None, 
                             horizontal=True, 
                             key=f"r_seq_cyk_{r_id}"
                         )
+
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
     else:
