@@ -602,8 +602,8 @@ def gateway_bt(n, w, r, lk, lg, t):
                     b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
                     st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                     st.download_button(label="📥 EXPORTAR VALIDACIÓN (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-    else: 
-                st.info("Se requieren al menos 3 registros con respuestas Likert completas.")
+        else: 
+            st.info("Se requieren al menos 3 registros con respuestas Likert completas.")
             st.markdown("</div>", unsafe_allow_html=True)
 
     # 🍊 CAPA BASE DE FONDO: FORMULARIO SECUENCIAL PÚBLICO DEL PARTICIPANTE
@@ -682,24 +682,24 @@ def gateway_bt(n, w, r, lk, lg, t):
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Escala / Scale:", 
                         options=, 
-format_func=lambda x: tx.get(f"likert_{x}", str(x)),
-index=None,
-horizontal=True,
-key=f"rcyk_{r_id}"
-)
-gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-else:
-st.balloons()
-st.success(tx.get("thanks", "¡Completado!"))
-rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
-st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
-if st.session_state.admin_autenticado and not es_cel:
-if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
-pdf_auditoria = FPDF()
-pdf_auditoria.add_page()
-pdf_auditoria.set_font("Helvetica", "B", 14)
-pdf_auditoria.cell(190, 10, "DICTAMEN DOCTORAL", new_x="LMARGIN", new_y="NEXT", align="C")
-st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
+            format_func=lambda x: tx.get(f"likert_{x}", str(x)),
+            index=None,
+            horizontal=True,
+            key=f"rcyk_{r_id}"
+            )
+            gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+        else:
+            st.balloons()
+            st.success(tx.get("thanks", "¡Completado!"))
+            rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
+            st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
+            if st.session_state.admin_autenticado and not es_cel:
+            if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
+            pdf_auditoria = FPDF()
+            pdf_auditoria.add_page()
+            pdf_auditoria.set_font("Helvetica", "B", 14)
+            pdf_auditoria.cell(190, 10, "DICTAMEN DOCTORAL", new_x="LMARGIN", new_y="NEXT", align="C")
+            st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
 # Cierre reglamentario de la aplicación a nivel raíz
 
