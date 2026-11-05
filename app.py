@@ -673,29 +673,18 @@ def main():
 
     es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
     
-      # =================================================================
-    # PARTE 5B: ENTORNO BASE SECO CON LLAVES ISOLADAS (PREFIX: _SEQ_V4_)
     # =================================================================
-    if "paso_salud_desbloqueado" not in st.session_state: st.session_state.paso_salud_desbloqueado = False
-    if "paso_cyk_desbloqueado" not in st.session_state: st.session_state.paso_cyk_desbloqueado = False
+    # PARTE 5B Y 5C: EMBUDO HEURÍSTICO COMPACTO EN UNA SOLA CONDICIONAL
+    # =================================================================
+    if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
+    if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
 
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
 
-        with st.container(border=True):
-            st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
-            dict_ids = {"spanish": "es", "english": "en"}
-            sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=["Spanish", "English"], index=0 if iso == "es" else 1, key="sb_part_lang_unq_seq_v4")
-            if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_fixed_seq_v4"):
-                iso_f = dict_ids.get(str(sel_v).lower().strip(), "en")
-                st.query_params["lang"] = iso_f
-                st.session_state.idioma_activo_actual = iso_f
-                st.rerun()
-
         if not es_cel:
             with st.container(border=True):
-                st.markdown(f"### {tx.get('qr_title', '📢 Proyección QR')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=4)
                 qr.add_data(lnk_qr)
                 qr.make(fit=True)
@@ -703,183 +692,126 @@ def main():
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
                 st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea'))
 
-        txt_toggle = "🙈 OCULTAR CUESTIONARIO ADAPTATIVO" if st.session_state.mostrar_bateria else "👁️ MOSTRAR CUESTIONARIO PARA EXPLICAR"
-        if st.button(txt_toggle, type="secondary", use_container_width=True, key="btn_toggle_visibility_bateria_master_seq_v4"):
-            st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
-            st.rerun()
-
-        st.header(f"📋 Sección I: Perfil de identificación")
-        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in_seq_v4")
-        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in_seq_v4")
+        st.header("📋 Sección I: Perfil de identificación")
+        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in_seq")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in_seq")
         
         resultados_totales = {}
         
-        if st.session_state.mostrar_bateria:
-            st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
-            resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key="num_edad_seq_v4")
-            
-            # 🍊 INYECCIÓN DE LLAVES ISOLADAS ÚNICAS ANTI-COLLISION
-            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_genero_seq_v4")
-            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_nacionalidad_seq_v4")
-            
-            if resultados_totales["Nacionalidad"] == "Mexicana":
-                resultados_totales["Estado Origen"] = st.selectbox("4. Estado mexicano de origen:", [""] + ESTADOS_MEXICO, key="sel_origen_mex_unq_seq_v4")
-                resultados_totales["Estado Residencia"] = st.selectbox("5. Estado mexicano de residencia actual:", [""] + ESTADOS_MEXICO, key="sel_residencia_mex_unq_seq_v4")
-                resultados_totales["País Origen"] = "México"
-                resultados_totales["Continente Extranjero"] = "América"
-            elif resultados_totales["Nacionalidad"] == "Extranjera":
-                resultados_totales["País Origen"] = st.text_input("País de Origen / Country of Origin:", key="txt_pais_origen_extranjero_seq_v4")
-                resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq_seq_v4")
-                resultados_totales["Estado Origen"] = "N/A"
-                resultados_totales["Estado Residencia"] = "N/A"
-            else:
-                resultados_totales["Estado Origen"] = None
-                resultados_totales["Estado Residencia"] = None
-                resultados_totales["País Origen"] = None
-                resultados_totales["Continente Extranjero"] = None
+        st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
+        resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key="num_ed")
+        resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_g")
+        resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_n")
+        
+        if resultados_totales["Nacionalidad"] == "Mexicana":
+            resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key="s_orig")
+            resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key="s_res")
+        elif resultados_totales["Nacionalidad"] == "Extranjera":
+            resultados_totales["País Origen"] = st.text_input("País de Origen:", key="t_pais")
+            resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="s_cont")
 
-                      # 🍊 CONDICIONAL CRÍTICA: Se renderiza C&K ÚNICAMENTE si está activa en la compuerta
-            elif st.session_state.tipo_diagnostico_activo == "modelos_temporales" and es_likert:
-                st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
-                resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key="num_edad_seq_v4")
-                resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_genero_seq_v4")
-                resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_nacionalidad_seq_v4")
-                
-                if resultados_totales["Nacionalidad"] == "Mexicana":
-                    resultados_totales["Estado Origen"] = st.selectbox("4. Estado mexicano de origen:", [""] + ESTADOS_MEXICO, key="sel_origen_mex_unq_seq_v4")
-                    resultados_totales["Estado Residencia"] = st.selectbox("5. Estado mexicano de residencia actual:", [""] + ESTADOS_MEXICO, key="sel_residencia_mex_unq_seq_v4")
-                    resultados_totales["País Origen"] = "México"
-                    resultados_totales["Continente Extranjero"] = "América"
-                elif resultados_totales["Nacionalidad"] == "Extranjera":
-                    resultados_totales["País Origen"] = st.text_input("País de Origen / Country of Origin:", key="txt_pais_origen_extranjero_seq_v4")
-                    resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq_seq_v4")
-                    resultados_totales["Estado Origen"] = "N/A"
-                    resultados_totales["Estado Residencia"] = "N/A"
-                else:
-                    resultados_totales["Estado Origen"] = None
-                    resultados_totales["Estado Residencia"] = None
-                    resultados_totales["País Origen"] = None
-                    resultados_totales["Continente Extranjero"] = None
+        st.subheader("📋 Sección III: Conocimiento sobre el tema")
+        preguntas_sec3 = [
+            ("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"),
+            ("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"),
+            ("C3_Enseñado", "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?")
+        ]
+        for key_r, txt_r in preguntas_sec3:
+            resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
 
-                st.subheader("📋 Sección III: Conocimiento sobre el tema")
-                k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
-                k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
-                k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
-                k4_txt = "4. El modelo temporal:" if iso == "es" else "4. The temporal model:"
-                k5_txt = "5. Hablar de modelos temporales es hablar de:" if iso == "es" else "5. Talking about temporal models means talking about:"
-                k6_txt = "6. Soy persona:" if iso == "es" else "6. I am a person:"
+        resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key="r_c4")
+        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key="r_c5")
+        resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6")
 
-                k4_opts = ["Se impone", "Se hereda", "No sé"] if iso == "es" else ["Is imposed", "Is inherited", "I don't know"]
-                k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
-                k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
+        # --- GATILLO SECUENCIAL 1 ---
+        vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales["Género"], resultados_totales["Nacionalidad"], resultados_totales["C1_Escuchado"], resultados_totales["C6_Perfil_Auto"]])
+        
+        if vld_base and not st.session_state.paso_salud:
+            if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="primary"):
+                st.session_state.paso_salud = True
+                st.rerun()
 
-                resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn1_unq_sec3_seq_v4")
-                resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn2_unq_sec3_seq_v4")
-                resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn3_unq_sec3_seq_v4")
-                resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, index=None, horizontal=True, key="rad_kn4_unq_sec3_seq_v4")
-                resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, index=None, horizontal=True, key="rad_kn5_unq_sec3_seq_v4")
-                resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, index=None, horizontal=True, key="rad_kn6_unq_sec3_seq_v4")
-                
-                st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
+        if st.session_state.paso_salud:
+            st.markdown("### 🍊 Diagnóstico de la Salud Integral")
+            MATRIZ_SINTOMAS_FIJA = {
+                "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
+                "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
+                "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
+                "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
+                "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
+                "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
+                "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
+            }
+            for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_FIJA.items()):
+                with st.container(border=True):
+                    st.markdown(f"#### {g_name}")
+                    c_a, c_b = st.columns(2)
+                    with c_a:
+                        cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_0")
+                        cb1 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_1")
+                    with c_b:
+                        cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
+                        cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
+                    resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
+
+            # --- GATILLO SECUENCIAL 2 ---
+            if not st.session_state.paso_cyk:
+                if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary"):
+                    st.session_state.paso_cyk = True
+                    st.rerun()
+
+            if st.session_state.paso_cyk:
+                st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
-                
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio(
-                        "Escala / Scale:", 
-                        options=[1, 2, 3, 4, 5], 
-                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                        index=None, 
-                        horizontal=True, 
-                        key=f"r_{r_id}_unq_active"
-                    )
+                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=, format_func=lambda x: tx.get(f"likert_{x}", str(x)), index=None, horizontal=True, key=f"rcyk_{r_id}")
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-    # =================================================================
-    # PARTE 5C-PARTE 2: RESOLUCIÓN DE FLUJO, CÁLCULOS PSICOMÉTRICOS Y CIERRE DE CORE
-    # =================================================================
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
-        st.markdown(tx.get("thanks_sub", "Descarga tu reporte abajo."))
-        st.toast(tx.get("toast_msg", "Descarga lista."), icon="📥")
-        
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
-        
-        if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
+        if st.button("🔄 Volver al Diagnóstico Principal", key="btn_rst"): 
             st.session_state.flujo_finalizado = False
-            st.session_state.paso_salud_desbloqueado = False
-            st.session_state.paso_cyk_desbloqueado = False
+            st.session_state.paso_salud = False
+            st.session_state.paso_cyk = False
             st.rerun()
 
     # --- INVESTIGACIÓN ALTA ANALÍTICA DEL PONENTE ---
     if st.session_state.admin_autenticado and not es_cel:
         st.markdown("---")
         st.header(tx.get("lbl_titulo_aud", "🔬 Oficina Analítica"))
-        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select", "Tabla:"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_tabla_analizar_master_office")
+        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select", "Tabla:"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_an")
         sheet = conectar_google_sheets(tabla_analizar)
         todas_las_filas = sheet.get_all_values() if sheet else []
-        
         if todas_las_filas and len(todas_las_filas) >= 2:
             df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
-            st.subheader(tx.get("lbl_crm_buscar", "Buscar"))
-            c_busq = st.text_input(tx.get("lbl_crm_input", "Filtro:"), key="crm_search_input").strip().lower()
-            if c_busq and not df_doc.empty:
-                st.write(df_doc[df_doc[df_doc.columns].astype(str).str.lower().str.contains(c_busq)])
-            else:
-                st.dataframe(df_doc)
-
-            st.markdown("### 📊 Indicadores Psicométricos Avanzados (Población Activa)")
+            st.dataframe(df_doc)
             col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-            
             if len(df_doc) >= 3 and len(col_reactivos) >= 2:
                 try:
                     matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
                     K = matriz_num.shape
                     var_items = np.var(matriz_num, ddof=1, axis=0)
                     var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                    
                     if var_total > 0:
                         alfa = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                        st.metric(label="📐 Alfa de Cronbach (Consistencia Interna)", value=f"{alfa:.3f}", delta="Robusto (>=0.7)" if alfa >= 0.7 else "Revisar Ítems (<0.7)")
-                    
+                        st.metric(label="📐 Alfa de Cronbach", value=f"{alfa:.3f}")
                     matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                    U, S, Vt = np.linalg.svd(matriz_centrada, full_matrices=False)
-                    
-                    st.markdown("**Ejes de Varianza Explicada Latente (Valores Singulares SVD):**")
-                    for i in range(min(3, len(S))):
-                        st.write(f"• Componente Principal {i+1} ($\sigma_{i+1}$): **{S[i]:.2f}**")
-                    
-                    st.markdown("**Coordenadas de Dispersión Conceptual de Participantes (Primeros 5):**")
-                    coords_2d = np.dot(matriz_centrada, Vt.T[:, :2])
-                    df_coords = pd.DataFrame(coords_2d, columns=["Eje Cronos (Rigidez)", "Eje Kairós (Agilidad)"])
-                    if "Nombre" in df_doc.columns:
-                        df_coords.insert(0, "Participante", df_doc["Nombre"])
-                    st.dataframe(df_coords.head(5))
-                    
-                except Exception as e:
-                    st.info("Esperando acumulación de datos estructurados para correr los modelos estocásticos.")
-            else:
-                st.info("ℹ️ Se requieren al menos 3 registros con respuestas Likert completas en la tabla para computar el Alfa de Cronbach y la reducción dimensional SVD.")
+                    _, S, Vt = np.linalg.svd(matriz_centrada, full_matrices=False)
+                    st.markdown("**Valores Singulares SVD:**")
+                    for i in range(min(2, len(S))): st.write(f"• Componente {i+1}: **{S[i]:.2f}**")
+                except Exception: pass
 
-        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
+        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_aud_m"):
             pdf_auditoria = FPDF()
             pdf_auditoria.add_page()
             pdf_auditoria.set_font("Helvetica", "B", 14)
-            pdf_auditoria.cell(190, 10, str(tx.get("lbl_pdf_dictamen", "DICTAMEN")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-            pdf_auditoria.ln(6)
-            pdf_auditoria.set_font("Helvetica", "B", 12)
-            pdf_auditoria.cell(190, 7, str(tx.get("lbl_pdf_ref_title", "Referencias")).encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-            pdf_auditoria.set_font("Helvetica", "", 9)
-            
-            dc_bil_local = TEXTOS_DICTAMEN_BILINGUE.get(iso, TEXTOS_DICTAMEN_BILINGUE["es"])
-            for ref_key in ["lbl_ref1", "lbl_ref2", "lbl_ref3"]:
-                txt_bib = dc_bil_local.get(ref_key, "Hair, J. F., Black, W. C. (2019).")
-                pdf_auditoria.multi_cell(190, 4.5, str(txt_bib).encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
-                pdf_auditoria.ln(2)
-            st.download_button(label=tx.get("lbl_btn_download_macro", "📥 DESCARGAR"), data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
+            pdf_auditoria.cell(190, 10, "DICTAMEN", new_x="LMARGIN", new_y="NEXT", align="C")
+            st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_dl_aud")
 
-# Cierre estructural en raíz libre de espacios o tabulaciones iniciales
 if __name__ == "__main__": 
     main()
+
