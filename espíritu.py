@@ -664,13 +664,13 @@ else:
         </table>
     """
             # --- SEGMENTO 7B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA (BLINDADO Y SIN ERRORES) ---
-        html_bloque_final = """
-        <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+    html_bloque_final = """
+    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
     """ + lista_consecuencias_pdf + """
         </ul>
         
-        <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
+    <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
