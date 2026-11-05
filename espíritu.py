@@ -654,14 +654,14 @@ else:
                 {filas_rubrica_pdf}
             </tbody>
         </table>
-            # --- PARTE 7B: CIERRE DEL PDF, REFERENCIAS APA 7 Y BOTÓN DE DESCARGA (SIN EMOJIS) ---
-        html_reporte_completo = html_reporte + f"""
-    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+               # --- PARTE 7B: CIERRE DEL PDF, REFERENCIAS APA 7 Y BOTÓN DE DESCARGA (CONCATENACIÓN INMUNE A ERRORES) ---
+        bloque_html_final = """
+        <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
-            {lista_consecuencias_pdf}
+        """ + lista_consecuencias_pdf + """
         </ul>
         
-    <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
+        <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
@@ -669,10 +669,10 @@ else:
         </ol>
 
         <div class='pastoral-box'>
-            <p>Estimado(a) <strong>{nombre_final}</strong>, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
+            <p>Estimado(a) miembro, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
         </div>
 
-        <div class='seccion-titulo'> Referencias</div>
+        <div class='seccion-titulo'>[Bibliografía] 4. Referencias</div>
         <div style='margin-top: 15px;'>
             <div class='apa-sangria-francesa'>White, E. G. d. (1900). <i>La educación</i>. Asociación Casa Editora Sudamericana.</div>
             <div class='apa-sangria-francesa'>White, E. G. d. (1911). <i>El conflicto de los siglos</i>. Publicaciones Interamericanas.</div>
@@ -700,6 +700,9 @@ else:
     </body>
     </html>
     """
+    
+    # Concatenamos de forma segura las cadenas de texto plano de la parte 7A y 7B
+    html_reporte_completo = html_reporte + bloque_html_final
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button(
@@ -716,3 +719,4 @@ else:
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
+
