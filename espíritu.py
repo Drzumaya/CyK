@@ -562,7 +562,7 @@ else:
         </table>
     """
 
-        # --- SEGMENTO 8B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y ACCIÓN ADAPTATIVA AISLADA (PONENTE INMUNE) ---
+    # --- SEGMENTO 8B: CIERRE DEL PDF, REFERENCIAS APA 7 Y APERTURA INTERACTIVA DIRECTA ---
     html_bloque_final = """
     <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
@@ -575,6 +575,10 @@ else:
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
             <li><strong>Caminar en Comunidad:</strong> Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura y transparente.</li>
         </ol>
+
+        <div class='pastoral-box'>
+            <p>Estimado(a) miembro, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
+        </div>
 
         <div class='seccion-titulo'>[Bibliografía] 4. Referencias</div>
         <div style='margin-top: 15px;'>
@@ -608,47 +612,48 @@ else:
     html_reporte_completo = html_inicial + html_grafica + html_tabla + html_bloque_final
 
     st.markdown("---")
-    
-    # 1. ORDEN VISUAL SEGURO: Invitación y cierre pastoral antes de las descargas
     st.info(f"""
     ### 🤝 Una Invitación Especial a Caminar Juntos
-    Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas. 
-    
-    *Al presionar el botón inferior se descargará tu reporte oficial de forma automática.*
+    Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación**.
     """)
 
-    st.markdown("### 📥 Descarga tu Reporte Oficial")
-    
-    # Evaluar estrictamente la procedencia del enlace
     es_movil_participante = "view" in st.query_params and st.query_params["view"] == "mobile"
 
     if es_movil_participante:
-        # --- CASO A: DISPOSITIVO DEL PARTICIPANTE (CON AUTO-DESTRUCCIÓN Y CIERRE) ---
-        descarga_accionada = st.download_button(
-            label="Descargar Reporte Completo (PDF / HTML)", 
-            data=html_reporte_completo, 
-            file_name=f"diagnostico_{nombre_final.lower()}.html", 
-            mime="text/html",
-            key="btn_descarga_reporte_apa_unificado"
-        )
+        st.markdown("### 📥 Generar y Ver mi Reporte Oficial")
         
-        if descarga_accionada:
-            # Borrado absoluto limitado exclusivamente al hilo de ejecución del participante
-            st.session_state.clear()
-            
-            # Cierre forzado de la pestaña móvil
-            st.markdown("""
-                <script>
-                    window.parent.close();
-                    window.close();
-                </script>
-            """, unsafe_allow_html=True)
-            
-            st.error("🔒 Reporte descargado. Datos eliminados y aplicación cerrada de forma segura.")
-            st.stop()
+        # Codificar el contenido HTML en base64 para inyectarlo en el script de apertura directa
+        reporte_base64 = base64.b64encode(html_reporte_completo.encode('utf-8')).decode('utf-8')
+        
+        # Botón estilizado nativo mediante HTML que ejecuta la apertura y la autodestrucción simultánea
+        st.markdown(f"""
+            <a id="btn-autocierre-abrir" href="data:text/html;base64,{reporte_base64}" download="diagnostico_{nombre_final.lower()}.html" target="_blank" style="
+                display: inline-block;
+                padding: 12px 24px;
+                background-color: #2E7D32;
+                color: white;
+                text-decoration: none;
+                font-weight: bold;
+                border-radius: 8px;
+                text-align: center;
+                margin: 10px 0;
+            ">📄 Obtener Reporte y Finalizar</a>
+
+            <script>
+                var botonCierre = window.parent.document.getElementById("btn-autocierre-abrir") || document.getElementById("btn-autocierre-abrir");
+                if (botonCierre) {{
+                    botonCierre.addEventListener('click', function() {{
+                        setTimeout(function() {{
+                            window.parent.close();
+                            window.close();
+                        }}, 1500);
+                    }});
+                }}
+            </script>
+        """, unsafe_allow_html=True)
+        
     else:
-        # --- CASO B: PANTALLA INMUNE DEL PONENTE (KIOSCO CONTINUO) ---
-        # El ponente descarga de manera transparente sin alterar estados ni variables globales
+        # PANTALLA INMUNE DEL PONENTE
         st.download_button(
             label="Descargar Reporte Completo (PDF / HTML)", 
             data=html_reporte_completo, 
@@ -658,7 +663,6 @@ else:
         )
         
         st.markdown("---")
-        # El botón de la laptop principal del ponente sigue operando de forma limpia e intacta
         if st.button("🔄 Nuevo diagnóstico", key="btn_ponente_nuevo_diagnostico_final_seguro"):
             st.session_state.diagnostico_generado = False
             st.session_state.mostrar_felicitacion = False
