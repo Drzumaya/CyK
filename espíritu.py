@@ -661,7 +661,7 @@ else:
             {lista_consecuencias_pdf}
         </ul>
         
-        <div class='seccion-titulo'>💡 3. Recomendaciones Generales para el Crecimiento</div>
+    <div class='seccion-titulo'>💡 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
