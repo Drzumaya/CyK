@@ -621,7 +621,7 @@ def gateway_bt(n, w, r, lk, lg, t):
                     b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
                     st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                     st.download_button(label="📥 EXPORTAR VALIDACIÓN (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-            else: 
+    else: 
                 st.info("Se requieren al menos 3 registros con respuestas Likert completas.")
             st.markdown("</div>", unsafe_allow_html=True)
 
