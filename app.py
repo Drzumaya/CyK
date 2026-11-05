@@ -603,8 +603,8 @@ def main():
 
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
     
-     # =================================================================
-    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y COMPONENTES DE ENTORNO PUBLICO (AUDIENCE FIX)
+         # =================================================================
+    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y COMPONENTES DE ENTORNO PÚBLICO (VISTA SEGREGADA)
     # =================================================================
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
@@ -675,11 +675,15 @@ def main():
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        # 🍊 CORRECCIÓN INTERFAZ SOLICITADA: Estructura fija requerida para el título analítico de la audiencia
-        st.header(f"Sección I. Audiencia: {st.session_state.audiencia_activa}")
+        # 🍊 CONDICIONAL ESTRICTA: Aplica el prefijo de Sección I solo si NO es el formulario de Salud Integral
+        es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
+        if es_likert:
+            st.header(f"Sección I. Audiencia: {st.session_state.audiencia_activa}")
+        else:
+            st.header(f"📋 {st.session_state.audiencia_activa}")
+            
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
-        es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
         
         resultados_totales = {}
 
