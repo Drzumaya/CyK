@@ -146,24 +146,26 @@ else:
     frutos_labels = list(puntajes.keys())
     valores_barras = list(puntajes.values())
     
-    # Paleta de colores vivos y de alto contraste para el PDF y pantalla
     colores_barras = []
     for v in valores_barras:
         if v >= 8: colores_barras.append('#2E7D32')     # Verde Esmeralda Vivo
         elif v >= 5: colores_barras.append('#FBC02D')   # Amarillo Oro Intenso
         else: colores_barras.append('#D32F2F')         # Rojo Carmesí Alerta
         
-    # Ajustamos el tamaño de la figura para que sea ancha y quepa perfecto en la hoja
-    fig, ax = plt.subplots(figsize=(9, 4.8))
+    # AJUSTE: Ampliamos el ancho de la figura a 10 pulgadas para máxima extensión horizontal
+    fig, ax = plt.subplots(figsize=(10, 4.5))
     
-    # MODIFICACIÓN: Aumentamos 'width' a 0.75 para que las barras sean notablemente más anchas
-    barras = ax.bar(frutos_labels, valores_barras, color=colores_barras, edgecolor='none', width=0.75)
+    # Dibujamos las barras anchas ocupando el espacio proporcional
+    barras = ax.bar(frutos_labels, valores_barras, color=colores_barras, edgecolor='none', width=0.7)
     
     # Configuración estricta de la escala del 1 al 10
     ax.set_ylim(0, 11)
     ax.set_yticks(range(1, 11))
     ax.set_ylabel("Nivel de Intensidad", fontsize=10, weight='bold', color='#222222')
     ax.grid(axis='y', linestyle='--', alpha=0.6, color='#e0e0e0')
+    
+    # AJUSTE: Pegar las barras al extremo izquierdo y derecho para acoplarse al ancho de la tabla
+    ax.set_xmargin(0.02)
     
     # Colocar los números de los puntajes con fuente negrita arriba de cada barra
     for barra in barras:
@@ -178,14 +180,14 @@ else:
     ax.spines['left'].set_color('#cccccc')
     ax.spines['bottom'].set_color('#cccccc')
     
-    # Rotación leve de las etiquetas para que se lean grandes y claras
-    plt.xticks(rotation=10, ha='center', fontsize=10, weight='bold', color='#333333')
+    # Rotación leve de las etiquetas para lectura óptima
+    plt.xticks(rotation=0, ha='center', fontsize=9, weight='bold', color='#333333')
     plt.tight_layout()
     
     # Mostrar la tabla de barras en Streamlit
     st.pyplot(fig)
     
-    # Guardar la gráfica con alta resolución (dpi=200) para que en el PDF se vea impecable
+    # Guardar la gráfica con alta resolución (dpi=200) para nitidez de impresión
     buf_img = io.BytesIO()
     plt.savefig(buf_img, format='png', dpi=200, bbox_inches='tight')
     buf_img.seek(0)
@@ -195,7 +197,6 @@ else:
     st.markdown("---")
     st.subheader("🔍 Análisis Detallado de Madurez")
     
-    tabla_html = ""
     resumen_consecuencias_pdf = ""
     
     for fruto, score in puntajes.items():
@@ -233,7 +234,7 @@ else:
     Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.
     """)
 
-    # --- DISEÑO FINAL DEL PDF CON LA GRÁFICA DE BARRAS OPTIMIZADA ---
+    # --- DISEÑO FINAL DEL PDF CON ALINEACIÓN SIMÉTRICA AL 100% DE ANCHO ---
     html_reporte = f"""
     <html>
     <head>
@@ -243,9 +244,13 @@ else:
             .header {{ text-align: center; border-bottom: 3px solid #2e7d32; padding-bottom: 12px; }}
             .header h1 {{ color: #2e7d32; margin: 0; font-size: 24px; }}
             .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; font-size: 12px; }}
-            .grafica-box {{ text-align: center; margin: 25px 0; }}
-            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; }}
-            th, td {{ border: 1px solid #cccccc; padding: 10px; vertical-align: top; }}
+            
+            /* AJUSTE: El contenedor fuerza a la gráfica a ocupar el 100% del bloque, igual que la tabla */
+            .grafica-box {{ text-align: center; margin: 25px 0; width: 100%; }}
+            .grafica-box img {{ width: 100%; max-width: 100%; height: auto; display: block; }}
+            
+            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; }}
+            th, td {{ border: 1px solid #cccccc; padding: 10px; vertical-align: top; word-wrap: break-word; }}
             th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 12px; font-weight: bold; }}
             .seccion-titulo {{ color: #2e7d32; font-size: 16px; font-weight: bold; margin-top: 30px; border-bottom: 2px solid #2e7d32; padding-bottom: 5px; }}
             .pastoral-box {{ background-color: #e8f5e9; padding: 18px; margin-top: 30px; border-left: 5px solid #2e7d32; border-radius: 4px; }}
@@ -260,19 +265,19 @@ else:
         </div>
         <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
         
-        <!-- RENDERIZADO DE LA NUEVA IMAGEN DE BARRAS ANCHAS Y DE COLORES -->
+        <!-- SECCIÓN DE LA GRÁFICA ALINEADA CON EL ANCHO RECTANGULAR DE LA TABLA -->
         <div class='grafica-box'>
-            <img src='data:image/png;base64,{img_base64}' width='560' style='max-width:100%; height:auto;'/>
+            <img src='data:image/png;base64,{img_base64}'/>
         </div>
 
         <div class='seccion-titulo'>🔍 Interpretación y Posibles Consecuencias</div>
         <table>
             <thead>
                 <tr>
-                    <th style='width: 18%;'>Fruto del Espíritu</th>
+                    <th style='width: 20%;'>Fruto del Espíritu</th>
                     <th style='width: 12%;'>Puntaje</th>
-                    <th style='width: 35%;'>Interpretación de tu Estado</th>
-                    <th style='width: 35%;'>Posibles Consecuencias en tu Carácter</th>
+                    <th style='width: 34%;'>Interpretación de tu Estado</th>
+                    <th style='width: 34%;'>Posibles Consecuencias en tu Carácter</th>
                 </tr>
             </thead>
             <tbody>
@@ -304,7 +309,4 @@ else:
     st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
     
     st.markdown("---")
-    if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
-        st.session_state.mostrar_felicitacion = True
-        st.rerun()
 
