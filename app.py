@@ -602,8 +602,9 @@ def main():
         st.session_state.estructuras_inicializadas = True
 
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
-    # =================================================================
-    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y COMPONENTES DE ENTORNO PUBLICO
+    
+     # =================================================================
+    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y COMPONENTES DE ENTORNO PUBLICO (AUDIENCE FIX)
     # =================================================================
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
@@ -674,12 +675,14 @@ def main():
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        st.header(f"📋 {st.session_state.audiencia_activa}")
+        # 🍊 CORRECCIÓN INTERFAZ SOLICITADA: Estructura fija requerida para el título analítico de la audiencia
+        st.header(f"Sección I. Audiencia: {st.session_state.audiencia_activa}")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
         
         resultados_totales = {}
+
         # =================================================================
         # PARTE 5-3: DIAGNÓSTICO INTEGRAL Y SECCIÓN II DEMOGRÁFICA FIJA
         # =================================================================
