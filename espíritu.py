@@ -385,10 +385,25 @@ else:
     nombre_final = st.session_state.nombre_final
     puntajes = st.session_state.respuestas_usuario
 
+    # --- ANCLAJE DE FOCO VISUAL AUTOMÁTICO AL INICIO DE LA PANTALLA ---
+    # Fuerza al navegador del celular a subir instantáneamente al título principal
+    st.markdown("<div id='inicio-resultados'></div>", unsafe_allow_html=True)
+    st.markdown("""
+        <script>
+            var elemento = window.parent.document.getElementById("inicio-resultados");
+            if (elemento) {
+                elemento.scrollIntoView({behavior: "smooth"});
+            }
+        </script>
+    """, unsafe_allow_html=True)
+
+    # Título principal desde donde iniciará la lectura de forma obligatoria
     st.title("📊 Tu Diagnóstico Espiritual")
     st.header(f"Resultados preparados para: {nombre_final}")
     
+    # --- CONSTRUCCIÓN DE LA GRÁFICA DE BARRAS VERTICALES ANCHAS ---
     st.subheader("📈 Gráfica de Crecimiento Espiritual")
+
     frutos_labels = list(puntajes.keys())
     valores_barras = list(puntajes.values())
     
