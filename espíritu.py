@@ -13,11 +13,12 @@ st.set_page_config(
     layout="centered"
 )
 
+# Inicialización segura de variables de sesión
 for var, val in [("mostrar_felicitacion", False), ("finalizado", False), ("diagnostico_generado", False), ("respuestas_usuario", {})]:
     if var not in st.session_state:
         st.session_state[var] = val
 
-# Estilos CSS para la regla numérica visible
+# Estilos CSS para la regla numérica visible y alineación
 st.markdown("""
 <style>
     .escala-numerica-fija {
@@ -33,26 +34,35 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Control de pantallas finales y reinicio continuo
+# LÓGICA DE DESPEDIDA DEFINITIVA
 if st.session_state.finalizado:
     st.success("👋 ¡Gracias por tu participación!")
-    st.markdown("### El diagnóstico ha concluido de forma exitosa")
+    st.markdown("""
+    ### El diagnóstico ha concluido de forma exitosa
+    Tu sesión se ha cerrado de manera segura. Si descargaste tu reporte, no olvides guardarlo muy bien y ponerte en contacto con tu pastor o un anciano de confianza.
+    """)
     st.caption("🎨 Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
     st.stop()
 
+# LÓGICA DE FELICITACIÓN: Se activa al terminar el flujo
 if st.session_state.mostrar_felicitacion:
     st.balloons()
     st.success("🎉 ¡Muchas felicidades por completar este paso fundamental!")
     st.markdown("""
     ### 🚀 Tu camino de transformación empieza hoy
-    Has descargado con éxito tu diagnóstico espiritual bajo norma APA 7.
+    Has descargado con éxito tu diagnóstico espiritual bajo los lineamientos de la norma APA 7.
     
-    1. **Toma acciones para el cambio:** Elige el fruto con menor intensidad y genera hábitos guiados.
-    2. **Busca Consejo Pastoral:** Te animamos a acercarte directamente con tu **pastor o con un anciano de confianza** de tu iglesia local para compartir tus resultados.
+    1. **Toma acciones para el cambio:** Elige el fruto con menor intensidad y genera hábitos guiados de forma proactiva.
+    2. **Busca Consejo Pastoral:** Te animamos a acercarte directamente con tu **pastor o con un anciano de confianza** de tu iglesia local para compartir tus resultados y recibir guía espiritual.
     """)
-    if st.button("🔄 Nuevo diagnóstico"):
-        st.session_state.update({"diagnostico_generado": False, "mostrar_felicitacion": False, "respuestas_usuario": {}})
+    
+    st.markdown("---")
+    if st.button("🔄 Nuevo diagnóstico", key="btn_reinicio_kiosco_global"):
+        st.session_state.diagnostico_generado = False
+        st.session_state.mostrar_felicitacion = False
+        st.session_state.respuestas_usuario = {}
         st.rerun()
+        
     st.caption("🎨 Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
     st.stop()
 # --- MATRIZ DOCTRINAL ESPECÍFICA (AMOR, GOZO Y PAZ) ---
@@ -60,7 +70,7 @@ rubrica_detallada = {
     "Amor": {
         "1-3": {
             "estado": "Amor Carnal o Indiferencia 🔴",
-            "criterio": "Afecto condicional, resentimiento oculto o apatía hacia las faltas del prójimo (1 Juan 4:20). White (1953) señaló que 'el egoísmo es un cáncer frío que destruye los lazos del alma' (p. 200)."
+            "criterio": "Afecto condicional, resentment oculto o apatía hacia las faltas del prójimo (1 Juan 4:20). White (1953) señaló que 'el egoísmo es un cáncer frío que destruye los lazos del alma' (p. 200)."
         },
         "4-5": {
             "estado": "Esfuerzo Humano Inconstante 🟡",
@@ -123,7 +133,7 @@ rubrica_detallada = {
             "criterio": "Comunión perfecta que produce un sosiego idéntico al de Cristo durmiendo en la barca en medio de la tempestad (Salmo 119:165). White (1953) define que 'estar escondido con Cristo en Dios es el descanso supremo' (p. 314)."
         }
     },
-    # --- MATRIZ DOCTRINAL ESPECÍFICA (PACIENCIA, BENIGNIDAD Y BONDAD) ---
+    # --- SEGMENTO 3: MATRIZ DOCTRINAL ESPECÍFICA (PACIENCIA, BENIGNIDAD Y BONDAD) ---
     "Paciencia": {
         "1-3": {
             "estado": "Intolerancia o Irritabilidad Directa 🔴",
@@ -171,7 +181,7 @@ rubrica_detallada = {
     "Bondad": {
         "1-3": {
             "estado": "Egoísmo Arraigado o Doblez 🔴",
-            "criterio": "Actúas movido solo por tu interés personal, mostrando indiferencia hacia la necesidad ajena (Proverbios 21:13). White (1953) señaló que 'el egoísmo endurece el corazón y cierra los canales del alma' (p. 248)."
+            "criterio": "Actúas movido solo por tu interest personal, mostrando indiferencia hacia la necesidad ajena (Proverbios 21:13). White (1953) señaló que 'el egoísmo endurece el corazón y cierra los canales del alma' (p. 248)."
         },
         "4-5": {
             "estado": "Generosidad Calculada o Selectiva 🟡",
@@ -190,7 +200,7 @@ rubrica_detallada = {
             "criterio": "Consagración total al bienestar de la humanidad; tu felicidad radica enteramente en gastarte por otros (Hechos 10:38). White (1955) define que 'el desinterés de Cristo es la norma suprema de la verdadera bondad' (p. 530)."
         }
     },
-    # --- MATRIZ DOCTRINAL ESPECÍFICA (FE, MANSEDUMBRE Y TEMPLANZA) ---
+    # --- SEGMENTO 4: MATRIZ DOCTRINAL ESPECÍFICA (FE, MANSEDUMBRE Y TEMPLANZA) E INICIALIZACIÓN DE CONSECUENCIAS ---
     "Fe": {
         "1-3": {
             "estado": "Incredulidad o Deslealtad Manifiesta 🔴",
@@ -232,7 +242,7 @@ rubrica_detallada = {
         },
         "10": {
             "estado": "Mansedumbre Perfecta de Cristo 🟢",
-            "criterio": "Absoluta ausencia de egoísmo; ante la ofensa extrema, solo respondes con intercesión santa (1 Pedro 2:23). White (1955) define que 'the espíritu sumiso de Cristo es la corona de la santificación' (p. 612)."
+            "criterio": "Absoluta ausencia de egoísmo; ante la ofensa extrema, solo respondes con intercesión santa (1 Pedro 2:23). White (1955) define que 'el espíritu sumiso de Cristo es la corona de la santificación' (p. 612)."
         }
     },
     "Templanza": {
@@ -242,7 +252,7 @@ rubrica_detallada = {
         },
         "4-5": {
             "estado": "Abstinencia Intermitente o Legalista 🟡",
-            "criterio": "Te cuidas por miedo o por cumplir normas estrictas, pero experimentas batallas internas costantes (1 Corintios 9:25). White (1959) afirma que 'el dominio propio impuesto externamente no cambia las inclinaciones del alma' (p. 204)."
+            "criterio": "Te cuidas por miedo o por cumplir normas estrictas, pero experimentas batallas internas constantes (1 Corintios 9:25). White (1959) afirma que 'el dominio propio impuesto externamente no cambia las inclinaciones del alma' (p. 204)."
         },
         "6-7": {
             "estado": "Dominio Propio en Desarrollo 🟡",
@@ -291,27 +301,16 @@ consecuencias_texto = {
         "largo": "Legado de santidad intachable que glorifica a Dios y sirve como un modelo vivo de discipulado generacional."
     }
 }
-# --- PARTE 5: FORMULARIO INTERACTIVO (CORREGIDO PARA CÓDIGO QR MODERNIZADO) ---
-frutos_info = {
-    "Amor": {"izq": "Guardo rencor, elijo el egoísmo o la indiferencia.", "der": "Amo, perdono y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
-    "Gozo": {"izq": "Me domina la queja constante, la amargura o la tristeza.", "der": "Siento una alegría profunda que no depende de las circunstancias.", "cita": "Gálatas 5:22"},
-    "Paz": {"izq": "Vivo atrapado en la ansiedad, la preocupación o los conflictos.", "der": "Tengo tranquilidad interna y soy un agente de reconciliación.", "cita": "Gálatas 5:22"},
-    "Paciencia": {"izq": "Me desespero rápido, me irrito y soy intolerante.", "der": "Sé esperar los tiempos de Dios con calma y tolero las flaquezas ajenas.", "cita": "Gálatas 5:22"},
-    "Benignidad": {"izq": "Puedo llegar a ser duro, crítico o muy cortante al hablar.", "der": "Trato a todos con extrema dulzura, empatía y afabilidad.", "cita": "Gálatas 5:22"},
-    "Bondad": {"izq": "Pienso primero en mi beneficio o actúo con doblez.", "der": "Hago el bien de forma activa, generosa, íntegra y desinteresada.", "cita": "Gálatas 5:22"},
-    "Fe": {"izq": "Dudo constantemente de las promesas de Dios y soy desleal.", "der": "Soy una persona fiel, plenamente confiable y con fe inquebrantable.", "cita": "Gálatas 5:22"},
-    "Mansedumbre": {"izq": "Me defiendo con orgullo, soberbia, prepotencia o enojo.", "der": "Reacciono con humildad, suavidad de espíritu y total sumisión a Dios.", "cita": "Gálatas 5:23"},
-    "Templanza": {"izq": "Cedo con facilidad ante los antojos, impulsos o malos hábitos.", "der": "Tengo dominio propio, gobierno mis emociones y autodisciplina.", "cita": "Gálatas 5:23"}
-}
-
+# --- SEGMENTO 5: CAPTURA DE DATOS, QR INTELIGENTE MODERNO E INVITACIÓN A LA HONESTIDAD ---
 if not st.session_state.diagnostico_generado:
     st.title("🌱 Diagnóstico Espiritual: Los 9 Frutos del Espíritu")
     st.markdown("Evalúa el estado actual de tu carácter basándote en **Gálatas 5:22-23**.")
     st.caption("🎨 **Diseño y Creación:** Desarrollado por **Jacob Zumaya Prianti**.")
+    
     nombre_usuario = st.text_input("✍️ Escribe tu nombre para personalizar tu reporte:", value="")
     st.markdown("---")
 
-    # CONTROL DEL QR INTELIGENTE QUE SE OCULTA AL INSTANTE EN MÓVILES
+    # CONTROL DEL QR INTELIGENTE QUE SE OCULTA AL INSTANTE EN DISPOSITIVOS MÓVILES
     url_base_app = "https://streamlit.io"
     query_params = st.query_params
     if "view" not in query_params:
@@ -323,11 +322,11 @@ if not st.session_state.diagnostico_generado:
                 qr = segno.make_qr(url_con_parametro)
                 buffer_qr = io.BytesIO()
                 qr.save(buffer_qr, kind='png', scale=5)
-                # CORRECCIÓN DE DEPRECACIÓN: Cambiamos use_container_width=True por width='stretch'
+                # Optimizado bajo los nuevos lineamientos requeridos por la consola del servidor
                 st.image(buffer_qr.getvalue(), width='stretch')
             except Exception: pass
         with col_txt:
-            st.markdown("*¡Al escanearlo, este recuadro desaparecerá de tu pantalla móvil para darte máxima comodidad!*")
+            st.markdown("*¡Al escanearlo, este recuadro desaparecerá de tu pantalla móvil para darte máxima comodidad al responder!*")
         st.markdown("---")
 
     st.warning("""
@@ -336,18 +335,20 @@ if not st.session_state.diagnostico_generado:
     
     **No tengas miedo ni vergüenza de marcar un 1 o un 10.** Si hay un área donde la carne te domina por completo, marcar un **1** es el primer paso de humildad hacia la restauración. De igual manera, si el Espíritu Santo te ha dado la victoria absoluta y constante en un fruto, pon un **10** reconociendo Su poder en ti con gratitud. Responde con absoluta sinceridad delante de Dios.
     """)
-
+    # --- SEGMENTO 6: FORMULARIO INTERACTIVO (ESCALA LIMPIA DEL 1 AL 10 INICIANDO EN NIVEL 1) ---
     st.header("📋 Autoevaluación")
     st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
     with st.form("diagnostico_form"):
         puntajes_temporales = {}
+        # Opciones limpias para homologar con la regla visual inferior
         escala_limpia = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         
         for i, (fruto, info) in enumerate(frutos_info.items(), 1):
             with st.expander(f"✨ {i}. {fruto} ({info['cita']})"):
                 st.markdown(f"**De:** *{info['izq']}* \n\n **Hacia:** *{info['der']}*")
                 
+                # Se inicializa el valor por defecto rígidamente en la primera opción ("1")
                 sel = st.select_slider(
                     f"Selecciona tu nivel para {fruto}:", 
                     options=escala_limpia, 
@@ -355,8 +356,11 @@ if not st.session_state.diagnostico_generado:
                     key=f"esfera_{fruto}",
                     label_visibility="collapsed"
                 )
+                
+                # Conversión segura y unívoca para evitar colapsos tipográficos
                 puntajes_temporales[fruto] = int(sel)
                 
+                # Regla de escala estática inyectada debajo del slider
                 st.markdown("""
                 <div class="escala-numerica-fija">
                     <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
@@ -365,23 +369,24 @@ if not st.session_state.diagnostico_generado:
                 """, unsafe_allow_html=True)
                 
         st.markdown("---")
-        if st.form_submit_button("Generar Diagnóstico"):
-            st.session_state.update({
-                "respuestas_usuario": puntajes_temporales,
-                "nombre_final": nombre_usuario.strip() or "Invitado",
-                "diagnostico_generado": True
-            })
+        # El botón procesa y dispara el refresco de pantalla limpio para transicionar de inmediato
+        enviar = st.form_submit_button("Generar Diagnóstico en Rúbrica")
+        
+        if enviar:
+            st.session_state.respuestas_usuario = puntajes_temporales
+            st.session_state.nombre_final = nombre_usuario.strip() if nombre_usuario.strip() != "" else "Invitado"
+            st.session_state.diagnostico_generado = True
             st.rerun()
-
-
-
-# --- PARTE 6: EXTRACCIÓN Y PANTALLA EXCLUSIVA DE RESULTADOS ---
+# --- SEGMENTO 7: PANTALLA EXCLUSIVA DE RESULTADOS Y CONSTRUCCIÓN DE GRÁFICA ---
 else:
+    # Candado de seguridad: Evita el dibujo redundante o duplicaciones lineales de hilos
+    if not st.session_state.get("diagnostico_generado", False):
+        st.stop()
+        
     nombre_final = st.session_state.nombre_final
     puntajes = st.session_state.respuestas_usuario
 
-    # --- ANCLAJE DE FOCO VISUAL AUTOMÁTICO AL INICIO DE LA PANTALLA ---
-    # Fuerza al navegador del celular a subir instantáneamente al título principal
+    # AJUSTE OPTIMIZADO: Fuerza al navegador móvil a subir instantáneamente al inicio del título
     st.markdown("<div id='inicio-resultados'></div>", unsafe_allow_html=True)
     st.markdown("""
         <script>
@@ -392,22 +397,21 @@ else:
         </script>
     """, unsafe_allow_html=True)
 
-    # Título principal desde donde iniciará la lectura de forma obligatoria
     st.title("📊 Tu Diagnóstico Espiritual")
     st.header(f"Resultados preparados para: {nombre_final}")
     
-    # --- CONSTRUCCIÓN DE LA GRÁFICA DE BARRAS VERTICALES ANCHAS ---
     st.subheader("📈 Gráfica de Crecimiento Espiritual")
-
     frutos_labels = list(puntajes.keys())
     valores_barras = list(puntajes.values())
     
+    # Paleta de colores vivos y de alto contraste semaforizado para el plano de barras
     colores_barras = []
     for v in valores_barras:
-        if v >= 8: colores_barras.append('#2E7D32')     # Verde Esmeralda
-        elif v >= 5: colores_barras.append('#FBC02D')   # Amarillo Oro
-        else: colores_barras.append('#D32F2F')         # Rojo Carmesí
+        if v >= 8: colores_barras.append('#2E7D32')     # Verde Esmeralda Vivo
+        elif v >= 5: colores_barras.append('#FBC02D')   # Amarillo Oro Intenso
+        else: colores_barras.append('#D32F2F')         # Rojo Carmesí Alerta
         
+    # Dimensiones geométricas de ancho extendido (10 pulgadas) para acoplarse simétricamente
     fig, ax = plt.subplots(figsize=(10, 4.5))
     barras = ax.bar(frutos_labels, valores_barras, color=colores_barras, edgecolor='none', width=0.7)
     
@@ -415,8 +419,11 @@ else:
     ax.set_yticks(range(1, 11))
     ax.set_ylabel("Nivel de Intensidad", fontsize=10, weight='bold', color='#222222')
     ax.grid(axis='y', linestyle='--', alpha=0.6, color='#e0e0e0')
+    
+    # Remoción de márgenes laterales blancos internos en el gráfico de Matplotlib
     ax.set_xmargin(0.02)
     
+    # Colocar los números de los puntajes con fuente negrita arriba de cada barra
     for barra in barras:
         alto = barra.get_height()
         ax.annotate(f'{alto}', xy=(barra.get_x() + barra.get_width() / 2, alto),
@@ -427,12 +434,14 @@ else:
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_color('#cccccc')
     ax.spines['bottom'].set_color('#cccccc')
+    
     plt.xticks(rotation=0, ha='center', fontsize=9, weight='bold', color='#333333')
     plt.tight_layout()
     
+    # Desplegar la gráfica simétrica en Streamlit
     st.pyplot(fig)
     
-    # Encodificar la imagen en base64 para inyectarla de forma nativa al PDF
+    # Guardar en la memoria volátil en base64 de alta resolución para el PDF
     buf_img = io.BytesIO()
     plt.savefig(buf_img, format='png', dpi=200, bbox_inches='tight')
     buf_img.seek(0)
@@ -440,7 +449,7 @@ else:
     plt.close(fig)
     
     st.markdown("---")
-    # --- PARTE 7: ANÁLISIS DE RÚBRICA Y ENSAMBLAJE DE ARCHIVO PDF/HTML ---
+    # --- SEGMENTO 8A: ANÁLISIS DE RÚBRICA Y MAQUETACIÓN INICIAL DEL REPORTE ---
     st.subheader("🔍 Análisis Detallado de Madurez")
     
     filas_rubrica_pdf = ""
@@ -456,6 +465,7 @@ else:
         info_rubrica = rubrica_detallada[fruto][rango]
         cons_global = consecuencias_texto[rango]
         
+        # Despliegue único y semaforizado en la interfaz web de Streamlit
         if score >= 8:
             st.success(f"🟢 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
         elif score >= 5:
@@ -463,140 +473,7 @@ else:
         else:
             st.error(f"🚨 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
             
-        filas_rubrica_pdf += f"""
-        <tr>
-            <td style='font-weight:bold; color:#2E7D32; font-size:22px; padding:12px;'>{fruto}</td>
-            <td style='text-align:center; font-weight:bold; font-size:22px; background-color:#f4fbf7; padding:12px;'>{score}/10</td>
-            <td style='font-size:20px; padding:12px; font-weight:bold;'>{info_rubrica['estado']}</td>
-            <td style='font-size:20px; padding:12px; text-align:justify;'>{info_rubrica['criterio']}</td>
-        </tr>
-        """
-        lista_consecuencias_pdf += f"<li style='font-size:20px; margin-bottom:12px; text-align:justify;'><b>{fruto} ({score}/10):</b> {cons_global['corto']} {cons_global['mediano']}</li>"
-
-    st.header("💡 Recomendaciones Generales para el Crecimiento")
-    st.markdown("1. **Oración de Rendición:** Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria.\n2. **Pasos Prácticos de Fe:** Selecciona una sola área crítica esta semana y ejecuta acciones intencionales.\n3. **Caminar en Comunidad:** Busca círculos de edificación dentro de la iglesia.")
-    
-    st.info(f"### 🤝 Una Invitación Especial a Caminar Juntos\nQuerido(a) **{nombre_final}**, te extendemos una invitación sincera para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.")
-
-    # Maquetación del PDF con formato de fuentes al doble y gráfica compacta al 50%
-    html_reporte = f"""
-    <html>
-    <head>
-        <meta charset='utf-8'>
-        <style>
-            body {{ font-family: Arial, sans-serif; padding: 30px; color: #333; line-height: 1.5; }}
-            .header {{ text-align: center; border-bottom: 4px solid #2e7d32; padding-bottom: 15px; }}
-            .header h1 {{ color: #2e7d32; margin: 0; font-size: 44px; }}
-            .header p {{ font-size: 24px; margin: 5px 0 0 0; color: #666; }}
-            .user-info {{ text-align: right; font-style: italic; margin-top: 15px; color: #555; font-size: 22px; }}
-            .grafica-box {{ text-align: center; margin: 25px auto; width: 50%; }}
-            .grafica-box img {{ width: 100%; max-width: 100%; height: auto; display: block; }}
-            table {{ width: 100%; border-collapse: collapse; margin-top: 25px; table-layout: fixed; }}
-            th, td {{ border: 2px solid #cccccc; padding: 14px; vertical-align: top; word-wrap: break-word; }}
-            th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 22px; font-weight: bold; }}
-            .seccion-titulo {{ color: #2e7d32; font-size: 30px; font-weight: bold; margin-top: 45px; border-bottom: 3px solid #2e7d32; padding-bottom: 6px; }}
-            .lista-estilo {{ padding-left: 25px; margin-top: 15px; }}
-            .lista-estilo li {{ font-size: 20px; margin-bottom: 14px; line-height: 1.6; text-align: justify; }}
-            .pastoral-box {{ background-color: #e8f5e9; padding: 25px; margin-top: 40px; border-left: 8px solid #2e7d32; border-radius: 6px; }}
-            .pastoral-box p {{ font-size: 20px; margin: 0; line-height: 1.6; }}
-            .apa-sangria-francesa {{ padding-left: 35px; text-indent: -35px; font-size: 18px; line-height: 1.6; margin-bottom: 15px; text-align: justify; }}
-            .footer-creditos {{ text-align: center; margin-top: 60px; font-size: 16px; color: #777777; border-top: 2px solid #eeeeee; padding-top: 15px; font-style: italic; }}
-        </style>
-    </head>
-    <body>
-        <div class='header'>
-            <h1>🌱 Reporte de Diagnóstico Espiritual</h1>
-            <p>Los 9 Frutos del Espíritu (Gálatas 5:22-23)</p>
-        </div>
-        <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
-        
-        <div class='grafica-box'>
-            <img src='data:image/png;base64,{img_base64}'/>
-        </div>
-
-        <div class='seccion-titulo'>🔍 1. Rúbrica de Diagnóstico Personalizado del Carácter</div>
-        <table>
-            <thead>
-                <tr>
-                    <th style='width: 20%;'>Fruto</th>
-                    <th style='width: 13%;'>Puntaje</th>
-                    <th style='width: 27%;'>Clasificación Teórica</th>
-                    <th style='width: 40%;'>Criterio de Evaluación Real (Biblia / EGW)</th>
-                </tr>
-            </thead>
-            <tbody>{filas_rubrica_pdf}</tbody>
-        </table>
-        
-        <div class='seccion-titulo'>⚠️ 2. Posibles Consecuencias en el Carácter</div>
-        <ul class='lista-estilo'>{lista_consecuencias_pdf}</ul>
-        
-        <div class='seccion-titulo'>💡 3. Recomendaciones Generales para el Crecimiento</div>
-        <ol class='lista-estilo'>
-            <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
-            <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
-            <li><strong>Caminar en Comunidad:</strong> Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura y transparente.</li>
-        </ol>
-
-        <div class='pastoral-box'>
-            <p>Estimado(a) <strong>{nombre_final}</strong>, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
-        </div>
-
-        <!-- LISTA FORMAL DE REFERENCIAS EN FORMATO EXCLUSIVO APA 7 -->
-        <div class='seccion-titulo'>📚 Referencias</div>
-        <div style='margin-top: 15px;'>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1900). <i>La educación</i>. Asociación Casa Editora Sudamericana.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1911). <i>El conflicto de los siglos</i>. Publicaciones Interamericanas.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1930). <i>Mensajes para los jóvenes</i>. Asociación Casa Editora Sudamericana.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1934). <i>Consejos sobre el régimen alimenticio</i>. Publicaciones Interamericanas.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1943). <i>Testimonios para la iglesia</i> (Vol. 6). Pacific Press Publishing Association.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1944). <i>Palabras de vida del gran maestro</i>. Pacific Press Publishing Association.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1947). <i>El ministerio de curación</i>. Publicaciones Interamericanas.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1951). <i>Testimonios para la iglesia</i> (Vol. 4). Pacific Press Publishing Association.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1952). <i>Testimonios para la iglesia</i> (Vol. 5). Pacific Press Publishing Association.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1953). <i>Joyas de los testimonios</i> (Vols. 1-3). Asociación Casa Editora Sudamericana.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1954). <i>El discurso maestro de Jesucristo</i>. Pacific Press Publishing Association.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1955). <i>El deseado de todas las gentes</i>. Publicaciones Interamericanas.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1958). <i>Mensajes selectos</i> (Vol. 1). Asociación Casa Editora Sudamericana.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1959). <i>Mente, carácter y personalidad</i> (Vols. 1-2). Inter-American Division Publishing Association.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1962). <i>Hijos e hijas de Dios</i>. Asociación Casa Editora Sudamericana.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1980a). <i>La temperancia</i>. Pacific Press Publishing Association.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (1980b). <i>El ministerio de la bondad</i>. Asociación Casa Editora Sudamericana.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (2007). <i>El camino a Cristo</i>. Publicaciones Interamericanas.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (2009). <i>Consejos para la iglesia</i>. Pacific Press Publishing Association.</div>
-            <div class='apa-sangria-francesa'>White, E. G. d. (2012). <i>Reflejemos a Jesús</i>. Asociación Casa Editora Sudamericana.</div>
-            </div> Este diagnóstico espiritual fue creado y desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados."""
-    st.markdown("### 📥 Descarga tu Reporte Oficial")
-    st.download_button("Descargar Reporte Completo (PDF / HTML)", data=html_reporte, file_name=f"diagnostico_{nombre_final.lower()}.html", mime="text/html")
-    st.markdown("---")
-    st.caption("🎨 Diseño y Creación: Diagnóstico Espiritual desarrollado por Jacob Zumaya Prianti.")
-    st.markdown("---")
-    if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
-        st.session_state.mostrar_felicitacion = True
-        st.rerun()
-     # --- SEGMENTO 7A: ANÁLISIS DE RÚBRICA Y MAQUETACIÓN DE TABLAS DEL PDF ---
-    st.subheader("🔍 Análisis Detallado de Madurez")
-    
-    filas_rubrica_pdf = ""
-    lista_consecuencias_pdf = ""
-    
-    for fruto, score in puntajes.items():
-        if score == 10: rango = "10"
-        elif score >= 8: rango = "8-9"
-        elif score >= 6: rango = "6-7"
-        elif score >= 4: rango = "4-5"
-        else: rango = "1-3"
-            
-        info_rubrica = rubrica_detallada[fruto][rango]
-        cons_global = consecuencias_texto[rango]
-        
-        if score >= 8:
-            st.success(f"🟢 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
-        elif score >= 5:
-            st.warning(f"⚠️ **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
-        else:
-            st.error(f"🚨 **{fruto}:** {score}/10 — {info_rubrica['estado']}.\n\n*Criterio Específico:* {info_rubrica['criterio']}")
-            
-        # Construcción segura de filas mediante concatenación estándar de texto plano
+        # Construcción de filas mediante concatenación estándar de texto plano (Inmune a fallas de f-strings)
         filas_rubrica_pdf += "<tr>"
         filas_rubrica_pdf += "<td style='font-weight:bold; color:#2E7D32; font-size:22px; padding:14px;'>" + str(fruto) + "</td>"
         filas_rubrica_pdf += "<td style='text-align:center; font-weight:bold; font-size:22px; background-color:#f4fbf7; padding:14px;'>" + str(score) + "/10</td>"
@@ -609,11 +486,11 @@ else:
     st.header("💡 Recomendaciones Generales para el Crecimiento")
     st.markdown("1. **Oración de Rendición:** Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.")
     st.markdown("2. **Pasos Prácticos de Fe:** Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas.")
-    st.markdown("3. **Caminar en Comunidad:** Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón.")
+    st.markdown("3. **Caminar en Comunidad:** Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura.")
     
     st.info(f"### 🤝 Una Invitación Especial a Caminar Juntos\nQuerido(a) **{nombre_final}**, te extendemos una invitación sincera para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.")
 
-    # Ensamblaje modular del documento HTML con textos planos concatenados (Inmune a fallas de f-strings)
+    # Ensamblaje modular del documento HTML con textos planos concatenados para el PDF
     html_inicial = """
     <html>
     <head>
@@ -663,14 +540,14 @@ else:
             </tbody>
         </table>
     """
-            # --- SEGMENTO 7B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA (BLINDADO Y SIN ERRORES) ---
+    # --- SEGMENTO 8B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA (BLINDADO Y SIN ERRORES) ---
     html_bloque_final = """
-    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+        <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
     """ + lista_consecuencias_pdf + """
         </ul>
         
-    <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
+        <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
@@ -727,8 +604,6 @@ else:
     st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
     
     st.markdown("---")
-    # CORRECCIÓN: Inyectamos el parámetro 'key' único para resolver la duplicidad en el botón de avanzar
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso", key="btn_avanzar_felicitacion"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
-
