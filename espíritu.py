@@ -311,7 +311,7 @@ if not st.session_state.diagnostico_generado:
     st.markdown("---")
 
     # CONTROL DEL QR INTELIGENTE QUE SE OCULTA AL INSTANTE EN DISPOSITIVOS MÓVILES
-    url_base_app = "https://streamlit.io"
+    url_base_app = "https://diagnosticofrutosdelespiritu.streamlit.app"
     query_params = st.query_params
     if "view" not in query_params:
         st.markdown("### 📱 Escanea y Responde en tu Móvil")
