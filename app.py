@@ -1,286 +1,226 @@
 # =================================================================
-# ENTORNO BILINGÜE INMUNE: CENTRO DE MANDO ESTÁTICO (ESPAÑOL / INGLÉS)
+# PARTE 1: PROTOCOLOS DE IMPORTACIÓN Y CONFIGURACIÓN DE NÚCLEO GLOBAL
 # =================================================================
 import streamlit as st
 import pandas as pd
 import numpy as np
-import datetime
+import base64
 import time
 import hashlib
-import base64
-import gspread
-import qrcode 
-import html
 import urllib.parse
-import matplotlib.pyplot as plt
 from io import BytesIO
 from fpdf import FPDF
+import qrcode
+import gspread
+from google.oauth2.service_account import Credentials
 
-# Configuración estructural de la página web en producción
-st.set_page_config(
-    page_title="Informe Psicometrico - Modelos Temporales y Salud Integral",
-    page_icon="🍊",
-    layout="wide"
-)
+# 🍊 CONFIGURACIÓN DE PÁGINA INMUNE A DESBORDAMIENTO EN NUBE
+st.set_page_config(page_title="C&K Evaluation Core", page_icon="🍊", layout="wide")
 
-# Inyección de estilos CSS síncronos formato APA
-st.markdown(
-    """<style>
-    .st_radio label, div[data-testid="stMarkdownContainer"] p, .stCheckbox label { white-space: normal !important; word-break: break-word !important; overflow-wrap: break-word !important; }
-    div[row-data-id="stRadioHorizontal"] { flex-wrap: wrap !important; gap: 12px !important; }
-    div[data-testid="stDataFrame"] table { border-top: 2px solid #333 !important; border-bottom: 2px solid #333 !important; }
-    div[data-testid="stDataFrame"] th { border-bottom: 1px solid #333 !important; background-color: #fff !important; font-weight: bold !important; }
-    </style>""", 
-    unsafe_allow_html=True
-)
-
-# =================================================================
-# PARTE 2A: CONSTANTES GLOBALES Y CONFIGURACIÓN GENERATIVA BILINGÜE
-# =================================================================
-NOMBRE_HOJA_CALCULO = "Base_Datos_Modelo_Mandarina"
-URL_PRODUCCION = "https://dsimandarina.streamlit.app"
-ESTADOS_MEXICO = ["Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", "Chihuahua", "Coahuila", "Colima", "Ciudad de México", "Durango", "Guanajuato", "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"]
-
+# Parámetros logísticos fijos estáticos de producción
+URL_PRODUCCION = "https://streamlit.app"
 DIMENSIONES_MANDARINA_MAESTRAS = [
     "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", 
     "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"
 ]
 
-@st.cache_data(show_spinner=False)
-def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
-    """
-    Algoritmo Ontológico Generativo Bilingüe Estático. Produce una matriz de 4 vulnerabilidades
-    contextualizadas sin requerir llamadas externas de red (Inmune a Rate-Limits).
-    """
-    audiencia_limpia = str(nombre_audiencia).strip().lower()
-    es_generico = audiencia_limpia in ["", "salud integral", "🍊 salud integral", "general"]
-    
-    # Semillas semánticas estáticas en Español
-    semillas_es = {
-        "física": ["Fatiga Ocupacional por Desgaste", "Trastornos del Ciclo del Sueño", "Sedentarismo Musculoesquelético", "Descuido en Nutrición Homeostática"],
-        "mental": ["Saturación y Bloqueo Cognitivo", "Rumiación Mental Prolongada", "Sobrecarga de Datos Críticos", "Apatía y Disminución del Foco"],
-        "emocional": ["Síndrome de Burnout Latente", "Irritabilidad Reactiva Excesiva", "Desmotivación Vocacional", "Inestabilidad Anímica y Ansiedad Aguda"],
-        "social": ["Aislamiento Relacional Preventivo", "Conflictos de Interacción", "Falta de Red de Contención", "Ausencia de Límites Asertivos"],
-        "económica": ["Estrés Presupuestal Agudo", "Desorden Financiero o Deudas", "Falta de Fondo de Emergencia", "Ausencia de Diversificación de Ingresos"],
-        "temporal": ["Procrastinación por Sobrecarga", "Invasión Horaria Laboral", "Ausencia de Margen de Descanso", "Desequilibrio Muestral Cronos/Kairós"],
-        "espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
-    }
-
-    # Semillas semánticas estáticas en Inglés
-    semillas_en = {
-        "física": ["Occupational Fatigue from Wear", "Sleep Cycle Disorders", "Musculoskeletal Sedentary State", "Neglect in Homeostatic Nutrition"],
-        "mental": ["Cognitive Saturation and Blockage", "Prolonged Mental Rumination", "Critical Data Overload", "Apathy and Decreased Focus"],
-        "emocional": ["Latent Burnout Syndrome", "Excessive Reactive Irritability", "Vocational Demotivation", "Instability and Acute Anxiety"],
-        "social": ["Preventive Relational Isolation", "Interaction Conflicts", "Lack of Containment Network", "Absence of Assertive Boundaries"],
-        "económica": ["Acute Budgetary Stress", "Financial Disorder or Debts", "Lack of Emergency Fund", "Absence of Income Diversification"],
-        "temporal": ["Procrastination due to Overload", "Work Hours Invasion", "Absence of Rest Margin", "Imbalance Metric Chronos/Kairos"],
-        "espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
-    }
-    
-    matriz_salida = {}
-    claves_limpias = ["física", "mental", "emocional", "social", "económica", "temporal", "espiritual"]
-    emojis = ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]
-    
-    banco = semillas_es if lang_code == "es" else semillas_en
-    suffix = "en Contexto" if lang_code == "es" else "in Context of"
-    
-    for i, dim_es in enumerate(DIMENSIONES_MANDARINA_MAESTRAS):
-        clave = claves_limpias[i]
-        items_base = banco[clave]
-        
-        dim_limpia = dim_es[2:].strip()
-        dim_traducida = dim_limpia if lang_code == "es" else ["Physical Health", "Mental Health", "Emotional Health", "Social Health", "Economic Health", "Temporal Health", "Spiritual Health"][i]
-        cabecera_final = f"{emojis[i]} {dim_traducida}"
-        
-        if es_generico:
-            matriz_salida[cabecera_final] = items_base
-        else:
-            matriz_salida[cabecera_final] = [
-                f"{items_base} {suffix} {nombre_audiencia}",
-                f"{items_base} {suffix} {nombre_audiencia}",
-                f"{items_base} {suffix} {nombre_audiencia}",
-                f"{items_base} {suffix} {nombre_audiencia}"
-            ]
-            
-    return matriz_salida
-
+ESTADOS_MEXICO = [
+    "Aguascalientes", "Baja California", "Baja California Sur", "Campeche", "Chiapas", 
+    "Chihuahua", "Ciudad de México", "Coahuila", "Colima", "Durango", "Guanajuato", 
+    "Guerrero", "Hidalgo", "Jalisco", "México", "Michoacán", "Morelos", "Nayarit", 
+    "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", 
+    "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
+]
 # =================================================================
-# PARTE 2B: DICCIONARIO DE DICTAMEN E INTERPRETACIÓN BILINGÜE
-# =================================================================
-# =================================================================
-# VERIFICACIÓN DE LLAVES DENTRO DE TU FRACCIÓN 1 (AL INICIO DEL ARCHIVO)
+# PARTE 2: LÉXICO BILINGÜE METODOLÓGICO Y CENTRO DE MANDO
 # =================================================================
 CENTRO_MANDO_BILINGUE = {
     "es": {
-        "intl_title": "🌐 Internationalization Gateway / Control Políglota",
-        "intl_select": "Selecciona tu Idioma Objetivo / Select Language:",
-        "intl_btn": "🔄 APLICAR IDIOMA SELECCIONADO / APPLY LANGUAGE",
-        "nombre": "Nombre Completo / Participant Name:",
-        "wha": "WhatsApp o Celular (Con lada, ej. +52):",
-        "err_fields": "🚨 Por favor, rellena todos los campos obligatorios.",
-        "fields_msg": "💡 Introduce Nombre y WhatsApp para habilitar la descarga.",
-        
-        # 🍊 VALIDACIÓN DOCTORAL: Asegúrate de que estas dos líneas existan aquí
-        "btn_save": "💾 Guardar Diagnóstico y Procesar",
-        "btn_pdf": "DESCARGAR EN PDF 📥",
-        
-        "thanks": "¡Diagnóstico Completado con Éxito! 🎉",
-        "thanks_sub": "Hemos compilado tu reporte individual multilingüe. Descárgalo abajo.",
-        "toast_msg": "Descarga del reporte disponible en el panel inferior.",
-        # ... resto de tus llaves en español ...
+        "nombre": "Escribe tu nombre completo / Full Name:",
+        "wha": "Escribe tu WhatsApp internacional (con +):",
+        "edad": "1. Escribe tu edad biológica:",
+        "genero": "2. Selecciona tu género identitario:",
+        "nac": "3. Selecciona tu marco de nacionalidad:",
+        "side_title": "🔐 Panel del Ponente",
+        "side_add": "Añadir Audiencia",
+        "side_close": "Cerrar Panel",
+        "intl_title": "🌐 Idioma del Sistema / Language",
+        "intl_select": "Selecciona el idioma operativo:",
+        "intl_btn": "Aplicar Idioma",
+        "qr_title": "📢 Código de Acceso QR para la Audiencia",
+        "qr_sub1": "Escanea para responder en tiempo real",
+        "mand_title": "### 🍊 Evaluación Diagnóstica de Salud Integral",
+        "likert_1": "1 - Totalmente en Desacuerdo",
+        "likert_2": "2 - En Desacuerdo",
+        "likert_3": "3 - Neutral / No sé",
+        "likert_4": "4 - De Acuerdo",
+        "likert_5": "5 - Totalmente de Acuerdo",
+        "btn_save": "💾 Registrar y Finalizar Instrumento",
+        "btn_pdf": "📥 Descargar Dictamen en PDF",
+        "err_fields": "Por favor completa Nombre y WhatsApp obligatoriamente.",
+        "fields_msg": "La descarga se habilitará al ingresar tu perfil de identificación superior.",
+        "thanks": "¡Evaluación Procesada Exitosamente!",
+        "thanks_sub": "Tus vectores métricos han sido calculados de forma síncrona.",
+        "toast_msg": "Documentación doctoral lista para descarga.",
+        "lbl_titulo_aud": "🔬 Oficina Analítica",
+        "lbl_tabla_select": "Filtro de Audiencia:",
+        "lbl_crm_buscar": "Motor de Búsqueda CRM",
+        "lbl_crm_input": "Filtro dinámico de coincidencia:",
+        "lbl_btn_auditoria": "📊 Correr Auditoría Doctora (APA)",
+        "lbl_btn_download_macro": "📥 Descargar Reporte Epistemológico"
     },
     "en": {
-        "intl_title": "🌐 Internationalization Gateway / Polyglot Control",
-        "intl_select": "Select tu Idioma Objetivo / Select Language:",
-        "intl_btn": "🔄 APLICAR IDIOMA SELECCIONADO / APPLY LANGUAGE",
-        "nombre": "Full Name / Nombre Completo:",
-        "wha": "WhatsApp or Cellphone (With country code, e.g. +1):",
-        "err_fields": "🚨 Please, fill in all required fields.",
-        "fields_msg": "💡 Enter Name and WhatsApp to enable the download resource.",
-        
-        # 🍊 VALIDACIÓN DOCTORAL: Asegúrate de que estas dos líneas existan aquí en inglés
-        "btn_save": "💾 Save Diagnosis and Process Data",
-        "btn_pdf": "DOWNLOAD PDF REPORT 📥",
-        
-        "thanks": "Diagnosis Successfully Completed! 🎉",
-        "thanks_sub": "We have compiled your individual multilingual report. Download it below.",
-        "toast_msg": "Report download is now available in the bottom panel.",
-        # ... resto de tus llaves en inglés ...
+        "nombre": "Enter your full name / Nombre completo:",
+        "wha": "Enter international WhatsApp (with +):",
+        "edad": "1. Enter your biological age:",
+        "genero": "2. Select your gender identity:",
+        "nac": "3. Select your nationality framework:",
+        "side_title": "🔐 Speaker Dashboard",
+        "side_add": "Add New Audience",
+        "side_close": "Close Dashboard",
+        "intl_title": "🌐 System Language / Idioma",
+        "intl_select": "Select operative language:",
+        "intl_btn": "Apply Language",
+        "qr_title": "📢 Audience QR Access Code",
+        "qr_sub1": "Scan to respond in real-time",
+        "mand_title": "### 🍊 Comprehensive Health Diagnostic Evaluation",
+        "likert_1": "1 - Strongly Disagree",
+        "likert_2": "2 - Disagree",
+        "likert_3": "3 - Neutral / Don't know",
+        "likert_4": "4 - Agree",
+        "likert_5": "5 - Strongly Agree",
+        "btn_save": "💾 Register & Finalize Instrument",
+        "btn_pdf": "📥 Download PDF Diagnosis",
+        "err_fields": "Name and WhatsApp fields are strictly mandatory.",
+        "fields_msg": "Download will unlock once identification profile is entered above.",
+        "thanks": "Evaluation Processed Successfully!",
+        "thanks_sub": "Your metric vectors have been calculated synchronously.",
+        "toast_msg": "Doctoral documentation ready for download.",
+        "lbl_titulo_aud": "🔬 Analytical Bureau",
+        "lbl_tabla_select": "Audience Filter:",
+        "lbl_crm_buscar": "CRM Search Engine",
+        "lbl_crm_input": "Dynamic match filter:",
+        "lbl_btn_auditoria": "📊 Run Doctoral Audit (APA)",
+        "lbl_btn_download_macro": "📥 Download Epistemological Report"
     }
 }
-
-
+# =================================================================
+# PARTE 3: GLOSARIOS DE DICTAMEN EPISTEMOLÓGICO Y CITAS DOCTORALES
+# =================================================================
 TEXTOS_DICTAMEN_BILINGUE = {
     "es": {
-        "ctrl_f0": "Vectores de Atencion Critica Detectados",
-        "ctrl_f1": "Dimension Evaluada",
-        "ctrl_f2": "Indicadores de vulnerabilidad reportados",
-        "ctrl_f3": "Significado del constructo",
-        "ctrl_f4": "Directriz de intervencion sugerida",
-        "ctrl_f5": "Canalizacion y Seguimiento de Caso",
-        "ctrl_f6": "Nota Clinica. El ecosistema analizado se encuentra en un estado funcional optimo. No se registraron indicadores de riesgo.",
-        "lbl_interpretacion": "Interpretación de Constructo y Perfil Dominante",
-        "lbl_sugerencias_ck": "Recomendaciones de Acompañamiento Metodológico",
-        "txt_ck_recom": "Optimizar la simbiosis entre el tiempo métrico (Cronos) y el tempo de oportunidad (Kairós) es vital para reducir la fatiga cognitiva. Se sugiere acudir con el ponente para una asesoría estratégica.",
-        "txt_p_simbiosis": "Simbiosis Temporal Equilibrada (C&K): Balanceas la precisión cronométrica con la agilidad adaptativa de ventanas de oportunidad. Sugerencia: Mantén bloques fijos para tareas repetitivas y reserva un margen diario para imprevistos.",
-        "txt_p_kairos": "Perfil Temporal Kairótico Puro (Adaptativo): Destacas capturando oportunidades en caliente, pero corres el riesgo de descuidar hitos administrativos organizacionales fijos. Sugerencia: Desarrolla anclajes operativos con alarmas digitales estrictas.",
-        "txt_p_cronos": "Perfil Temporal Cronocéntrico Puro (Rígido): Posees una rigidez estructural alta. Experimentas estrés cuando los checklists sufren alteraciones imprevistas. Sugerencia: Entrena la tolerancia a la incertidumbre.",
-        "msg_apoyo_frecuencias": "El auto-reporte es el primer paso en la detección de vulnerabilidades institucionales. Se extiende una invitación cordial para contactar directamente al ponente para coordinar una consulta privada.",
-        "lbl_ref1": "Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2019). Multivariate data analysis (8th ed.). Cengage Learning.",
-        "lbl_ref2": "Kline, R. B. (2023). Principles and practice of structural equation modeling (5th ed.). Guilford Press.",
-        "lbl_ref3": "Norris, J. R. (1998). Markov chains. Cambridge University Press.",
-        "💪 Salud Física": "Sugerencia Corporal: Fija descansos e hidratación. Planifica colaciones balanceadas y realiza activación física regular.",
-        "🧠 Salud Mental": "Sugerencia Cognitiva: Aplica pausas de silencio mental y desconexión digital de pantallas entre jornadas.",
-        "❤️ Salud Emocional": "Sugerencia Anímica: Implementa ejercicios de respiración diafragmática consciente y externaliza emociones.",
-        "👥 Salud Social": "Sugerencia Relacional: Aprende a decir 'no' asertivamente y agenda una actividad fija con tu núcleo cercano.",
-        "💰 Salud Económica": "Sugerencia Financiera: Automatiza la separación de un fondo de contingencia básico y suprime gastos hormiga.",
-        "⏳ Salud Temporal": "Sugerencia Temporal: Usa bloques de tiempo fijos y reserva intencionalmente un 20% de margen libre diario.",
-        "🙏 Salud Espiritual": "Sugerencia Existencial: Dedica minutos del día a la meditación, oración y alineación con tus valores esenciales."
+        "💪 Salud Física": "Optimizar el descanso homeostático y la ergonomía postural ante la fatiga cronocéntrica aguda.",
+        "🧠 Salud Mental": "Mitigar la infoxicación mediante bloques de ayuno digital y técnicas de descompresión cognitiva.",
+        "❤️ Salud Emocional": "Fortalecer la autorregulación emocional y canalizar el agotamiento laboral Burnout detectado.",
+        "👥 Salud Social": "Restablecer los canales relacionales directos y reconfigurar las redes de contención mutua.",
+        "💰 Salud Económica": "Diseñar una matriz estratégica de contingencia para mitigar pasivos y diversificar la liquidez.",
+        "⏳ Salud Temporal": "Reequilibrar las fronteras operativas del tiempo cronológico frente a la ventana de oportunidad.",
+        "🙏 Salud Espiritual": "Reconectar con los hábitos devocionales basales y el propósito esencial de vida del participante.",
+        "txt_p_simbiosis": "DIAGNÓSTICO: Perfil de Simbiosis Temporal Equilibrada. Logras cohabitar de forma orgánica entre la estructura del reloj (Cronos) y la captura ágil de oportunidades (Kairós).",
+        "txt_p_cronos": "DIAGNÓSTICO: Perfil de Dominancia Cronos Rígida. Presentas una dependencia extrema a las agendas y listas de verificación, perdiendo flexibilidad adaptativa.",
+        "txt_p_kairos": "DIAGNÓSTICO: Perfil de Dominancia Kairós Dispersa. Privilegias la improvisación y la oportunidad reactiva, descuidando el cumplimiento lineal de plazos.",
+        "txt_ck_recom": "Implementar franjas de transición horaria híbridas y blindar bloques innegociables de descanso.",
+        "lbl_ref1": "Hair, J. F., Black, W. C., & Anderson, R. E. (2019). Multivariate Data Analysis (8th ed.). Cengage Learning.",
+        "lbl_ref2": "Schumacker, R. E., & Lomax, R. G. (2016). A Beginner's Guide to Structural Equation Modeling. Routledge.",
+        "lbl_ref3": "Jacob, J. (2026). Epistemología del Tiempo Psicométrico: El Modelo Integrado Cronos y Kairós. Editorial Mandarina."
     },
     "en": {
-        "ctrl_f0": "Critical Attention Vectors Detected",
-        "ctrl_f1": "Evaluated Dimension",
-        "ctrl_f2": "Vulnerability indicators reported by user",
-        "ctrl_f3": "Construct meaning and implications",
-        "ctrl_f4": "Suggested strategic intervention guideline",
-        "ctrl_f5": "Case Channeling and Clinical Follow-up",
-        "ctrl_f6": "Clinical Note. The analyzed ecosystem is in an optimal functional state. No risk indicators were recorded.",
-        "lbl_interpretacion": "Construct Interpretation and Dominant Profile",
-        "lbl_sugerencias_ck": "Methodological Accompaniment Recommendations",
-        "txt_ck_recom": "Optimizing the symbiosis between metric time (Cronos) and opportunity time (Kairos) is vital to reduce cognitive fatigue. It is suggested to contact the speaker for strategic advice.",
-        "txt_p_simbiosis": "Balanced Temporal Symbiosis (C&K): You balance chronometric precision with the adaptive agility of windows of opportunity. Suggestion: Keep fixed blocks for repetitive tasks and reserve daily margin for contingencies.",
-        "txt_p_kairos": "Pure Kairotic Temporal Profile (Adaptive): You excel at capturing opportunities on the spot, but risk neglecting fixed organizational milestones. Suggestion: Develop operational anchors with strict digital alarms.",
-        "txt_p_cronos": "Pure Chronocentric Temporal Profile (Rigid): You possess high structural rigidity. You experience stress when checklists suffer unexpected changes. Suggestion: Train uncertainty tolerance.",
-        "msg_apoyo_frecuencias": "Self-report is the first step in detecting institutional vulnerabilities. A cordial invitation is extended to contact the speaker directly to coordinate a private consultation.",
-        "lbl_ref1": "Hair, J. F., Black, W. C., Babin, B. J., & Anderson, R. E. (2019). Multivariate data analysis (8th ed.). Cengage Learning.",
-        "lbl_ref2": "Kline, R. B. (2023). Principles and practice of structural equation modeling (5th ed.). Guilford Press.",
-        "lbl_ref3": "Norris, J. R. (1998). Markov chains. Cambridge University Press.",
-        "💪 Salud Física": "Physical Suggestion: Fix rest and hydration anchors, plan high-density nutritional snacks, and perform regular metabolic activation.",
-        "🧠 Salud Mental": "Cognitive Suggestion: Restrict screen exposure through digital fasting windows and program absolute silence breaks between blocks.",
-        "❤️ Salud Emocional": "Emotional Suggestion: Externalize overload indicators with your trusted networks and implement conscious diaphragmatic breathing.",
-        "👥 Salud Social": "Social Suggestion: Train assertive establishment of operational boundaries and intentionally safeguard time for your close core.",
-        "💰 Salud Económica": "Financial Suggestion: Automate channeling a base percentage into a shielded emergency fund and suppress impulse spending.",
-        "⏳ Salud Temporal": "Temporal Suggestion: Synchronize your immovable blocks on the clock grid, intentionally reserving a 20% free margin daily.",
-        "🙏 Salud Espiritual": "Spiritual Suggestion: Dedicate the first minutes of your day to deep introspection, prayer, or meditation on your essential values."
+        "💪 Salud Física": "Optimize homeostatic rest and postural ergonomics against acute chronocentric fatigue.",
+        "🧠 Salud Mental": "Mitigate information overload through digital fasting blocks and cognitive decompression.",
+        "❤️ Salud Emocional": "Strengthen emotional self-regulation and channel the detected Burnout exhaustion syndrome.",
+        "👥 Salud Social": "Restore direct relational channels and reconfigure support networks for effective interaction.",
+        "💰 Salud Económica": "Design a strategic contingency matrix to mitigate liabilities and diversify income sources.",
+        "⏳ Salud Temporal": "Rebalance operational boundaries of chronological clock time versus adaptive opportunity.",
+        "🙏 Salud Espiritual": "Reconnect with basal devotional habits and the essential core life purpose of the participant.",
+        "txt_p_simbiosis": "DIAGNOSIS: Balanced Temporal Symbiosis Profile. You manage to cohabit organically between clock structure (Cronos) and agile opportunity capture (Kairos).",
+        "txt_p_cronos": "DIAGNOSIS: Rigid Cronos Dominance Profile. You exhibit an extreme dependence on calendars and checklists, losing adaptive flexibility.",
+        "txt_p_kairos": "DIAGNOSIS: Dispersed Kairos Dominance Profile. You privilege improvisation and reactive opportunity, neglecting linear deadline compliance.",
+        "txt_ck_recom": "Implement hybrid hourly transition blocks and shield non-negotiable recovery slots.",
+        "lbl_ref1": "Hair, J. F., Black, W. C., & Anderson, R. E. (2019). Multivariate Data Analysis (8th ed.). Cengage Learning.",
+        "lbl_ref2": "Schumacker, R. E., & Lomax, R. G. (2016). A Beginner's Guide to Structural Equation Modeling. Routledge.",
+        "lbl_ref3": "Jacob, J. (2026). Epistemology of Psychometric Time: The Cronos and Kairos Integrated Model. Mandarina Press."
     }
 }
-
-
 # =================================================================
-# PARTE 3: CONECTORES TRANSACCIONALES DE ALMACENAMIENTO DIRECTO
+# PARTE 4: ACCESO A REPOSITORIOS EN LA NUBE Y DICCIONARIOS CLÍNICOS
 # =================================================================
-
-def conectar_google_sheets(nombre_pestana):
-    """ Establece conexión segura con la API de Google Sheets empleando Service Account. """
-    if "gcp_service_account" not in st.secrets:
-        return None
+def conectar_google_sheets(nombre_tabla):
+    """
+    Establece conexión encriptada de alta seguridad con la API de Google Sheets
+    utilizando las credenciales secretas guardadas en la bóveda de la app.
+    """
     try:
-        sd = dict(st.secrets["gcp_service_account"])
-        if "private_key" in sd: 
-            sd["private_key"] = sd["private_key"].replace("\\n", "\n")
-        sheet = gspread.service_account_from_dict(sd).open(NOMBRE_HOJA_CALCULO)
-        try: 
-            return sheet.worksheet(nombre_pestana)
-        except gspread.exceptions.WorksheetNotFound:
-            h = ["Timestamp", "Nombre", "WhatsApp", "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual", "Token"] if nombre_pestana == "🍊 Salud Integral" else ["Timestamp", "Nombre", "WhatsApp", "Edad", "Género", "Nacionalidad", "Estado Origen", "Estado Residencia", "País Origen", "Continente Extranjero", "C1_Escuchado", "C2_Leído", "C3_Enseñado", "C4_Origen", "C5_Concepto"] + [f"R{i}" for i in range(1, 11)] + ["Token"]
-            ws = sheet.add_worksheet(title=nombre_pestana, rows="1000", cols="40")
-            ws.append_row(h)
-            return ws
-    except Exception: 
+        credenciales_dict = st.secrets["gcp_service_account"]
+        scope = ["https://googleapis.com", "https://googleapis.com"]
+        credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
+        cliente = gspread.authorize(credenciales)
+        # Sincroniza dinámicamente con la hoja de cálculo maestra unificada
+        libro = cliente.open_by_key("1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ")
+        return libro.worksheet(nombre_tabla)
+    except Exception:
         return None
 
-def guardar_en_google_sheets(pestana, nom, wha, res, token, es_likert):
-    """ Almacena la información normalizada forzando siempre los strings en español en la base de datos """
-    sheet = conectar_google_sheets(pestana)
-    if not sheet: 
+def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token_seguridad, es_likert=False):
+    """
+    Registra los datos transaccionales del participante de forma lineal en la nube.
+    """
+    hoja = conectar_google_sheets(tabla)
+    if hoja is None:
         return False
-    ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    if not es_likert:
-        # Requisito 3: El motor lee la matriz generada nativa en ESPAÑOL y la mapea por posición absoluta
-        matriz_nativa_es = motor_generativo_items_audiencia(pestana, lang_code="es")
-        fila = [ts, nom, wha]
-        for dim_clave in DIMENSIONES_MANDARINA_MAESTRAS:
-            indices_seleccionados = res.get(dim_clave, [])
-            sintomas_nativos_es = matriz_nativa_es.get(dim_clave, [])
-            sintomas_reportados_es = [sintomas_nativos_es[int(idx)] for idx in indices_seleccionados if int(idx) < len(sintomas_nativos_es)]
-            fila.append(", ".join(sintomas_reportados_es))
-        fila.append(str(token))
-    else:
-        gen_es = "Masculino" if "masc" in str(res.get("Género", "")).lower() else "Femenino" if "fem" in str(res.get("Género", "")).lower() else "Otro"
-        nac_es = "Mexicana" if "mex" in str(res.get("Nacionalidad", "")).lower() else "Extranjera"
-        c1_es = "Sí" if "s" in str(res.get("C1_Escuchado", "")).lower() else "No"
-        c2_es = "Sí" if "s" in str(res.get("C2_Leído", "")).lower() else "No"
-        c3_es = "Sí" if "s" in str(res.get("C3_Enseñado", "")).lower() else "No"
-        
-        fila = [
-            ts, nom, wha,
-            str(res.get("Edad", "")), gen_es, nac_es,
-            str(res.get("Estado Origen", "")), str(res.get("Estado Residencia", "")),
-            str(res.get("País Origen", "México")), str(res.get("Continente Extranjero", "América")),
-            c1_es, c2_es, c3_es,
-            "Se impone" if "imp" in str(res.get("C4_Origen", "")).lower() else "Se hereda" if "her" in str(res.get("C4_Origen", "")).lower() else "No sé",
-            "Teología" if "teol" in str(res.get("C5_Concepto", "")).lower() else "Cultura" if "cult" in str(res.get("C5_Concepto", "")).lower() else "No sé"
-        ]
-        for i in range(1, 11): 
-            fila.append(int(res.get(f"R{i}", 3)))
-        fila.append(str(token))
-        
-    try: 
-        sheet.append_row(fila)
+    try:
+        marca_tiempo = time.strftime("%Y-%m-%d %H:%M:%S")
+        if not es_likert:
+            # Serialización en string plano para el bloque clínico multivariado
+            fila = [marca_tiempo, nombre, whatsapp, str(resultados), token_seguridad]
+        else:
+            fila = [
+                marca_tiempo, nombre, whatsapp, 
+                resultados.get("Edad", ""), resultados.get("Género", ""), resultados.get("Nacionalidad", ""),
+                resultados.get("Estado Origen", ""), resultados.get("Estado Residencia", ""), resultados.get("País Origen", ""),
+                resultados.get("C1_Escuchado", ""), resultados.get("C2_Leído", ""), resultados.get("C3_Enseñado", ""),
+                resultados.get("C4_Origen", ""), resultados.get("C5_Concepto", ""), resultados.get("C6_Perfil_Auto", "")
+            ]
+            for i in range(1, 11):
+                fila.append(resultados.get(f"R{i}", ""))
+            fila.append(token_seguridad)
+        hoja.append_row(fila)
         return True
-    except Exception: 
+    except Exception:
         return False
 
+def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
+    """
+    Genera el diccionario de 4 síntomas reales asignados a cada gajo dimensional
+    para el formulario adaptativo de Salud Integral sin causar duplicidades.
+    """
+    if lang_code == "es":
+        return {
+            "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
+            "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
+            "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
+            "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
+            "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
+            "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
+            "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
+        }
+    else:
+        return {
+            "💪 Salud Física": ["Occupational fatigue", "Sleep cycle disorders", "Sedentary stiffness", "Nutritional neglect"],
+            "🧠 Salud Mental": ["Cognitive block", "Prolonged rumination", "Information overload", "Decreased analytical focus"],
+            "❤️ Salud Emocional": ["Emotional exhaustion", "Interpersonal irritability", "Acute vocational demotivation", "Intermittent anxiety"],
+            "👥 Salud Social": ["Relational isolation", "Frequent conflicts", "Lack of support networks", "Difficulty setting boundaries"],
+            "💰 Salud Económica": ["Acute budget stress", "Liabilities exceeding liquidity", "No contingency fund", "Single income dependence"],
+            "⏳ Salud Temporal": ["Reactive procrastination", "Work invasion of free time", "Suppressed rest margins", "Cronos/Kairos imbalance"],
+            "🙏 Salud Espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
+        }
 # =================================================================
-# PARTE 4-A: GENERADOR ONTO-PSICOMÉTRICO ADAPTATIVO EN PRIMERA PERSONA
+# PARTE 5: ALGORITMO GENERATIVO DE REACTIVOS C&K ADAPTATIVOS
 # =================================================================
 def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
     """
     Genera la batería de 10 reactivos C&K en primera persona, adaptando 
     el estilo semántico según edad, género y conocimiento previo del usuario,
-    sin exponer explícitamente el nombre de la audiencia en las oraciones.
-    Ítems impares = Cronos (Reloj/Listas) | Ítems pares = Kairós (Oportunidad).
+    sin exponer la audiencia de forma burda. Ítems impares = Cronos | Pares = Kairós.
     """
     edad = int(datos_participante.get("Edad", 30))
     ha_leido = "sí" in str(datos_participante.get("C2_Leído", "")).lower()
@@ -342,7 +282,7 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 7: "Prefiero concentrarme en un solo problema estructurado en lugar de diversificarme.",
                 8: "Dejo de lado mi itinerario si se presenta una oportunidad superior para avanzar.",
                 9: "Establezco límites claros para proteger mis tiempos de descanso y desconexión laboral.",
-                10: "Mantengo la calma y la claridad analítica cuando todo a mi alrededor cambia rápidamente."
+                10: "Mantengo la calma y la claridad analítica cuando todo a mi ancestral alrededor cambia rápidamente."
             }
     else:
         if estilo == "institucional":
@@ -396,11 +336,15 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 8: "I leave my itinerary aside if a superior opportunity to advance presents itself.",
                 9: "I establish clear boundaries to protect my resting time and digital fasting hours.",
                 10: "I maintain my analytical clarity when everything around me changes rapidly."
-                }
-            # =================================================================
-# PARTE 4-B: INICIALIZACIÓN PDF Y DIAGNÓSTICO CLÍNICO MULTIVARIADA
+            }
+# =================================================================
+# PARTE 6: CONSTRUCTOR REGLAMENTARIO DE REPORTES DOCTORALES EN PDF
 # =================================================================
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
+    """
+    Ensambla el documento PDF formal bajo rigurosos criterios editoriales.
+    Maneja el bloque multivariado de Salud Integral o el bloque cuantitativo C&K.
+    """
     pdf = FPDF()
     pdf.core_fonts_encoding = "cp1252"
     pdf.add_page()
@@ -425,7 +369,8 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         for idx, dim_traducida_emoji in enumerate(g_trad.keys()):
             if len(resultados.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], [])) > 0:
                 key_segura = str(dim_traducida_emoji).encode('cp1252', 'ignore').decode('cp1252')
-                for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]: key_segura = key_segura.replace(emj, "")
+                for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]: 
+                    key_segura = key_segura.replace(emj, "")
                 
                 pdf.set_font(font_family, "B", 11)
                 pdf.cell(190, 6, f"Dimension: {key_segura.strip()}", new_x="LMARGIN", new_y="NEXT")
@@ -452,8 +397,8 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     pdf.set_text_color(60, 60, 60)
                     
                     c_corto = "- Corto Plazo: Elevacion de fatiga cognitiva, saturacion horaria y perdida de ventanas de oportunidad."
-                    c_medio = "- Mediano Plazo: Sindrome de Burnout latente, desequilibrio en dinamicas familiares."
-                    c_largo = "- Largo Plazo: Cronificacion del estres, colapso de efectividad y perdida de ventanas oportunas."
+                    c_medio = "- Mediano Plazo: Sindrome de Burnout latente, desequilibrio en dinamicas familiares y friccion operacional."
+                    c_largo = "- Largo Plazo: Cronificacion del estres, colapso de efectividad y perdida del proposito estrategico vocacional."
                     pdf.multi_cell(190, 4, c_corto.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                     pdf.multi_cell(190, 4, c_medio.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                     pdf.multi_cell(190, 4, c_largo.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
@@ -461,12 +406,12 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     pdf.ln(1)
                     pdf.set_font(font_family, "B", 9.5)
                     pdf.set_text_color(180, 0, 0)
-                    r_esp = "💡 RECOMENDACIÓN CRÍTICA: Debido al riesgo detectado, es indispensable solicitar una consulta especializada personal o familiar directamente con el ponente."
+                    r_esp = "💡 RECOMENDACIÓN CRÍTICA: Debido al nivel de riesgo detectado en tu vector dimensional temporal, es indispensable solicitar una consulta especializada de forma directa con el ponente."
                     pdf.multi_cell(190, 4.5, r_esp.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 pdf.ln(3)
                 pdf.set_text_color(0, 0, 0)
 # =================================================================
-# PARTE 4-C: ANÁLISIS DE VECTORES LIKERT C&K Y GENERACIÓN DE BYTES
+# PARTE 7: COMPILACIÓN CUANTITATIVA C&K EN PDF Y COMPUERTA GENERAL
 # =================================================================
     else:
         k_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
@@ -522,15 +467,10 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     return bytes(pdf.output())
 
 
-
-    
-# =================================================================
-# PARTE 5-A: PUERTA DE ENLACE DE ALMACENAMIENTO Y ENRUTAMIENTO GENERAL
-# =================================================================
 def gateway_bt(n, w, r, lk, lg, t):
     """
-    Compuerta transaccional global de almacenamiento y ruteo a Google Sheets.
-    Ubicada en el cenit de la Parte 5 para evitar NameErrors posicionales.
+    Compuerta transaccional centralizada de almacenamiento y ruteo a Google Sheets.
+    Declarada a nivel raíz para mitigar errores de orden y NameErrors.
     """
     st.divider()
     c1, c2, c3 = st.columns(3)
@@ -544,7 +484,7 @@ def gateway_bt(n, w, r, lk, lg, t):
                 st.session_state.whatsapp_usuario_persistente = w
                 st.session_state.resultados_usuario_persistente = r
                 st.session_state.es_modo_likert_persistente = lk
-                st.session_state.flujo_finalizado = True
+                st.session_state.flujo_finalized = True
                 st.rerun()
     with c2:
         if vld:
@@ -554,60 +494,130 @@ def gateway_bt(n, w, r, lk, lg, t):
     with c3:
         if vld:
             tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
-            wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
+            wa_lnk = f"https://whatsapp.com{tel}&text=Completado"
             st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-  # =================================================================
-# PARTE 5 D-E (PARTE 1): EXPEDIENTES GRANULARES, SVD DOCTORAL Y CIERRE MODAL
 # =================================================================
+# PARTE 8: CONTROL CENTRAL, CREDENCIALES Y HOJA DE ESTILOS CSS FLOTANTE
+# =================================================================
+def main():
+    if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
+    if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
+    if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
+    if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
+    if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
+    if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
+    if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
+    if "oficina_maximizada" not in st.session_state: st.session_state.oficina_maximizada = False
+
+    iso = st.query_params.get("lang", "es")
+    if iso not in ["es", "en"]: iso = "es"
+    tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
+    es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
+    ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
+
+    with st.sidebar:
+        st.markdown("## 🔐 Autenticación")
+        if not st.session_state.admin_autenticado:
+            p_in = st.text_input("Contraseña Ponente:", type="password", key="p_master")
+            if st.button("🔓 Acceder a la Consola Master", use_container_width=True):
+                if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
+                    st.session_state.admin_autenticado = True
+                    st.rerun()
+                else: st.error("Acceso denegado.")
+        else:
+            st.success("Ponente Autenticado")
+            tabla_analizar = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
+            if st.button("🔒 Cerrar Oficina Analítica", use_container_width=True):
+                st.session_state.admin_autenticado = False
+                st.rerun()
+
+    if ocultar_bar_css: st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+
+    # REGLAS ESTÉTICAS DE LA VENTANA FLOTANTE ADMINISTRATIVA INDEPENDIENTE
+    if st.session_state.admin_autenticado:
+        h_float = "90vh" if st.session_state.oficina_maximizada else "55vh"
+        w_float = "95%" if st.session_state.oficina_maximizada else "80%"
+        
+        st.markdown(f"""
+            <style>
+            .floating-office-window {{
+                position: fixed; top: 5vh; left: 10%; width: {w_float}; height: {h_float};
+                background-color: white; border: 3px solid #ff6b35; border-radius: 12px;
+                z-index: 999999; box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
+                padding: 20px; overflow-y: auto;
+            }}
+            .window-header-bar {{
+                display: flex; justify-content: space-between; align-items: center;
+                background-color: #ff6b35; padding: 10px; margin: -20px -20px 20px -20px;
+                border-top-left-radius: 8px; border-top-right-radius: 8px; color: white;
+            }}
+            </style>
+        """, unsafe_allow_html=True)
+# =================================================================
+# PARTE 9: LIENZO INTERNO DE LA VENTANA FLOTANTE CON PREVISTAS PDF
+# =================================================================
+    if st.session_state.admin_autenticado:
+        with st.container():
+            st.markdown(f'<div class="floating-office-window"><div class="window-header-bar"><span style="font-weight:bold;">🔬 OFICINA ANALÍTICA FLOTANTE - TABLA: {tabla_analizar}</span></div>', unsafe_allow_html=True)
+            c_w1, c_w2, c_w3 = st.columns(3)
+            with c_w2:
+                txt_sz = "🗖 Maximizar" if not st.session_state.oficina_maximizada else "🗗 Restaurar"
+                if st.button(txt_sz, key="btn_resize_win", use_container_width=True):
+                    st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
+                    st.rerun()
+            with c_w3:
+                if st.button("❌ Minimizar / Cerrar", key="btn_close_win", use_container_width=True):
+                    st.session_state.admin_autenticado = False
+                    st.rerun()
+
+            sheet = conectar_google_sheets(tabla_analizar)
+            todas_las_filas = sheet.get_all_values() if sheet else []
+            if todas_las_filas and len(todas_las_filas) >= 2:
+                df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+                col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
+                t1, t2, t3 = st.tabs(["👥 Unified Audience", "👤 Granular CRM", "📐 Doctoral Psychometrics"])
+                
+                with t1:
+                    st.dataframe(df_doc, use_container_width=True)
+                    pdf_m1 = FPDF()
+                    pdf_m1.add_page()
+                    pdf_m1.set_font("Helvetica", "B", 14)
+                    pdf_m1.cell(190, 10, f"REPORT OF UNIFIED AUDIENCE ANALYTICS - COHORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="300px"></iframe>', unsafe_allow_html=True)
+                    st.download_button("📥 DESCARGAR REPORTE AUDIENCIA (PDF)", data=bytes(pdf_m1.output()), file_name=f"Audience_{tabla_analizar}.pdf", mime="application/pdf", key="dl_m1_f")
+
                 with t2:
-                    st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
                     if "Nombre" in df_doc.columns:
                         sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_sujeto_central")
-                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
-                        
+                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc[0]
                         pdf_m2 = FPDF()
                         pdf_m2.add_page()
                         pdf_m2.set_font("Helvetica", "B", 14)
                         pdf_m2.cell(190, 10, f"INDIVIDUAL CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                        
-                        b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode('utf-8')
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                        
-                        col_l1, col_l2 = st.columns(2)
-                        with col_l1:
-                            st.download_button(label="📥 DESCARGAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                        with col_l2:
-                            tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
-                            st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
-                    else: 
-                        st.info("No se encontró la columna de Nombres.")
+                        st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")}" width="100%" height="300px"></iframe>', unsafe_allow_html=True)
+                        st.download_button("📥 DESCARGAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf")
+                    else: st.info("No se encontró la columna de Nombres.")
 
                 with t3:
-                    st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
                     alfa_calc = 0.0
                     if len(df_doc) >= 3 and len(col_reactivos) >= 2:
                         matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
                         K = matriz_num.shape[1]
                         var_items = np.var(matriz_num, ddof=1, axis=0)
                         var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        if var_total > 0: 
-                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                    
+                        if var_total > 0: alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
                     st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
                     pdf_m3 = FPDF()
                     pdf_m3.add_page()
                     pdf_m3.set_font("Helvetica", "B", 14)
                     pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                    
-                    b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                    st.download_button(label="📥 EXPORTAR VALIDACIÓN (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-            else: 
-                st.info("Se requieren al menos 3 registros con respuestas Likert completas.")
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")}" width="100%" height="300px"></iframe>', unsafe_allow_html=True)
+                    st.download_button("📥 EXPORTAR VALIDACIÓN (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf")
+            else: st.info("Se requieren al menos 3 registros con respuestas Likert completas.")
             st.markdown("</div>", unsafe_allow_html=True)
-    # =================================================================
-    # PARTE 5 D-E (PARTE 2): EMBUDO DE CUESTIONARIOS PÚBLICOS Y GUARDIA REGLAMENTARIA
-    # =================================================================
+# =================================================================
+# PARTE 10: FLUJO PÚBLICO DEL PARTICIPANTE Y GUARDIA DE ARRANQUE MAIN
+# =================================================================
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
@@ -680,6 +690,7 @@ def gateway_bt(n, w, r, lk, lg, t):
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
+                    # Vector numérico reglamentario del 1 al 5 inyectado formalmente
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Escala / Scale:", 
                         options=[1, 2, 3, 4, 5], 
@@ -696,14 +707,6 @@ def gateway_bt(n, w, r, lk, lg, t):
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-    if st.session_state.admin_autenticado and not es_cel:
-        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
-            pdf_auditoria = FPDF()
-            pdf_auditoria.add_page()
-            pdf_auditoria.set_font("Helvetica", "B", 14)
-            pdf_auditoria.cell(190, 10, "DICTAMEN DOCTORAL", new_x="LMARGIN", new_y="NEXT", align="C")
-            st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
-
-# Cierre reglamentario de la aplicación a nivel raíz
+# Guardia de arranque en el margen extremo izquierdo a nivel raíz
 if __name__ == "__main__":
     main()
