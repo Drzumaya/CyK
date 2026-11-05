@@ -205,7 +205,6 @@ else:
             interpretacion_pdf = "**Alerta de Contención:** Zona de vulnerabilidad crítica donde la carne domina sobre el Espíritu. Exige quebrantamiento y consejería."
             consecuencia_pdf = "Provoca reacciones impulsivas, daña tus relaciones cercanas y estanca tu crecimiento de fe."
         
-        # Filas estructuradas para el PDF con tipografía grande y clara
         resumen_consecuencias_pdf += f"""
         <tr>
             <td style='font-weight:bold; color:#2E7D32; font-size:22px; padding:12px;'>{fruto}</td>
@@ -223,7 +222,7 @@ else:
     Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.
     """)
 
-    # --- DISEÑO FINAL DEL PDF CON MÁXIMO ANCHO Y TIPOGRAFÍA AL DOBLE ---
+    # --- DISEÑO FINAL DEL PDF CON LA GRÁFICA REDUCIDA AL 50% ---
     html_reporte = f"""
     <html>
     <head>
@@ -235,15 +234,13 @@ else:
             .header p {{ font-size: 24px; margin: 5px 0 0 0; color: #666; }}
             .user-info {{ text-align: right; font-style: italic; margin-top: 15px; color: #555; font-size: 22px; }}
             
-            /* Ajuste de simetría: La gráfica abarca el 100% de la hoja */
-            .grafica-box {{ text-align: center; margin: 30px 0; width: 100%; }}
+            /* MODIFICACIÓN CRÍTICA: Forzamos el ancho de la caja de la gráfica al 50% y la centramos */
+            .grafica-box {{ text-align: center; margin: 25px auto; width: 50%; }}
             .grafica-box img {{ width: 100%; max-width: 100%; height: auto; display: block; }}
             
-            /* MODIFICACIÓN: La tabla recupera el 100% de ancho igual que la gráfica de arriba */
             table {{ width: 100%; border-collapse: collapse; margin-top: 25px; table-layout: fixed; }}
             th, td {{ border: 2px solid #cccccc; padding: 14px; vertical-align: top; word-wrap: break-word; }}
             
-            /* MODIFICACIÓN: Duplicamos los tamaños de fuente (font-size) en todas las secciones */
             th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 22px; font-weight: bold; }}
             .seccion-titulo {{ color: #2e7d32; font-size: 30px; font-weight: bold; margin-top: 45px; border-bottom: 3px solid #2e7d32; padding-bottom: 6px; }}
             
@@ -263,13 +260,13 @@ else:
         </div>
         <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
         
+        <!-- LA GRÁFICA SE DESPLEGARÁ COMPACTA AL 50% DE ANCHO EN LA HOJA -->
         <div class='grafica-box'>
             <img src='data:image/png;base64,{img_base64}'/>
         </div>
 
         <div class='seccion-titulo'>🔍 Interpretación y Posibles Consecuencias</div>
         
-        <!-- TABLA COMPLETA AL 100% COORDINADA CON LA GRÁFICA SUPERIOR -->
         <table>
             <thead>
                 <tr>
@@ -303,9 +300,11 @@ else:
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button("Descargar Reporte Completo (PDF / HTML)", data=html_reporte, file_name=f"diagnostico_{nombre_final.lower()}.html", mime="text/html")
+    
     st.markdown("---")
-    st.caption("🎨 Diseño y Creación: Diagnóstico Espiritual desarrollado por Jacob Zumaya Prianti.")
+    st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
+    
     st.markdown("---")
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
-        st.rerun()
+            st.rerun()
