@@ -181,21 +181,40 @@ else:
     
     st.markdown("---")
     st.subheader("🔍 Análisis Detallado de Madurez")
+    
+    # Variables para construir la tabla web y el resumen resumido del PDF
     tabla_html = ""
+    resumen_consecuencias_pdf = ""
     
     for fruto, score in puntajes.items():
         if score >= 8:
             cons = consecuencias_texto["fortaleza"]
             st.success(f"🟢 **{fruto}:** {score}/10 — {cons['estado']}. Reflejo sólido de la obra transformadora del Espíritu.")
+            interpretacion_pdf = "Evidencia estabilidad y madurez espiritual."
+            consecuencia_pdf = "Trae bendición constante a tu vida y edifica saludablemente a quienes te rodean."
         elif score >= 5:
             cons = consecuencias_texto["atencion"]
-            st.warning(f"🟡 **{fruto}:** {score}/10 — {cons['estado']}. Requieres mayor intencionalidad para consolidar la constancia.")
+            st.warning(f"⚠️ **{fruto}:** {score}/10 — {cons['estado']}. Requieres mayor intencionalidad para consolidar la constancia.")
+            interpretacion_pdf = "Virtud en desarrollo con altibajos emocionales."
+            consecuencia_pdf = "Produce inconsistencia en tu testimonio y vulnerabilidad ante problemas o presiones."
         else:
             cons = consecuencias_texto["critico"]
-            st.error(f"🔴 **{fruto}:** {score}/10 — {cons['estado']}. Demanda atención urgente en oración y sumisión al Señor.")
+            st.error(f"🚨 **{fruto}:** {score}/10 — {cons['estado']}. Demanda atención urgente en oración y sumisión al Señor.")
+            interpretacion_pdf = "Punto crítico con urgente necesidad de atención."
+            consecuencia_pdf = "Provoca reacciones impulsivas, daña tus relaciones cercanas y estanca tu crecimiento de fe."
         
-        # Ensamblaje de filas de la tabla para pantalla y PDF
+        # Tabla web (se queda igual para visualización)
         tabla_html += f"<tr><td><b>{fruto}</b></td><td style='text-align:center;font-weight:bold;'>{score}/10</td><td><b>{cons['estado']}</b></td><td>{cons['corto']}</td><td>{cons['mediano']}</td><td>{cons['largo']}</td></tr>"
+        
+        # NUEVA ESTRUCTURA SIMPLIFICADA PARA EL PDF: Filas limpias sin columnas temporales
+        resumen_consecuencias_pdf += f"""
+        <tr>
+            <td style='font-weight:bold; color:#2e7d32;'>{fruto}</td>
+            <td style='text-align:center; font-weight:bold;'>{score}/10</td>
+            <td>{interpretacion_pdf}</td>
+            <td>{consecuencia_pdf}</td>
+        </tr>
+        """
 
     st.header("💡 Recomendaciones Generales para el Crecimiento")
     st.markdown("1. **Oración de Rendición:** Lleva tus áreas más bajas a tu altar personal de oración diaria.\n2. **Pasos Prácticos de Fe:** Selecciona una sola área crítica esta semana y ejecuta acciones intencionales de cambio.\n3. **Caminar en Comunidad:** Busca círculos de edificación dentro de la iglesia.")
@@ -205,7 +224,7 @@ else:
     Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.
     """)
 
-    # --- DISEÑO DEL PDF REESTRUCTURADO Y LIMITADO A LO SOLICITADO ---
+    # --- DISEÑO DEL PDF REESTRUCTURADO Y ALTAMENTE SIMPLIFICADO ---
     html_reporte = f"""
     <html>
     <head>
@@ -216,12 +235,12 @@ else:
             .header h1 {{ color: #2e7d32; margin: 0; }}
             .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; }}
             .grafica-box {{ text-align: center; margin: 20px 0; }}
-            table {{ width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11px; }}
             th, td {{ border: 1px solid #ddd; padding: 8px; vertical-align: top; }}
             th {{ background-color: #f4fbf7; color: #2e7d32; }}
-            .seccion-titulo {{ color: #2e7d32; font-size: 16px; font-weight: bold; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }}
+            .seccion-titulo {{ color: #2e7d32; font-size: 15px; font-weight: bold; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }}
             .pastoral-box {{ background-color: #e8f5e9; padding: 15px; margin-top: 25px; border-left: 5px solid #2e7d32; }}
-            .footer-creditos {{ text-align: center; margin-top: 45px; font-size: 10px; color: #777777; border-top: 1px solid #eeeeee; padding-top: 10px; font-style: italic; }}
+            .footer-creditos {{ text-align: center; margin-top: 40px; font-size: 10px; color: #777777; border-top: 1px solid #eeeeee; padding-top: 10px; font-style: italic; }}
         </style>
     </head>
     <body>
@@ -232,28 +251,26 @@ else:
         <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
         
         <div class='grafica-box'>
-            <img src='data:image/png;base64,{img_base64}' width='520'/>
+            <img src='data:image/png;base64,{img_base64}' width='500'/>
         </div>
 
         <div class='seccion-titulo'>🔍 Interpretación y Posibles Consecuencias</div>
         <table>
             <thead>
                 <tr>
-                    <th>Fruto</th>
-                    <th>Puntaje</th>
-                    <th>Estado de Madurez</th>
-                    <th>Consecuencias Corto Plazo</th>
-                    <th>Consecuencias Mediano Plazo</th>
-                    <th>Consecuencias Largo Plazo</th>
+                    <th style='width: 15%;'>Fruto del Espíritu</th>
+                    <th style='width: 10%;'>Puntaje</th>
+                    <th style='width: 35%;'>Interpretación de tu Estado</th>
+                    <th style='width: 40%;'>Posibles Consecuencias en tu Carácter</th>
                 </tr>
             </thead>
             <tbody>
-                {tabla_html}
+                {resumen_consecuencias_pdf}
             </tbody>
         </table>
         
         <div class='seccion-titulo'>💡 Recomendaciones Generales para el Crecimiento</div>
-        <ol style='font-size: 12px; margin-top: 10px;'>
+        <ol style='font-size: 12px; margin-top: 8px; line-height: 1.5;'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
             <li><strong>Caminar en Comunidad:</strong> Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura y transparente.</li>
