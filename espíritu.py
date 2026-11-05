@@ -656,7 +656,7 @@ else:
         </table>
                 # --- PARTE 7B: CIERRE DEL PDF, REFERENCIAS APA 7 Y BOTÓN DE DESCARGA ---
         html_reporte_completo = html_reporte + f"""
-       <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
             {lista_consecuencias_pdf}
         </ul>
