@@ -668,14 +668,14 @@ else:
             </tbody>
         </table>
     """
-    # --- SEGMENTO 7B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA ---
+        # --- SEGMENTO 7B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y BOTÓN DE DESCARGA (CORREGIDO CON KEY ÚNICO) ---
     html_bloque_final = """
-        <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
     """ + lista_consecuencias_pdf + """
         </ul>
         
-        <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
+    <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
@@ -719,11 +719,14 @@ else:
     html_reporte_completo = html_inicial + html_grafica + html_tabla + html_bloque_final
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
+    
+    # SOLUCIÓN: Agregamos el argumento 'key' para evitar la colisión de ID en Streamlit
     st.download_button(
         label="Descargar Reporte Completo (PDF / HTML)", 
         data=html_reporte_completo, 
         file_name=f"diagnostico_{nombre_final.lower()}.html", 
-        mime="text/html"
+        mime="text/html",
+        key="btn_descarga_reporte_apa"
     )
     
     st.markdown("---")
@@ -733,4 +736,5 @@ else:
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
+
 
