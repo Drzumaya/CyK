@@ -544,153 +544,167 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
 
 
 # =================================================================
-# PARTE 5-1: PUERTA DE ENLACE DE ALMACENAMIENTO Y ENRUTAMIENTO GENERAL
+# PARTE 5-A: CONFIGURACIÓN GENERAL Y ESTILADO DE LA VENTANA FLOTANTE
 # =================================================================
-def gateway_bt(n, w, r, lk, lg, t):
-    st.divider()
-    c1, c2, c3 = st.columns(3)
-    vld = bool(n.strip()) and bool(w.strip())
-    with c1:
-        if st.button(t["btn_save"], type="primary", use_container_width=True):
-            if not vld: st.error(t["err_fields"])
-            else:
-                guardar_en_google_sheets(st.session_state.audiencia_activa, n, w, r, "TK_10M", lk)
-                st.session_state.nombre_usuario_persistente = n
-                st.session_state.whatsapp_usuario_persistente = w
-                st.session_state.resultados_usuario_persistente = r
-                st.session_state.es_modo_likert_persistente = lk
-                st.session_state.flujo_finalizado = True
-                st.rerun()
-    with c2:
-        if vld:
-            pdf_bytes = generar_pdf_diagnostico(n, w, r, st.session_state.audiencia_activa, lk, lg)
-            st.download_button(t["btn_pdf"], data=pdf_bytes, file_name="Reporte.pdf", mime="application/pdf", use_container_width=True)
-        else: st.info(t["fields_msg"])
-    with c3:
-        if vld:
-            tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
-            wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
-            st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
     if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
-    if "tmp_pass_val" not in st.session_state: st.session_state.tmp_pass_val = ""
-    if "tmp_aud_val" not in st.session_state: st.session_state.tmp_aud_val = ""
-    if "mostrar_bateria" not in st.session_state: st.session_state.mostrar_bateria = True
+    if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
+    if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
+    if "oficina_maximizada" not in st.session_state: st.session_state.oficina_maximizada = False
 
     iso = st.query_params.get("lang", "es")
     if iso not in ["es", "en"]: iso = "es"
-    st.session_state.idioma_activo_actual = iso
-
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
-    dc_bil = TEXTOS_DICTAMEN_BILINGUE.get(iso, TEXTOS_DICTAMEN_BILINGUE["es"])
 
-    tk_t = hashlib.md5(f"m_sec_{int(time.time() // 600)}".encode()).hexdigest()[:8]
     es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
-    
-    if es_cel and st.query_params.get("diag_tipo"): 
-        st.session_state.audiencia_activa = st.query_params.get("diag_tipo")
-
-    lnk_qr = f"{URL_PRODUCCION}/?token={tk_t}&modo_admin=false&diag_tipo={st.session_state.audiencia_activa.replace(' ', '%20')}&lang={iso}"
-
-    if not st.session_state.estructuras_inicializadas:
-        for t in ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]: conectar_google_sheets(t)
-        st.session_state.estructuras_inicializadas = True
-
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
-    
-    # =================================================================
-    # PARTE 5A: INICIALIZACIÓN DE ESTADOS Y CONTROL DE BOTONES EN SIDEBAR
-    # =================================================================
-    if "tipo_diagnostico_activo" not in st.session_state:
-        st.session_state.tipo_diagnostico_activo = "salud_integral"
 
     with st.sidebar:
-        st.markdown(tx.get("side_title", "## 🔐 Control"))
-        if not ocultar_bar_css:
-            lbl_password = tx.get("side_pwd") if tx.get("side_pwd") else "Contraseña Ponente:"
-            lbl_boton = tx.get("side_btn") if tx.get("side_btn") else "Desbloquear Tableros"
-            
-            if not st.session_state.admin_autenticado:
-                p_in = st.text_input(lbl_password, type="password", value=st.session_state.tmp_pass_val, key="p_master")
-                if st.button(lbl_boton, key="btn_unlock_master"):
-                    if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"): 
-                        st.session_state.admin_autenticado = True
-                        st.session_state.tmp_pass_val = ""
-                        st.rerun()
-                    else: 
-                        lbl_error = tx.get("side_pwd_err") if tx.get("side_pwd_err") else "Contraseña incorrecta."
-                        st.error(lbl_error)
-            
-            if st.session_state.admin_autenticado:
-                st.success(tx.get("side_success", "Modo Ponente Activo"))
-                n_aud = st.text_input(tx.get("side_add", "Nueva Audiencia:"), value=st.session_state.tmp_aud_val, key="add_aud_master").strip()
-                
-                if st.button("➕ " + tx.get("side_add", "Añadir Audiencia").replace("➕ ", ""), key="btn_add_audience_action"):
-                    if n_aud and n_aud not in st.session_state.audiences_custom_list:
-                        st.session_state.audiences_custom_list.append(n_aud)
-                        st.session_state.audiencia_activa = n_aud
-                        st.session_state.tmp_aud_val = ""
-                        st.rerun()
-                
-                st.markdown("---")
-                st.markdown("### 🛠️ Activar Instrumento")
-                
-                if st.button("🍏 Abrir Salud Integral", use_container_width=True, key="btn_set_salud_integral_instrument"):
-                    st.session_state.tipo_diagnostico_activo = "salud_integral"
-                    st.session_state.audiencia_activa = "🍊 Salud Integral"
+        st.markdown("## 🔐 Autenticación")
+        if not st.session_state.admin_autenticado:
+            p_in = st.text_input("Contraseña Ponente:", type="password", key="p_master")
+            if st.button("🔓 Acceder a la Consola Master", use_container_width=True):
+                if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
+                    st.session_state.admin_autenticado = True
                     st.rerun()
-                    
-                if st.button("⏳ Abrir Cuestionario C&K", use_container_width=True, key="btn_set_cyk_instrument"):
-                    st.session_state.tipo_diagnostico_activo = "modelos_temporales"
-                    if st.session_state.audiencia_activa == "🍊 Salud Integral":
-                        st.session_state.audiencia_activa = "Docentes"
-                    st.rerun()
-                st.markdown("---")
-                
-                op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
-                if sel_aud != st.session_state.audiencia_activa:
-                    st.session_state.audiencia_activa = sel_aud
-                    if sel_aud == "🍊 Salud Integral":
-                        st.session_state.tipo_diagnostico_activo = "salud_integral"
-                    else:
-                        st.session_state.tipo_diagnostico_activo = "modelos_temporales"
-                    st.rerun()
-                    
-                if st.button(tx.get("side_close"), key="btn_close_master"):
-                    st.session_state.admin_autenticado = False
-                    st.session_state.tmp_pass_val = ""
-                    st.session_state.tmp_aud_val = ""
-                    st.rerun()
+                else:
+                    st.error("Acceso denegado.")
+        else:
+            st.success("Ponente Autenticado")
+            tabla_analizar = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
+            if st.button("🔒 Cerrar Oficina Analítica", use_container_width=True):
+                st.session_state.admin_autenticado = False
+                st.rerun()
 
     if ocultar_bar_css:
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
 
-    es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
-    
+    if st.session_state.admin_autenticado:
+        h_float = "90vh" if st.session_state.oficina_maximizada else "55vh"
+        w_float = "95%" if st.session_state.oficina_maximizada else "80%"
+        
+        st.markdown(f"""
+            <style>
+            .floating-office-window {{
+                position: fixed; top: 5vh; left: 10%; width: {w_float}; height: {h_float};
+                background-color: white; border: 3px solid #ff6b35; border-radius: 12px;
+                z-index: 999999; box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
+                padding: 20px; overflow-y: auto; transition: all 0.3s ease-in-out;
+            }}
+            .window-header-bar {{
+                display: flex; justify-content: space-between; align-items: center;
+                background-color: #ff6b35; padding: 10px; margin: -20px -20px 20px -20px;
+                border-top-left-radius: 8px; border-top-right-radius: 8px; color: white;
+            }}
+            </style>
+        """, unsafe_allow_html=True)
     # =================================================================
-    # PARTE 5B Y 5C: EMBUDO HEURÍSTICO COMPACTO EN UNA SOLA CONDICIONAL
+    # PARTE 5-B: APERTURA DE CONTENEDOR FLOTANTE Y CONEXIÓN CON DATASET
     # =================================================================
-    if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
-    if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
+    if st.session_state.admin_autenticado:
+        with st.container():
+            st.markdown(f"""
+                <div class="floating-office-window">
+                    <div class="window-header-bar">
+                        <span style="font-weight:bold; font-size:16px;">🔬 OFICINA ANALÍTICA FLOTANTE - TABLA: {tabla_analizar}</span>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
 
+            # Botones físicos superiores para redimensionar o colapsar la capa absoluta
+            c_win1, c_win2, c_win3 = st.columns(3)
+            with c_win2:
+                txt_sz = "🗖 Maximizar" if not st.session_state.oficina_maximizada else "🗗 Restaurar"
+                if st.button(txt_sz, key="btn_resize_win", use_container_width=True):
+                    st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
+                    st.rerun()
+            with c_win3:
+                if st.button("❌ Minimizar / Cerrar", key="btn_close_win", use_container_width=True):
+                    st.session_state.admin_autenticado = False
+                    st.rerun()
+
+            # Conexión directa con Google Sheets y empaquetado en DataFrame de pandas
+            sheet = conectar_google_sheets(tabla_analizar)
+            todas_las_filas = sheet.get_all_values() if sheet else []
+            
+            if todas_las_filas and len(todas_las_filas) >= 2:
+                df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+                col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
+
+                tab1, tab2, tab3 = st.tabs(["👥 Unified Audience", "👤 Granular CRM", "📐 Doctoral Psychometrics"])
+                
+                with tab1:
+                    st.dataframe(df_doc, use_container_width=True)
+                    m_cronos, m_kairos = 3.0, 3.0
+                    if len(col_reactivos) >= 2:
+                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                        m_cronos = np.mean(matriz_num[:, 0::2]) if matriz_num.shape[0] > 0 else 3.0
+                        m_kairos = np.mean(matriz_num[:, 1::2]) if matriz_num.shape[0] > 1 else 3.0
+                    
+                    pdf_m1 = FPDF()
+                    pdf_m1.add_page()
+                    pdf_m1.set_font("Helvetica", "B", 14)
+                    pdf_m1.cell(190, 10, f"REPORT OF UNIFIED AUDIENCE ANALYTICS - COHORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                    
+                    b64_m1 = base64.b64encode(bytes(pdf_m1.output())).decode('utf-8')
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="350px"></iframe>', unsafe_allow_html=True)
+                    st.download_button("📥 DESCARGAR REPORTE AUDIENCIA (PDF)", data=bytes(pdf_m1.output()), file_name=f"Audience_{tabla_analizar}.pdf", mime="application/pdf", key="dl_m1_f")
+    # =================================================================
+    # PARTE 5-C: EXPEDIENTES GRANULARES, SVD DOCTORAL Y CIERRE MODAL
+    # =================================================================
+                with tab2:
+                    if "Nombre" in df_doc.columns:
+                        sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_suj_float")
+                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc[0]
+                        
+                        pdf_m2 = FPDF()
+                        pdf_m2.add_page()
+                        pdf_m2.set_font("Helvetica", "B", 14)
+                        pdf_m2.cell(190, 10, f"INDIVIDUAL CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                        
+                        b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode('utf-8')
+                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="350px"></iframe>', unsafe_allow_html=True)
+                        st.download_button("📥 DESCARGAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="dl_m2_f")
+                    else:
+                        st.info("Columna Nombre ausente.")
+
+                with tab3:
+                    alfa_calc, s1_val, s2_val = 0.0, 0.0, 0.0
+                    if len(df_doc) >= 3 and len(col_reactivos) >= 2:
+                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                        K = matriz_num.shape[1]
+                        var_items = np.var(matriz_num, ddof=1, axis=0)
+                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
+                        if var_total > 0: alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
+                        
+                        matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
+                        _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
+                        s1_val = S[0] if len(S) > 0 else 0.0
+                        s2_val = S[1] if len(S) > 1 else 0.0
+                        
+                    st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
+                    pdf_m3 = FPDF()
+                    pdf_m3.add_page()
+                    pdf_m3.set_font("Helvetica", "B", 12)
+                    pdf_m3.cell(190, 10, "DOCTORAL VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT")
+                    
+                    b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="350px"></iframe>', unsafe_allow_html=True)
+                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="dl_m3_f")
+            else:
+                st.info("Se requieren al menos 3 registros con respuestas completas.")
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+    # =================================================================
+    # PARTE 5-D: EMBUDO DE CUESTIONARIOS PÚBLICOS Y GUARDIA REGLAMENTARIA
+    # =================================================================
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
-
-        if not es_cel:
-            with st.container(border=True):
-                qr = qrcode.QRCode(version=1, box_size=10, border=4)
-                qr.add_data(lnk_qr)
-                qr.make(fit=True)
-                buf_qr = BytesIO()
-                qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-                st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea'))
 
         st.header("📋 Sección I: Perfil de identificación")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in_seq")
@@ -723,7 +737,6 @@ def main():
         resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key="r_c5")
         resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6")
 
-        # --- GATILLO SECUENCIAL 1 ---
         vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales["Género"], resultados_totales["Nacionalidad"], resultados_totales["C1_Escuchado"], resultados_totales["C6_Perfil_Auto"]])
         
         if vld_base and not st.session_state.paso_salud:
@@ -754,21 +767,16 @@ def main():
                         cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
-            # --- GATILLO SECUENCIAL 2 ---
             if not st.session_state.paso_cyk:
                 if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary"):
                     st.session_state.paso_cyk = True
                     st.rerun()
 
-# =================================================================
-# SINTAXIS EN LA BATERÍA LIKERT COMPACTA (LÍNEA 768)
-# =================================================================
             if st.session_state.paso_cyk:
                 st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
-                    # 🍊 CORRECCIÓN DE RAÍZ: Asignamos el vector numérico explícito del 1 al 5 en el parámetro options
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Escala / Scale:", 
                         options=[1, 2, 3, 4, 5], 
@@ -779,139 +787,12 @@ def main():
                     )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-
-
-
-       # =================================================================
-    # PARTE 5C-P2A: RESOLUCIÓN DE PARTICIPANTES Y TABS HORIZONTALES CON IFRAME
-    # =================================================================
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
-        if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
-            st.session_state.flujo_finalizado = False
-            st.session_state.paso_salud = False
-            st.session_state.paso_cyk = False
-            st.rerun()
 
-    if st.session_state.admin_autenticado and not es_cel:
-        st.markdown("---")
-        with st.sidebar:
-            st.markdown("---")
-            st.header("⚙️ Configuración CRM")
-            tabla_analizar = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
-        
-        sheet = conectar_google_sheets(tabla_analizar)
-        todas_las_filas = sheet.get_all_values() if sheet else []
-        
-        if todas_las_filas and len(todas_las_filas) >= 2:
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
-            col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-            
-            st.header("🔬 Oficina Analítica Central")
-            tab1, tab2, tab3 = st.tabs(["👥 Unified Audience", "👤 Granular CRM", "📐 Doctoral Psychometrics"])
-            
-            with tab1:
-                st.subheader("Análisis Macroscópico Unificado de Población Activa")
-                st.dataframe(df_doc, use_container_width=True)
-                m_cronos, m_kairos = 3.0, 3.0
-                if len(col_reactivos) >= 2:
-                    matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                    m_cronos = np.mean(matriz_num[:, 0::2]) if matriz_num.shape > 0 else 3.0
-                    m_kairos = np.mean(matriz_num[:, 1::2]) if matriz_num.shape > 1 else 3.0
-                
-                pdf_m1 = FPDF()
-                pdf_m1.add_page()
-                pdf_m1.set_font("Helvetica", "B", 14)
-                pdf_m1.cell(190, 10, f"REPORT OF UNIFIED AUDIENCE ANALYTICS - COHORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                
-                b64_m1 = base64.b64encode(bytes(pdf_m1.output())).decode('utf-8')
-                iframe_m1 = f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="400px" style="border:1px solid #ddd;"></iframe>'
-                st.markdown(iframe_m1, unsafe_allow_html=True)
-                st.download_button(label="📥 DESCARGAR REPORTE DE AUDIENCIA COMPLETO (PDF)", data=bytes(pdf_m1.output()), file_name=f"Audience_Report_{tabla_analizar}.pdf", mime="application/pdf", key="btn_dl_m1_pdf")
-
-            with tab2:
-                st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
-                if "Nombre" in df_doc.columns:
-                    lista_nombres = df_doc["Nombre"].unique().tolist()
-                    sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", lista_nombres, key="sb_sujeto_central")
-                    fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
-                    
-                    pdf_m2 = FPDF()
-                    pdf_m2.add_page()
-                    pdf_m2.set_font("Helvetica", "B", 14)
-                    pdf_m2.cell(190, 10, f"INDIVIDUAL CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                    
-                    b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode('utf-8')
-                    iframe_m2 = f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="400px" style="border:1px solid #ddd;"></iframe>'
-                    st.markdown(iframe_m2, unsafe_allow_html=True)
-                    
-                    col_l1, col_l2 = st.columns(2)
-                    with col_l1:
-                        st.download_button(label="📥 DESCARGAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf")
-                    with col_l2:
-                        tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
-                        st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
-                else:
-                    st.info("No se encontró la columna de Nombres en esta tabla.")
-            # =================================================================
-            # PARTE 5C-P2B: CÁLCULOS MULTIVARIADOS SVD Y RESGUARDO DE ENTRADA MAIN
-            # =================================================================
-            with tab3:
-                st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
-                alfa_calc, s1_val, s2_val = 0.0, 0.0, 0.0
-                
-                if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-                    try:
-                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        K = matriz_num.shape[1]
-                        var_items = np.var(matriz_num, ddof=1, axis=0)
-                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        if var_total > 0:
-                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                            st.metric(label="📐 Alfa de Cronbach (Consistencia Interna)", value=f"{alfa_calc:.3f}")
-                        
-                        matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                        _, S, Vt = np.linalg.svd(matriz_centrada, full_matrices=False)
-                        s1_val = S[0] if len(S) > 0 else 0.0
-                        s2_val = S[1] if len(S) > 1 else 0.0
-                        
-                        col_s1, col_s2 = st.columns(2)
-                        col_s1.metric("Componente Latente 1 ($\sigma_1$)", f"{s1_val:.2f}")
-                        col_s2.metric("Componente Latente 2 ($\sigma_2$)", f"{s2_val:.2f}")
-                    except Exception:
-                        st.error("Error al procesar la matriz matricial SVD.")
-                
-                pdf_m3 = FPDF()
-                pdf_m3.add_page()
-                pdf_m3.set_font("Helvetica", "B", 14)
-                pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                pdf_m3.ln(5)
-                pdf_m3.set_font("Helvetica", "B", 11)
-                pdf_m3.cell(190, 6, f"PSYCHOMETRIC PROPERTIES OF THE DATASET: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                pdf_m3.set_font("Helvetica", "", 10)
-                pdf_m3.cell(190, 5, f"Cronbach's Alpha Internal Consistency Score (a): {alfa_calc:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                pdf_m3.cell(190, 5, f"First Singular Value (SVD Lambda 1): {s1_val:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                pdf_m3.cell(190, 5, f"Second Singular Value (SVD Lambda 2): {s2_val:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                pdf_m3.ln(10)
-                pdf_m3.line(10, pdf_m3.get_y(), 200, pdf_m3.get_y())
-                
-                b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
-                iframe_m3 = f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="400px" style="border:1px solid #ddd;"></iframe>'
-                st.markdown(iframe_m3, unsafe_allow_html=True)
-                st.download_button(label="📥 EXPORTAR VALIDACIÓN PSICOMÉTRICA DOCTORAL (PDF)", data=bytes(pdf_m3.output()), file_name=f"Psychometric_Validation_{tabla_analizar}.pdf", mime="application/pdf", key="btn_dl_m3_pdf")
-        else:
-            st.info("ℹ️ Se requieren al menos 3 registros con respuestas Likert completas en la tabla para activar los cálculos.")
-
-        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
-            pdf_auditoria = FPDF()
-            pdf_auditoria.add_page()
-            pdf_auditoria.set_font("Helvetica", "B", 14)
-            pdf_auditoria.cell(190, 10, "DICTAMEN DOCTORAL", new_x="LMARGIN", new_y="NEXT", align="C")
-            st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
-
-# Cierre estructural reglamentario a nivel de la raíz libre de espacios iniciales
-if __name__ == "__main__": 
+# 🍊 GUARDIA DE ARRANQUE EN EL MARGEN EXTREMO IZQUIERDO (RAÍZ DEL SCRIPT)
+if __name__ == "__main__":
     main()
