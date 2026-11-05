@@ -337,22 +337,24 @@ if not st.session_state.diagnostico_generado:
     """)
 
        # --- CUESTIONARIO MODULAR INTERACTIVO (ESCALA LIMPIA DEL 1 AL 10) ---
+        # --- PARTE 3: CUESTIONARIO MODULAR INTERACTIVO (ESCALA LIMPIA INICIANDO EN 1) ---
     st.header("📋 Autoevaluación")
     st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
     with st.form("diagnostico_form"):
         puntajes_temporales = {}
-        # CORRECCIÓN: Arreglo de opciones limpio del 1 al 10 sin emojis ni textos agregados
+        # Arreglo de opciones limpio del 1 al 10 sin emojis ni textos agregados
         escala_limpia = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         
         for i, (fruto, info) in enumerate(frutos_info.items(), 1):
             with st.expander(f"✨ {i}. {fruto} ({info['cita']})"):
                 st.markdown(f"**De:** *{info['izq']}* \n\n **Hacia:** *{info['der']}*")
                 
+                # MODIFICACIÓN: Se cambió value de "3" a "1" para iniciar al principio de la escala
                 sel = st.select_slider(
                     f"Selecciona tu nivel para {fruto}:", 
                     options=escala_limpia, 
-                    value="3", # Inicialización fija en la opción "3"
+                    value="1", 
                     key=f"esfera_{fruto}",
                     label_visibility="collapsed"
                 )
@@ -376,6 +378,7 @@ if not st.session_state.diagnostico_generado:
                 "diagnostico_generado": True
             })
             st.rerun()
+
 
 # --- PARTE 6: EXTRACCIÓN Y PANTALLA EXCLUSIVA DE RESULTADOS ---
 else:
