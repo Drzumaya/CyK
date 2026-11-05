@@ -673,7 +673,7 @@ def main():
 
     es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
     
-       # =================================================================
+          # =================================================================
     # PARTE 5B: ENTORNO BASE LIMPIO SIN SELECCIONES PREVIAS (INDEX=NONE)
     # =================================================================
     if "paso_salud_desbloqueado" not in st.session_state: st.session_state.paso_salud_desbloqueado = False
@@ -708,18 +708,17 @@ def main():
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        st.header(f"📋 Sección I. Perfil de Identificación y Segmentación de la Audiencia: {st.session_state.audiencia_activa}")
+        # 🍊 AJUSTE DE TÍTULO SOLICITADO: Simplificación exacta del encabezado de la Sección I
+        st.header(f"📋 Sección I: Perfil de identificación")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         
         resultados_totales = {}
         
         if st.session_state.mostrar_bateria:
-            # 📋 SECCIÓN II: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS REALES (LIMPIOS DE ENTRADA)
             st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
             resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
             
-            # 🍊 BLINDAJE INDEX=NONE: Evita que el primer elemento se pre-marque solo al encender la app
             resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True)
             resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="nacionalidad_unq_choice")
             
@@ -738,6 +737,26 @@ def main():
                 resultados_totales["Estado Residencia"] = None
                 resultados_totales["País Origen"] = None
                 resultados_totales["Continente Extranjero"] = None
+
+            st.subheader("📋 Sección III: Conocimiento sobre el tema")
+            k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
+            k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
+            k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
+            k4_txt = "4. El modelo temporal:" if iso == "es" else "4. The temporal model:"
+            k5_txt = "5. Hablar de modelos temporales es hablar de:" if iso == "es" else "5. Talking about temporal models means talking about:"
+            k6_txt = "6. Soy persona:" if iso == "es" else "6. I am a person:"
+
+            k4_opts = ["Se impone", "Se hereda", "No sé"] if iso == "es" else ["Is imposed", "Is inherited", "I don't know"]
+            k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
+            k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
+
+            resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn1_unq_sec3")
+            resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn2_unq_sec3")
+            resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn3_unq_sec3")
+            resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, index=None, horizontal=True, key="rad_kn4_unq_sec3")
+            resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, index=None, horizontal=True, key="rad_kn5_unq_sec3")
+            resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, index=None, horizontal=True, key="rad_kn6_unq_sec3")
+
 
             # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (LIMPIOS DE ENTRADA)
             st.subheader("📋 Sección III: Conocimiento sobre el tema")
