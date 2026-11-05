@@ -715,11 +715,12 @@ def main():
 
 
 
-        # =================================================================
-        # PARTE 5-3: DIAGNÓSTICO INTEGRAL Y SECCIÓN II DEMOGRÁFICA FIJA
+              # =================================================================
+        # PARTE 5-3: FILTRADO DINÁMICO DE VISIBILIDAD DE SALUD INTEGRAL
         # =================================================================
         if st.session_state.mostrar_bateria:
-            if not es_likert:
+            # 🍊 BLINDAJE DE EXPOSICIÓN: Se dibuja Salud Integral SOLO si su botón fue presionado
+            if st.session_state.tipo_diagnostico_activo == "salud_integral" and not es_likert:
                 st.write(tx.get("mand_title", "### 🍊 Diagnóstico"))
                 gajos = motor_generativo_items_audiencia(st.session_state.audiencia_activa, iso)
                 for g_idx, (g_name, lista_items_gajo) in enumerate(gajos.items()):
@@ -727,18 +728,19 @@ def main():
                         st.markdown(f"#### {g_name}")
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            t0 = lista_items_gajo[0] if len(lista_items_gajo) > 0 else "S0"
-                            t1 = lista_items_gajo[1] if len(lista_items_gajo) > 1 else "S1"
+                            t0 = lista_items_gajo if len(lista_items_gajo) > 0 else "S0"
+                            t1 = lista_items_gajo if len(lista_items_gajo) > 1 else "S1"
                             cb0 = st.checkbox(t0, key=f"c_{g_idx}_0_f")
                             cb1 = st.checkbox(t1, key=f"c_{g_idx}_1_f")
                         with col_b:
-                            t2 = lista_items_gajo[2] if len(lista_items_gajo) > 2 else "S2"
-                            t3 = lista_items_gajo[3] if len(lista_items_gajo) > 3 else "S3"
+                            t2 = lista_items_gajo if len(lista_items_gajo) > 2 else "S2"
+                            t3 = lista_items_gajo if len(lista_items_gajo) > 3 else "S3"
                             cb2 = st.checkbox(t2, key=f"c_{g_idx}_2_f")
                             cb3 = st.checkbox(t3, key=f"c_{g_idx}_3_f")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
-            else:
-                # 📋 SECCIÓN II: DATOS DEMOGRÁFICOS Y GEOGRÁFICOS FIJOS (ESTÁTICOS)
+                        
+            # 🍊 CAPTURA DEMOGRÁFICA DE SECCIÓN II: Se ejecuta solo si está activo el cuestionario C&K
+            elif st.session_state.tipo_diagnostico_activo == "modelos_temporales" and es_likert:
                 st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
                 resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
                 resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], horizontal=True)
@@ -754,46 +756,46 @@ def main():
                     resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq")
                     resultados_totales["Estado Origen"] = "N/A"
                     resultados_totales["Estado Residencia"] = "N/A"
+
         
+               # =================================================================
+        # PARTE 5-4: FILTRADO DINÁMICO DE VISIBILIDAD DE MODELOS TEMPORALES
         # =================================================================
-        # PARTE 5-4: SECCIÓN III CONOCIMIENTO FIJO Y SECCIÓN IV INTERALIADA (INTERFAZ LIMPIA)
-        # =================================================================
-                # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (ESTÁTICA FIJA)
-                st.subheader("📋 Sección III: Conocimiento sobre el tema")
-                k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
-                k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
-                k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
-                k4_txt = "4. El modelo temporal:" if iso == "es" else "4. The temporal model:"
-                k5_txt = "5. Hablar de modelos temporales es hablar de:" if iso == "es" else "5. Talking about temporal models means talking about:"
-                k6_txt = "6. Soy persona:" if iso == "es" else "6. I am a person:"
+                if st.session_state.tipo_diagnostico_activo == "modelos_temporales":
+                    st.subheader("📋 Sección III: Conocimiento sobre el tema")
+                    k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
+                    k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
+                    k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
+                    k4_txt = "4. El modelo temporal:" if iso == "es" else "4. The temporal model:"
+                    k5_txt = "5. Hablar de modelos temporales es hablar de:" if iso == "es" else "5. Talking about temporal models means talking about:"
+                    k6_txt = "6. Soy persona:" if iso == "es" else "6. I am a person:"
 
-                k4_opts = ["Se impone", "Se hereda", "No sé"] if iso == "es" else ["Is imposed", "Is inherited", "I don't know"]
-                k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
-                k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
+                    k4_opts = ["Se impone", "Se hereda", "No sé"] if iso == "es" else ["Is imposed", "Is inherited", "I don't know"]
+                    k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
+                    k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
 
-                resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec3")
-                resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec3")
-                resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec3")
-                resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, horizontal=True, key="rad_kn4_unq_sec3")
-                resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
-                resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
-                
-                # 📋 SECCIÓN IV: BATERÍA DE REACTIVOS INTERALIADOS ADAPTATIVOS
-                st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
-                reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
-                
-                for r_id, r_txt in reactivos.items():
-                    # 🍊 REMOCIÓN METODOLÓGICA VISUAL: Se elimina la etiqueta intermedia para no sesgar al participante
-                    st.write(f"Reactivo {r_id}: {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio(
-                        "Escala / Scale:", 
-                        options=[1, 2, 3, 4, 5], 
-                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                        horizontal=True, 
-                        key=f"r_{r_id}_unq_active"
-                    )
+                    resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn1_unq_sec3")
+                    resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn2_unq_sec3")
+                    resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], horizontal=True, key="rad_kn3_unq_sec3")
+                    resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, horizontal=True, key="rad_kn4_unq_sec3")
+                    resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, horizontal=True, key="rad_kn5_unq_sec3")
+                    resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, horizontal=True, key="rad_kn6_unq_sec3")
+                    
+                    st.subheader("📋 Sección IV: Batería de Reactivos C&K Adaptativos")
+                    reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
+                    
+                    for r_id, r_txt in reactivos.items():
+                        st.write(f"Reactivo {r_id}: {r_txt}")
+                        resultados_totales[f"R{r_id}"] = st.radio(
+                            "Escala / Scale:", 
+                            options=[1, 2, 3, 4, 5], 
+                            format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                            horizontal=True, 
+                            key=f"r_{r_id}_unq_active"
+                        )
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
+
 
     
         # =================================================================
