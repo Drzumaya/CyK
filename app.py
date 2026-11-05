@@ -556,10 +556,10 @@ def gateway_bt(n, w, r, lk, lg, t):
             tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
             wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
             st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-    # =================================================================
-# FRACCIÓN 5-D Y 5-E UNIFICADA: CIERRE DE PESTAÑAS, CUESTIONARIO Y GUARDIA DEL CORE
+   # =================================================================
+# PARTE 5 D-E (PARTE 1): EXPEDIENTES GRANULARES, SVD DOCTORAL Y CIERRE MODAL
 # =================================================================
-            with t2:
+                with t2:
                     st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
                     if "Nombre" in df_doc.columns:
                         sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_sujeto_central")
@@ -582,12 +582,12 @@ def gateway_bt(n, w, r, lk, lg, t):
                     else: 
                         st.info("No se encontró la columna de Nombres.")
 
-            with t3:
+                with t3:
                     st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
                     alfa_calc = 0.0
                     if len(df_doc) >= 3 and len(col_reactivos) >= 2:
                         matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        K = matriz_num.shape
+                        K = matriz_num.shape[1]
                         var_items = np.var(matriz_num, ddof=1, axis=0)
                         var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
                         if var_total > 0: 
@@ -602,11 +602,12 @@ def gateway_bt(n, w, r, lk, lg, t):
                     b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
                     st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                     st.download_button(label="📥 EXPORTAR VALIDACIÓN (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-        else: 
-            st.info("Se requieren al menos 3 registros con respuestas Likert completas.")
+            else: 
+                st.info("Se requieren al menos 3 registros con respuestas Likert completas.")
             st.markdown("</div>", unsafe_allow_html=True)
-
-    # 🍊 CAPA BASE DE FONDO: FORMULARIO SECUENCIAL PÚBLICO DEL PARTICIPANTE
+    # =================================================================
+    # PARTE 5 D-E (PARTE 2): EMBUDO DE CUESTIONARIOS PÚBLICOS Y GUARDIA REGLAMENTARIA
+    # =================================================================
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
@@ -681,20 +682,22 @@ def gateway_bt(n, w, r, lk, lg, t):
                     st.write(f"Reactivo {r_id}: {r_txt}")
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Escala / Scale:", 
-                        options=, 
-            format_func=lambda x: tx.get(f"likert_{x}", str(x)),
-            index=None,
-            horizontal=True,
-            key=f"rcyk_{r_id}"
-            )
-            gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-        else:
-            st.balloons()
-            st.success(tx.get("thanks", "¡Completado!"))
-            rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
-            st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
-            if st.session_state.admin_autenticado and not es_cel:
-            if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
+                        options=[1, 2, 3, 4, 5], 
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                        index=None, 
+                        horizontal=True, 
+                        key=f"rcyk_{r_id}"
+                    )
+
+        gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+    else:
+        st.balloons()
+        st.success(tx.get("thanks", "¡Completado!"))
+        rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
+        st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
+
+    if st.session_state.admin_autenticado and not es_cel:
+        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
             pdf_auditoria = FPDF()
             pdf_auditoria.add_page()
             pdf_auditoria.set_font("Helvetica", "B", 14)
@@ -702,6 +705,6 @@ def gateway_bt(n, w, r, lk, lg, t):
             st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
 # Cierre reglamentario de la aplicación a nivel raíz
-
-if name == "main":
+if __name__ == "__main__":
     main()
+
