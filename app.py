@@ -705,6 +705,31 @@ def main():
                     st.markdown(iframe_m1, unsafe_allow_html=True)
                     st.ln(2)
                     st.download_button("📥 DESCARGAR REPORTE METODOLÓGICO COMPLETADO (PDF)", data=bytes(pdf_m1.output()), file_name=f"Audience_{tabla_analizar}.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
+# =================================================================
+# CORRECCIÓN DE SINTAXIS DOCTORAL EN LAS COLUMNAS DEL CRM (FRACCIÓN 5-D)
+# =================================================================
+                with t2:
+                    st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
+                    if "Nombre" in df_doc.columns:
+                        sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_sujeto_central")
+                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
+                        
+                        pdf_m2 = FPDF()
+                        pdf_m2.add_page()
+                        pdf_m2.set_font("Helvetica", "B", 14)
+                        pdf_m2.cell(190, 10, f"INDIVIDUAL CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                        
+                        b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode('utf-8')
+                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="300px"></iframe>', unsafe_allow_html=True)
+                        
+                        # 🍊 CORRECCIÓN DE COLUMNAS: Añadimos explícitamente el argumento entero '2' requerido por Streamlit
+                        col_l1, col_l2 = st.columns(2)
+                        with col_l1:
+                            st.download_button(label="📥 DESCARGAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
+                        with col_l2:
+                            tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
+                            st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
+                    else: st.info("No se encontró la columna de Nombres.")
 
     # =================================================================
     # PARTE 5-E: EMBUDO DE CUESTIONARIOS PÚBLICOS Y GUARDIA REGLAMENTARIA
