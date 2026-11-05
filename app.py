@@ -633,38 +633,79 @@ def main():
             }}
             </style>
         """, unsafe_allow_html=True)
-    # =================================================================
-    # PARTE 5-C: MARCO DE LA VENTANA FLOTANTE Y ANÁLISIS UNIFICADO (TAB1)
+       # =================================================================
+    # PARTE 5-B" Y 5-C UNIFICADA: ENCABEZADO ESTILIZADO DE VENTANA Y MODULO I (VISOR EXPANDIDO)
     # =================================================================
     if st.session_state.admin_autenticado:
         with st.container():
-            st.markdown(f'<div class="floating-office-window"><div class="window-header-bar"><span style="font-weight:bold;">🔬 OFICINA ANALÍTICA FLOTANTE - TABLA: {tabla_analizar}</span></div>', unsafe_allow_html=True)
-            c_w1, c_w2, c_w3 = st.columns(3)
-            with c_w2:
-                txt_sz = "🗖 Maximizar" if not st.session_state.oficina_maximizada else "🗗 Restaurar"
-                if st.button(txt_sz, key="btn_resize_win", use_container_width=True):
-                    st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
-                    st.rerun()
-            with c_w3:
-                if st.button("❌ Minimizar / Cerrar", key="btn_close_win", use_container_width=True):
+            # Inyección de la barra de título con botones circulares interactivos simulando controles de OS
+            st.markdown(f"""
+                <div class="floating-office-window">
+                    <div class="window-header-bar">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <div style="width: 12px; height: 12px; background-color: #ff5f56; border-radius: 50%; display: inline-block; cursor: pointer;" title="Cerrar"></div>
+                            <div style="width: 12px; height: 12px; background-color: #ffbd2e; border-radius: 50%; display: inline-block; cursor: pointer;" title="Minimizar"></div>
+                            <div style="width: 12px; height: 12px; background-color: #27c93f; border-radius: 50%; display: inline-block; cursor: pointer;" title="Maximizar"></div>
+                        </div>
+                        <span style="font-weight:bold; font-size:14px; letter-spacing: 0.5px;">🔬 OFICINA ANALÍTICA AVANZADA — COHORTE: {tabla_analizar}</span>
+                        <div></div>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+
+            # Botones de control físico acoplados en el lateral inferior para activar las banderas de Streamlit
+            col_ctrl1, col_ctrl2, col_ctrl3 = st.columns()
+            with col_ctrl1:
+                if st.button("❌ Cerrar Consola", key="btn_close_win_nav", use_container_width=True):
                     st.session_state.admin_autenticado = False
                     st.rerun()
+            with col_ctrl2:
+                txt_sz = "🗖 Pantalla Completa" if not st.session_state.oficina_maximizada else "🗗 Restaurar Tamaño"
+                if st.button(txt_sz, key="btn_resize_win_nav", use_container_width=True):
+                    st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
+                    st.rerun()
 
+            # Conexión y empaquetado matricial de datos
             sheet = conectar_google_sheets(tabla_analizar)
             todas_las_filas = sheet.get_all_values() if sheet else []
+            
             if todas_las_filas and len(todas_las_filas) >= 2:
                 df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
                 col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-                t1, t2, t3 = st.tabs(["👥 Unified Audience", "👤 Granular CRM", "📐 Doctoral Psychometrics"])
+                t1, t2, t3 = st.tabs(["👥 Unified Audience Analytics", "👤 Granular Individual CRM", "📐 Doctoral Psychometrics"])
                 
                 with t1:
+                    st.markdown("**Matriz Colectiva Registrada en la Nube:**")
                     st.dataframe(df_doc, use_container_width=True)
+                    
+                    m_cronos, m_kairos = 3.0, 3.0
+                    if len(col_reactivos) >= 2:
+                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                        m_cronos = np.mean(matriz_num[:, 0::2]) if matriz_num.shape > 0 else 3.0
+                        m_kairos = np.mean(matriz_num[:, 1::2]) if matriz_num.shape > 1 else 3.0
+                    
+                    # Compilación formal del manuscrito Módulo I
                     pdf_m1 = FPDF()
                     pdf_m1.add_page()
                     pdf_m1.set_font("Helvetica", "B", 14)
                     pdf_m1.cell(190, 10, f"REPORT OF UNIFIED AUDIENCE ANALYTICS - COHORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="300px"></iframe>', unsafe_allow_html=True)
-                    st.download_button("📥 DESCARGAR REPORTE AUDIENCIA (PDF)", data=bytes(pdf_m1.output()), file_name=f"Audience_{tabla_analizar}.pdf", mime="application/pdf", key="dl_m1_f")
+                    pdf_m1.ln(5)
+                    pdf_m1.set_font("Helvetica", "B", 11)
+                    pdf_m1.cell(190, 6, "1. CENTRAL TENDENCY VECTOR COEFFICIENTS", new_x="LMARGIN", new_y="NEXT")
+                    pdf_m1.set_font("Helvetica", "", 10)
+                    pdf_m1.cell(190, 5, f"Sample Size (N): {len(df_doc)} cases.".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+                    pdf_m1.cell(190, 5, f"Cronos Metric Mean: {m_cronos:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+                    pdf_m1.cell(190, 5, f"Kairos Adaptability Mean: {m_kairos:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+                    
+                    # 🍊 VISTA PREVIA INTEGRADA EXPANSIBLE (LIENZO DE GRAN FORMATO)
+                    b64_m1 = base64.b64encode(bytes(pdf_m1.output())).decode('utf-8')
+                    iframe_m1 = f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="450px" style="border:1px solid #ddd; border-radius:6px; margin-top:10px;"></iframe>'
+                    
+                    st.markdown("**🔍 Previsualización en Tiempo Real del Manuscrito Doctoral:**")
+                    st.markdown(iframe_m1, unsafe_allow_html=True)
+                    st.ln(2)
+                    st.download_button("📥 DESCARGAR REPORTE METODOLÓGICO COMPLETADO (PDF)", data=bytes(pdf_m1.output()), file_name=f"Audience_{tabla_analizar}.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
+
     # =================================================================
     # PARTE 5-E: EMBUDO DE CUESTIONARIOS PÚBLICOS Y GUARDIA REGLAMENTARIA
     # =================================================================
