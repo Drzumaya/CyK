@@ -721,7 +721,7 @@ def main():
                     resultados_totales["Estado Residencia"] = "N/A"
         
         # =================================================================
-        # PARTE 5-4: SECCIÓN III CONOCIMIENTO FIJO Y SECCIÓN IV INTERALIADA (FIXED)
+        # PARTE 5-4: SECCIÓN III CONOCIMIENTO FIJO Y SECCIÓN IV INTERALIADA (INTERFAZ LIMPIA)
         # =================================================================
                 # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (ESTÁTICA FIJA)
                 st.subheader("📋 Sección III: Conocimiento sobre el tema")
@@ -748,9 +748,8 @@ def main():
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 
                 for r_id, r_txt in reactivos.items():
-                    tipo_vector = "(Cronos - Rígido)" if r_id % 2 != 0 else "(Kairós - Adaptativo)"
-                    st.write(f"Reactivo {r_id} {tipo_vector}: {r_txt}")
-                    # 🍊 CORRECCIÓN DE FLUJO: Agregamos explícitamente el rango del 1 al 5 para liberar el spinner
+                    # 🍊 REMOCIÓN METODOLÓGICA VISUAL: Se elimina la etiqueta intermedia para no sesgar al participante
+                    st.write(f"Reactivo {r_id}: {r_txt}")
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Escala / Scale:", 
                         options=[1, 2, 3, 4, 5], 
@@ -761,7 +760,7 @@ def main():
 
         gateway_bt(nombre, whatsapp, resultados_totales, es_likert, iso, tx)
 
-
+    
         # =================================================================
         # PARTE 5-5: RESOLUCIÓN DE FLUJO, ALTA ANALÍTICA Y CIERRE OPERATIVO
         # =================================================================
