@@ -144,7 +144,7 @@ if not st.session_state.diagnostico_generado:
     """)
    
     
-    st.header("📋 Autoevaluación")
+        st.header("📋 Autoevaluación")
     st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
     with st.form("diagnostico_form"):
@@ -156,15 +156,16 @@ if not st.session_state.diagnostico_generado:
             with st.expander(f"✨ {i}. {fruto} ({info['cita']})"):
                 st.markdown(f"**De:** *{info['izq']}* \n\n **Hacia:** *{info['der']}*")
                 
+                # MODIFICACIÓN: Se cambió value de "5 🟡" a "3 🔴" para iniciar allí por defecto
                 sel = st.select_slider(
                     f"Selecciona tu nivel para {fruto}:", 
                     options=esferas, 
-                    value="5 🟡", 
+                    value="3 🔴", 
                     key=f"esfera_{fruto}",
                     label_visibility="collapsed"
                 )
                 
-                # CORRECCIÓN DEFINITIVA: Extrae de forma segura solo el carácter numérico antes del emoji
+                # Extrae de forma segura solo el carácter numérico antes del emoji
                 puntajes_temporales[fruto] = int(sel.split()[0])
                 
                 # Escala numérica explícita y visible debajo de la barra
@@ -183,6 +184,7 @@ if not st.session_state.diagnostico_generado:
                 "diagnostico_generado": True
             })
             st.rerun()
+
 
 else:
     nombre_final = st.session_state.nombre_final
