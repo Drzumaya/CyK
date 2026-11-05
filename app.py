@@ -708,29 +708,31 @@ def main():
             st.markdown("</div>", unsafe_allow_html=True)
 
 # =================================================================
-# PARTE 10: FLUJO PÚBLICO DEL PARTICIPANTE Y GUARDIA DE ARRANQUE MAIN
+# PARTE 10: FLUJO PÚBLICO DEL PARTICIPANTE Y GUARDIA RAW (SIN ADVERTENCIAS)
 # =================================================================
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
-        st.header("📋 Sección I: Perfil de identificación")
-        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in_seq")
-        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in_seq")
+        
+        # 🍊 SOLUCIÓN AL SYNTAXWARNING: Inyección de prefijo 'r' para forzar lectura como texto crudo literal
+        st.header(r"📋 Sección I: Perfil de identificación")
+        nombre = st.text_input(tx.get("nombre", "Nombre:"), key=r"n_in_seq")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key=r"w_in_seq")
         resultados_totales = {}
         
-        st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
-        resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key="num_ed")
-        resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_g")
-        resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_n")
+        st.subheader(r"📋 Sección II: Datos Demográficos y Geográficos")
+        resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key=r"num_ed")
+        resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
+        resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
         
         if resultados_totales["Nacionalidad"] == "Mexicana":
-            resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key="s_orig")
-            resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key="s_res")
+            resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key=r"s_orig")
+            resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key=r"s_res")
         elif resultados_totales["Nacionalidad"] == "Extranjera":
-            resultados_totales["País Origen"] = st.text_input("País de Origen:", key="t_pais")
-            resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="s_cont")
+            resultados_totales["País Origen"] = st.text_input("País de Origen:", key=r"t_pais")
+            resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
 
-        st.subheader("📋 Sección III: Conocimiento sobre el tema")
+        st.subheader(r"📋 Sección III: Conocimiento sobre el tema")
         preguntas_sec3 = [
             ("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"),
             ("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"),
@@ -739,9 +741,9 @@ def main():
         for key_r, txt_r in preguntas_sec3:
             resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
 
-        resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key="r_c4")
-        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key="r_c5")
-        resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6")
+        resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
+        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
+        resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
 
         vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales["Género"], resultados_totales["Nacionalidad"], resultados_totales["C1_Escuchado"], resultados_totales["C6_Perfil_Auto"]])
         if vld_base and not st.session_state.paso_salud:
@@ -782,7 +784,6 @@ def main():
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
-                    # Vector numérico reglamentario del 1 al 5 inyectado formalmente
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Escala / Scale:", 
                         options=[1, 2, 3, 4, 5], 
@@ -799,6 +800,7 @@ def main():
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-# Guardia de arranque en el margen extremo izquierdo a nivel raíz
+# Guardia reglamentaria a nivel raíz libre de espacios iniciales
 if __name__ == "__main__":
     main()
+
