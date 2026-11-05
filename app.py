@@ -544,8 +544,34 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
 
 
 # =================================================================
-# PARTE 5-A: CONFIGURACIÓN GENERAL Y ESTILADO DE LA VENTANA FLOTANTE
+# PARTE 5-A: PUERTA DE ENLACE TRANSACCIONAL Y ENRUTAMIENTO GENERAL (FIX)
 # =================================================================
+def gateway_bt(n, w, r, lk, lg, t):
+    st.divider()
+    c1, c2, c3 = st.columns(3)
+    vld = bool(n.strip()) and bool(w.strip())
+    with c1:
+        if st.button(t["btn_save"], type="primary", use_container_width=True):
+            if not vld: st.error(t["err_fields"])
+            else:
+                guardar_en_google_sheets(st.session_state.audiencia_activa, n, w, r, "TK_10M", lk)
+                st.session_state.nombre_usuario_persistente = n
+                st.session_state.whatsapp_usuario_persistente = w
+                st.session_state.resultados_usuario_persistente = r
+                st.session_state.es_modo_likert_persistente = lk
+                st.session_state.flujo_finalizado = True
+                st.rerun()
+    with c2:
+        if vld:
+            pdf_bytes = generar_pdf_diagnostico(n, w, r, st.session_state.audiencia_activa, lk, lg)
+            st.download_button(t["btn_pdf"], data=pdf_bytes, file_name="Reporte.pdf", mime="application/pdf", use_container_width=True)
+        else: st.info(t["fields_msg"])
+    with c3:
+        if vld:
+            tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
+            wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
+            st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
+
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
@@ -602,6 +628,7 @@ def main():
             }}
             </style>
         """, unsafe_allow_html=True)
+
     # =================================================================
     # PARTE 5-B: APERTURA DE CONTENEDOR FLOTANTE Y CONEXIÓN CON DATASET
     # =================================================================
