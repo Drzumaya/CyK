@@ -133,48 +133,61 @@ if not st.session_state.diagnostico_generado:
             })
             st.rerun()
 else:
+    import matplotlib.pyplot as plt
     nombre_final = st.session_state.nombre_final
     puntajes = st.session_state.respuestas_usuario
 
     st.title("📊 Tu Diagnóstico Espiritual")
     st.header(f"Resultados preparados para: {nombre_final}")
     
-    # --- CONSTRUCCIÓN DE LA GRÁFICA DE BARRAS VERTICALES ---
+    # --- CONSTRUCCIÓN DE LA GRÁFICA DE BARRAS VERTICALES ANCHAS Y DE COLORES ---
     st.subheader("📈 Gráfica de Crecimiento Espiritual")
     
     frutos_labels = list(puntajes.keys())
     valores_barras = list(puntajes.values())
     
+    # Paleta de colores vivos y de alto contraste para el PDF y pantalla
     colores_barras = []
     for v in valores_barras:
-        if v >= 8: colores_barras.append('#2e7d32')     # Verde
-        elif v >= 5: colores_barras.append('#f9a825')   # Amarillo
-        else: colores_barras.append('#c62828')         # Rojo
+        if v >= 8: colores_barras.append('#2E7D32')     # Verde Esmeralda Vivo
+        elif v >= 5: colores_barras.append('#FBC02D')   # Amarillo Oro Intenso
+        else: colores_barras.append('#D32F2F')         # Rojo Carmesí Alerta
         
-    fig, ax = plt.subplots(figsize=(8, 4.5))
-    barras = ax.bar(frutos_labels, valores_barras, color=colores_barras, edgecolor='none', width=0.6)
+    # Ajustamos el tamaño de la figura para que sea ancha y quepa perfecto en la hoja
+    fig, ax = plt.subplots(figsize=(9, 4.8))
     
+    # MODIFICACIÓN: Aumentamos 'width' a 0.75 para que las barras sean notablemente más anchas
+    barras = ax.bar(frutos_labels, valores_barras, color=colores_barras, edgecolor='none', width=0.75)
+    
+    # Configuración estricta de la escala del 1 al 10
     ax.set_ylim(0, 11)
     ax.set_yticks(range(1, 11))
-    ax.set_ylabel("Nivel de Intensidad", fontsize=10, weight='bold', color='#333333')
-    ax.grid(axis='y', linestyle='--', alpha=0.5)
+    ax.set_ylabel("Nivel de Intensidad", fontsize=10, weight='bold', color='#222222')
+    ax.grid(axis='y', linestyle='--', alpha=0.6, color='#e0e0e0')
     
+    # Colocar los números de los puntajes con fuente negrita arriba de cada barra
     for barra in barras:
         alto = barra.get_height()
         ax.annotate(f'{alto}', xy=(barra.get_x() + barra.get_width() / 2, alto),
-                    xytext=(0, 3), textcoords="offset points", ha='center', va='bottom', fontsize=9, weight='bold')
+                    xytext=(0, 4), textcoords="offset points",
+                    ha='center', va='bottom', fontsize=10, weight='bold', color='#111111')
                     
+    # Estilización estética de los ejes del plano
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     ax.spines['left'].set_color('#cccccc')
     ax.spines['bottom'].set_color('#cccccc')
-    plt.xticks(rotation=15, ha='right', fontsize=9, weight='bold')
+    
+    # Rotación leve de las etiquetas para que se lean grandes y claras
+    plt.xticks(rotation=10, ha='center', fontsize=10, weight='bold', color='#333333')
     plt.tight_layout()
     
+    # Mostrar la tabla de barras en Streamlit
     st.pyplot(fig)
     
+    # Guardar la gráfica con alta resolución (dpi=200) para que en el PDF se vea impecable
     buf_img = io.BytesIO()
-    plt.savefig(buf_img, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(buf_img, format='png', dpi=200, bbox_inches='tight')
     buf_img.seek(0)
     img_base64 = base64.b64encode(buf_img.read()).decode('utf-8')
     plt.close(fig)
@@ -182,7 +195,6 @@ else:
     st.markdown("---")
     st.subheader("🔍 Análisis Detallado de Madurez")
     
-    # Variables para construir la tabla web y el resumen resumido del PDF
     tabla_html = ""
     resumen_consecuencias_pdf = ""
     
@@ -203,16 +215,13 @@ else:
             interpretacion_pdf = "Punto crítico con urgente necesidad de atención."
             consecuencia_pdf = "Provoca reacciones impulsivas, daña tus relaciones cercanas y estanca tu crecimiento de fe."
         
-        # Tabla web (se queda igual para visualización)
-        tabla_html += f"<tr><td><b>{fruto}</b></td><td style='text-align:center;font-weight:bold;'>{score}/10</td><td><b>{cons['estado']}</b></td><td>{cons['corto']}</td><td>{cons['mediano']}</td><td>{cons['largo']}</td></tr>"
-        
-        # NUEVA ESTRUCTURA SIMPLIFICADA PARA EL PDF: Filas limpias sin columnas temporales
+        # Filas simplificadas para el documento impreso
         resumen_consecuencias_pdf += f"""
         <tr>
-            <td style='font-weight:bold; color:#2e7d32;'>{fruto}</td>
-            <td style='text-align:center; font-weight:bold;'>{score}/10</td>
-            <td>{interpretacion_pdf}</td>
-            <td>{consecuencia_pdf}</td>
+            <td style='font-weight:bold; color:#2E7D32; font-size:12px;'>{fruto}</td>
+            <td style='text-align:center; font-weight:bold; font-size:12px; background-color:#f9f9f9;'>{score}/10</td>
+            <td style='font-size:11px;'>{interpretacion_pdf}</td>
+            <td style='font-size:11px;'>{consecuencia_pdf}</td>
         </tr>
         """
 
@@ -224,23 +233,24 @@ else:
     Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.
     """)
 
-    # --- DISEÑO DEL PDF REESTRUCTURADO Y ALTAMENTE SIMPLIFICADO ---
+    # --- DISEÑO FINAL DEL PDF CON LA GRÁFICA DE BARRAS OPTIMIZADA ---
     html_reporte = f"""
     <html>
     <head>
         <meta charset='utf-8'>
         <style>
-            body {{ font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.4; }}
-            .header {{ text-align: center; border-bottom: 3px solid #2e7d32; padding-bottom: 10px; }}
-            .header h1 {{ color: #2e7d32; margin: 0; }}
-            .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; }}
-            .grafica-box {{ text-align: center; margin: 20px 0; }}
-            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11px; }}
-            th, td {{ border: 1px solid #ddd; padding: 8px; vertical-align: top; }}
-            th {{ background-color: #f4fbf7; color: #2e7d32; }}
-            .seccion-titulo {{ color: #2e7d32; font-size: 15px; font-weight: bold; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }}
-            .pastoral-box {{ background-color: #e8f5e9; padding: 15px; margin-top: 25px; border-left: 5px solid #2e7d32; }}
-            .footer-creditos {{ text-align: center; margin-top: 40px; font-size: 10px; color: #777777; border-top: 1px solid #eeeeee; padding-top: 10px; font-style: italic; }}
+            body {{ font-family: Arial, sans-serif; padding: 25px; color: #333; line-height: 1.4; }}
+            .header {{ text-align: center; border-bottom: 3px solid #2e7d32; padding-bottom: 12px; }}
+            .header h1 {{ color: #2e7d32; margin: 0; font-size: 24px; }}
+            .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; font-size: 12px; }}
+            .grafica-box {{ text-align: center; margin: 25px 0; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 15px; }}
+            th, td {{ border: 1px solid #cccccc; padding: 10px; vertical-align: top; }}
+            th {{ background-color: #f4fbf7; color: #2e7d32; font-size: 12px; font-weight: bold; }}
+            .seccion-titulo {{ color: #2e7d32; font-size: 16px; font-weight: bold; margin-top: 30px; border-bottom: 2px solid #2e7d32; padding-bottom: 5px; }}
+            .pastoral-box {{ background-color: #e8f5e9; padding: 18px; margin-top: 30px; border-left: 5px solid #2e7d32; border-radius: 4px; }}
+            .pastoral-box h3 {{ margin-top: 0; color: #2e7d32; }}
+            .footer-creditos {{ text-align: center; margin-top: 50px; font-size: 10px; color: #777777; border-top: 1px solid #eeeeee; padding-top: 12px; font-style: italic; }}
         </style>
     </head>
     <body>
@@ -250,18 +260,19 @@ else:
         </div>
         <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
         
+        <!-- RENDERIZADO DE LA NUEVA IMAGEN DE BARRAS ANCHAS Y DE COLORES -->
         <div class='grafica-box'>
-            <img src='data:image/png;base64,{img_base64}' width='500'/>
+            <img src='data:image/png;base64,{img_base64}' width='560' style='max-width:100%; height:auto;'/>
         </div>
 
         <div class='seccion-titulo'>🔍 Interpretación y Posibles Consecuencias</div>
         <table>
             <thead>
                 <tr>
-                    <th style='width: 15%;'>Fruto del Espíritu</th>
-                    <th style='width: 10%;'>Puntaje</th>
+                    <th style='width: 18%;'>Fruto del Espíritu</th>
+                    <th style='width: 12%;'>Puntaje</th>
                     <th style='width: 35%;'>Interpretación de tu Estado</th>
-                    <th style='width: 40%;'>Posibles Consecuencias en tu Carácter</th>
+                    <th style='width: 35%;'>Posibles Consecuencias en tu Carácter</th>
                 </tr>
             </thead>
             <tbody>
@@ -270,7 +281,7 @@ else:
         </table>
         
         <div class='seccion-titulo'>💡 Recomendaciones Generales para el Crecimiento</div>
-        <ol style='font-size: 12px; margin-top: 8px; line-height: 1.5;'>
+        <ol style='font-size: 12px; margin-top: 10px; line-height: 1.6;'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
             <li><strong>Caminar en Comunidad:</strong> Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura y transparente.</li>
@@ -296,3 +307,4 @@ else:
     if st.button("✅ Ya descargué mi reporte, avanzar al siguiente paso"):
         st.session_state.mostrar_felicitacion = True
         st.rerun()
+
