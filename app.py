@@ -673,8 +673,8 @@ def main():
 
     es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
     
-          # =================================================================
-    # PARTE 5B: ENTORNO BASE LIMPIO SIN SELECCIONES PREVIAS (INDEX=NONE)
+      # =================================================================
+    # PARTE 5B: ENTORNO BASE SECO CON LLAVES ISOLADAS (PREFIX: _SEQ_V4_)
     # =================================================================
     if "paso_salud_desbloqueado" not in st.session_state: st.session_state.paso_salud_desbloqueado = False
     if "paso_cyk_desbloqueado" not in st.session_state: st.session_state.paso_cyk_desbloqueado = False
@@ -686,8 +686,8 @@ def main():
         with st.container(border=True):
             st.markdown(f"### {tx.get('intl_title', '🌐 Control Poliglota')}")
             dict_ids = {"spanish": "es", "english": "en"}
-            sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=["Spanish", "English"], index=0 if iso == "es" else 1, key="sb_part_lang_unq")
-            if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_fixed"):
+            sel_v = st.selectbox(tx.get("intl_select", "Idioma:"), options=["Spanish", "English"], index=0 if iso == "es" else 1, key="sb_part_lang_unq_seq_v4")
+            if st.button(tx.get("intl_btn", "Aplicar"), key="btn_apply_lang_master_fixed_seq_v4"):
                 iso_f = dict_ids.get(str(sel_v).lower().strip(), "en")
                 st.query_params["lang"] = iso_f
                 st.session_state.idioma_activo_actual = iso_f
@@ -704,32 +704,32 @@ def main():
                 st.image(buf_qr.getvalue(), width=260, caption=tx.get('qr_sub1', 'Escanea'))
 
         txt_toggle = "🙈 OCULTAR CUESTIONARIO ADAPTATIVO" if st.session_state.mostrar_bateria else "👁️ MOSTRAR CUESTIONARIO PARA EXPLICAR"
-        if st.button(txt_toggle, type="secondary", use_container_width=True, key="btn_toggle_visibility_bateria_master"):
+        if st.button(txt_toggle, type="secondary", use_container_width=True, key="btn_toggle_visibility_bateria_master_seq_v4"):
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        # 🍊 AJUSTE DE TÍTULO SOLICITADO: Simplificación exacta del encabezado de la Sección I
         st.header(f"📋 Sección I: Perfil de identificación")
-        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
-        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
+        nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in_seq_v4")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in_seq_v4")
         
         resultados_totales = {}
         
         if st.session_state.mostrar_bateria:
             st.subheader("📋 Sección II: Datos Demográficos y Geográficos")
-            resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20)
+            resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key="num_edad_seq_v4")
             
-            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True)
-            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="nacionalidad_unq_choice")
+            # 🍊 INYECCIÓN DE LLAVES ISOLADAS ÚNICAS ANTI-COLLISION
+            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_genero_seq_v4")
+            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_nacionalidad_seq_v4")
             
             if resultados_totales["Nacionalidad"] == "Mexicana":
-                resultados_totales["Estado Origen"] = st.selectbox("4. Estado mexicano de origen:", [""] + ESTADOS_MEXICO, key="sel_origen_mex_unq")
-                resultados_totales["Estado Residencia"] = st.selectbox("5. Estado mexicano de residencia actual:", [""] + ESTADOS_MEXICO, key="sel_residencia_mex_unq")
+                resultados_totales["Estado Origen"] = st.selectbox("4. Estado mexicano de origen:", [""] + ESTADOS_MEXICO, key="sel_origen_mex_unq_seq_v4")
+                resultados_totales["Estado Residencia"] = st.selectbox("5. Estado mexicano de residencia actual:", [""] + ESTADOS_MEXICO, key="sel_residencia_mex_unq_seq_v4")
                 resultados_totales["País Origen"] = "México"
                 resultados_totales["Continente Extranjero"] = "América"
             elif resultados_totales["Nacionalidad"] == "Extranjera":
-                resultados_totales["País Origen"] = st.text_input("País de Origen / Country of Origin:", key="txt_pais_origen_extranjero")
-                resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq")
+                resultados_totales["País Origen"] = st.text_input("País de Origen / Country of Origin:", key="txt_pais_origen_extranjero_seq_v4")
+                resultados_totales["Continente Extranjero"] = st.selectbox("6. Para extranjeros: Continente de Origen:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="sel_continente_extranjero_unq_seq_v4")
                 resultados_totales["Estado Origen"] = "N/A"
                 resultados_totales["Estado Residencia"] = "N/A"
             else:
@@ -750,34 +750,14 @@ def main():
             k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
             k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
 
-            resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn1_unq_sec3")
-            resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn2_unq_sec3")
-            resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn3_unq_sec3")
-            resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, index=None, horizontal=True, key="rad_kn4_unq_sec3")
-            resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, index=None, horizontal=True, key="rad_kn5_unq_sec3")
-            resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, index=None, horizontal=True, key="rad_kn6_unq_sec3")
+            resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn1_unq_sec3_seq_v4")
+            resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn2_unq_sec3_seq_v4")
+            resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn3_unq_sec3_seq_v4")
+            resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, index=None, horizontal=True, key="rad_kn4_unq_sec3_seq_v4")
+            resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, index=None, horizontal=True, key="rad_kn5_unq_sec3_seq_v4")
+            resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, index=None, horizontal=True, key="rad_kn6_unq_sec3_seq_v4")
 
-
-            # 📋 SECCIÓN III: CONOCIMIENTO SOBRE EL TEMA (LIMPIOS DE ENTRADA)
-            st.subheader("📋 Sección III: Conocimiento sobre el tema")
-            k1_txt = "1. Antes de esta encuesta ya había escuchado hablar sobre los Modelos Temporales Cronos y Kairós" if iso == "es" else "1. Before this survey, I had already heard about the Cronos and Kairos Temporal Models"
-            k2_txt = "2. He leído sobre los modelos temporales Cronos y Kairós" if iso == "es" else "2. I have read about the Cronos and Kairos temporal models"
-            k3_txt = "3. He enseñado alguna vez sobre los modelos temporales Cronos y Kairós" if iso == "es" else "3. I have ever taught about the Cronos and Kairos temporal models"
-            k4_txt = "4. El modelo temporal:" if iso == "es" else "4. The temporal model:"
-            k5_txt = "5. Hablar de modelos temporales es hablar de:" if iso == "es" else "5. Talking about temporal models means talking about:"
-            k6_txt = "6. Soy persona:" if iso == "es" else "6. I am a person:"
-
-            k4_opts = ["Se impone", "Se hereda", "No sé"] if iso == "es" else ["Is imposed", "Is inherited", "I don't know"]
-            k5_opts = ["Teología", "Cultura", "Francamente no sé"] if iso == "es" else ["Theology", "Culture", "Frankly I don't know"]
-            k6_opts = ["Cronos", "Kairós", "No sé"] if iso == "es" else ["Cronos", "Kairos", "I don't know"]
-
-            # 🍊 BLINDAJE INDEX=NONE: Ninguna respuesta de conocimiento sesga o gatilla el flujo por accidente
-            resultados_totales["C1_Escuchado"] = st.radio(k1_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn1_unq_sec3")
-            resultados_totales["C2_Leído"] = st.radio(k2_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn2_unq_sec3")
-            resultados_totales["C3_Enseñado"] = st.radio(k3_txt, ["Sí / Yes", "No"], index=None, horizontal=True, key="rad_kn3_unq_sec3")
-            resultados_totales["C4_Origen"] = st.radio(k4_txt, k4_opts, index=None, horizontal=True, key="rad_kn4_unq_sec3")
-            resultados_totales["C5_Concepto"] = st.radio(k5_txt, k5_opts, index=None, horizontal=True, key="rad_kn5_unq_sec3")
-            resultados_totales["C6_Perfil_Auto"] = st.radio(k6_txt, k6_opts, index=None, horizontal=True, key="rad_kn6_unq_sec3")
+           
             # --- VALIDACIÓN DE TRÁFICO COMPLETO PARA EL EMBUTO SECUENCIAL ---
             st.markdown("---")
             
