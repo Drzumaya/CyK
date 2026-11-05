@@ -544,9 +544,13 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
 
 
 # =================================================================
-# PARTE 5-A: PUERTA DE ENLACE TRANSACCIONAL Y ENRUTAMIENTO GENERAL (FIX)
+# PARTE 5-A: PUERTA DE ENLACE DE ALMACENAMIENTO Y ENRUTAMIENTO GENERAL
 # =================================================================
 def gateway_bt(n, w, r, lk, lg, t):
+    """
+    Compuerta transaccional global de almacenamiento y ruteo a Google Sheets.
+    Ubicada en el cenit de la Parte 5 para evitar NameErrors posicionales.
+    """
     st.divider()
     c1, c2, c3 = st.columns(3)
     vld = bool(n.strip()) and bool(w.strip())
@@ -571,7 +575,9 @@ def gateway_bt(n, w, r, lk, lg, t):
             tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
             wa_lnk = f"https://whatsapp.com{urllib.parse.quote(tel)}&text=Completado"
             st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-
+# =================================================================
+# PARTE 5-B: APERTURA DE MAIN() Y PARÁMETROS DE LA VENTANA ABSOLUTA
+# =================================================================
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
@@ -585,7 +591,6 @@ def main():
     iso = st.query_params.get("lang", "es")
     if iso not in ["es", "en"]: iso = "es"
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
-
     es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
 
@@ -606,7 +611,7 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-    if ocultar_bar_css:
+    if ocultar_bar_css: 
         st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
 
     if st.session_state.admin_autenticado:
@@ -619,7 +624,7 @@ def main():
                 position: fixed; top: 5vh; left: 10%; width: {w_float}; height: {h_float};
                 background-color: white; border: 3px solid #ff6b35; border-radius: 12px;
                 z-index: 999999; box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
-                padding: 20px; overflow-y: auto; transition: all 0.3s ease-in-out;
+                padding: 20px; overflow-y: auto;
             }}
             .window-header-bar {{
                 display: flex; justify-content: space-between; align-items: center;
@@ -628,106 +633,40 @@ def main():
             }}
             </style>
         """, unsafe_allow_html=True)
-
     # =================================================================
-    # PARTE 5-B: APERTURA DE CONTENEDOR FLOTANTE Y CONEXIÓN CON DATASET
+    # PARTE 5-C: MARCO DE LA VENTANA FLOTANTE Y ANÁLISIS UNIFICADO (TAB1)
     # =================================================================
     if st.session_state.admin_autenticado:
         with st.container():
-            st.markdown(f"""
-                <div class="floating-office-window">
-                    <div class="window-header-bar">
-                        <span style="font-weight:bold; font-size:16px;">🔬 OFICINA ANALÍTICA FLOTANTE - TABLA: {tabla_analizar}</span>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-
-            # Botones físicos superiores para redimensionar o colapsar la capa absoluta
-            c_win1, c_win2, c_win3 = st.columns(3)
-            with c_win2:
+            st.markdown(f'<div class="floating-office-window"><div class="window-header-bar"><span style="font-weight:bold;">🔬 OFICINA ANALÍTICA FLOTANTE - TABLA: {tabla_analizar}</span></div>', unsafe_allow_html=True)
+            c_w1, c_w2, c_w3 = st.columns(3)
+            with c_w2:
                 txt_sz = "🗖 Maximizar" if not st.session_state.oficina_maximizada else "🗗 Restaurar"
                 if st.button(txt_sz, key="btn_resize_win", use_container_width=True):
                     st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
                     st.rerun()
-            with c_win3:
+            with c_w3:
                 if st.button("❌ Minimizar / Cerrar", key="btn_close_win", use_container_width=True):
                     st.session_state.admin_autenticado = False
                     st.rerun()
 
-            # Conexión directa con Google Sheets y empaquetado en DataFrame de pandas
             sheet = conectar_google_sheets(tabla_analizar)
             todas_las_filas = sheet.get_all_values() if sheet else []
-            
             if todas_las_filas and len(todas_las_filas) >= 2:
                 df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
                 col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-
-                tab1, tab2, tab3 = st.tabs(["👥 Unified Audience", "👤 Granular CRM", "📐 Doctoral Psychometrics"])
+                t1, t2, t3 = st.tabs(["👥 Unified Audience", "👤 Granular CRM", "📐 Doctoral Psychometrics"])
                 
-                with tab1:
+                with t1:
                     st.dataframe(df_doc, use_container_width=True)
-                    m_cronos, m_kairos = 3.0, 3.0
-                    if len(col_reactivos) >= 2:
-                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        m_cronos = np.mean(matriz_num[:, 0::2]) if matriz_num.shape[0] > 0 else 3.0
-                        m_kairos = np.mean(matriz_num[:, 1::2]) if matriz_num.shape[0] > 1 else 3.0
-                    
                     pdf_m1 = FPDF()
                     pdf_m1.add_page()
                     pdf_m1.set_font("Helvetica", "B", 14)
                     pdf_m1.cell(190, 10, f"REPORT OF UNIFIED AUDIENCE ANALYTICS - COHORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                    
-                    b64_m1 = base64.b64encode(bytes(pdf_m1.output())).decode('utf-8')
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="350px"></iframe>', unsafe_allow_html=True)
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="300px"></iframe>', unsafe_allow_html=True)
                     st.download_button("📥 DESCARGAR REPORTE AUDIENCIA (PDF)", data=bytes(pdf_m1.output()), file_name=f"Audience_{tabla_analizar}.pdf", mime="application/pdf", key="dl_m1_f")
     # =================================================================
-    # PARTE 5-C: EXPEDIENTES GRANULARES, SVD DOCTORAL Y CIERRE MODAL
-    # =================================================================
-                with tab2:
-                    if "Nombre" in df_doc.columns:
-                        sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_suj_float")
-                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc[0]
-                        
-                        pdf_m2 = FPDF()
-                        pdf_m2.add_page()
-                        pdf_m2.set_font("Helvetica", "B", 14)
-                        pdf_m2.cell(190, 10, f"INDIVIDUAL CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                        
-                        b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode('utf-8')
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="350px"></iframe>', unsafe_allow_html=True)
-                        st.download_button("📥 DESCARGAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="dl_m2_f")
-                    else:
-                        st.info("Columna Nombre ausente.")
-
-                with tab3:
-                    alfa_calc, s1_val, s2_val = 0.0, 0.0, 0.0
-                    if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        K = matriz_num.shape[1]
-                        var_items = np.var(matriz_num, ddof=1, axis=0)
-                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        if var_total > 0: alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                        
-                        matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                        _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                        s1_val = S[0] if len(S) > 0 else 0.0
-                        s2_val = S[1] if len(S) > 1 else 0.0
-                        
-                    st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
-                    pdf_m3 = FPDF()
-                    pdf_m3.add_page()
-                    pdf_m3.set_font("Helvetica", "B", 12)
-                    pdf_m3.cell(190, 10, "DOCTORAL VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT")
-                    
-                    b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="350px"></iframe>', unsafe_allow_html=True)
-                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="dl_m3_f")
-            else:
-                st.info("Se requieren al menos 3 registros con respuestas completas.")
-            
-            st.markdown("</div>", unsafe_allow_html=True)
-    # =================================================================
-    # PARTE 5-D: EMBUDO DE CUESTIONARIOS PÚBLICOS Y GUARDIA REGLAMENTARIA
+    # PARTE 5-E: EMBUDO DE CUESTIONARIOS PÚBLICOS Y GUARDIA REGLAMENTARIA
     # =================================================================
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
@@ -765,7 +704,6 @@ def main():
         resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6")
 
         vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales["Género"], resultados_totales["Nacionalidad"], resultados_totales["C1_Escuchado"], resultados_totales["C6_Perfil_Auto"]])
-        
         if vld_base and not st.session_state.paso_salud:
             if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="primary"):
                 st.session_state.paso_salud = True
@@ -776,7 +714,7 @@ def main():
             MATRIZ_SINTOMAS_FIJA = {
                 "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
                 "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
-                "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
+                "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes of ansiedad"],
                 "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
                 "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
                 "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
@@ -820,6 +758,15 @@ def main():
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-# 🍊 GUARDIA DE ARRANQUE EN EL MARGEN EXTREMO IZQUIERDO (RAÍZ DEL SCRIPT)
+    if st.session_state.admin_autenticado and not es_cel:
+        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
+            pdf_auditoria = FPDF()
+            pdf_auditoria.add_page()
+            pdf_auditoria.set_font("Helvetica", "B", 14)
+            pdf_auditoria.cell(190, 10, "DICTAMEN DOCTORAL", new_x="LMARGIN", new_y="NEXT", align="C")
+            st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
+
+# Cierre reglamentario de la aplicación a nivel raíz
 if __name__ == "__main__":
     main()
+
