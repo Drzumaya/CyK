@@ -562,7 +562,7 @@ else:
         </table>
     """
 
-    # --- SEGMENTO 8B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y DISPARADORES ADAPTATIVOS (PONENTE VS MOVIL) ---
+        # --- SEGMENTO 8B: CONSECUENCIAS, BIBLIOGRAFÍA APA 7 Y ACCIÓN ADAPTATIVA AISLADA (PONENTE INMUNE) ---
     html_bloque_final = """
     <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
@@ -575,10 +575,6 @@ else:
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
             <li><strong>Caminar en Comunidad:</strong> Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura y transparente.</li>
         </ol>
-
-        <div class='pastoral-box'>
-            <p>Estimado(a) miembro, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
-        </div>
 
         <div class='seccion-titulo'>[Bibliografía] 4. Referencias</div>
         <div style='margin-top: 15px;'>
@@ -611,39 +607,64 @@ else:
     
     html_reporte_completo = html_inicial + html_grafica + html_tabla + html_bloque_final
 
+    st.markdown("---")
+    
+    # 1. ORDEN VISUAL SEGURO: Invitación y cierre pastoral antes de las descargas
+    st.info(f"""
+    ### 🤝 Una Invitación Especial a Caminar Juntos
+    Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas. 
+    
+    *Al presionar el botón inferior se descargará tu reporte oficial de forma automática.*
+    """)
+
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     
-    st.download_button(
-        label="Descargar Reporte Completo (PDF / HTML)", 
-        data=html_reporte_completo, 
-        file_name=f"diagnostico_{nombre_final.lower()}.html", 
-        mime="text/html",
-        key="btn_descarga_reporte_apa"
-    )
-    
-    st.markdown("---")
-    st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
-    st.markdown("---")
-
-    # --- LÓGICA DE CONDICIONAL INTELIGENTE (PONENTE VS PARTICIPANTE) ---
+    # Evaluar estrictamente la procedencia del enlace
     es_movil_participante = "view" in st.query_params and st.query_params["view"] == "mobile"
 
     if es_movil_participante:
-        # PANTALLA DEL PARTICIPANTE: Botón Finalizar que destruye/cierra la pestaña mediante JS nativo
-        if st.button("🏁 Finalizar", key="btn_finalizar_participante_movil"):
+        # --- CASO A: DISPOSITIVO DEL PARTICIPANTE (CON AUTO-DESTRUCCIÓN Y CIERRE) ---
+        descarga_accionada = st.download_button(
+            label="Descargar Reporte Completo (PDF / HTML)", 
+            data=html_reporte_completo, 
+            file_name=f"diagnostico_{nombre_final.lower()}.html", 
+            mime="text/html",
+            key="btn_descarga_reporte_apa_unificado"
+        )
+        
+        if descarga_accionada:
+            # Borrado absoluto limitado exclusivamente al hilo de ejecución del participante
+            st.session_state.clear()
+            
+            # Cierre forzado de la pestaña móvil
             st.markdown("""
                 <script>
                     window.parent.close();
                     window.close();
                 </script>
             """, unsafe_allow_html=True)
-            st.success("🔒 Sesión concluida. Ya puedes cerrar esta ventana.")
+            
+            st.error("🔒 Reporte descargado. Datos eliminados y aplicación cerrada de forma segura.")
+            st.stop()
     else:
-        # PANTALLA DEL PONENTE: Botón de reinicio de Kiosco para vaciar el test y recibir al siguiente
-        if st.button("🔄 Nuevo diagnóstico", key="btn_ponente_nuevo_diagnostico"):
+        # --- CASO B: PANTALLA INMUNE DEL PONENTE (KIOSCO CONTINUO) ---
+        # El ponente descarga de manera transparente sin alterar estados ni variables globales
+        st.download_button(
+            label="Descargar Reporte Completo (PDF / HTML)", 
+            data=html_reporte_completo, 
+            file_name=f"diagnostico_{nombre_final.lower()}.html", 
+            mime="text/html",
+            key="btn_descarga_ponente_seguro"
+        )
+        
+        st.markdown("---")
+        # El botón de la laptop principal del ponente sigue operando de forma limpia e intacta
+        if st.button("🔄 Nuevo diagnóstico", key="btn_ponente_nuevo_diagnostico_final_seguro"):
             st.session_state.diagnostico_generado = False
             st.session_state.mostrar_felicitacion = False
             st.session_state.respuestas_usuario = {}
             st.rerun()
 
+    st.markdown("---")
+    st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
 
