@@ -779,50 +779,139 @@ def main():
                     )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+
+
+
+       # =================================================================
+    # PARTE 5C-P2A: RESOLUCIÓN DE PARTICIPANTES Y TABS HORIZONTALES CON IFRAME
+    # =================================================================
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
-        if st.button("🔄 Volver al Diagnóstico Principal", key="btn_rst"): 
+        if st.button("🔄 Volver al Diagnóstico Principal", key="btn_reset_view_final_mando"): 
             st.session_state.flujo_finalizado = False
             st.session_state.paso_salud = False
             st.session_state.paso_cyk = False
             st.rerun()
 
-    # --- INVESTIGACIÓN ALTA ANALÍTICA DEL PONENTE ---
     if st.session_state.admin_autenticado and not es_cel:
         st.markdown("---")
-        st.header(tx.get("lbl_titulo_aud", "🔬 Oficina Analítica"))
-        tabla_analizar = st.selectbox(tx.get("lbl_tabla_select", "Tabla:"), ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"], key="sb_an")
+        with st.sidebar:
+            st.markdown("---")
+            st.header("⚙️ Configuración CRM")
+            tabla_analizar = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
+        
         sheet = conectar_google_sheets(tabla_analizar)
         todas_las_filas = sheet.get_all_values() if sheet else []
+        
         if todas_las_filas and len(todas_las_filas) >= 2:
             df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
-            st.dataframe(df_doc)
             col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-            if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-                try:
+            
+            st.header("🔬 Oficina Analítica Central")
+            tab1, tab2, tab3 = st.tabs(["👥 Unified Audience", "👤 Granular CRM", "📐 Doctoral Psychometrics"])
+            
+            with tab1:
+                st.subheader("Análisis Macroscópico Unificado de Población Activa")
+                st.dataframe(df_doc, use_container_width=True)
+                m_cronos, m_kairos = 3.0, 3.0
+                if len(col_reactivos) >= 2:
                     matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                    K = matriz_num.shape
-                    var_items = np.var(matriz_num, ddof=1, axis=0)
-                    var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                    if var_total > 0:
-                        alfa = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                        st.metric(label="📐 Alfa de Cronbach", value=f"{alfa:.3f}")
-                    matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                    _, S, Vt = np.linalg.svd(matriz_centrada, full_matrices=False)
-                    st.markdown("**Valores Singulares SVD:**")
-                    for i in range(min(2, len(S))): st.write(f"• Componente {i+1}: **{S[i]:.2f}**")
-                except Exception: pass
+                    m_cronos = np.mean(matriz_num[:, 0::2]) if matriz_num.shape > 0 else 3.0
+                    m_kairos = np.mean(matriz_num[:, 1::2]) if matriz_num.shape > 1 else 3.0
+                
+                pdf_m1 = FPDF()
+                pdf_m1.add_page()
+                pdf_m1.set_font("Helvetica", "B", 14)
+                pdf_m1.cell(190, 10, f"REPORT OF UNIFIED AUDIENCE ANALYTICS - COHORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                
+                b64_m1 = base64.b64encode(bytes(pdf_m1.output())).decode('utf-8')
+                iframe_m1 = f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="400px" style="border:1px solid #ddd;"></iframe>'
+                st.markdown(iframe_m1, unsafe_allow_html=True)
+                st.download_button(label="📥 DESCARGAR REPORTE DE AUDIENCIA COMPLETO (PDF)", data=bytes(pdf_m1.output()), file_name=f"Audience_Report_{tabla_analizar}.pdf", mime="application/pdf", key="btn_dl_m1_pdf")
 
-        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_aud_m"):
+            with tab2:
+                st.subheader("CRM Clínico y Perfil de Consecuencias Prospectivas")
+                if "Nombre" in df_doc.columns:
+                    lista_nombres = df_doc["Nombre"].unique().tolist()
+                    sujeto_sel = st.selectbox("Selecciona un Participante para Deep-Dive:", lista_nombres, key="sb_sujeto_central")
+                    fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
+                    
+                    pdf_m2 = FPDF()
+                    pdf_m2.add_page()
+                    pdf_m2.set_font("Helvetica", "B", 14)
+                    pdf_m2.cell(190, 10, f"INDIVIDUAL CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                    
+                    b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode('utf-8')
+                    iframe_m2 = f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="400px" style="border:1px solid #ddd;"></iframe>'
+                    st.markdown(iframe_m2, unsafe_allow_html=True)
+                    
+                    col_l1, col_l2 = st.columns(2)
+                    with col_l1:
+                        st.download_button(label="📥 DESCARGAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf")
+                    with col_l2:
+                        tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
+                        st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
+                else:
+                    st.info("No se encontró la columna de Nombres en esta tabla.")
+            # =================================================================
+            # PARTE 5C-P2B: CÁLCULOS MULTIVARIADOS SVD Y RESGUARDO DE ENTRADA MAIN
+            # =================================================================
+            with tab3:
+                st.subheader("Rigor Estadístico: Consistencia Interna y Varianza Explicada Latente")
+                alfa_calc, s1_val, s2_val = 0.0, 0.0, 0.0
+                
+                if len(df_doc) >= 3 and len(col_reactivos) >= 2:
+                    try:
+                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                        K = matriz_num.shape[1]
+                        var_items = np.var(matriz_num, ddof=1, axis=0)
+                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
+                        if var_total > 0:
+                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
+                            st.metric(label="📐 Alfa de Cronbach (Consistencia Interna)", value=f"{alfa_calc:.3f}")
+                        
+                        matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
+                        _, S, Vt = np.linalg.svd(matriz_centrada, full_matrices=False)
+                        s1_val = S[0] if len(S) > 0 else 0.0
+                        s2_val = S[1] if len(S) > 1 else 0.0
+                        
+                        col_s1, col_s2 = st.columns(2)
+                        col_s1.metric("Componente Latente 1 ($\sigma_1$)", f"{s1_val:.2f}")
+                        col_s2.metric("Componente Latente 2 ($\sigma_2$)", f"{s2_val:.2f}")
+                    except Exception:
+                        st.error("Error al procesar la matriz matricial SVD.")
+                
+                pdf_m3 = FPDF()
+                pdf_m3.add_page()
+                pdf_m3.set_font("Helvetica", "B", 14)
+                pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
+                pdf_m3.ln(5)
+                pdf_m3.set_font("Helvetica", "B", 11)
+                pdf_m3.cell(190, 6, f"PSYCHOMETRIC PROPERTIES OF THE DATASET: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+                pdf_m3.set_font("Helvetica", "", 10)
+                pdf_m3.cell(190, 5, f"Cronbach's Alpha Internal Consistency Score (a): {alfa_calc:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+                pdf_m3.cell(190, 5, f"First Singular Value (SVD Lambda 1): {s1_val:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+                pdf_m3.cell(190, 5, f"Second Singular Value (SVD Lambda 2): {s2_val:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+                pdf_m3.ln(10)
+                pdf_m3.line(10, pdf_m3.get_y(), 200, pdf_m3.get_y())
+                
+                b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode('utf-8')
+                iframe_m3 = f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="400px" style="border:1px solid #ddd;"></iframe>'
+                st.markdown(iframe_m3, unsafe_allow_html=True)
+                st.download_button(label="📥 EXPORTAR VALIDACIÓN PSICOMÉTRICA DOCTORAL (PDF)", data=bytes(pdf_m3.output()), file_name=f"Psychometric_Validation_{tabla_analizar}.pdf", mime="application/pdf", key="btn_dl_m3_pdf")
+        else:
+            st.info("ℹ️ Se requieren al menos 3 registros con respuestas Likert completas en la tabla para activar los cálculos.")
+
+        if st.button(tx.get("lbl_btn_auditoria", "📊 Auditoría"), key="btn_run_doctoral_macro"):
             pdf_auditoria = FPDF()
             pdf_auditoria.add_page()
             pdf_auditoria.set_font("Helvetica", "B", 14)
-            pdf_auditoria.cell(190, 10, "DICTAMEN", new_x="LMARGIN", new_y="NEXT", align="C")
-            st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_dl_aud")
+            pdf_auditoria.cell(190, 10, "DICTAMEN DOCTORAL", new_x="LMARGIN", new_y="NEXT", align="C")
+            st.download_button(label="📥 DESCARGAR AUDITORÍA", data=bytes(pdf_auditoria.output()), file_name="Dictamen_Doctoral.pdf", mime="application/pdf", key="btn_download_admin_macro_report")
 
+# Cierre estructural reglamentario a nivel de la raíz libre de espacios iniciales
 if __name__ == "__main__": 
     main()
-
