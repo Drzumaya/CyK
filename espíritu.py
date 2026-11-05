@@ -610,7 +610,8 @@ else:
     """
     
     html_reporte_completo = html_inicial + html_grafica + html_tabla + html_bloque_final
-    # --- SEGMENTO 8B-2: SECCIÓN DE DESCARGA PASTORAL Y PANEL TRANSICIONAL DE AGRADECIMIENTO ---
+   
+       # --- SEGMENTO 8B-2: DESCARGA PASTORAL Y TRANSICIÓN DE PANTALLA INMUNE A BLOQUEOS DE CELULARES ---
     st.markdown("---")
     st.info(f"""
     ### 🤝 Una Invitación Especial a Caminar Juntos
@@ -619,15 +620,16 @@ else:
 
     st.markdown("### 📥 Generar y Ver mi Reporte Oficial")
     
+    # Evaluar si la procedencia es del código QR móvil o del proyector
     es_movil_participante = "view" in st.query_params and st.query_params["view"] == "mobile"
 
     if es_movil_participante:
-        # Encodificar contenido HTML en base64 para inyección directa limpia
+        # Codificar contenido HTML en base64 para inyección directa limpia
         reporte_base64 = base64.b64encode(html_reporte_completo.encode('utf-8')).decode('utf-8')
         
-        # Enlace de descarga que reescribe el DOM de la pestaña original de la aplicación web
+        # Enlace de descarga que abre el PDF en una pestaña alternativa de forma nativa
         st.markdown(f"""
-            <a id="btn-descarga-dinamica" href="data:text/html;base64,{reporte_base64}" download="diagnostico_{nombre_final.lower()}.html" target="_blank" style="
+            <a id="btn-descarga-movil" href="data:text/html;base64,{reporte_base64}" download="diagnostico_{nombre_final.lower()}.html" target="_blank" style="
                 display: inline-block;
                 padding: 14px 28px;
                 background-color: #2E7D32;
@@ -639,60 +641,59 @@ else:
                 margin: 15px 0;
                 width: 100%;
                 font-size: 18px;
-            ">📄 Obtener Reporte y Descargar</a>
-
-            <script>
-                var botonDescarga = window.parent.document.getElementById("btn-descarga-dinamica") || document.getElementById("btn-descarga-dinamica");
-                if (botonDescarga) {{
-                    botonDescarga.addEventListener('click', function() {{
-                        setTimeout(function() {{
-                            var contenedorStreamlit = window.parent.document.querySelector('.main') || window.parent.document.body;
-                            contenedorStreamlit.innerHTML = `
-                                <div style="
-                                    font-family: Arial, sans-serif; 
-                                    text-align: center; 
-                                    padding: 60px 25px; 
-                                    background-color: #f4fbf7; 
-                                    color: #232323; 
-                                    min-height: 100vh;
-                                    display: flex;
-                                    flex-direction: column;
-                                    justify-content: center;
-                                    align-items: center;
-                                ">
-                                    <div style="font-size: 70px; margin-bottom: 20px;">🎉</div>
-                                    <h1 style="color: #2e7d32; font-size: 36px; margin-bottom: 15px; font-weight: bold;">¡Muchas Felicidades!</h1>
-                                    <p style="font-size: 22px; max-width: 550px; line-height: 1.6; margin-bottom: 25px; color: #444;">
-                                        Agradecemos profundamente tu tiempo y total honestidad al realizar esta evaluación de carácter. Tu reporte oficial ha sido generado de manera exitosa.
-                                    </p>
-                                    <div style="
-                                        background-color: white; 
-                                        padding: 20px; 
-                                        border-radius: 8px; 
-                                        border-left: 5px solid #2e7d32; 
-                                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                                        margin-bottom: 30px;
-                                        max-width: 500px;
-                                        text-align: justify;
-                                        font-size: 18px;
-                                        line-height: 1.5;
-                                    ">
-                                        <b>Próximo Paso:</b> Te animamos con sincero amor cristiano a repasar estos resultados en compañía de tu <b>pastor o un anciano de confianza</b> para trazar juntos tu plan de crecimiento guiado por el Espíritu Santo.
-                                    </div>
-                                    <h3 style="color: #2e7d32; font-size: 24px; font-style: italic; margin-bottom: 40px;">¡Hasta pronto y que Dios te bendiga!</h3>
-                                    <div style="font-size: 12px; color: #888888; font-style: italic; border-top: 1px solid #ddd; padding-top: 10px; width: 100%; max-width: 400px;">
-                                        Desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados.
-                                    </div>
-                                </div>
-                            `;
-                        }}, 1000);
-                    }});
-                }}
-            </script>
+            ">📄 1. Descargar mi Reporte Completo</a>
         """, unsafe_allow_html=True)
         
+        # BOTÓN NATIVO DE FLUJO: Al pulsarlo, el servidor destruye los datos y transmuta la pantalla de inmediato
+        if st.button("🏁 2. Finalizar y Salir Seguro", key="btn_finalizar_participante_movil_servidor"):
+            # Limpieza absoluta de la memoria del servidor para proteger al usuario
+            st.session_state.clear()
+            
+            # Pintamos de forma ruda y nativa el panel institucional encima del viewport
+            st.markdown("""
+                <div style="
+                    font-family: Arial, sans-serif; 
+                    text-align: center; 
+                    padding: 50px 20px; 
+                    background-color: #f4fbf7; 
+                    color: #232323; 
+                    position: fixed;
+                    top: 0; left: 0; right: 0; bottom: 0;
+                    z-index: 999999;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: center;
+                    align-items: center;
+                ">
+                    <div style="font-size: 65px; margin-bottom: 15px;">🎉</div>
+                    <h1 style="color: #2e7d32; font-size: 32px; margin-bottom: 15px; font-weight: bold;">¡Muchas Felicidades!</h1>
+                    <p style="font-size: 20px; max-width: 500px; line-height: 1.5; margin-bottom: 20px; color: #444;">
+                        Agradecemos profundamente tu tiempo y total honestidad al realizar esta evaluación de carácter. Tu reporte oficial ha sido generado de manera exitosa.
+                    </p>
+                    <div style="
+                        background-color: white; 
+                        padding: 18px; 
+                        border-radius: 8px; 
+                        border-left: 5px solid #2e7d32; 
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                        margin-bottom: 25px;
+                        max-width: 460px;
+                        text-align: justify;
+                        font-size: 16px;
+                        line-height: 1.5;
+                    ">
+                        <b>Próximo Paso:</b> Te animamos con sincero amor cristiano a repasar estos resultados en compañía de tu <b>pastor o un anciano de confianza</b> para trazar juntos tu plan de crecimiento guiado por el Espíritu Santo.
+                    </div>
+                    <h3 style="color: #2e7d32; font-size: 22px; font-style: italic; margin-bottom: 30px;">¡Hasta pronto y que Dios te bendiga!</h3>
+                    <div style="font-size: 11px; color: #888888; font-style: italic; border-top: 1px solid #ddd; padding-top: 8px; width: 100%; max-width: 350px;">
+                        Desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados.
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+            st.stop()
+        
     else:
-        # PANTALLA INMUNE DEL PONENTE (Kiosco continuo)
+        # --- PANTALLA INMUNE DEL PONENTE (Se queda operando exactamente igual) ---
         st.download_button(
             label="Descargar Reporte Completo (PDF / HTML)", 
             data=html_reporte_completo, 
@@ -710,4 +711,3 @@ else:
 
     st.markdown("---")
     st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
-
