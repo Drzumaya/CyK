@@ -603,9 +603,13 @@ def main():
 
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
     
+        # =================================================================
+    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y BOTONES DE FLUJO ELEGIDO
     # =================================================================
-    # PARTE 5-2: CONTROLES DE LA SIDEBAR Y COMPONENTES DE ENTORNO PÚBLICO (TITULACIÓN FIX)
-    # =================================================================
+    # Inicialización legal del interruptor de diagnóstico activo en el Core
+    if "tipo_diagnostico_activo" not in st.session_state:
+        st.session_state.tipo_diagnostico_activo = "salud_integral"
+
     with st.sidebar:
         st.markdown(tx.get("side_title", "## 🔐 Control"))
         if not ocultar_bar_css:
@@ -634,13 +638,35 @@ def main():
                         st.session_state.tmp_aud_val = ""
                         st.rerun()
                 
-                op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-                sel_aud = st.selectbox(tx.get("side_select_aud", "Audiencia:"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
-                if sel_aud != st.session_state.audiencia_activa:
-                    st.session_state.audiencia_activa = sel_aud
+                # 🍊 1. LOS DOS NUEVOS BOTONES SOLICITADOS (JUSTO DEBAJO DE AÑADIR AUDIENCIA)
+                st.markdown("---")
+                st.markdown("### 🛠️ Activar Instrumento")
+                
+                if st.button("🍏 Abrir Salud Integral", use_container_width=True, key="btn_set_salud_integral_instrument"):
+                    st.session_state.tipo_diagnostico_activo = "salud_integral"
+                    st.session_state.audiencia_activa = "🍊 Salud Integral"
                     st.rerun()
                     
-                if st.button(tx.get("side_close", "Cerrar"), key="btn_close_master"):
+                if st.button("⏳ Abrir Cuestionario C&K", use_container_width=True, key="btn_set_cyk_instrument"):
+                    st.session_state.tipo_diagnostico_activo = "modelos_temporales"
+                    # Si está en el default de salud, lo movemos al primer nicho psicométrico
+                    if st.session_state.audiencia_activa == "🍊 Salud Integral":
+                        st.session_state.audiencia_activa = "Docentes"
+                    st.rerun()
+                st.markdown("---")
+                
+                op = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+                sel_aud = st.selectbox(tx.get("side_select_aud"), op, index=op.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in op else 0, key="sb_aud_master")
+                if sel_aud != st.session_state.audiencia_activa:
+                    st.session_state.audiencia_activa = sel_aud
+                    # Sincronización inteligente del interruptor al cambiar en el combo
+                    if sel_aud == "🍊 Salud Integral":
+                        st.session_state.tipo_diagnostico_activo = "salud_integral"
+                    else:
+                        st.session_state.tipo_diagnostico_activo = "modelos_temporales"
+                    st.rerun()
+                    
+                if st.button(tx.get("side_close"), key="btn_close_master"):
                     st.session_state.admin_autenticado = False
                     st.session_state.tmp_pass_val = ""
                     st.session_state.tmp_aud_val = ""
@@ -675,18 +701,18 @@ def main():
             st.session_state.mostrar_bateria = not st.session_state.mostrar_bateria
             st.rerun()
 
-        # 🍊 CONFIGURACIÓN DE TÍTULOS SEGREGADOS PARA LA PONENCIA
-        es_likert = st.session_state.audiencia_activa != "🍊 Salud Integral"
+        # 🍊 CONFIGURACIÓN DE TÍTULOS EN BASE AL INTERRUPTOR MAESTRO DE LOS BOTONES
+        es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
         if es_likert:
             st.header(f"Sección I. Audiencia: {st.session_state.audiencia_activa}")
         else:
-            # Título formal plano sin emojis solicitado para el bloque clínico
             st.header("Diagnóstico de la Salud Integral")
             
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key="n_in")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in")
         
         resultados_totales = {}
+
 
 
         # =================================================================
