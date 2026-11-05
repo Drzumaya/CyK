@@ -193,6 +193,8 @@ else:
         else:
             cons = consecuencias_texto["critico"]
             st.error(f"🔴 **{fruto}:** {score}/10 — {cons['estado']}. Demanda atención urgente en oración y sumisión al Señor.")
+        
+        # Ensamblaje de filas de la tabla para pantalla y PDF
         tabla_html += f"<tr><td><b>{fruto}</b></td><td style='text-align:center;font-weight:bold;'>{score}/10</td><td><b>{cons['estado']}</b></td><td>{cons['corto']}</td><td>{cons['mediano']}</td><td>{cons['largo']}</td></tr>"
 
     st.header("💡 Recomendaciones Generales para el Crecimiento")
@@ -203,18 +205,73 @@ else:
     Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación** para recibir herramientas bíblicas personalizadas.
     """)
 
-    # 3. LEYENDA INYECTADA DE FORMA NATIVA EN EL ARCHIVO PDF IMPRIMIBLE
-    html_reporte = f"""<html><head><meta charset='utf-8'><style>body{{font-family:Arial,sans-serif;padding:20px;color:#333;line-height:1.4;}}table{{width:100%;border-collapse:collapse;font-size:11px;}}th,td{{border:1px solid #ddd;padding:8px;vertical-align:top;}}th{{background-color:#f4fbf7;color:#2e7d32;}} .pastoral-box{{background-color:#e8f5e9;padding:15px;margin-top:25px;border-left:5px solid #2e7d32;}} .grafica-box{{text-align:center;margin:20px 0;}} .footer-creditos{{text-align:center;margin-top:45px;font-size:10px;color:#777777;border-top:1px solid #eeeeee;padding-top:10px;font-style:italic;}}</style></head>
-    <body><h2 style='text-align:center;color:#2e7d32;'>🌱 Reporte de Diagnóstico Espiritual</h2><div style='text-align:right;'>Preparado para: <b>{nombre_final}</b></div>
-    <div class='grafica-box'><img src='data:image/png;base64,{img_base64}' width='520'/></div>
-    <table><thead><tr><th>Fruto</th><th>Puntaje</th><th>Estado de Madurez</th><th>Consecuencias Corto Plazo</th><th>Consecuencias Mediano Plazo</th><th>Consecuencias Largo Plazo</th></tr></thead><tbody>{tabla_html}</tbody></table>
-    <div class='pastoral-box'><h3>🤝 Un Llamado al Acompañamiento y Cuidado Espiritual</h3><p>Te animamos con amor a **presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza** de tu iglesia local para afirmar tus pasos hacia la madurez en Cristo.</p></div>
-    <div class='footer-creditos'>Este diagnóstico espiritual fue creado y desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados.</div></body></html>"""
+    # --- DISEÑO DEL PDF REESTRUCTURADO Y LIMITADO A LO SOLICITADO ---
+    html_reporte = f"""
+    <html>
+    <head>
+        <meta charset='utf-8'>
+        <style>
+            body {{ font-family: Arial, sans-serif; padding: 20px; color: #333; line-height: 1.4; }}
+            .header {{ text-align: center; border-bottom: 3px solid #2e7d32; padding-bottom: 10px; }}
+            .header h1 {{ color: #2e7d32; margin: 0; }}
+            .user-info {{ text-align: right; font-style: italic; margin-top: 10px; color: #555; }}
+            .grafica-box {{ text-align: center; margin: 20px 0; }}
+            table {{ width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 11px; }}
+            th, td {{ border: 1px solid #ddd; padding: 8px; vertical-align: top; }}
+            th {{ background-color: #f4fbf7; color: #2e7d32; }}
+            .seccion-titulo {{ color: #2e7d32; font-size: 16px; font-weight: bold; margin-top: 25px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }}
+            .pastoral-box {{ background-color: #e8f5e9; padding: 15px; margin-top: 25px; border-left: 5px solid #2e7d32; }}
+            .footer-creditos {{ text-align: center; margin-top: 45px; font-size: 10px; color: #777777; border-top: 1px solid #eeeeee; padding-top: 10px; font-style: italic; }}
+        </style>
+    </head>
+    <body>
+        <div class='header'>
+            <h1>🌱 Reporte de Diagnóstico Espiritual</h1>
+            <p>Los 9 Frutos del Espíritu (Gálatas 5:22-23)</p>
+        </div>
+        <div class='user-info'>Diagnóstico preparado especialmente para: <strong>{nombre_final}</strong></div>
+        
+        <div class='grafica-box'>
+            <img src='data:image/png;base64,{img_base64}' width='520'/>
+        </div>
+
+        <div class='seccion-titulo'>🔍 Interpretación y Posibles Consecuencias</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Fruto</th>
+                    <th>Puntaje</th>
+                    <th>Estado de Madurez</th>
+                    <th>Consecuencias Corto Plazo</th>
+                    <th>Consecuencias Mediano Plazo</th>
+                    <th>Consecuencias Largo Plazo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {tabla_html}
+            </tbody>
+        </table>
+        
+        <div class='seccion-titulo'>💡 Recomendaciones Generales para el Crecimiento</div>
+        <ol style='font-size: 12px; margin-top: 10px;'>
+            <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
+            <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
+            <li><strong>Caminar en Comunidad:</strong> Busca círculos de edificación dentro de la iglesia donde puedas abrir tu corazón de forma madura y transparente.</li>
+        </ol>
+
+        <div class='pastoral-box'>
+            <h3>🤝 Un Llamado al Acompañamiento y Cuidado Espiritual</h3>
+            <p>Estimado(a) **{nombre_final}**, te animamos con amor a <strong>presentar y compartir estos resultados en una cita con tu pastor o un anciano de confianza</strong> de tu iglesia local. Encontrarás un espacio sagrado de consejería, oración intercesora y cobertura pastoral idóneo para afirmar tus pasos hacia la estatura de la plenitud de Cristo.</p>
+        </div>
+
+        <div class='footer-creditos'>Este diagnóstico espiritual fue creado y desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados.</div>
+    </body>
+    </html>
+    """
 
     st.markdown("### 📥 Descarga tu Reporte Oficial")
     st.download_button("Descargar Reporte Completo (PDF / HTML)", data=html_reporte, file_name=f"diagnostico_{nombre_final.lower()}.html", mime="text/html")
     
-    # LEYENDA VISIBLE EN LA PANTALLA INTERACTIVA DE RESULTADOS
     st.markdown("---")
     st.caption("🎨 **Diseño y Creación:** Diagnóstico Espiritual desarrollado por **Jacob Zumaya Prianti**.")
     
