@@ -603,7 +603,7 @@ def main():
 
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
     
-          # =================================================================
+    # =================================================================
     # PARTE 5A: INICIALIZACIÓN DE ESTADOS Y CONTROL DE BOTONES EN SIDEBAR
     # =================================================================
     if "tipo_diagnostico_activo" not in st.session_state:
@@ -673,7 +673,7 @@ def main():
 
     es_likert = st.session_state.tipo_diagnostico_activo == "modelos_temporales"
     
-        # =================================================================
+    # =================================================================
     # PARTE 5B: ENTORNO POLÍGLOTA, PROYECCIÓN Y SECCIONES BASE ESTÁTICAS (REVISADO)
     # =================================================================
     if "paso_salud_desbloqueado" not in st.session_state: st.session_state.paso_salud_desbloqueado = False
