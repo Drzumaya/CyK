@@ -562,14 +562,14 @@ else:
         </table>
     """
 
-    # --- SEGMENTO 8B: CIERRE DEL PDF, REFERENCIAS APA 7 Y APERTURA INTERACTIVA DIRECTA ---
+       # --- SEGMENTO 8B-1: COMPILACIÓN DE BIBLIOGRAFÍA APA 7 Y CIERRE DE MARCAS HTML ---
     html_bloque_final = """
-    <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
+        <div class='seccion-titulo'>[Alerta] 2. Posibles Consecuencias en el Carácter</div>
         <ul class='lista-estilo'>
     """ + lista_consecuencias_pdf + """
         </ul>
         
-    <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
+        <div class='seccion-titulo'>[Plan de Acción] 3. Recomendaciones Generales para el Crecimiento</div>
         <ol class='lista-estilo'>
             <li><strong>Oración de Rendición:</strong> Lleva tus áreas identificadas con puntajes más bajos a tu altar personal de oración diaria, pidiendo al Espíritu Santo que muera tu carne y florezca Su carácter.</li>
             <li><strong>Pasos Prácticos de Fe:</strong> Selecciona una sola área crítica esta semana y ejecuta de manera intencional acciones concretas que reflejen la virtud bíblica opuesta.</li>
@@ -610,50 +610,89 @@ else:
     """
     
     html_reporte_completo = html_inicial + html_grafica + html_tabla + html_bloque_final
-
+    # --- SEGMENTO 8B-2: SECCIÓN DE DESCARGA PASTORAL Y PANEL TRANSICIONAL DE AGRADECIMIENTO ---
     st.markdown("---")
     st.info(f"""
     ### 🤝 Una Invitación Especial a Caminar Juntos
     Querido(a) **{nombre_final}**, te extendemos una invitación sincera, afectuosa y completamente confidencial para acercarte de manera prioritaria con tu **pastor o con un anciano de confianza de nuestra congregación**.
     """)
 
+    st.markdown("### 📥 Generar y Ver mi Reporte Oficial")
+    
     es_movil_participante = "view" in st.query_params and st.query_params["view"] == "mobile"
 
     if es_movil_participante:
-        st.markdown("### 📥 Generar y Ver mi Reporte Oficial")
-        
-        # Codificar el contenido HTML en base64 para inyectarlo en el script de apertura directa
+        # Encodificar contenido HTML en base64 para inyección directa limpia
         reporte_base64 = base64.b64encode(html_reporte_completo.encode('utf-8')).decode('utf-8')
         
-        # Botón estilizado nativo mediante HTML que ejecuta la apertura y la autodestrucción simultánea
+        # Enlace de descarga que reescribe el DOM de la pestaña original de la aplicación web
         st.markdown(f"""
-            <a id="btn-autocierre-abrir" href="data:text/html;base64,{reporte_base64}" download="diagnostico_{nombre_final.lower()}.html" target="_blank" style="
+            <a id="btn-descarga-dinamica" href="data:text/html;base64,{reporte_base64}" download="diagnostico_{nombre_final.lower()}.html" target="_blank" style="
                 display: inline-block;
-                padding: 12px 24px;
+                padding: 14px 28px;
                 background-color: #2E7D32;
                 color: white;
                 text-decoration: none;
                 font-weight: bold;
                 border-radius: 8px;
                 text-align: center;
-                margin: 10px 0;
-            ">📄 Obtener Reporte y Finalizar</a>
+                margin: 15px 0;
+                width: 100%;
+                font-size: 18px;
+            ">📄 Obtener Reporte y Descargar</a>
 
             <script>
-                var botonCierre = window.parent.document.getElementById("btn-autocierre-abrir") || document.getElementById("btn-autocierre-abrir");
-                if (botonCierre) {{
-                    botonCierre.addEventListener('click', function() {{
+                var botonDescarga = window.parent.document.getElementById("btn-descarga-dinamica") || document.getElementById("btn-descarga-dinamica");
+                if (botonDescarga) {{
+                    botonDescarga.addEventListener('click', function() {{
                         setTimeout(function() {{
-                            window.parent.close();
-                            window.close();
-                        }}, 1500);
+                            var contenedorStreamlit = window.parent.document.querySelector('.main') || window.parent.document.body;
+                            contenedorStreamlit.innerHTML = `
+                                <div style="
+                                    font-family: Arial, sans-serif; 
+                                    text-align: center; 
+                                    padding: 60px 25px; 
+                                    background-color: #f4fbf7; 
+                                    color: #232323; 
+                                    min-height: 100vh;
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: center;
+                                    align-items: center;
+                                ">
+                                    <div style="font-size: 70px; margin-bottom: 20px;">🎉</div>
+                                    <h1 style="color: #2e7d32; font-size: 36px; margin-bottom: 15px; font-weight: bold;">¡Muchas Felicidades!</h1>
+                                    <p style="font-size: 22px; max-width: 550px; line-height: 1.6; margin-bottom: 25px; color: #444;">
+                                        Agradecemos profundamente tu tiempo y total honestidad al realizar esta evaluación de carácter. Tu reporte oficial ha sido generado de manera exitosa.
+                                    </p>
+                                    <div style="
+                                        background-color: white; 
+                                        padding: 20px; 
+                                        border-radius: 8px; 
+                                        border-left: 5px solid #2e7d32; 
+                                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                                        margin-bottom: 30px;
+                                        max-width: 500px;
+                                        text-align: justify;
+                                        font-size: 18px;
+                                        line-height: 1.5;
+                                    ">
+                                        <b>Próximo Paso:</b> Te animamos con sincero amor cristiano a repasar estos resultados en compañía de tu <b>pastor o un anciano de confianza</b> para trazar juntos tu plan de crecimiento guiado por el Espíritu Santo.
+                                    </div>
+                                    <h3 style="color: #2e7d32; font-size: 24px; font-style: italic; margin-bottom: 40px;">¡Hasta pronto y que Dios te bendiga!</h3>
+                                    <div style="font-size: 12px; color: #888888; font-style: italic; border-top: 1px solid #ddd; padding-top: 10px; width: 100%; max-width: 400px;">
+                                        Desarrollado por Jacob Zumaya Prianti. © 2026 Todos los derechos reservados.
+                                    </div>
+                                </div>
+                            `;
+                        }}, 1000);
                     }});
                 }}
             </script>
         """, unsafe_allow_html=True)
         
     else:
-        # PANTALLA INMUNE DEL PONENTE
+        # PANTALLA INMUNE DEL PONENTE (Kiosco continuo)
         st.download_button(
             label="Descargar Reporte Completo (PDF / HTML)", 
             data=html_reporte_completo, 
