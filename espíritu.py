@@ -18,6 +18,19 @@ for var, val in [("mostrar_felicitacion", False), ("finalizado", False), ("diagn
     if var not in st.session_state:
         st.session_state[var] = val
 
+# SOLUCIÓN DEFINITIVA: Declaración global fija de la base de datos de Gálatas
+frutos_info = {
+    "Amor": {"izq": "Guardo rencor, elijo el egoísmo o la indiferencia.", "der": "Amo, perdono y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
+    "Gozo": {"izq": "Me domina la queja constante, la amargura o la tristeza.", "der": "Siento una alegría profunda que no depende de las circunstancias.", "cita": "Gálatas 5:22"},
+    "Paz": {"izq": "Vivo atrapado en la ansiedad, la preocupación o los conflictos.", "der": "Tengo tranquilidad interna y soy un agente de reconciliación.", "cita": "Gálatas 5:22"},
+    "Paciencia": {"izq": "Me desespero rápido, me irrito y soy intolerante.", "der": "Sé esperar los tiempos de Dios con calma y tolero las flaquezas ajenas.", "cita": "Gálatas 5:22"},
+    "Benignidad": {"izq": "Puedo llegar a ser duro, crítico o muy cortante al hablar.", "der": "Trato a todos con extrema dulzura, empatía y afabilidad.", "cita": "Gálatas 5:22"},
+    "Bondad": {"izq": "Pienso primero en mi beneficio o actúo con doblez.", "der": "Hago el bien de forma activa, generosa, íntegra y desinteresada.", "cita": "Gálatas 5:22"},
+    "Fe": {"izq": "Dudo constantemente de las promesas de Dios y soy desleal.", "der": "Soy una persona fiel, plenamente confiable y con fe inquebrantable.", "cita": "Gálatas 5:22"},
+    "Mansedumbre": {"izq": "Me defiendo con orgullo, soberbia, prepotencia o enojo.", "der": "Reacciono con humildad, suavidad de espíritu y total sumisión a Dios.", "cita": "Gálatas 5:23"},
+    "Templanza": {"izq": "Cedo con facilidad ante los antojos, impulsos o malos hábitos.", "der": "Tengo dominio propio, gobierno mis emociones y autodisciplina.", "cita": "Gálatas 5:23"}
+}
+
 # Estilos CSS para la regla numérica visible y alineación
 st.markdown("""
 <style>
@@ -335,21 +348,7 @@ if not st.session_state.diagnostico_generado:
     
     **No tengas miedo ni vergüenza de marcar un 1 o un 10.** Si hay un área donde la carne te domina por completo, marcar un **1** es el primer paso de humildad hacia la restauración. De igual manera, si el Espíritu Santo te ha dado la victoria absoluta y constante en un fruto, pon un **10** reconociendo Su poder en ti con gratitud. Responde con absoluta sinceridad delante de Dios.
     """)
-       # --- SEGMENTO 6: FORMULARIO INTERACTIVO CON BASE DE DATOS ASEGURADA ---
-    
-    # SOLUCIÓN: Definición ruda y explícita para evitar pérdidas de alcance en los expanders
-    frutos_info = {
-        "Amor": {"izq": "Guardo rencor, elijo el egoísmo o la indiferencia.", "der": "Amo, perdono y acepto a los demás sin condiciones.", "cita": "Gálatas 5:22"},
-        "Gozo": {"izq": "Me domina la queja constante, la amargura o la tristeza.", "der": "Siento una alegría profunda que no depende de las circunstancias.", "cita": "Gálatas 5:22"},
-        "Paz": {"izq": "Vivo atrapado en la ansiedad, la preocupación o los conflictos.", "der": "Tengo tranquilidad interna y soy un agente de reconciliación.", "cita": "Gálatas 5:22"},
-        "Paciencia": {"izq": "Me desespero rápido, me irrito y soy intolerante.", "der": "Sé esperar los tiempos de Dios con calma y tolero las flaquezas ajenas.", "cita": "Gálatas 5:22"},
-        "Benignidad": {"izq": "Puedo llegar a ser duro, crítico o muy cortante al hablar.", "der": "Trato a todos con extrema dulzura, empatía y afabilidad.", "cita": "Gálatas 5:22"},
-        "Bondad": {"izq": "Pienso primero en mi beneficio o actúo con doblez.", "der": "Hago el bien de forma activa, generosa, íntegra y desinteresada.", "cita": "Gálatas 5:22"},
-        "Fe": {"izq": "Dudo constantemente de las promesas de Dios y soy desleal.", "der": "Soy una persona fiel, plenamente confiable y con fe inquebrantable.", "cita": "Gálatas 5:22"},
-        "Mansedumbre": {"izq": "Me defiendo con orgullo, soberbia, prepotencia o enojo.", "der": "Reacciono con humildad, suavidad de espíritu y total sumisión a Dios.", "cita": "Gálatas 5:23"},
-        "Templanza": {"izq": "Cedo con facilidad ante los antojos, impulsos o malos hábitos.", "der": "Tengo dominio propio, gobierno mis emociones y autodisciplina.", "cita": "Gálatas 5:23"}
-    }
-
+          # --- SEGMENTO 6 ACTUALIZADO: FORMULARIO INTERACTIVO ACAPARADO ---
     st.header("📋 Autoevaluación")
     st.subheader("Abre cada fruto y selecciona el nivel exacto que defina tu realidad hoy:")
 
@@ -357,6 +356,7 @@ if not st.session_state.diagnostico_generado:
         puntajes_temporales = {}
         escala_limpia = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
         
+        # Lee frutos_info de forma nativa desde la raíz del Segmento 1
         for i, (fruto, info) in enumerate(frutos_info.items(), 1):
             with st.expander(f"✨ {i}. {fruto} ({info['cita']})"):
                 st.markdown(f"**De:** *{info['izq']}* \n\n **Hacia:** *{info['der']}*")
@@ -385,6 +385,7 @@ if not st.session_state.diagnostico_generado:
             st.session_state.nombre_final = nombre_usuario.strip() if nombre_usuario.strip() != "" else "Invitado"
             st.session_state.diagnostico_generado = True
             st.rerun()
+
 
 # --- SEGMENTO 7: PANTALLA EXCLUSIVA DE RESULTADOS Y CONSTRUCCIÓN DE GRÁFICA ---
 else:
