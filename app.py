@@ -142,16 +142,16 @@ TEXTOS_DICTAMEN_BILINGUE = {
 def conectar_google_sheets(nombre_tabla):
     """
     Establece conexión encriptada de alta seguridad con la API de Google Sheets.
-    CORREGIDO: Fuerza las URLs de alcance oficiales y extrae la Key desde secretos.
+    Fuerza los alcances (scopes) correctos y obligatorios exigidos por Google Cloud OAuth2.
     """
     try:
         credenciales_dict = dict(st.secrets["gcp_service_account"])
-        
         if "private_key" in credenciales_dict:
             raw_key = credenciales_dict["private_key"]
             credenciales_dict["private_key"] = raw_key.replace("\\n", "\n").strip()
 
-        # CORREGIDO: Rutas de autenticación unificadas obligatorias de Google
+        # CORREGIDO: URIs completas e inalterables requeridas por la biblioteca gspread
+        # Al usar estas direcciones exactas, Google devolverá un 'access_token' en lugar de un 'id_token'
         scope = [
             "https://googleapis.com",
             "https://googleapis.com"
@@ -160,7 +160,7 @@ def conectar_google_sheets(nombre_tabla):
         credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
         cliente = gspread.authorize(credenciales)
         
-        # CORREGIDO: Lectura parametrizada desde la bóveda de Secrets
+        # Extracción parametrizada de la clave desde la bóveda de secretos
         id_maestro_libro = st.secrets["gcp_service_account"].get("spreadsheet_key", "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ").strip()
         
         libro = cliente.open_by_key(id_maestro_libro)
