@@ -652,7 +652,7 @@ def renderizar_consola_windows(tabla_analizar):
                     c_crm1, c_crm2 = st.columns(2)
                     with c_crm1:
                           st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name="Clinical.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                       with c_crm2:
+                    with c_crm2:
                           tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
                           st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
                  else:
