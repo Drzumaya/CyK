@@ -655,7 +655,7 @@ def renderizar_consola_windows(tabla_analizar):
                     with c_crm2:
                           tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
                           st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
-                 else:
+                else:
                     st.info("Columna Nombre ausente.")
 
               with t3:
