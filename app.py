@@ -924,7 +924,7 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
                     st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                     resultados_totales[f"R{r_id}"] = st.radio(
                         label="Escala / Scale:", 
-                        options= [1, 2, 3, 4, 5], 
+                        options=[1, 2, 3, 4, 5], 
                         format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                         index=None, 
                         horizontal=True, 
