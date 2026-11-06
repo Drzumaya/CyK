@@ -770,10 +770,11 @@ def renderizar_consola_windows(tabla_analizar):
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
-                    # Inyección síncrona exacta de la matriz numérica Likert del 1 al 5
+                    
+                    # 🍊 FIJACIÓN DEL SYNTAXERROR: Definición explícita del vector numérico del 1 al 5
                     resultados_totales[f"R{r_id}"] = st.radio(
                         "Escala / Scale:", 
-                        options=, 
+                        options=[1, 2, 3, 4, 5], 
                         format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                         index=None, 
                         horizontal=True, 
@@ -787,6 +788,6 @@ def renderizar_consola_windows(tabla_analizar):
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-# Guardia de ejecución final a ras del margen izquierdo reglamentario
+# Guardia reglamentaria a nivel raíz libre de espacios iniciales
 if __name__ == "__main__":
     main()
