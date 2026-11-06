@@ -765,8 +765,8 @@ def renderizar_consola_windows(tabla_analizar):
                     st.session_state.paso_cyk = True
                     st.rerun()
 
-            if st.session_state.paso_cyk:
-                st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
+                if st.session_state.paso_cyk:
+                    st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
