@@ -241,9 +241,12 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
     es_experto = "sí" in str(datos_participante.get("C3_Enseñado", "")).lower()
     
     estilo = "reflexivo"
-    if edad > 45: estilo = "institucional"
-    elif edad < 25: estilo = "dinamico"
-    if ha_leido or es_experto: estilo = "tecnico"
+    if edad > 45: 
+        estilo = "institucional"
+    elif edad < 25: 
+        estilo = "dinamico"
+    if ha_leido or es_experto: 
+        estilo = "tecnico"
 
     if lang == "es":
         if estilo == "institucional":
@@ -352,6 +355,7 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 10: "I maintain my analytical clarity when everything around me changes rapidly."
             }
 # END: PARTE 5
+
 # BEGIN: PARTE 6
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     """
