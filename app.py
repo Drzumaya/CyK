@@ -457,7 +457,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
                 var_items = np.var(matriz_num, ddof=1, axis=0)
                 var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                K = matriz_num.shape[1]
+                K = matriz_num.shape
                 alfa = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total)) if var_total > 0 and K > 1 else 0.0
                 
                 p_respuestas = np.mean(matriz_num, axis=0) / 5.0
@@ -465,13 +465,16 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 
                 matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
                 _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                s1 = S[0] if len(S) > 0 else 0.0
-                s2 = S[1] if len(S) > 1 else 0.0
+                s1 = S if len(S) > 0 else 0.0
+                s2 = S if len(S) > 1 else 0.0
                 
                 c_st1, c_st2, c_st3 = st.columns(3)
                 c_st1.metric("Alfa de Cronbach", f"{alfa:.4f}")
                 c_st2.metric("Información de Fisher Total (CAT)", f"{informacion_fisher:.3f}")
-                c_st3.metric("Eje Mayor \(\sigma_1\) (SVD)", f"{s1:.2f}")
+                
+                # 🍊 SOLUCIÓN AL SYNTAXWARNING: Inyección de prefijo 'r' para renderizado LaTeX crudo libre de errores
+                c_st3.metric(r"Eje Mayor \(\sigma_1\) (SVD)", f"{s1:.2f}")
+                st.metric(r"Eje Secundario \(\sigma_2\) (SVD)", f"{s2:.2f}")
             else:
                 st.info("ℹ️ Módulo métrico en espera de un mínimo de 3 respuestas Likert completas.")
     else:
