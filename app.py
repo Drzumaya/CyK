@@ -686,8 +686,8 @@ def renderizar_consola_windows(tabla_analizar):
                         st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
                     else:
                         st.info("Se requieren al menos 3 registros completos para activar los cálculos factoriales.")
-            else:
-                st.info("Se requieren al menos 3 registros completos.")
+        else:
+            st.info("Se requieren al menos 3 registros completos.")
             st.markdown("</div>", unsafe_allow_html=True)
 
     # Invocación condicional de la capa flotante administrativa superior
