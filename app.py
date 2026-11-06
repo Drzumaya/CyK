@@ -324,7 +324,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
     return bytes(pdf.output())
 # =================================================================
-# PARTE 6 DE 7: COMPUERTA DE ENRUTAMIENTO Y TABLERO GRIS CORPORATIVO
+# PARTE 6 DE 7: COMPUERTA DE ENRUTAMIENTO Y TABLERO GRIS DOCTORAL PURGADO
 # =================================================================
 def gateway_bt(n, w, r, lk, lg, t):
     """
@@ -354,7 +354,8 @@ def gateway_bt(n, w, r, lk, lg, t):
     with c3:
         if vld:
             tel = "".join(c for c in str(w) if c.isdigit())
-            st.markdown(f'<a href="https://wa.me{tel}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
+            wa_lnk = f"https://wa.me{tel}"
+            st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
 
 def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
     """
@@ -376,7 +377,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
     tiene_datos = todas_las_filas and len(todas_las_filas) >= 2
     
     if tiene_datos:
-        df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
+        df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
         col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
         
         t1, t2, t3 = st.tabs([
@@ -418,7 +419,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 df_filtrado = df_doc[df_doc["Nombre"] == sujeto_sel]
                 
                 if not df_filtrado.empty:
-                    fila_sujeto = df_filtrado.iloc[0]
+                    fila_sujeto = df_filtrado.iloc
                     pdf_c = FPDF()
                     pdf_c.add_page()
                     pdf_c.set_margins(20, 20, 20)
@@ -472,9 +473,9 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 c_st1.metric("Alfa de Cronbach", f"{alfa:.4f}")
                 c_st2.metric("Información de Fisher Total (CAT)", f"{informacion_fisher:.3f}")
                 
-                # 🍊 SOLUCIÓN AL SYNTAXWARNING: Inyección de prefijo 'r' para renderizado LaTeX crudo libre de errores
-                c_st3.metric(r"Eje Mayor \(\sigma_1\) (SVD)", f"{s1:.2f}")
-                st.metric(r"Eje Secundario \(\sigma_2\) (SVD)", f"{s2:.2f}")
+                # 🔥 FIX DEFINITIVO: Uso de doble diagonal inversa para escapar los caracteres especiales de LaTeX en los KPIs
+                c_st3.metric("Eje Mayor \\(\\sigma_1\\) (SVD)", f"{s1:.2f}")
+                st.metric("Eje Secundario \\(\\sigma_2\\) (SVD)", f"{s2:.2f}")
             else:
                 st.info("ℹ️ Módulo métrico en espera de un mínimo de 3 respuestas Likert completas.")
     else:
