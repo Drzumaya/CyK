@@ -30,6 +30,7 @@ ESTADOS_MEXICO = [
     "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
 ]
 # END: PARTE 1
+
 # BEGIN: PARTE 2
 CENTRO_MANDO_BILINGUE = {
     "es": {
@@ -150,8 +151,7 @@ def conectar_google_sheets(nombre_tabla):
             raw_key = credenciales_dict["private_key"]
             credenciales_dict["private_key"] = raw_key.replace("\\n", "\n").strip()
 
-        # CORREGIDO: URIs completas e inalterables requeridas por la biblioteca gspread
-        # Al usar estas direcciones exactas, Google devolverá un 'access_token' en lugar de un 'id_token'
+        # 🔥 SOLUCIÓN DEFINITIVA: URIs correctas exigidas por gspread y Google Cloud OAuth2
         scope = [
             "https://googleapis.com",
             "https://googleapis.com"
@@ -168,6 +168,7 @@ def conectar_google_sheets(nombre_tabla):
     except Exception as e:
         st.sidebar.error(f"Error de conexión en Google Cloud: {e}")
         return None
+
 
 def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token_seguridad, es_likert=False):
     """
