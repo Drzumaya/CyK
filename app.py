@@ -697,8 +697,15 @@ def renderizar_consola_windows(tabla_analizar):
         # CORREGIDO: Cierre del contenedor de la ventana flotante inyectada de manera controlada y limpia en el DOM
         st.markdown("</div>", unsafe_allow_html=True)
 
+        # =================================================================
+    # PARTE 10-FINAL: CONTROL DE RENDERIZADO SIMULTÁNEO CENTRAL
+    # =================================================================
+    
+    # CONTROL 1: Si el ponente ya se autenticó, desplegamos la consola científica analítica
     if st.session_state.admin_autenticado:
         renderizar_consola_windows(st.session_state.sb_an)
+        
+    # CONTROL 2: Evaluamos de forma paralela e independiente la pantalla del participante (Formulario)
     if not st.session_state.flujo_finalized:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
@@ -745,7 +752,6 @@ def renderizar_consola_windows(tabla_analizar):
 
         if st.session_state.paso_salud:
             st.markdown("### 🍊 Diagnóstico de la Salud Integral")
-            # CORREGIDO: Integración del motor dinámico políglota para evitar desplegar los síntomas fijos únicamente en español
             MATRIZ_SINTOMAS_DINAMICA = motor_generativo_items_audiencia(st.session_state.audiencia_activa, lang_code=iso)
             
             for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_DINAMICA.items()):
@@ -753,12 +759,11 @@ def renderizar_consola_windows(tabla_analizar):
                     st.markdown(f"#### {g_name}")
                     c_a, c_b = st.columns(2)
                     with c_a:
-                        cb0 = st.checkbox(lista_items_gajo[0], key=f"cs_{g_idx}_0")
-                        cb1 = st.checkbox(lista_items_gajo[1], key=f"cs_{g_idx}_1")
+                        cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_0")
+                        cb1 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_1")
                     with c_b:
-                        cb2 = st.checkbox(lista_items_gajo[2], key=f"cs_{g_idx}_2")
-                        cb3 = st.checkbox(lista_items_gajo[3], key=f"cs_{g_idx}_3")
-                    # Registro lineal persistente de índices de salud seleccionados
+                        cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
+                        cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
             if not st.session_state.paso_cyk:
@@ -773,7 +778,7 @@ def renderizar_consola_windows(tabla_analizar):
                     st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                     resultados_totales[f"R{r_id}"] = st.radio(
                         label="Escala / Scale:", 
-                        options=[1, 2, 3, 4, 5], 
+                        options=, 
                         format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                         index=None, 
                         horizontal=True, 
