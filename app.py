@@ -660,7 +660,7 @@ def renderizar_consola_windows(tabla_analizar):
 
             with t3:
                   alfa_calc, s1, s2 = 0.0, 0.0, 0.0
-                    if len(df_doc) >= 3 and len(col_reactivos) >= 2:
+                if len(df_doc) >= 3 and len(col_reactivos) >= 2:
                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
                        K = matriz_num.shape
                        var_items = np.var(matriz_num, ddof=1, axis=0)
