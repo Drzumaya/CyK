@@ -636,7 +636,7 @@ def renderizar_consola_windows(tabla_analizar):
                 st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                 st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
 # =================================================================
-# PARTE 10: SUBMÓDULOS EXPANDIDOS, FORMULARIO BASE Y CIERRE DE MAIN
+# PARTE 10-B1: REPORTE INDIVIDUAL, SVD, ALFA DE CRONBACH DOCTORAL
 # =================================================================
                 with t2:
                     if "Nombre" in df_doc.columns:
@@ -691,8 +691,9 @@ def renderizar_consola_windows(tabla_analizar):
     # Invocación condicional y mapeada de la capa flotante administrativa superior
     if st.session_state.admin_autenticado:
         renderizar_consola_windows(tabla_analizar)
-
-    # 🍊 VISTA DEL FLUJO PÚBLICO DEL CUESTIONARIO SECUENCIAL EN CAPA DE FONDO
+    # =================================================================
+    # PARTE 10-B2: INTERFAZ EN RED SECUENCIAL AUTOMÁTICA DEL PARTICIPANTE
+    # =================================================================
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
@@ -719,8 +720,8 @@ def renderizar_consola_windows(tabla_analizar):
             ("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"),
             ("C3_Enseñado", "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?")
         ]
-    for key_r, txt_r in preguntas_sec3:
-        resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
+        for key_r, txt_r in preguntas_sec3:
+            resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
 
         resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
         resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
@@ -741,7 +742,7 @@ def renderizar_consola_windows(tabla_analizar):
                 "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
                 "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
                 "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
-                "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
+                "🙏 Salud Espiritual": ["Vacío Existencial and Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
             }
             for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_FIJA.items()):
                 with st.container(border=True):
@@ -765,22 +766,23 @@ def renderizar_consola_windows(tabla_analizar):
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
+                    # Inyección síncrona exacta de la matriz numérica Likert del 1 al 5
                     resultados_totales[f"R{r_id}"] = st.radio(
-                    "Escala / Scale:",
-                    options=,
-                    format_func=lambda x: tx.get(f"likert_{x}", str(x)),
-                    index=None,
-                    horizontal=True,
-                    key=f"rcyk_{r_id}"
+                        "Escala / Scale:", 
+                        options=, 
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                        index=None, 
+                        horizontal=True, 
+                        key=f"rcyk_{r_id}"
                     )
-                    gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-else:
-    st.balloons()
-    st.success(tx.get("thanks", "¡Completado!"))
-    rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
-    st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-    Cierre reglamentario de la aplicación a nivel raíz
+        gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+    else:
+        st.balloons()
+        st.success(tx.get("thanks", "¡Completado!"))
+        rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
+        st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-if name == "main":
+# Guardia de ejecución final a ras del margen izquierdo reglamentario
+if __name__ == "__main__":
     main()
