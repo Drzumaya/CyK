@@ -142,18 +142,18 @@ TEXTOS_DICTAMEN_BILINGUE = {
 def conectar_google_sheets(nombre_tabla):
     """
     Establece conexión encriptada de alta seguridad con la API de Google Sheets.
-    CORREGIDO: Usa los scopes oficiales de Spreadsheets y Drive para evitar el error 404.
+    Fuerza los alcances (scopes) correctos y sanitiza los saltos de línea de la clave PEM.
     """
     try:
-        # Extrae las credenciales de la bóveda de secretos de Streamlit
+        # Extrae de forma segura las credenciales de la bóveda de secretos de Streamlit
         credenciales_dict = dict(st.secrets["gcp_service_account"])
         
-        # Sanitiza los saltos de línea de la clave privada de forma síncrona
+        # Corrige la serialización de la clave privada PEM convirtiendo texto plano a saltos reales
         if "private_key" in credenciales_dict:
             raw_key = credenciales_dict["private_key"]
             credenciales_dict["private_key"] = raw_key.replace("\\n", "\n").strip()
 
-        # CORREGIDO: Direcciones URL exactas requeridas por Google Cloud Platform
+        # CORREGIDO: Direcciones URL de alcance completas y obligatorias para Google Cloud
         scope = [
             "https://googleapis.com",
             "https://googleapis.com"
@@ -162,12 +162,14 @@ def conectar_google_sheets(nombre_tabla):
         credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
         cliente = gspread.authorize(credenciales)
         
-        # Conexión síncrona con la hoja de cálculo maestra unificada
+        # Sincroniza de forma síncrona con el ID del libro maestro unificado
         libro = cliente.open_by_key("1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ")
         return libro.worksheet(nombre_tabla)
     except Exception as e:
         st.sidebar.error(f"Error de conexión en Google Cloud: {e}")
         return None
+# END: PARTE 4
+
 
 
 
