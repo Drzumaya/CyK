@@ -638,58 +638,58 @@ def renderizar_consola_windows(tabla_analizar):
 # =================================================================
 # PARTE 10-A CORREGIDA Y PURGADA: MÓDULOS CRM, SVD Y ALFA (SIN COLISIONES)
 # =================================================================
-                with t2:
-                    if "Nombre" in df_doc.columns:
-                        sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
-                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
-                        pdf_m2 = FPDF()
-                        pdf_m2.add_page()
-                        pdf_m2.set_font("Helvetica", "B", 14)
-                        pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                        b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+            with t2:
+                if "Nombre" in df_doc.columns:
+                    sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
+                    fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
+                    pdf_m2 = FPDF()
+                    pdf_m2.add_page()
+                    pdf_m2.set_font("Helvetica", "B", 14)
+                    pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                    b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                         
-                        c_crm1, c_crm2 = st.columns(2)
-                        with c_crm1:
-                            st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name="Clinical.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                        with c_crm2:
-                            tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
-                            st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
-                    else:
-                        st.info("Columna Nombre ausente.")
+                    c_crm1, c_crm2 = st.columns(2)
+                      with c_crm1:
+                          st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name="Clinical.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
+                      with c_crm2:
+                          tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
+                          st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
+                   else:
+                       st.info("Columna Nombre ausente.")
 
-                with t3:
-                    alfa_calc, s1, s2 = 0.0, 0.0, 0.0
+              with t3:
+                  alfa_calc, s1, s2 = 0.0, 0.0, 0.0
                     if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        K = matriz_num.shape
-                        var_items = np.var(matriz_num, ddof=1, axis=0)
-                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        if var_total > 0 and K > 1:
-                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                        matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                        _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                        s1 = S if len(S) > 0 else 0.0
-                        s2 = S if len(S) > 1 else 0.0
+                       matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                       K = matriz_num.shape
+                       var_items = np.var(matriz_num, ddof=1, axis=0)
+                       var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
+                       if var_total > 0 and K > 1:
+                           alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
+                       matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
+                       _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
+                       s1 = S if len(S) > 0 else 0.0
+                       s2 = S if len(S) > 1 else 0.0
                         
-                        st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
-                        col_svd1, col_svd2 = st.columns(2)
-                        col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
-                        col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
+                       st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
+                       col_svd1, col_svd2 = st.columns(2)
+                       col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
+                       col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
                         
-                        pdf_m3 = FPDF()
-                        pdf_m3.add_page()
-                        pdf_m3.set_font("Helvetica", "B", 14)
-                        pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                        b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                        st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-                    else:
-                        st.info("Se requieren al menos 3 registros completos para activar los cálculos factoriales.")
-                        st.markdown("</div>", unsafe_allow_html=True)
+                       pdf_m3 = FPDF()
+                       pdf_m3.add_page()
+                       pdf_m3.set_font("Helvetica", "B", 14)
+                       pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
+                       b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")
+                       st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+                       st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
+                     else:
+                         st.info("Se requieren al menos 3 registros completos para activar los cálculos factoriales.")
+                       st.markdown("</div>", unsafe_allow_html=True)
                 else:
-            st.info("Se requieren al menos 3 registros completos.")
-        st.markdown("</div>", unsafe_allow_html=True)
+                    st.info("Se requieren al menos 3 registros completos.")
+                 st.markdown("</div>", unsafe_allow_html=True)
 
     # Invocación condicional de la capa flotante administrativa superior
     if st.session_state.admin_autenticado:
