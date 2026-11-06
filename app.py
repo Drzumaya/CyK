@@ -199,7 +199,7 @@ def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
             "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
             "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
             "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
-            "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
+            "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Habits Devocionales"]
         }
     else:
         return {
@@ -397,7 +397,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     pdf.set_text_color(60, 60, 60)
                     
                     c_corto = "- Corto Plazo: Elevacion de fatiga cognitiva, saturacion horaria y perdida de ventanas de oportunidad."
-                    c_medio = "- Mediano Plazo: Sindrome de Burnout latente, desequilibrio en dinamicas familiares y friccion operacional."
+                    c_medio = "- Mediano Plazo: Sindrome de Burnout latente, desequilibrio en dinamicas familiares and friccion operacional."
                     c_largo = "- Largo Plazo: Cronificacion del estres, colapso de efectividad y perdida del proposito estrategico vocacional."
                     pdf.multi_cell(190, 4, c_corto.encode('cp1252','ignore').decode('cp1252'))
                     pdf.multi_cell(190, 4, c_medio.encode('cp1252','ignore').decode('cp1252'))
@@ -512,7 +512,7 @@ def main():
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
 
     with st.sidebar:
-        st.markdown("## 🔐 Autenticación")
+        st.markdown(f"### {tx.get('side_title', '🔐 Panel del Ponente')}")
         if not st.session_state.admin_autenticado:
             with st.form("bloque_autenticacion_ponente"):
                 p_in = st.text_input("Contraseña Ponente:", type="password")
@@ -533,7 +533,6 @@ def main():
                 key="sb_an"
             )
             
-            # Botón nativo para disparar la Consola Científica Flotante
             if st.button("📊 ABRIR OFICINA ANALÍTICA", type="primary", use_container_width=True):
                 invocar_consola_modal_nativa(st.session_state.sb_an, iso, tx)
                 
@@ -541,18 +540,12 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-    # Si el administrador está autenticado, dejamos un acceso directo flotante nativo en el cuerpo
     if st.session_state.admin_autenticado:
-        st.info("💡 Modo Administrador Activo. Puedes reabrir la Consola Analítica desde el botón superior de la barra lateral izquierda.")
+        st.sidebar.info("💡 Consola abierta. Puedes volver a invocarla usando el botón superior azul.")
 # END: PARTE 8
-
 # BEGIN: PARTE 9
 @st.dialog("💻 CONSOLA CIENTÍFICA MASTER — ESTUDIO METODOLÓGICO", width="large")
 def invocar_consola_modal_nativa(tabla_analizar, iso, tx):
-    """
-    Renderiza la Oficina Analítica utilizando el motor nativo de diálogos flotantes de Streamlit.
-    Garantiza un aislamiento del DOM al 100% y elimina por completo el error de pantalla en blanco.
-    """
     st.markdown(f"**Cohorte Activa en Bóveda:** `{tabla_analizar.upper()}`")
     st.divider()
 
@@ -563,7 +556,6 @@ def invocar_consola_modal_nativa(tabla_analizar, iso, tx):
         df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
         col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
         
-        # Estilos para las tarjetas científicas integradas en la ventana
         st.markdown("""<style>
             .kpi-card-master-modal {
                 background: #ffffff; border-top: 3px solid #0f2042; padding: 12px; 
@@ -571,18 +563,12 @@ def invocar_consola_modal_nativa(tabla_analizar, iso, tx):
             }
         </style>""", unsafe_allow_html=True)
         
-        # Renderizado de los módulos de Business Intelligence de alta escuela
         ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, iso, tx)
     else:
         st.warning("⚠️ Se requieren un mínimo de 3 registros transaccionales linealizados en la nube para activar el motor de matrices algebraicas.")
 # END: PARTE 9
-
 # BEGIN: PARTE 10-A
 def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, iso, tx):
-    """
-    Bloque analítico premium adaptado para el contenedor flotante nativo de Streamlit.
-    Ejecuta el análisis de cohorte, CRM de asimetría e índices factoriales SVD/Alfa.
-    """
     t1, t2, t3 = st.tabs([
         "📊 MÓDULO I: MACRO-REGIONES", 
         "👤 MÓDULO II: CRM CLÍNICO", 
@@ -702,157 +688,25 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
             st.markdown(f'<iframe src="data:application/pdf;base64,{b64_3}" width="100%" height="200px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
             st.download_button("📥 EXPORTAR REPORTE DE FIABILIDAD (PDF)", data=bytes_pdf3, file_name="Psychometric_Validation.pdf", mime="application/pdf", use_container_width=True)
 # END: PARTE 10-A
-
 # BEGIN: PARTE 10-B
-    with t2:
-        st.markdown("#### Ficha de Evaluación Clínica y Análisis de Coherencia")
-        if "Nombre" in df_doc.columns:
-            sujeto_sel = st.selectbox("Selecciona Participante para Despliegue de Expediente:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w_rev")
-            df_filtrado = df_doc[df_doc["Nombre"] == sujeto_sel]
-            
-            if not df_filtrado.empty:
-                fila_sujeto = df_filtrado.iloc
-                perfil_auto = str(fila_sujeto.get("C6_Perfil_Auto", "No sé"))
-                
-                c_v = [int(fila_sujeto.get(f"R{i}", 3)) for i in range(1, 11, 2) if f"R{i}" in df_doc.columns]
-                k_v = [int(fila_sujeto.get(f"R{i}", 3)) for i in range(2, 11, 2) if f"R{i}" in df_doc.columns]
-                avg_c = sum(c_v) / 5 if c_v else 3.0
-                avg_k = sum(k_v) / 5 if k_v else 3.0
-                
-                if abs(avg_c - avg_k) <= 0.4: perfil_calc = "Simbiosis"
-                elif avg_k > avg_c: perfil_calc = "Kairós"
-                else: perfil_calc = "Cronos"
-                
-                cc1, cc2 = st.columns(2)
-                with cc1:
-                    st.info(f"**Identidad Declarada Primitiva:** Tipo {perfil_auto.upper()}")
-                with cc2:
-                    if perfil_auto in perfil_calc:
-                        st.success(f"**Validación de Coherencia:** PERFECTA ALINEACIÓN con Vector Computado ({perfil_calc.upper()})")
-                    else:
-                        st.warning(f"**Alerta de Asimetría Cognitiva:** El cálculo matemático arroja {perfil_calc.upper()}")
-
-                pdf2 = FPDF()
-                pdf2.add_page()
-                pdf2.set_margins(20, 20, 20)
-                pdf2.set_font("Times", "B", 14)
-                pdf2.cell(170, 10, f"EXPEDIENTE CLINICO PSICOMETRICO INDIVIDUAL", ln=1, align="C")
-                pdf2.cell(170, 5, f"ID PARTICIPANTE: {sujeto_sel.upper()}", ln=1, align="C")
-                pdf2.cell(170, 0.5, "", ln=1, fill=True)
-                pdf2.ln(6)
-                
-                pdf2.set_font("Times", "B", 11)
-                pdf2.cell(85, 6, f"Media Vector Cronos (Lineal): {avg_c:.2f}", ln=0)
-                pdf2.cell(85, 6, f"Media Vector Kairos (Oportunidad): {avg_k:.2f}", ln=1)
-                pdf2.ln(4)
-                
-                pdf2.set_font("Times", "B", 12)
-                pdf2.cell(170, 6, "DIAGNOSTICO ESTRATEGICO ASIGNADO:", ln=1)
-                pdf2.set_font("Times", "I", 11)
-                
-                if "simbiosis" in perfil_calc.lower(): txt_dictamen = TEXTOS_DICTAMEN_BILINGUE[iso]["txt_p_simbiosis"]
-                elif "kairos" in perfil_calc.lower(): txt_dictamen = TEXTOS_DICTAMEN_BILINGUE[iso]["txt_p_kairos"]
-                else: txt_dictamen = TEXTOS_DICTAMEN_BILINGUE[iso]["txt_p_cronos"]
-                
-                pdf2.multi_cell(170, 5.5, txt_dictamen.encode('cp1252','ignore').decode('cp1252'))
-                pdf2.cell(170, 0.2, "", ln=1, fill=True)
-                pdf2.ln(5)
-                
-                pdf2.set_font("Times", "B", 11)
-                pdf2.cell(170, 6, "LINEAS DE ACCION EN SALUD TEMPORAL:", ln=1)
-                pdf2.set_font("Times", "", 10.5)
-                pdf2.multi_cell(170, 5, f"- {TEXTOS_DICTAMEN_BILINGUE[iso]['txt_ck_recom']}".encode('cp1252','ignore').decode('cp1252'))
-                
-                pdf_b2 = pdf2.output()
-                bytes_pdf2 = bytes(pdf_b2) if not isinstance(pdf_b2, bytes) else pdf_b2
-                b64_2 = base64.b64encode(bytes_pdf2).decode("utf-8")
-                
-                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_2}" width="100%" height="250px" style="border:1px solid #0f2042; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-                
-                c_c1, c_c2 = st.columns(2)
-                with c_c1:
-                    st.download_button("📥 EXPORTAR EXPEDIENTE CLÍNICO FORMAL (PDF)", data=bytes_pdf2, file_name=f"APA_Clinical_Expedient_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_rev_final", use_container_width=True)
-                with c_c2:
-                    t_r = str(fila_sujeto.get('WhatsApp', ''))
-                    t_c = "".join(c for c in t_r if c.isdigit())
-                    w_u = f"https://wa.me{t_c}?text=Estimado%20{urllib.parse.quote(sujeto_sel)}%2C%20se%20ha%20emitido%20su%20Dictamen%20Cl%C3%ADnico%20de%20Salud%20Mandarina."
-                    st.markdown(f'<a href="{w_u}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR ACCIÓN DIRECTA CRM</div></a>', unsafe_allow_html=True)
-        else:
-            st.info("Columna Nombre ausente.")
-# END: PARTE 10-B
-# BEGIN: PARTE 10-C
-    with t3:
-        st.markdown("#### Robustez Científica y Estructura Factorial Ortogonal de Varianza")
-        if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-            matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-            K = int(matriz_num.shape)
-            
-            var_items = np.var(matriz_num, ddof=1, axis=0)
-            var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total)) if var_total > 0 and K > 1 else 0.0
-            
-            matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-            _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-            s1 = S if len(S) > 0 else 0.0
-            s2 = S if len(S) > 1 else 0.0
-                
-            m_c1, m_c2 = st.columns(2)
-            with m_c1:
-                st.metric("Coeficiente Alfa de Cronbach", f"{alfa_calc:.4f}")
-                if alfa_calc >= 0.80:
-                    st.success("🟩 Consistencia Interna Excelente (Estándar de Publicación)")
-                elif alfa_calc >= 0.65:
-                    st.warning("🟨 Fiabilidad Confiable para Estudios de Campo Exploratorios")
-                else:
-                    st.error("🟥 Consistencia Insuficiente: Revisar sesgos o ampliar N")
-            with m_c2:
-                st.metric("Varianza Autovalor Componente Latente 1 (Cronos)", f"{s1:.3f}")
-                st.metric("Varianza Autovalor Componente Latente 2 (Kairós)", f"{s2:.3f}")
-                st.info("🧬 Vectores de independencia ortogonal Cronos / Kairós validados.")
-                
-            pdf3 = FPDF()
-            pdf3.add_page()
-            pdf3.set_margins(20, 20, 20)
-            pdf3.set_font("Times", "B", 14)
-            pdf3.cell(170, 10, "DICTAMEN METODOLÓGICO DE FIABILIDAD Y VALIDEZ DE CONSTRUCTO", ln=1, align="C")
-            pdf3.cell(170, 0.5, "", ln=1, fill=True)
-            pdf3.ln(6)
-            
-            pdf3.set_font("Times", "B", 11)
-            pdf3.cell(170, 6, "1. CONSISTENCIA INTERNA (CRONBACH'S ALPHA)", ln=1)
-            pdf3.set_font("Times", "", 10.5)
-            pdf3.multi_cell(170, 5, f"La evaluación computó de forma síncrona un Alfa de {alfa_calc:.4f} sobre K={K} reactivos adaptativos en primera persona. De acuerdo con los criterios métricos formales de Hair et al. (2019), este nivel denota estabilidad en las respuestas recolectadas.")
-            pdf3.ln(4)
-            
-            pdf3.set_font("Times", "B", 11)
-            pdf3.cell(170, 6, "2. ALGEBRA LINEAL DE COMPONENTES DE REDUCCIÓN (SVD)", ln=1)
-            pdf3.set_font("Times", "I", 10.5)
-            pdf3.multi_cell(170, 5, f"La Descomposición en Valores Singulares estabilizó un Autovalor Lambda 1 de {s1:.3f} y Lambda 2 de {s2:.3f}. La ortogonalidad de ambos vectores confirma de forma unívoca la separación empírica entre las dimensiones Cronos y Kairós.")
-            pdf3.cell(170, 0.2, "", ln=1, fill=True)
-            
-            pdf3.ln(6)
-            pdf3.set_font("Times", "B", 10)
-            pdf3.cell(170, 5, "APARATO CRÍTICO REFERENCIAL BIBLIOGRÁFICO DE POSTGRADO:", ln=1)
-            pdf3.set_font("Times", "I", 9)
-            pdf3.multi_cell(170, 4.5, f"- {TEXTOS_DICTAMEN_BILINGUE[iso]['lbl_ref1']}\n- {TEXTOS_DICTAMEN_BILINGUE[iso]['lbl_ref2']}".encode('cp1252','ignore').decode('cp1252'))
-            
-            pdf_b3 = pdf3.output()
-            bytes_pdf3 = bytes(pdf_b3) if not isinstance(pdf_b3, bytes) else pdf_b3
-            b64_3 = base64.b64encode(bytes_pdf3).decode("utf-8")
-            
-            st.markdown(f'<iframe src="data:application/pdf;base64,{b64_3}" width="100%" height="240px" style="border:1px solid #0f2042; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-            st.download_button("📥 EXPORTAR REPORTE METODOLÓGICO DOCTORAL (PDF)", data=bytes_pdf3, file_name=f"APA_Psychometric_Validation_{tabla_analizar}.pdf", mime="application/pdf", key="btn_dl_m3_rev_final", use_container_width=True)
-        else:
-            st.info("El Aparato de Álgebra Lineal requiere n>=3 registros completos en la base de datos de la nube para calcular matrices de varianza.")
-# END: PARTE 10-C
-# BEGIN: PARTE 10-D
-            # Cierre seguro de la función contenedora de módulos analíticos de la Consola Master
-# =================================================================
-# SECCIÓN DE RENDERIZADO DEL CUERPO CENTRAL DE LA INTERFAZ DE USUARIO
-# =================================================================
     if not st.session_state.flujo_finalized:
+        st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR')}")
+        st.caption(tx.get("qr_sub1", "Escanea para responder en tiempo real"))
+        
+        url_qr = f"{URL_PRODUCCION}?lang={iso}"
+        qr = qrcode.QRCode(version=1, box_size=10, border=2)
+        qr.add_data(url_qr)
+        qr.make(fit=True)
+        img_qr = qr.make_image(fill_color="black", back_color="white")
+        
+        buf_qr = BytesIO()
+        img_qr.save(buf_qr, format="PNG")
+        st.image(buf_qr.getvalue(), width=180)
+        st.divider()
+
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
+        
         st.header(r"📋 Sección I: Perfil de identificación")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key=r"n_in_seq")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key=r"w_in_seq")
@@ -920,6 +774,7 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
                     st.markdown(f"**Reactivo {r_id}:** {r_txt}")
+                    # CORREGIDO: Lista explícita restablecida para garantizar la compilación sin errores
                     resultados_totales[f"R{r_id}"] = st.radio(
                         label="Escala / Scale:", 
                         options=[1, 2, 3, 4, 5], 
@@ -943,4 +798,4 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
 
 if __name__ == "__main__":
     main()
-# END: PARTE 10-D
+# END: PARTE 10-B
