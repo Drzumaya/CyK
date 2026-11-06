@@ -768,8 +768,8 @@ def renderizar_consola_windows(tabla_analizar):
                 if st.session_state.paso_cyk:
                     st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
-                   for r_id, r_txt in reactivos.items():
-                      st.write(f"Reactivo {r_id}: {r_txt}")
+                for r_id, r_txt in reactivos.items():
+                    st.write(f"Reactivo {r_id}: {r_txt}")
                     
                     # 🍊 FIJACIÓN DEL SYNTAXERROR: Definición explícita del vector numérico del 1 al 5
                     resultados_totales[f"R{r_id}"] = st.radio(
