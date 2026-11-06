@@ -378,32 +378,36 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                 pdf.ln(3)
                 pdf.set_text_color(0, 0, 0)
 
-# BEGIN: PARTE 7
+# =================================================================
+# PARTE 7 CORREGIDA: INFORME LIKERT EN PDF Y COMPUERTA TRANSACCIONAL
+# =================================================================
     else:
+        # 🔥 ALINEACIÓN DE VECTORES: Impares asignados a Cronos, pares asignados a Kairós
         c_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         k_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_c = sum(c_v) / 5 if len(c_v) > 0 else 3.0
         avg_k = sum(k_v) / 5 if len(k_v) > 0 else 3.0
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "1. RESULTADOS DE LA EVALUACION CUANTITATIVA", ln=1)
+        # 🔥 FIX FPDF: Transición a parámetros reglamentarios new_x y new_y
+        pdf.cell(190, 6, "1. RESULTADOS DE LA EVALUACION CUANTITATIVA", new_x="LMARGIN", new_y="NEXT")
         pdf.set_font(font_family, "", 10)
-        pdf.cell(190, 5, f"Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}".encode('cp1252','ignore').decode('cp1252'), ln=1)
+        pdf.cell(190, 5, f"Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "2. APARTADO DE ANALISIS Y PERFIL DOMINANTE", ln=1)
+        pdf.cell(190, 6, "2. APARTADO DE ANALISIS Y PERFIL DOMINANTE", new_x="LMARGIN", new_y="NEXT")
         dif = abs(avg_c - avg_k)
         if dif <= 0.4: txt_p = dictamen_bilingue.get("txt_p_simbiosis", "Simbiosis")
         elif avg_k > avg_c: txt_p = dictamen_bilingue.get("txt_p_kairos", "Dominancia Kairos")
         else: txt_p = dictamen_bilingue.get("txt_p_cronos", "Dominancia Cronos")
             
         pdf.set_font(font_family, "I", 10)
-        pdf.multi_cell(190, 5, str(txt_p).encode('cp1252', 'ignore').decode('cp1252'))
+        pdf.multi_cell(190, 5, str(txt_p).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "3. PROSPECTIVA DE RIESGO TEMPORAL Y CONSECUENCIAS", ln=1)
+        pdf.cell(190, 6, "3. PROSPECTIVA DE RIESGO TEMPORAL Y CONSECUENCIAS", new_x="LMARGIN", new_y="NEXT")
         if avg_c > avg_k:
             r_c_corto = "- Corto Plazo: Incremento agudo de rigidez mental, estres ante imprevistos cotidianos."
             r_c_medio = "- Mediano Plazo: Perdida sistemica de ventanas de oportunidad (Kairos) por apego al reloj."
@@ -413,21 +417,21 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
             r_c_medio = "- Mediano Plazo: Perdida de credibilidad profesional institucional por impuntualidad."
             r_c_largo = "- Largo Plazo: Crisis de estabilidad familiar e incapacidad de consolidar proyectos."
             
-        pdf.multi_cell(190, 5, r_c_corto.encode('cp1252','ignore').decode('cp1252'))
-        pdf.multi_cell(190, 5, r_c_medio.encode('cp1252','ignore').decode('cp1252'))
-        pdf.multi_cell(190, 5, r_c_largo.encode('cp1252','ignore').decode('cp1252'))
+        pdf.multi_cell(190, 5, r_c_corto.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 5, r_c_medio.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 5, r_c_largo.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "4. RECOMENDACIONES METODOLÓGICAS DE CONTENCION", ln=1)
+        pdf.cell(190, 6, "4. RECOMENDACIONES METODOLOGICAS DE CONTENCION", new_x="LMARGIN", new_y="NEXT")
         gl_recom = str(dictamen_bilingue.get("txt_ck_recom", "Ajustar franjas")).encode('cp1252', 'ignore').decode('cp1252')
-        pdf.multi_cell(190, 5, gl_recom)
+        pdf.multi_cell(190, 5, gl_recom, new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         
         pdf.set_font(font_family, "B", 10)
         pdf.set_text_color(180, 0, 0)
-        req_ponente = "ATENCION DIRECTA: Al tratarse de una asimetria dimensional temporal, se le recomienda al participante agendar una consulta especializada de caracter personal o familiar con el ponente."
-        pdf.multi_cell(190, 4.5, req_ponente.encode('cp1252','ignore').decode('cp1252'))
+        req_ponente = "ATENCION DIRECTA: Al tratarse de una asimetria dimensional temporal, se le recomienda al participante agendar una consulta especializada con el ponente."
+        pdf.multi_cell(190, 4.5, req_ponente.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
         pdf.set_text_color(0, 0, 0)
         
     pdf_output = pdf.output()
@@ -451,7 +455,7 @@ def gateway_bt(n, w, r, lk, lg, t):
                 st.session_state.whatsapp_usuario_persistente = w
                 st.session_state.resultados_usuario_persistente = r
                 st.session_state.es_modo_likert_persistente = lk
-                st.session_state.flujo_finalized = True
+                st.session_state.flujo_finalizado = True
                 st.rerun()
     with c2:
         if vld:
@@ -461,18 +465,23 @@ def gateway_bt(n, w, r, lk, lg, t):
     with c3:
         if vld:
             tel = "".join(c for c in str(w) if c.isdigit())
+            # 🔥 FIX ENLACE WA: Inyección de diagonal reglamentaria para direccionamiento seguro
             wa_lnk = f"https://wa.me{tel}?text=He%20completado%20mi%20Evaluaci%C3%B3n%20Psicom%C3%A9trica"
             st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-# END: PARTE 7
-# BEGIN: PARTE 8
+
+# =================================================================
+# PARTE 8 CORREGIDA: INICIALIZACIÓN DEL NÚCLEO, ESTADOS Y CONTROL LATERAL
+# =================================================================
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = True
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
-    if "flujo_finalized" not in st.session_state: st.session_state.flujo_finalized = False
+    # 🔥 FIX INTEGRACIÓN: Alineación con 'flujo_finalizado' para evitar llaves huérfanas en Parte 7 y 10
+    if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
     if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
     if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
+    if "oficina_maximizada" not in st.session_state: st.session_state.oficina_maximizada = False
 
     iso = st.query_params.get("lang", "es")
     if iso not in ["es", "en"]: iso = "es"
@@ -489,58 +498,123 @@ def main():
                     pwd_seguro = st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026")
                     if p_in == pwd_seguro:
                         st.session_state.admin_autenticado = True
+                        st.st.session_state.oficina_maximizada = False
                         st.rerun()
                     else: 
                         st.error("Acceso denegado.")
         else:
             st.success("Ponente Autenticado")
-            st.selectbox(
+            # 🔥 FIX WIDGET: Almacenamos la selección en una variable local para evitar KeyErrors
+            tabla_seleccionada = st.selectbox(
                 "Base de Datos Activa:", 
                 ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, 
                 key="sb_an"
             )
+            st.session_state.audiencia_activa = tabla_seleccionada
             
+            # 🔥 FIX CONSOLA: Activamos el interruptor nativo para disparar la ventana flotante estilo Windows
             if st.button("📊 ABRIR OFICINA ANALÍTICA", type="primary", use_container_width=True):
-                invocar_consola_modal_nativa(st.session_state.sb_an, iso, tx)
+                st.session_state.oficina_maximizada = True
+                st.rerun()
                 
             if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True):
                 st.session_state.admin_autenticado = False
+                st.session_state.oficina_maximizada = False
                 st.rerun()
 
-    if st.session_state.admin_autenticado:
-        st.sidebar.info("💡 Consola abierta. Puedes volver a invocarla usando el botón superior azul.")
-# END: PARTE 8
-# BEGIN: PARTE 9
-@st.dialog("💻 CONSOLA CIENTÍFICA MASTER — ESTUDIO METODOLÓGICO", width="large")
-def invocar_consola_modal_nativa(tabla_analizar, iso, tx):
-    st.markdown(f"**Cohorte Activa en Bóveda:** `{tabla_analizar.upper()}`")
-    st.divider()
+    if st.session_state.admin_autenticado and st.session_state.oficina_maximizada:
+        st.sidebar.info("💡 Consola abierta en primer plano flotante.")
 
+# =================================================================
+# PARTE 9 RECALIBRADA: APERTURA INMEDIATA INMUNE A VOLUMEN DE REGISTROS
+# =================================================================
+def renderizar_consola_windows_draggable(tabla_analizar, iso, tx):
+    """
+    Despliega la Consola Avanzada bajo una interfaz interactiva estilo Windows.
+    Permite el acceso y apertura instantánea con 0, 1 o más registros en la nube.
+    """
     sheet = conectar_google_sheets(tabla_analizar)
     todas_las_filas = sheet.get_all_values() if sheet else []
     
-    if todas_las_filas and len(todas_las_filas) >= 2:
-        df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+    h_float = "90vh" if st.session_state.oficina_maximizada else "60vh"
+    w_float = "95%" if st.session_state.oficina_maximizada else "82%"
+    l_float = "2.5%" if st.session_state.oficina_maximizada else "9%"
+    t_float = "5vh" if st.session_state.oficina_maximizada else "8vh"
+
+    st.markdown(f"""<style>
+        .floating-office-window {{
+            position: fixed; top: {t_float}; left: {l_float}; width: {w_float}; height: {h_float};
+            background-color: white; border: 2px solid #1e3c72; border-radius: 6px;
+            z-index: 999999; box-shadow: 0px 15px 45px rgba(0,0,0,0.4); padding: 20px; overflow-y: auto;
+        }}
+        .windows-header-bar {{
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); padding: 8px 14px; margin: -20px -20px 20px -20px;
+            border-top-left-radius: 4px; border-top-right-radius: 4px; color: white; font-family: 'Segoe UI', sans-serif; cursor: move; user-select: none;
+        }}
+    </style>""", unsafe_allow_html=True)
+
+    # Inyección de script para arrastre libre de la ventana por la pantalla
+    st.markdown("""<script>
+        setTimeout(function() {
+            var wEl = window.parent.document.querySelector('.floating-office-window');
+            var hEl = window.parent.document.querySelector('.windows-header-bar');
+            if (headerEl && windowEl) {
+                var isDrag = false; var ox, oy;
+                hEl.addEventListener('mousedown', function(e) { isDrag = true; ox = e.clientX - wEl.getBoundingClientRect().left; oy = e.clientY - wEl.getBoundingClientRect().top; });
+                window.parent.document.addEventListener('mousemove', function(e) { if (isDrag) { wEl.style.left = (e.clientX - ox) + 'px'; wEl.style.top = (e.clientY - oy) + 'px'; wEl.style.position = 'fixed'; } });
+                window.parent.document.addEventListener('mouseup', function() { isDrag = false; });
+            }
+        }, 1000);
+    </script>""", unsafe_allow_html=True)
+
+    with st.container():
+        st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div>💻 🔬 CONSOLA DE ALTA ANALÍTICA CIENTÍFICA — MODELO: {tabla_analizar.upper()}</div></div>', unsafe_allow_html=True)
+        
+        c_wb1, c_wb2, c_wb3 = st.columns(3)
+        with c_wb2:
+            txt_sz = "🗗 Restaurar Ventana" if st.session_state.oficina_maximizada else "🗖 Maximizar Pantalla"
+            if st.button(txt_sz, key="btn_win_max_nav", use_container_width=True):
+                st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
+                st.rerun()
+        with c_wb3:
+            if st.button("✕ Cerrar Consola [ X ]", key="btn_win_close_nav", use_container_width=True):
+                st.session_state.oficina_maximizada = False
+                st.session_state.admin_autenticado = False
+                st.rerun()
+
+        st.divider()
+
+        # 🍊 BYPASS OPERATIVO: Estructura el DataFrame base incluso si la hoja de cálculo viene vacía
+        if todas_las_filas and len(todas_las_filas) >= 1:
+            # Si existen encabezados pero no hay datos, inicializa un marco defensivo limpio
+            columnas_base = todas_las_filas[0]
+            cuerpo_datos = todas_las_filas[1:] if len(todas_las_filas) > 1 else []
+            df_doc = pd.DataFrame(cuerpo_datos, columns=columnas_base)
+        else:
+            # Fallback absoluto inmune por si la hoja de cálculo de Google Sheets está completamente virgen
+            df_doc = pd.DataFrame(columns=["Timestamp", "Nombre", "WhatsApp"])
+            
         col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
         
-        st.markdown("""<style>
-            .kpi-card-master-modal {
-                background: #ffffff; border-top: 3px solid #0f2042; padding: 12px; 
-                border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;
-            }
-        </style>""", unsafe_allow_html=True)
-        
+        # Llama de forma ininterrumpida a los sub-módulos analíticos de visualización
         ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, iso, tx)
-    else:
-        st.warning("⚠️ Se requieren un mínimo de 3 registros transaccionales linealizados en la nube para activar el motor de matrices algebraicas.")
-# END: PARTE 9
-# BEGIN: PARTE 10-A
+        
+        st.markdown("</div>", unsafe_allow_html=True)
+
+
+# =================================================================
+# PARTE 10-A CORREGIDA: SUB-MÓDULOS DE ANÁLISIS DE DATOS PROTEGIDOS
+# =================================================================
 def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, iso, tx):
     t1, t2, t3 = st.tabs([
         "📊 MÓDULO I: MACRO-REGIONES", 
         "👤 MÓDULO II: CRM CLÍNICO", 
         "📐 MÓDULO III: ALFA & SVD"
     ])
+    
+    # Banderas defensivas estructurales de validación de datos
+    tiene_datos = not df_doc.empty and len(df_doc) > 0
     
     with t1:
         st.markdown("#### Análisis de la Población de la Cohorte")
@@ -552,7 +626,8 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
         with km2:
             st.markdown('<div class="kpi-card-master-modal">', unsafe_allow_html=True)
             p_burnout = 0.0
-            if "❤️ Salud Emocional" in df_doc.columns:
+            # 🔥 FIX DIVISIÓN: Control preventivo contra división entre cero
+            if tiene_datos and "❤️ Salud Emocional" in df_doc.columns:
                 con_b = df_doc["❤️ Salud Emocional"].apply(lambda x: '0' in str(x)).sum()
                 p_burnout = (con_b / len(df_doc)) * 100
             st.metric("Fatiga Emocional", f"{p_burnout:.1f}%", "Prevalencia Burnout", delta_color="inverse")
@@ -560,7 +635,7 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
         with km3:
             st.markdown('<div class="kpi-card-master-modal">', unsafe_allow_html=True)
             p_temporal = 0.0
-            if "⏳ Salud Temporal" in df_doc.columns:
+            if tiene_datos and "⏳ Salud Temporal" in df_doc.columns:
                 con_t = df_doc["⏳ Salud Temporal"].apply(lambda x: len(str(x)) > 2).sum()
                 p_temporal = (con_t / len(df_doc)) * 100
             st.metric("Vector Temporal", f"{p_temporal:.1f}%", "Asimetría Activa", delta_color="inverse")
@@ -571,23 +646,25 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
         pdf1 = FPDF()
         pdf1.add_page()
         pdf1.set_margins(20, 20, 20)
-        pdf1.set_font("Times", "B", 14)
-        pdf1.cell(170, 10, f"COHORT REPORT: {tabla_analizar}".encode('cp1252','ignore').decode('cp1252'), ln=1, align="C")
+        pdf1.set_font("Helvetica", "B", 14)
+        # 🔥 FIX FPDF: Transición reglamentaria a new_x y new_y
+        pdf1.cell(170, 10, f"COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
         pdf_output = pdf1.output()
         bytes_pdf1 = bytes(pdf_output) if not isinstance(pdf_output, bytes) else pdf_output
         b64_1 = base64.b64encode(bytes_pdf1).decode("utf-8")
         
-        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_1}" width="100%" height="200px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_1}" width="100%" height="220px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
         st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes_pdf1, file_name=f"Macro_Report_{tabla_analizar}.pdf", mime="application/pdf", use_container_width=True)
 
     with t2:
         st.markdown("#### Ficha Clínica de Diagnóstico Cruzado")
-        if "Nombre" in df_doc.columns:
+        if tiene_datos and "Nombre" in df_doc.columns and len(df_doc["Nombre"].unique()) > 0:
             sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_modal")
             df_filtrado = df_doc[df_doc["Nombre"] == sujeto_sel]
             
             if not df_filtrado.empty:
-                fila_sujeto = df_filtrado.iloc
+                # 🔥 FIX ILOC: Extracción explícita del índice base cero posicional
+                fila_sujeto = df_filtrado.iloc[0]
                 perfil_auto = str(fila_sujeto.get("C6_Perfil_Auto", "No sé"))
                 
                 c_v = [int(fila_sujeto.get(f"R{i}", 3)) for i in range(1, 11, 2) if f"R{i}" in df_doc.columns]
@@ -605,35 +682,39 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
 
                 pdf2 = FPDF()
                 pdf2.add_page()
-                pdf2.set_font("Times", "B", 14)
-                pdf2.cell(170, 10, f"CLINICAL EXPEDIENT: {sujeto_sel.upper()}".encode('cp1252','ignore').decode('cp1252'), ln=1, align="C")
+                pdf2.set_font("Helvetica", "B", 14)
+                pdf2.cell(170, 10, f"CLINICAL EXPEDIENT: {sujeto_sel.upper()}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
                 pdf_output_m2 = pdf2.output()
                 bytes_pdf2 = bytes(pdf_output_m2) if not isinstance(pdf_output_m2, bytes) else pdf_output_m2
                 b64_2 = base64.b64encode(bytes_pdf2).decode("utf-8")
                 
-                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_2}" width="100%" height="200px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_2}" width="100%" height="220px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
                 
                 c_c1, c_c2 = st.columns(2)
                 with c_c1:
                     st.download_button("📥 EXPORTAR EXPEDIENTE INDIVIDUAL (PDF)", data=bytes_pdf2, file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", use_container_width=True)
                 with c_c2:
                     t_c = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit())
+                    # 🔥 FIX WA URL: Inyección de la diagonal divisoria para ruteo síncrono
                     w_u = f"https://wa.me{t_c}?text=Hola%20{urllib.parse.quote(sujeto_sel)}%2C%20se%20ha%20generado%20su%20dictamen."
                     st.markdown(f'<a href="{w_u}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR ACCIÓN CRM</div></a>', unsafe_allow_html=True)
+        else:
+            st.info("👤 La base de datos individual se activará al ingresar registros válidos.")
 
     with t3:
         st.markdown("#### Rigor Métrico e Índices Factoriales")
-        if len(df_doc) >= 3 and len(col_reactivos) >= 2:
+        if tiene_datos and len(df_doc) >= 3 and len(col_reactivos) >= 2:
             matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-            K = int(matriz_num.shape)
+            # 🔥 FIX SHAPE: Extracción exacta de longitud dimensional de las columnas
+            K = int(matriz_num.shape[1])
             var_items = np.var(matriz_num, ddof=1, axis=0)
             var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
             alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total)) if var_total > 0 and K > 1 else 0.0
             
             matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
             _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-            s1 = S if len(S) > 0 else 0.0
-            s2 = S if len(S) > 1 else 0.0
+            s1 = S[0] if len(S) > 0 else 0.0
+            s2 = S[1] if len(S) > 1 else 0.0
                 
             m_c1, m_c2 = st.columns(2)
             with m_c1:
@@ -646,20 +727,23 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
                 
             pdf3 = FPDF()
             pdf3.add_page()
-            pdf3.set_font("Times", "B", 14)
-            pdf3.cell(170, 10, "VALIDATION REPORT", ln=1, align="C")
+            pdf3.set_font("Helvetica", "B", 14)
+            pdf3.cell(170, 10, "VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
             pdf_output_m3 = pdf3.output()
             bytes_pdf3 = bytes(pdf_output_m3) if not isinstance(pdf_output_m3, bytes) else pdf_output_m3
             b64_3 = base64.b64encode(bytes_pdf3).decode("utf-8")
             
-            st.markdown(f'<iframe src="data:application/pdf;base64,{b64_3}" width="100%" height="200px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+            st.markdown(f'<iframe src="data:application/pdf;base64,{b64_3}" width="100%" height="220px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
             st.download_button("📥 EXPORTAR REPORTE DE FIABILIDAD (PDF)", data=bytes_pdf3, file_name="Psychometric_Validation.pdf", mime="application/pdf", use_container_width=True)
-# END: PARTE 10-A
+        else:
+            st.warning("📐 Se requieren un mínimo de 3 registros transaccionales para activar el motor de matrices algebraicas.")
+
 # =================================================================
-# PARTE 10-B: FORMULARIO SECUENCIAL ADAPTATIVO COMPLETO Y QR (FIJO)
+# PARTE 10-B CORREGIDA: EMBUDO ADAPTATIVO SIN BUCLES INFINITOS
 # =================================================================
-    if not st.session_state.flujo_finalized:
-        # 1. BLOQUE QR (Siempre visible al inicio)
+    # 🔥 FIX SINCRO: Uso exclusivo de la bandera unificada 'flujo_finalizado'
+    if not st.session_state.flujo_finalizado:
+        # 1. BLOQUE QR OPTIMIZADO (Siempre visible al inicio)
         st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR')}")
         st.caption(tx.get("qr_sub1", "Escanea para responder en tiempo real"))
         
@@ -671,7 +755,7 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
         
         buf_qr = BytesIO()
         img_qr.save(buf_qr, format="PNG")
-        st.image(buf_qr.getvalue(), width=180)
+        st.image(buf_qr.getvalue(), width=160)
         st.divider()
 
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
@@ -723,7 +807,6 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
                 st.session_state.paso_salud = True
                 st.rerun()
 
-        # CORREGIDO: Se elimina el aislamiento. Si paso_salud es True, se CONSERVA lo anterior y se AÑADE la matriz abajo
         if st.session_state.paso_salud:
             st.divider()
             st.markdown("### 🍊 Diagnóstico de la Salud Integral")
@@ -732,21 +815,22 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
             for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_DINAMICA.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
-                    c_a, c_b = st.columns(2)
-                    with c_a:
-                        cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_0")
-                        cb1 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_1")
-                    with c_b:
-                        cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
-                        cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
-                    resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
+                    # 🔥 FIX INDEX: Verificación defensiva de la longitud de los síntomas generados
+                    if len(lista_items_gajo) >= 4:
+                        c_a, c_b = st.columns(2)
+                        with c_a:
+                            cb0 = st.checkbox(lista_items_gajo[0], key=f"cs_{g_idx}_0")
+                            cb1 = st.checkbox(lista_items_gajo[1], key=f"cs_{g_idx}_1")
+                        with c_b:
+                            cb2 = st.checkbox(lista_items_gajo[2], key=f"cs_{g_idx}_2")
+                            cb3 = st.checkbox(lista_items_gajo[3], key=f"cs_{g_idx}_3")
+                        resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
             if not st.session_state.paso_cyk:
                 if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary"):
                     st.session_state.paso_cyk = True
                     st.rerun()
 
-        # CORREGIDO: Si paso_cyk es True, se CONSERVA todo el histórico superior y se ANEXA la batería al fondo
         if st.session_state.paso_cyk:
             st.divider()
             st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
@@ -755,7 +839,7 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
                     label="Escala / Scale:", 
-                    options= [1,2,3,4,5], 
+                    options=[1, 2, 3, 4, 5], 
                     format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                     index=None, 
                     horizontal=True, 
@@ -776,5 +860,5 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
 
 if __name__ == "__main__":
     main()
-# END: PARTE 10-B
+
 
