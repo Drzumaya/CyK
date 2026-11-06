@@ -553,14 +553,12 @@ def main():
             }}
             </style>
         """, unsafe_allow_html=True)
+
+
 # =================================================================
-# PARTE 9 Y 10: CONSOLA DE WINDOWS DRAGGABLE CON BOTONES OPERATIVOS
+# PARTE 9: MARCO DE CONSOLA WINDOWS CON IFRAMES INTEGRADOS (PARTE A)
 # =================================================================
 def renderizar_consola_windows(tabla_analizar):
-    """
-    Despliega la Oficina Analítica avanzada bajo una interfaz interactiva de Windows.
-    Permite arrastre libre (Drag & Drop) y control transaccional de tamaño en vivo.
-    """
     if "win_minimizado" not in st.session_state: 
         st.session_state.win_minimizado = False
 
@@ -577,55 +575,34 @@ def renderizar_consola_windows(tabla_analizar):
     l_float = "2.5%" if st.session_state.oficina_maximizada else "10%"
     t_float = "5vh" if st.session_state.oficina_maximizada else "10vh"
 
-    # Hoja de estilos con soporte para arrastre y posicionamiento dinámico absoluto
-    st.markdown(f"""
-        <style>
+    st.markdown(f"""<style>
         .floating-office-window {{
             position: fixed; top: {t_float}; left: {l_float}; width: {w_float}; height: {h_float};
             background-color: white; border: 2px solid #1e3c72; border-radius: 6px;
-            z-index: 999999; box-shadow: 0px 15px 40px rgba(0,0,0,0.4);
-            padding: 20px; overflow-y: auto; transition: opacity 0.2s ease;
+            z-index: 999999; box-shadow: 0px 15px 40px rgba(0,0,0,0.4); padding: 20px; overflow-y: auto;
         }}
         .windows-header-bar {{
             display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-            padding: 8px 14px; margin: -20px -20px 20px -20px;
-            border-top-left-radius: 4px; border-top-right-radius: 4px; color: white;
-            font-family: 'Segoe UI', sans-serif; cursor: move; user-select: none;
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); padding: 8px 14px; margin: -20px -20px 20px -20px;
+            border-top-left-radius: 4px; border-top-right-radius: 4px; color: white; font-family: 'Segoe UI', sans-serif; cursor: move; user-select: none;
         }}
-        </style>
-    """, unsafe_allow_html=True)
+    </style>""", unsafe_allow_html=True)
 
-    # 🍊 MOTOR JAVASCRIPT INYECTADO: Habilita el arrastre Drag & Drop real sobre el proyector en vivo
-    st.markdown("""
-        <script>
+    st.markdown("""<script>
         setTimeout(function() {
-            var windowEl = window.parent.document.querySelector('.floating-office-window');
-            var headerEl = window.parent.document.querySelector('.windows-header-bar');
-            if (headerEl && windowEl) {
-                var isDragging = false; var offsetX, offsetY;
-                headerEl.addEventListener('mousedown', function(e) {
-                    isDragging = true;
-                    offsetX = e.clientX - windowEl.getBoundingClientRect().left;
-                    offsetY = e.clientY - windowEl.getBoundingClientRect().top;
-                });
-                window.parent.document.addEventListener('mousemove', function(e) {
-                    if (isDragging) {
-                        windowEl.style.left = (e.clientX - offsetX) + 'px';
-                        windowEl.style.top = (e.clientY - offsetY) + 'px';
-                        windowEl.style.position = 'fixed';
-                    }
-                });
-                window.parent.document.addEventListener('mouseup', function() { isDragging = false; });
+            var wEl = window.parent.document.querySelector('.floating-office-window');
+            var hEl = window.parent.document.querySelector('.windows-header-bar');
+            if (hEl && wEl) {
+                var isDrag = false; var ox, oy;
+                hEl.addEventListener('mousedown', function(e) { isDrag = true; ox = e.clientX - wEl.getBoundingClientRect().left; oy = e.clientY - wEl.getBoundingClientRect().top; });
+                window.parent.document.addEventListener('mousemove', function(e) { if (isDrag) { wEl.style.left = (e.clientX - ox) + 'px'; wEl.style.top = (e.clientY - oy) + 'px'; wEl.style.position = 'fixed'; } });
+                window.parent.document.addEventListener('mouseup', function() { isDrag = false; });
             }
         }, 1000);
-        </script>
-    """, unsafe_allow_html=True)
+    </script>""", unsafe_allow_html=True)
 
     with st.container():
-        st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div id="win_title_drag">💻 🔬 CONSOLA CIENTÍFICA DE ALTA ANALÍTICA — MUESTRA: {tabla_analizar}</div></div>', unsafe_allow_html=True)
-
-        # Barra operativa acoplada directamente debajo del encabezado drag heráldico
+        st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div id="win_title_drag">💻 🔬 CONSOLA CIENTÍFICA — AUDIENCIA: {tabla_analizar}</div></div>', unsafe_allow_html=True)
         c_wb1, c_wb2, c_wb3 = st.columns(3)
         with c_wb1:
             if st.button("➖ Minimizar [ _ ]", key="btn_win_min_nav", use_container_width=True):
@@ -641,169 +618,169 @@ def renderizar_consola_windows(tabla_analizar):
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-        # Carga transaccional del set de datos real de Google Sheets dentro del habitáculo flotante
         sheet = conectar_google_sheets(tabla_analizar)
         todas_las_filas = sheet.get_all_values() if sheet else []
         
         if todas_las_filas and len(todas_las_filas) >= 2:
             df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
             col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-            
-            t1, t2, t3 = st.tabs([
-                "👥 Módulo I: Meta-Análisis de Audiencias", 
-                "👤 Módulo II: CRM de Casos Individuales", 
-                "📐 Módulo III: Fiabilidad Estructural (Alpha/SVD)"
-            ])
+            t1, t2, t3 = st.tabs(["👥 Módulo I: Macrorregiones", "👤 Módulo II: CRM Clínico", "📐 Módulo III: SVD & Alpha"])
             
             with t1:
-                st.markdown("**Matriz Colectiva de la Cohorte en Tiempo Real:**")
                 st.dataframe(df_doc, use_container_width=True)
-                m_c, m_k = 3.0, 3.0
-                if len(col_reactivos) >= 2:
-                    matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                    m_c = np.mean(matriz_num[:, 0::2]) if matriz_num.shape > 0 else 3.0
-                    m_k = np.mean(matriz_num[:, 1::2]) if matriz_num.shape > 1 else 3.0
-                
                 pdf_m1 = FPDF()
                 pdf_m1.add_page()
                 pdf_m1.set_font("Helvetica", "B", 14)
-                pdf_m1.cell(190, 10, f"COHORT METAMACRO REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                
-                st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="320px" style="border:1px solid #ddd; border-radius:4px; margin-top:5px;"></iframe>', unsafe_allow_html=True)
-                st.download_button("📥 DESCARGAR INFORME MACRO POBLACIONAL (PDF)", data=bytes(pdf_m1.output()), file_name="Macro_Analytics.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
+                pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                b64_m1 = base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")
+                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+                st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
+# =================================================================
+# PARTE 10: SUBMÓDULOS EXPANDIDOS, FORMULARIO BASE Y CIERRE DE MAIN
+# =================================================================
+                with t2:
+                    if "Nombre" in df_doc.columns:
+                        sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
+                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
+                        pdf_m2 = FPDF()
+                        pdf_m2.add_page()
+                        pdf_m2.set_font("Helvetica", "B", 14)
+                        pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                        b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")
+                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+                        
+                        c_crm1, c_crm2 = st.columns(2)
+                        with c_crm1:
+                            st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name="Clinical.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
+                        with c_crm2:
+                            tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
+                            st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
+                    else:
+                        st.info("Columna Nombre ausente.")
 
-            with t2:
-                if "Nombre" in df_doc.columns:
-                    sujeto_sel = st.selectbox("Selecciona Participante para Deep-Dive:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
-                    fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
+                with t3:
+                    alfa_calc, s1, s2 = 0.0, 0.0, 0.0
+                    if len(df_doc) >= 3 and len(col_reactivos) >= 2:
+                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                        K = matriz_num.shape
+                        var_items = np.var(matriz_num, ddof=1, axis=0)
+                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
+                        if var_total > 0 and K > 1:
+                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
+                        matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
+                        _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
+                        s1 = S if len(S) > 0 else 0.0
+                        s2 = S if len(S) > 1 else 0.0
                     
-                    pdf_m2 = FPDF()
-                    pdf_m2.add_page()
-                    pdf_m2.set_font("Helvetica", "B", 14)
-                    pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                    st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
+                    col_svd1, col_svd2 = st.columns(2)
+                    col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
+                    col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
                     
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")}" width="100%" height="320px" style="border:1px solid #ddd; border-radius:4px; margin-top:5px;"></iframe>', unsafe_allow_html=True)
-                    
-                    c_crm1, c_crm2 = st.columns(2)
-                    with c_crm1:
-                        st.download_button("📥 EXPORTAR EXPEDIENTE CLÍNICO DE CASO (PDF)", data=bytes(pdf_m2.output()), file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                    with c_crm2:
-                        tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
-                        st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR EXPEDIENTE DIRECTO VÍA WHATSAPP</div></a>', unsafe_allow_html=True)
-                else: 
-                    st.info("Columna Identificadora Nombre ausente.")
+                    pdf_m3 = FPDF()
+                    pdf_m3.add_page()
+                    pdf_m3.set_font("Helvetica", "B", 14)
+                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
+                    b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
+            else:
+                st.info("Se requieren al menos 3 registros completos.")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-            with t3:
-                alfa_calc, s1, s2 = 0.0, 0.0, 0.0
-                if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-                    matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                    K = matriz_num.shape
-                    var_items = np.var(matriz_num, ddof=1, axis=0)
-                    var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                    if var_total > 0 and K > 1: 
-                        alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                    matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                    _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                    s1 = S if len(S) > 0 else 0.0
-                    s2 = S if len(S) > 1 else 0.0
-                
-                col_st1, col_st2, col_st3 = st.columns(3)
-                col_st1.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
-                col_st2.metric("Eje Maestro \(\sigma_1\)", f"{s1:.2f}")
-                col_st3.metric("Eje Secundario \(\sigma_2\)", f"{s2:.2f}")
-                
-                pdf_m3 = FPDF()
-                pdf_m3.add_page()
-                pdf_m3.set_font("Helvetica", "B", 14)
-                pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                
-st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")}" width="100%" height="320px" style="border:1px solid #ddd; border-radius:4px; margin-top:5px;">', unsafe_allow_html=True)
-st.download_button("📥 EXPORTAR INFORME DE PROPIEDADES PSICOMÉTRICAS (PDF)", data=bytes(pdf_m3.output()), file_name="Validation_Properties.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
+    # Invocación condicional y mapeada de la capa flotante administrativa superior
+    if st.session_state.admin_autenticado:
+        renderizar_consola_windows(tabla_analizar)
+
+    # 🍊 VISTA DEL FLUJO PÚBLICO DEL CUESTIONARIO SECUENCIAL EN CAPA DE FONDO
+    if not st.session_state.flujo_finalizado:
+        st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
+        st.divider()
+        st.header(r"📋 Sección I: Perfil de identificación")
+        nombre = st.text_input(tx.get("nombre", "Nombre:"), key=r"n_in_seq")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key=r"w_in_seq")
+        resultados_totales = {}
+        
+        st.subheader(r"📋 Sección II: Datos Demográficos y Geográficos")
+        resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key=r"num_ed")
+        resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
+        resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
+        
+        if resultados_totales["Nacionalidad"] == "Mexicana":
+            resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key=r"s_orig")
+            resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key=r"s_res")
+        elif resultados_totales["Nacionalidad"] == "Extranjera":
+            resultados_totales["País Origen"] = st.text_input("País de Origen:", key=r"t_pais")
+            resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
+
+        st.subheader(r"📋 Sección III: Conocimiento sobre el tema")
+        preguntas_sec3 = [
+            ("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"),
+            ("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"),
+            ("C3_Enseñado", "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?")
+        ]
+        for key_r, txt_r in preguntas_sec3:
+            resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
+
+        resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
+        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
+        resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
+
+        vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales["Género"], resultados_totales["Nacionalidad"], resultados_totales["C1_Escuchado"], resultados_totales["C6_Perfil_Auto"]])
+        if vld_base and not st.session_state.paso_salud:
+            if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="primary"):
+                st.session_state.paso_salud = True
+                st.rerun()
+
+        if st.session_state.paso_salud:
+            st.markdown("### 🍊 Diagnóstico de la Salud Integral")
+            MATRIZ_SINTOMAS_FIJA = {
+                "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
+                "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
+                "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
+                "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
+                "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
+                "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
+                "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
+            }
+            for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_FIJA.items()):
+                with st.container(border=True):
+                    st.markdown(f"#### {g_name}")
+                    c_a, c_b = st.columns(2)
+                    with c_a:
+                        cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_0")
+                        cb1 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_1")
+                    with c_b:
+                        cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
+                        cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
+                    resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
+
+            if not st.session_state.paso_cyk:
+                if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary"):
+                    st.session_state.paso_cyk = True
+                    st.rerun()
+
+            if st.session_state.paso_cyk:
+                st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
+                reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
+                for r_id, r_txt in reactivos.items():
+                    st.write(f"Reactivo {r_id}: {r_txt}")
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                    "Escala / Scale:",
+                    options=,
+                    format_func=lambda x: tx.get(f"likert_{x}", str(x)),
+                    index=None,
+                    horizontal=True,
+                    key=f"rcyk_{r_id}"
+                    )
+                    gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
 else:
-st.info("ℹ️ Se requieren al menos 3 registros consolidados en la hoja activa para habilitar los cálculos estructurales.")
-st.markdown("", unsafe_allow_html=True)
+    st.balloons()
+    st.success(tx.get("thanks", "¡Completado!"))
+    rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
+    st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
---- DISPARADOR RAÍZ Y FLUJO PÚBLICO DEL PARTICIPANTE (CAPA BASE DE FONDO) ---
+    Cierre reglamentario de la aplicación a nivel raíz
 
-if st.session_state.admin_autenticado:
-renderizar_consola_windows(tabla_analizar)
-if not st.session_state.flujo_finalizado:
-st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
-st.divider()
-st.header(r"📋 Sección I: Perfil de identificación")
-nombre = st.text_input(tx.get("nombre", "Nombre:"), key=r"n_in_seq")
-whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key=r"w_in_seq")
-resultados_totales = {}
-st.subheader(r"📋 Sección II: Datos Demográficos y Geográficos")
-resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key=r"num_ed")
-resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
-resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
-if resultados_totales["Nacionalidad"] == "Mexicana":
-resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key=r"s_orig")
-resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key=r"s_res")
-elif resultados_totales["Nacionalidad"] == "Extranjera":
-resultados_totales["País Origen"] = st.text_input("País de Origen:", key=r"t_pais")
-resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
-st.subheader(r"📋 Sección III: Conocimiento sobre el tema")
-preguntas_sec3 = [
-("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"),
-("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"),
-("C3_Enseñado", "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?")
-]
-for key_r, txt_r in preguntas_sec3:
-resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
-resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
-resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
-resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
-vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales["Género"], resultados_totales["Nacionalidad"], resultados_totales["C1_Escuchado"], resultados_totales["C6_Perfil_Auto"]])
-if vld_base and not st.session_state.paso_salud:
-if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="primary"):
-st.session_state.paso_salud = True
-st.rerun()
-if st.session_state.paso_salud:
-st.markdown("### 🍊 Diagnóstico de la Salud Integral")
-MATRIZ_SINTOMAS_FIJA = {
-"💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
-"🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
-"❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
-"👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
-"💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
-"⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
-"🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
-}
-for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_FIJA.items()):
-with st.container(border=True):
-st.markdown(f"#### {g_name}")
-c_a, c_b = st.columns(2)
-with c_a:
-cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}0")
-cb1 = st.checkbox(lista_items_gajo, key=f"cs{g_idx}1")
-with c_b:
-cb2 = st.checkbox(lista_items_gajo, key=f"cs{g_idx}2")
-cb3 = st.checkbox(lista_items_gajo, key=f"cs{g_idx}_3")
-resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
-if not st.session_state.paso_cyk:
-if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary"):
-st.session_state.paso_cyk = True
-st.rerun()
-if st.session_state.paso_cyk:
-st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
-reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
-for r_id, r_txt in reactivos.items():
-st.write(f"Reactivo {r_id}: {r_txt}")
-resultados_totales[f"R{r_id}"] = st.radio(
-"Escala / Scale:",
-options=,
-format_func=lambda x: tx.get(f"likert_{x}", str(x)),
-index=None,
-horizontal=True,
-key=f"rcyk_{r_id}"
-)
-gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-else:
-st.balloons()
-st.success(tx.get("thanks", "¡Completado!"))
-rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
-st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 if name == "main":
-main()
+    main()
