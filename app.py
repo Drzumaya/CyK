@@ -684,9 +684,9 @@ def renderizar_consola_windows(tabla_analizar):
                     b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")
                     st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                     st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-            else:
-                st.info("Se requieren al menos 3 registros completos.")
-                st.markdown("</div>", unsafe_allow_html=True)
+               else:
+                 st.info("Se requieren al menos 3 registros completos.")
+                 st.markdown("</div>", unsafe_allow_html=True)
 
     # Invocación condicional y mapeada de la capa flotante administrativa superior
     if st.session_state.admin_autenticado:
