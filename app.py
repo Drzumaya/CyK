@@ -301,7 +301,9 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
             }
 # END: PARTE 5 - SECCIÓN ESPAÑOL
 
-# BEGIN: PARTE 6
+# =================================================================
+# PARTE 6 CORREGIDA: ENSAMBLADOR DE MANUSCRITOS PDF (MÓDULO CLÍNICO)
+# =================================================================
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     """
     Ensambla el documento PDF formal bajo rigurosos criterios editoriales.
@@ -317,13 +319,14 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     
     base_title = "Reporte de Evaluacion Psicometrica Individual" if lang == "es" else "Individual Psychometric Evaluation Report"
     pdf.set_font(font_family, "B", 14)
-    pdf.cell(190, 10, str(base_title).encode('cp1252', 'ignore').decode('cp1252'), ln=1, align="C")
+    # 🔥 FIX DEFINITIVO: Uso reglamentario de posiciones new_x y new_y para evitar TypeErrors
+    pdf.cell(190, 10, str(base_title).encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
     pdf.ln(2)
     
     pdf.set_font(font_family, "", 10)
     n_seg = str(nombre).encode('ascii', 'ignore').decode('ascii') if nombre else "Anonimo"
     w_seg = str(whatsapp).encode('ascii', 'ignore').decode('ascii') if whatsapp else "N/A"
-    pdf.cell(190, 6, f"Participante: {n_seg} | Contacto: {w_seg}".encode('cp1252', 'ignore').decode('cp1252'), ln=1)
+    pdf.cell(190, 6, f"Participante: {n_seg} | Contacto: {w_seg}".encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
     
     if not es_likert:
@@ -338,43 +341,43 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
                     key_segura = key_segura.replace(emj, "")
                 
                 pdf.set_font(font_family, "B", 11)
-                pdf.cell(190, 6, f"Dimension: {key_segura.strip()}", ln=1)
+                pdf.cell(190, 6, f"Dimension: {key_segura.strip()}", new_x="LMARGIN", new_y="NEXT")
                 
                 sintomas_origen_nicho = list(g_trad.values())[idx]
                 sintomas_reportados = [sintomas_origen_nicho[int(i)] for i in indices_marcados if str(i).isdigit() and int(i) < len(sintomas_origen_nicho)]
                 
                 pdf.set_font(font_family, "I", 9.5)
                 pdf.set_text_color(120, 30, 30)
-                pdf.multi_cell(190, 4.5, f"Indicadores detectados: {', '.join(sintomas_reportados)}".encode('cp1252', 'ignore').decode('cp1252'))
+                pdf.multi_cell(190, 4.5, f"Indicadores detectados: {', '.join(sintomas_reportados)}".encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 
                 glosario_seguro = str(dictamen_bilingue.get(dim_espanol, "")).encode('cp1252', 'ignore').decode('cp1252')
                 pdf.set_font(font_family, "", 9.5)
                 pdf.set_text_color(50, 50, 50)
-                pdf.multi_cell(190, 4.5, f"Sugerencia base: {glosario_seguro.strip()}")
+                pdf.multi_cell(190, 4.5, f"Sugerencia base: {glosario_seguro.strip()}", new_x="LMARGIN", new_y="NEXT")
                 
                 if "⏳" in dim_espanol or "temporal" in dim_espanol.lower():
                     pdf.ln(1)
                     pdf.set_font(font_family, "B", 9.5)
                     pdf.set_text_color(150, 50, 0)
-                    pdf.cell(190, 5, "ANALISIS DE RIESGO PROSPECTIVO Y CONSECUENCIAS:", ln=1)
+                    pdf.cell(190, 5, "ANALISIS DE RIESGO PROSPECTIVO Y CONSECUENCIAS:", new_x="LMARGIN", new_y="NEXT")
                     pdf.set_font(font_family, "", 9)
                     pdf.set_text_color(60, 60, 60)
                     
                     c_corto = "- Corto Plazo: Elevacion de fatiga cognitiva, saturacion horaria y perdida de ventanas de oportunidad."
                     c_medio = "- Mediano Plazo: Sindrome de Burnout latente, desequilibrio en dinamicas familiares and friccion operacional."
                     c_largo = "- Largo Plazo: Cronificacion del estres, colapso de efectividad y perdida del proposito estrategico vocacional."
-                    pdf.multi_cell(190, 4, c_corto.encode('cp1252','ignore').decode('cp1252'))
-                    pdf.multi_cell(190, 4, c_medio.encode('cp1252','ignore').decode('cp1252'))
-                    pdf.multi_cell(190, 4, c_largo.encode('cp1252','ignore').decode('cp1252'))
+                    pdf.multi_cell(190, 4, c_corto.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                    pdf.multi_cell(190, 4, c_medio.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                    pdf.multi_cell(190, 4, c_largo.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                     
                     pdf.ln(1)
                     pdf.set_font(font_family, "B", 9.5)
                     pdf.set_text_color(180, 0, 0)
-                    r_esp = "RECOMENDACION CRITICA: Debido al nivel de riesgo detectado en tu vector dimensional temporal, es indispensable solicitar una consulta especializada de forma directa con el ponente."
-                    pdf.multi_cell(190, 4.5, r_esp.encode('cp1252','ignore').decode('cp1252'))
+                    r_esp = "RECOMENDACION CRITICA: Due to the high risk detected, we suggest a private consultation."
+                    pdf.multi_cell(190, 4.5, r_esp.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
                 pdf.ln(3)
                 pdf.set_text_color(0, 0, 0)
-# END: PARTE 6
+
 # BEGIN: PARTE 7
     else:
         c_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
