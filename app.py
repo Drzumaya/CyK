@@ -300,61 +300,6 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 10: "Mantengo la calma y la claridad analítica cuando todo a mi alrededor cambia rápidamente."
             }
 # END: PARTE 5 - SECCIÓN ESPAÑOL
-# BEGIN: PARTE 5 - SECCIÓN INGLÉS
-    else:
-        if estilo == "institucional":
-            return {
-                1: "I structure my daily commitments based strictly on exact clock metrics.",
-                2: "I optimize my strategic goals by capitalizing on moments of maximum operational opportunity.",
-                3: "I execute my performance plans under rigid and unalterable checklists.",
-                4: "I experience an organic and natural flow when managing my daily responsibilities.",
-                5: "I strictly penalize untimeliness and schedule misalignment within my workspace.",
-                6: "I read unexpected events during the day as highly useful strategic windows.",
-                7: "I prefer a sequential, structured order before committing to multiple concurrent tasks.",
-                8: "I break my established itinerary immediately if I detect a clear competitive advantage.",
-                9: "I safeguard non-negotiable blocks of time dedicated exclusively to biological rest.",
-                10: "I trigger high intellectual concentration if my environmental conditions change rapidly."
-            }
-        elif estilo == "dinamico":
-            return {
-                1: "I organize every hour of my day following the exact control of alarms and calendars.",
-                2: "I focus on catching the best opportunities at the precise instant they appear.",
-                3: "I follow my checklists to the letter to ensure the timely completion of my tasks.",
-                4: "I let my work flow naturally without forcing a rigid administrative office schedule.",
-                5: "I get deeply annoyed by losing valuable minutes due to other people's untimeliness.",
-                6: "I take advantage of unexpected changes in plans to give a creative twist to my workflow.",
-                7: "I need to completely finish one activity before jumping to the next pending item.",
-                8: "I change my plans on the spot if a much more attractive or advantageous option emerges.",
-                9: "I maintain a strict routine to secure my hours of sleep and optimal daily performance.",
-                10: "I double my focus and energy level when circumstances force me to improvise."
-            }
-        elif estilo == "tecnico":
-            return {
-                1: "I synchronize my operational blocks on highly precise chronometric time matrices.",
-                2: "I maximize my output by leveraging opportunity vectors based on the Kairos factor.",
-                3: "I manage my execution processes under a closed sequence of structured checklists.",
-                4: "I demonstrate low cognitive resistance when the task transition is organic.",
-                5: "I strictly monitor and penalize schedule deviations within my production flows.",
-                6: "I decode environmental contingencies as optimal analytical windows for innovation.",
-                7: "I mitigate operational errors by prioritizing linear execution over saturated multitasking.",
-                8: "I interrupt structural planning if a preferential adaptive window emerges.",
-                9: "I shield my homeostatic parameters by separating fixed slots for biological recovery.",
-                10: "I stabilize my attentional focus during critical increases in context entropy."
-            }
-        else:
-            return {
-                1: "I structure my timeline based on strict deadlines determined by exact clocks.",
-                2: "I align my daily efforts to act with agility during key opportunities.",
-                3: "I manage the progress of my goals through organized checking matrices.",
-                4: "I feel that time flows more freely when I perform my administrative work.",
-                5: "I consider professional untimeliness as a serious methodological failure.",
-                6: "I find a profound value in unexpected events when they reveal new alternatives.",
-                7: "I prefer to concentrate on a single structured problem instead of dividing my focus.",
-                8: "I leave my itinerary aside if a superior opportunity to advance presents itself.",
-                9: "I establish clear boundaries to protect my resting time and digital fasting hours.",
-                10: "I maintain my analytical clarity when everything around me changes rapidly."
-            }
-# END: PARTE 5 - SECCIÓN INGLÉS
 
 # BEGIN: PARTE 6
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
