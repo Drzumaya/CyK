@@ -142,18 +142,16 @@ TEXTOS_DICTAMEN_BILINGUE = {
 def conectar_google_sheets(nombre_tabla):
     """
     Establece conexión encriptada de alta seguridad con la API de Google Sheets.
-    Fuerza los alcances (scopes) correctos y sanitiza los saltos de línea de la clave PEM.
+    CORREGIDO: Fuerza las URLs de alcance oficiales y extrae la Key desde secretos.
     """
     try:
-        # Extrae de forma segura las credenciales de la bóveda de secretos de Streamlit
         credenciales_dict = dict(st.secrets["gcp_service_account"])
         
-        # Corrige la serialización de la clave privada PEM convirtiendo texto plano a saltos reales
         if "private_key" in credenciales_dict:
             raw_key = credenciales_dict["private_key"]
             credenciales_dict["private_key"] = raw_key.replace("\\n", "\n").strip()
 
-        # CORREGIDO: Direcciones URL de alcance completas y obligatorias para Google Cloud
+        # CORREGIDO: Rutas de autenticación unificadas obligatorias de Google
         scope = [
             "https://googleapis.com",
             "https://googleapis.com"
@@ -162,16 +160,14 @@ def conectar_google_sheets(nombre_tabla):
         credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
         cliente = gspread.authorize(credenciales)
         
-        # Sincroniza de forma síncrona con el ID del libro maestro unificado
-        libro = cliente.open_by_key("1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ")
+        # CORREGIDO: Lectura parametrizada desde la bóveda de Secrets
+        id_maestro_libro = st.secrets["gcp_service_account"].get("spreadsheet_key", "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ").strip()
+        
+        libro = cliente.open_by_key(id_maestro_libro)
         return libro.worksheet(nombre_tabla)
     except Exception as e:
         st.sidebar.error(f"Error de conexión en Google Cloud: {e}")
         return None
-# END: PARTE 4
-
-
-
 
 def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token_seguridad, es_likert=False):
     """
@@ -227,7 +223,8 @@ def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
             "🙏 Salud Espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
         }
 # END: PARTE 4
-# BEGIN: PARTE 5
+
+# BEGIN: PARTE 5 - SECCIÓN ESPAÑOL
 def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
     """
     Genera la batería de 10 reactivos C&K en primera persona, adaptando 
@@ -301,6 +298,8 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 9: "Establezco límites claros para proteger mis tiempos de descanso y desconexión laboral.",
                 10: "Mantengo la calma y la claridad analítica cuando todo a mi alrededor cambia rápidamente."
             }
+# END: PARTE 5 - SECCIÓN ESPAÑOL
+# BEGIN: PARTE 5 - SECCIÓN INGLÉS
     else:
         if estilo == "institucional":
             return {
@@ -354,7 +353,7 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 9: "I establish clear boundaries to protect my resting time and digital fasting hours.",
                 10: "I maintain my analytical clarity when everything around me changes rapidly."
             }
-# END: PARTE 5
+# END: PARTE 5 - SECCIÓN INGLÉS
 
 # BEGIN: PARTE 6
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
