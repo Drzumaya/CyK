@@ -706,8 +706,11 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
             st.markdown(f'<iframe src="data:application/pdf;base64,{b64_3}" width="100%" height="200px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
             st.download_button("📥 EXPORTAR REPORTE DE FIABILIDAD (PDF)", data=bytes_pdf3, file_name="Psychometric_Validation.pdf", mime="application/pdf", use_container_width=True)
 # END: PARTE 10-A
-# BEGIN: PARTE 10-B
+# =================================================================
+# PARTE 10-B: FORMULARIO SECUENCIAL ADAPTATIVO COMPLETO Y QR (FIJO)
+# =================================================================
     if not st.session_state.flujo_finalized:
+        # 1. BLOQUE QR (Siempre visible al inicio)
         st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR')}")
         st.caption(tx.get("qr_sub1", "Escanea para responder en tiempo real"))
         
@@ -725,6 +728,7 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
         
+        # 2. SECCIÓN I Y II (Siempre visibles y estáticas)
         st.header(r"📋 Sección I: Perfil de identificación")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key=r"n_in_seq")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key=r"w_in_seq")
@@ -747,6 +751,7 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
             resultados_totales["País Origen"] = st.text_input("País de Origen:", key=r"t_pais")
             resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
 
+        # 3. SECCIÓN III (Siempre visible y estática)
         st.subheader(r"📋 Sección III: Conocimiento sobre el tema")
         preguntas_sec3 = [
             ("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"),
@@ -760,13 +765,18 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
         resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
         resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
 
+        # Validación base superior
         vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales.get("Género"), resultados_totales.get("Nacionalidad"), resultados_totales.get("C1_Escuchado"), resultados_totales.get("C6_Perfil_Auto")])
+        
+        # Botón de transición síncrona
         if vld_base and not st.session_state.paso_salud:
             if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="primary"):
                 st.session_state.paso_salud = True
                 st.rerun()
 
+        # CORREGIDO: Se elimina el aislamiento. Si paso_salud es True, se CONSERVA lo anterior y se AÑADE la matriz abajo
         if st.session_state.paso_salud:
+            st.divider()
             st.markdown("### 🍊 Diagnóstico de la Salud Integral")
             MATRIZ_SINTOMAS_DINAMICA = motor_generativo_items_audiencia(st.session_state.audiencia_activa, lang_code=iso)
             
@@ -787,20 +797,21 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
                     st.session_state.paso_cyk = True
                     st.rerun()
 
-            if st.session_state.paso_cyk:
-                st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
-                reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
-                for r_id, r_txt in reactivos.items():
-                    st.markdown(f"**Reactivo {r_id}:** {r_txt}")
-                    # CORREGIDO: Lista explícita restablecida para garantizar la compilación sin errores
-                    resultados_totales[f"R{r_id}"] = st.radio(
-                        label="Escala / Scale:", 
-                        options=[1, 2, 3, 4, 5], 
-                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                        index=None, 
-                        horizontal=True, 
-                        key=f"rcyk_{r_id}"
-                    )
+        # CORREGIDO: Si paso_cyk es True, se CONSERVA todo el histórico superior y se ANEXA la batería al fondo
+        if st.session_state.paso_cyk:
+            st.divider()
+            st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
+            reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
+            for r_id, r_txt in reactivos.items():
+                st.markdown(f"**Reactivo {r_id}:** {r_txt}")
+                resultados_totales[f"R{r_id}"] = st.radio(
+                    label="Escala / Scale:", 
+                    options=, 
+                    format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                    index=None, 
+                    horizontal=True, 
+                    key=f"rcyk_{r_id}"
+                )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
     else:
@@ -817,3 +828,4 @@ def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, i
 if __name__ == "__main__":
     main()
 # END: PARTE 10-B
+
