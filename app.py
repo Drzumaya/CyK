@@ -687,6 +687,9 @@ def renderizar_consola_windows(tabla_analizar):
                     else:
                         st.info("Se requieren al menos 3 registros completos para activar los cálculos factoriales.")
                         st.markdown("</div>", unsafe_allow_html=True)
+                else:
+            st.info("Se requieren al menos 3 registros completos.")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # Invocación condicional de la capa flotante administrativa superior
     if st.session_state.admin_autenticado:
