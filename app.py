@@ -636,7 +636,7 @@ def renderizar_consola_windows(tabla_analizar):
                 st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                 st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
 # =================================================================
-# PARTE 10-B1: REPORTE INDIVIDUAL, SVD, ALFA DE CRONBACH DOCTORAL
+# PARTE 10-A CORREGIDA: REPORTE INDIVIDUAL, CRM Y MÓDULO III LIKERT (SVD)
 # =================================================================
                 with t2:
                     if "Nombre" in df_doc.columns:
@@ -671,26 +671,30 @@ def renderizar_consola_windows(tabla_analizar):
                         _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
                         s1 = S if len(S) > 0 else 0.0
                         s2 = S if len(S) > 1 else 0.0
-                    
-                    st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
-                    col_svd1, col_svd2 = st.columns(2)
-                    col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
-                    col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
-                    
-                    pdf_m3 = FPDF()
-                    pdf_m3.add_page()
-                    pdf_m3.set_font("Helvetica", "B", 14)
-                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                    b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-                else:
-                    st.info("Se requieren al menos 3 registros completos.")
-                    st.markdown("</div>", unsafe_allow_html=True)
+                        
+                        st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
+                        col_svd1, col_svd2 = st.columns(2)
+                        col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
+                        col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
+                        
+                        pdf_m3 = FPDF()
+                        pdf_m3.add_page()
+                        pdf_m3.set_font("Helvetica", "B", 14)
+                        pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
+                        b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")
+                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+                        st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
+                    else:
+                        # 🍊 ALINEACIÓN CORRECTA: Ahora el else responde de forma directa y nativa al validador 'if len(df_doc) >= 3'
+                        st.info("Se requieren al menos 3 registros completos para activar los cálculos factoriales.")
+            else:
+                st.info("Se requieren al menos 3 registros completos.")
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    # Invocación condicional y mapeada de la capa flotante administrativa superior
+    # Invocación condicional de la capa flotante administrativa superior
     if st.session_state.admin_autenticado:
         renderizar_consola_windows(tabla_analizar)
+
     # =================================================================
     # PARTE 10-B2: INTERFAZ EN RED SECUENCIAL AUTOMÁTICA DEL PARTICIPANTE
     # =================================================================
