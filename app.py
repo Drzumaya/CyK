@@ -636,7 +636,7 @@ def renderizar_consola_windows(tabla_analizar):
                 st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                 st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
 # =================================================================
-# PARTE 10-A CORREGIDA: REPORTE INDIVIDUAL, CRM Y MÓDULO III LIKERT (SVD)
+# PARTE 10-A CORREGIDA Y PURGADA: MÓDULOS CRM, SVD Y ALFA (SIN COLISIONES)
 # =================================================================
                 with t2:
                     if "Nombre" in df_doc.columns:
@@ -685,7 +685,6 @@ def renderizar_consola_windows(tabla_analizar):
                         st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                         st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
                     else:
-                        # 🍊 ALINEACIÓN CORRECTA: Ahora el else responde de forma directa y nativa al validador 'if len(df_doc) >= 3'
                         st.info("Se requieren al menos 3 registros completos para activar los cálculos factoriales.")
             else:
                 st.info("Se requieren al menos 3 registros completos.")
