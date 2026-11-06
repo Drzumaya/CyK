@@ -1,6 +1,3 @@
-# =================================================================
-# PARTE 1: PROTOCOLOS DE IMPORTACIÓN Y CONFIGURACIÓN DE NÚCLEO GLOBAL
-# =================================================================
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -9,6 +6,7 @@ import time
 import hashlib
 import urllib.parse
 from io import BytesIO
+# Se asume el uso de fpdf2 en el entorno de ejecución para compatibilidad total Unicode
 from fpdf import FPDF
 import qrcode
 import gspread
@@ -18,7 +16,7 @@ from google.oauth2.service_account import Credentials
 st.set_page_config(page_title="C&K Evaluation Core", page_icon="🍊", layout="wide")
 
 # Parámetros logísticos fijos estáticos de producción
-URL_PRODUCCION = "https://dsimandarina.streamlit.app" 
+URL_PRODUCCION = "https://streamlit.app" 
 DIMENSIONES_MANDARINA_MAESTRAS = [
     "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", 
     "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"
@@ -31,9 +29,6 @@ ESTADOS_MEXICO = [
     "Nuevo León", "Oaxaca", "Puebla", "Querétaro", "Quintana Roo", "San Luis Potosí", 
     "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
 ]
-# =================================================================
-# PARTE 2: LÉXICO BILINGÜE METODOLÓGICO Y CENTRO DE MANDO
-# =================================================================
 CENTRO_MANDO_BILINGUE = {
     "es": {
         "nombre": "Escribe tu nombre completo / Full Name:",
@@ -104,9 +99,6 @@ CENTRO_MANDO_BILINGUE = {
         "lbl_btn_download_macro": "📥 Download Epistemological Report"
     }
 }
-# =================================================================
-# PARTE 3: GLOSARIOS DE DICTAMEN EPISTEMOLÓGICO Y CITAS DOCTORALES
-# =================================================================
 TEXTOS_DICTAMEN_BILINGUE = {
     "es": {
         "💪 Salud Física": "Optimizar el descanso homeostático y la ergonomía postural ante la fatiga cronocéntrica aguda.",
@@ -141,9 +133,6 @@ TEXTOS_DICTAMEN_BILINGUE = {
         "lbl_ref3": "Jacob, J. (2026). Epistemology of Psychometric Time: The Cronos and Kairos Integrated Model. Mandarina Press."
     }
 }
-# =================================================================
-# PARTE 4: ACCESO A REPOSITORIOS EN LA NUBE Y DICCIONARIOS CLÍNICOS
-# =================================================================
 def conectar_google_sheets(nombre_tabla):
     """
     Establece conexión encriptada de alta seguridad con la API de Google Sheets
@@ -151,13 +140,19 @@ def conectar_google_sheets(nombre_tabla):
     """
     try:
         credenciales_dict = st.secrets["gcp_service_account"]
-        scope = ["https://googleapis.com", "https://googleapis.com"]
+        # CORREGIDO: Scopes oficiales indispensables para el funcionamiento de gspread y acceso al drive
+        scope = [
+            "https://googleapis.com",
+            "https://googleapis.com"
+        ]
         credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
         cliente = gspread.authorize(credenciales)
         # Sincroniza dinámicamente con la hoja de cálculo maestra unificada
         libro = cliente.open_by_key("1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ")
         return libro.worksheet(nombre_tabla)
-    except Exception:
+    except Exception as e:
+        # CORREGIDO: Captura descriptiva del error en consola administrativa en lugar de ignorar silenciosamente
+        st.sidebar.error(f"Error de conexión en Google Cloud: {e}")
         return None
 
 def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token_seguridad, es_likert=False):
@@ -185,7 +180,8 @@ def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token_segurida
             fila.append(token_seguridad)
         hoja.append_row(fila)
         return True
-    except Exception:
+    except Exception as e:
+        st.sidebar.error(f"Error al escribir fila en base de datos: {e}")
         return False
 
 def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
@@ -213,16 +209,16 @@ def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
             "⏳ Salud Temporal": ["Reactive procrastination", "Work invasion of free time", "Suppressed rest margins", "Cronos/Kairos imbalance"],
             "🙏 Salud Espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
         }
-# =================================================================
-# PARTE 5: ALGORITMO GENERATIVO DE REACTIVOS C&K ADAPTATIVOS
-# =================================================================
 def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
     """
     Genera la batería de 10 reactivos C&K en primera persona, adaptando 
-    el estilo semántico según edad, género y conocimiento previo del usuario,
-    sin exponer la audiencia de forma burda. Ítems impares = Cronos | Pares = Kairós.
+    el estilo semántico según edad, género y conocimiento previo del usuario.
+    Ítems impares = Cronos | Pares = Kairós.
     """
-    edad = int(datos_participante.get("Edad", 30))
+    # CORREGIDO: Protección explicativa contra strings vacíos o nulos en el casteo de Edad
+    edad_raw = datos_participante.get("Edad", 30)
+    edad = int(edad_raw) if str(edad_raw).isdigit() else 30
+    
     ha_leido = "sí" in str(datos_participante.get("C2_Leído", "")).lower()
     es_experto = "sí" in str(datos_participante.get("C3_Enseñado", "")).lower()
     
@@ -253,7 +249,7 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 4: "Dejo que mis tareas fluyan de forma natural sin forzar un horario rígido de oficina.",
                 5: "Me molesta profundamente perder minutos valiosos debido a la impuntualidad de otros.",
                 6: "Aprovecho los cambios de planes inesperados para dar un giro creativo a mis actividades.",
-                7: "Necesito terminar por completo una actividad antes de saltar al siguiente pendiente.",
+                7: "Necesito terminar por completo una activity antes de saltar al siguiente pendiente.",
                 8: "Cambio mis planes al momento si surge una opción mucho más atractiva o ventajosa.",
                 9: "Mantengo una rutina estricta para asegurar mis horas de sueño y rendimiento óptimo.",
                 10: "Duplico mi energía y foco de atención cuando las circunstancias me obligan a improvisar."
@@ -271,7 +267,7 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 9: "Blindo mis parámetros homeostáticos separando franjas fijas de recuperación biológica.",
                 10: "Estabilizo mi foco atencional ante incrementos críticos en la entropía del contexto."
             }
-        else:
+        else: # Reflexivo
             return {
                 1: "Estructuro mi agenda sobre plazos estrictos determinados por relojes exactos.",
                 2: "Alineo mis esfuerzos diarios para actuar con agilidad en los momentos clave.",
@@ -282,9 +278,9 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 7: "Prefiero concentrarme en un solo problema estructurado en lugar de diversificarme.",
                 8: "Dejo de lado mi itinerario si se presenta una oportunidad superior para avanzar.",
                 9: "Establezco límites claros para proteger mis tiempos de descanso y desconexión laboral.",
-                10: "Mantengo la calma y la claridad analítica cuando todo a mi ancestral alrededor cambia rápidamente."
+                10: "Mantengo la calma y la claridad analítica cuando todo a mi alrededor cambia rápidamente."
             }
-    else:
+    else: # Inglés
         if estilo == "institucional":
             return {
                 1: "I structure my daily commitments based strictly on exact clock metrics.",
@@ -324,7 +320,7 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 9: "I shield my homeostatic parameters by separating fixed slots for biological recovery.",
                 10: "I stabilize my attentional focus during critical increases in context entropy."
             }
-        else:
+        else: # Reflexivo
             return {
                 1: "I structure my timeline based on strict deadlines determined by exact clocks.",
                 2: "I align my daily efforts to act with agility during key opportunities.",
@@ -337,9 +333,6 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
                 9: "I establish clear boundaries to protect my resting time and digital fasting hours.",
                 10: "I maintain my analytical clarity when everything around me changes rapidly."
             }
-# =================================================================
-# PARTE 6: CONSTRUCTOR REGLAMENTARIO DE REPORTES DOCTORALES EN PDF
-# =================================================================
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     """
     Ensambla el documento PDF formal bajo rigurosos criterios editoriales.
@@ -355,89 +348,91 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     
     base_title = "Reporte de Evaluacion Psicometrica Individual" if lang == "es" else "Individual Psychometric Evaluation Report"
     pdf.set_font(font_family, "B", 14)
-    pdf.cell(190, 10, str(base_title).encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+    # CORREGIDO: Sintaxis unificada universal para celdas y saltos de línea (ln=1), compatible con todas las versiones de fpdf/fpdf2
+    pdf.cell(190, 10, str(base_title).encode('cp1252', 'ignore').decode('cp1252'), ln=1, align="C")
     pdf.ln(2)
     
     pdf.set_font(font_family, "", 10)
     n_seg = str(nombre).encode('ascii', 'ignore').decode('ascii') if nombre else "Anonimo"
     w_seg = str(whatsapp).encode('ascii', 'ignore').decode('ascii') if whatsapp else "N/A"
-    pdf.cell(190, 6, f"Participante: {n_seg} | Contacto: {w_seg}".encode('ascii', 'ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(190, 6, f"Participante: {n_seg} | Contacto: {w_seg}".encode('cp1252', 'ignore').decode('cp1252'), ln=1)
     pdf.ln(4)
     
     if not es_likert:
         g_trad = motor_generativo_items_audiencia(tabla, lang_code=lang)
-        for idx, dim_traducida_emoji in enumerate(g_trad.keys()):
-            if len(resultados.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], [])) > 0:
+        # CORREGIDO: Iteración unificada usando la estructura base inalterable en español para evitar desalineaciones multilingües
+        for idx, dim_espanol in enumerate(DIMENSIONES_MANDARINA_MAESTRAS):
+            indices_marcados = resultados.get(dim_espanol, [])
+            
+            if len(indices_marcados) > 0:
+                dim_traducida_emoji = list(g_trad.keys())[idx]
                 key_segura = str(dim_traducida_emoji).encode('cp1252', 'ignore').decode('cp1252')
                 for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]: 
                     key_segura = key_segura.replace(emj, "")
                 
                 pdf.set_font(font_family, "B", 11)
-                pdf.cell(190, 6, f"Dimension: {key_segura.strip()}", new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(190, 6, f"Dimension: {key_segura.strip()}", ln=1)
                 
-                indices_marcados = resultados.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], [])
                 sintomas_origen_nicho = list(g_trad.values())[idx]
-                sintomas_reportados = [sintomas_origen_nicho[int(i)] for i in indices_marcados if int(i) < len(sintomas_origen_nicho)]
+                sintomas_reportados = [sintomas_origen_nicho[int(i)] for i in indices_marcados if str(i).isdigit() and int(i) < len(sintomas_origen_nicho)]
                 
                 pdf.set_font(font_family, "I", 9.5)
                 pdf.set_text_color(120, 30, 30)
-                pdf.multi_cell(190, 4.5, f"Indicadores detectados: {', '.join(sintomas_reportados)}".encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                pdf.multi_cell(190, 4.5, f"Indicadores detectados: {', '.join(sintomas_reportados)}".encode('cp1252', 'ignore').decode('cp1252'))
                 
-                glosario_seguro = str(dictamen_bilingue.get(DIMENSIONES_MANDARINA_MAESTRAS[idx], "")).encode('cp1252', 'ignore').decode('cp1252')
+                glosario_seguro = str(dictamen_bilingue.get(dim_espanol, "")).encode('cp1252', 'ignore').decode('cp1252')
                 pdf.set_font(font_family, "", 9.5)
                 pdf.set_text_color(50, 50, 50)
-                pdf.multi_cell(190, 4.5, f"Sugerencia base: {glosario_seguro.strip()}", new_x="LMARGIN", new_y="NEXT")
+                pdf.multi_cell(190, 4.5, f"Sugerencia base: {glosario_seguro.strip()}")
                 
-                if "⏳" in dim_traducida_emoji or "temporal" in dim_traducida_emoji.lower():
+                if "⏳" in dim_espanol or "temporal" in dim_espanol.lower():
                     pdf.ln(1)
                     pdf.set_font(font_family, "B", 9.5)
                     pdf.set_text_color(150, 50, 0)
-                    pdf.cell(190, 5, "ANÁLISIS DE RIESGO PROSPECTIVO Y CONSECUENCIAS:", new_x="LMARGIN", new_y="NEXT")
+                    pdf.cell(190, 5, "ANALISIS DE RIESGO PROSPECTIVO Y CONSECUENCIAS:", ln=1)
                     pdf.set_font(font_family, "", 9)
                     pdf.set_text_color(60, 60, 60)
                     
                     c_corto = "- Corto Plazo: Elevacion de fatiga cognitiva, saturacion horaria y perdida de ventanas de oportunidad."
                     c_medio = "- Mediano Plazo: Sindrome de Burnout latente, desequilibrio en dinamicas familiares y friccion operacional."
                     c_largo = "- Largo Plazo: Cronificacion del estres, colapso de efectividad y perdida del proposito estrategico vocacional."
-                    pdf.multi_cell(190, 4, c_corto.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
-                    pdf.multi_cell(190, 4, c_medio.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
-                    pdf.multi_cell(190, 4, c_largo.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                    pdf.multi_cell(190, 4, c_corto.encode('cp1252','ignore').decode('cp1252'))
+                    pdf.multi_cell(190, 4, c_medio.encode('cp1252','ignore').decode('cp1252'))
+                    pdf.multi_cell(190, 4, c_largo.encode('cp1252','ignore').decode('cp1252'))
                     
                     pdf.ln(1)
                     pdf.set_font(font_family, "B", 9.5)
                     pdf.set_text_color(180, 0, 0)
-                    r_esp = "💡 RECOMENDACIÓN CRÍTICA: Debido al nivel de riesgo detectado en tu vector dimensional temporal, es indispensable solicitar una consulta especializada de forma directa con el ponente."
-                    pdf.multi_cell(190, 4.5, r_esp.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+                    r_esp = "RECOMENDACION CRITICA: Debido al nivel de riesgo detectado en tu vector dimensional temporal, es indispensable solicitar una consulta especializada de forma directa con el ponente."
+                    pdf.multi_cell(190, 4.5, r_esp.encode('cp1252','ignore').decode('cp1252'))
                 pdf.ln(3)
                 pdf.set_text_color(0, 0, 0)
-# =================================================================
-# PARTE 7: COMPILACIÓN CUANTITATIVA C&K EN PDF Y COMPUERTA GENERAL
-# =================================================================
     else:
-        k_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
-        c_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
+        # CORREGIDO: Alineación paramétrica e inversión psicométrica corregida (Impares = Cronos | Pares = Kairós)
+        c_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
+        k_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_c = sum(c_v) / 5 if len(c_v) > 0 else 3.0
         avg_k = sum(k_v) / 5 if len(k_v) > 0 else 3.0
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "1. RESULTADOS DE LA EVALUACION CUANTITATIVA", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "1. RESULTADOS DE LA EVALUACION CUANTITATIVA", ln=1)
         pdf.set_font(font_family, "", 10)
-        pdf.cell(190, 5, f"Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 5, f"Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}".encode('cp1252','ignore').decode('cp1252'), ln=1)
         pdf.ln(3)
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "2. APARTADO DE ANALISIS Y PERFIL DOMINANTE", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "2. APARTADO DE ANALISIS Y PERFIL DOMINANTE", ln=1)
         dif = abs(avg_c - avg_k)
         if dif <= 0.4: txt_p = dictamen_bilingue.get("txt_p_simbiosis", "Simbiosis")
         elif avg_k > avg_c: txt_p = dictamen_bilingue.get("txt_p_kairos", "Dominancia Kairos")
         else: txt_p = dictamen_bilingue.get("txt_p_cronos", "Dominancia Cronos")
             
         pdf.set_font(font_family, "I", 10)
-        pdf.multi_cell(190, 5, str(txt_p).encode('cp1252', 'ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 5, str(txt_p).encode('cp1252', 'ignore').decode('cp1252'))
         pdf.ln(3)
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "3. PROSPECTIVA DE RIESGO TEMPORAL Y CONSECUENCIAS", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "3. PROSPECTIVA DE RIESGO TEMPORAL Y CONSECUENCIAS", ln=1)
         if avg_c > avg_k:
             r_c_corto = "- Corto Plazo: Incremento agudo de rigidez mental, estres ante imprevistos cotidianos."
             r_c_medio = "- Mediano Plazo: Perdida sistemica de ventanas de oportunidad (Kairos) por apego al reloj."
@@ -447,24 +442,25 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
             r_c_medio = "- Mediano Plazo: Perdida de credibilidad profesional institucional por impuntualidad."
             r_c_largo = "- Largo Plazo: Crisis de estabilidad familiar e incapacidad de consolidar proyectos."
             
-        pdf.multi_cell(190, 5, r_c_corto.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
-        pdf.multi_cell(190, 5, r_c_medio.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
-        pdf.multi_cell(190, 5, r_c_largo.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 5, r_c_corto.encode('cp1252','ignore').decode('cp1252'))
+        pdf.multi_cell(190, 5, r_c_medio.encode('cp1252','ignore').decode('cp1252'))
+        pdf.multi_cell(190, 5, r_c_largo.encode('cp1252','ignore').decode('cp1252'))
         pdf.ln(3)
         
         pdf.set_font(font_family, "B", 11)
-        pdf.cell(190, 6, "4. RECOMENDACIONES METODOLOGICAS DE CONTENCION", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(190, 6, "4. RECOMENDACIONES METODOLÓGICAS DE CONTENCION", ln=1)
         gl_recom = str(dictamen_bilingue.get("txt_ck_recom", "Ajustar franjas")).encode('cp1252', 'ignore').decode('cp1252')
-        pdf.multi_cell(190, 5, gl_recom, new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(190, 5, gl_recom)
         pdf.ln(2)
         
         pdf.set_font(font_family, "B", 10)
         pdf.set_text_color(180, 0, 0)
-        req_ponente = "🚨 ATENCION DIRECTA: Al tratarse de una asimetria dimensional temporal, se le recomienda al participante agendar una consulta especializada de caracter personal o familiar con el ponente."
-        pdf.multi_cell(190, 4.5, req_ponente.encode('cp1252','ignore').decode('cp1252'), new_x="LMARGIN", new_y="NEXT")
+        req_ponente = "ATENCION DIRECTA: Al tratarse de una asimetria dimensional temporal, se le recomienda al participante agendar una consulta especializada de caracter personal o familiar con el ponente."
+        pdf.multi_cell(190, 4.5, req_ponente.encode('cp1252','ignore').decode('cp1252'))
         pdf.set_text_color(0, 0, 0)
         
-    return bytes(pdf.output())
+    pdf_output = pdf.output()
+    return bytes(pdf_output) if not isinstance(pdf_output, bytes) else pdf_output
 
 
 def gateway_bt(n, w, r, lk, lg, t):
@@ -484,6 +480,7 @@ def gateway_bt(n, w, r, lk, lg, t):
                 st.session_state.whatsapp_usuario_persistente = w
                 st.session_state.resultados_usuario_persistente = r
                 st.session_state.es_modo_likert_persistente = lk
+                # CORREGIDO: Alineación de nomenclatura idéntica de la variable de estado
                 st.session_state.flujo_finalized = True
                 st.rerun()
     with c2:
@@ -493,71 +490,81 @@ def gateway_bt(n, w, r, lk, lg, t):
         else: st.info(t["fields_msg"])
     with c3:
         if vld:
-            tel = "".join(c for c in str(w) if c.isdigit() or c == '+')
-            wa_lnk = f"https://whatsapp.com{tel}&text=Completado"
+            # CORREGIDO: Sanitización, eliminación de comillas muertas y uso del endpoint nativo oficial wa.me
+            tel = "".join(c for c in str(w) if c.isdigit())
+            wa_lnk = f"https://wa.me{tel}?text=He%20completado%20mi%20Evaluaci%C3%B3n%20Psicom%C3%A9trica"
             st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
-# =================================================================
-# PARTE 8: CONTROL CENTRAL, CREDENCIALES Y HOJA DE ESTILOS CSS FLOTANTE
-# =================================================================
 def main():
+    # CORREGIDO: Inicialización unificada de variables utilizando la nomenclatura exacta de persistencia (flujo_finalized)
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
-    if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
+    if "flujo_finalized" not in st.session_state: st.session_state.flujo_finalized = False
     if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
     if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
     if "oficina_maximizada" not in st.session_state: st.session_state.oficina_maximizada = False
 
+    # Parámetros de URL nativos estructurados
     iso = st.query_params.get("lang", "es")
     if iso not in ["es", "en"]: iso = "es"
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
+    
     es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
-    ocultar_bar_css = es_cel and not st.session_state.admin_autenticado
+    # CORREGIDO: Evita el bloqueo del administrador permitiendo que la barra lateral permanezca visible si se requiere autenticación
+    ocultar_bar_css = es_cel and not st.session_state.admin_autenticado and st.session_state.flujo_finalized
 
     with st.sidebar:
         st.markdown("## 🔐 Autenticación")
         if not st.session_state.admin_autenticado:
-            p_in = st.text_input("Contraseña Ponente:", type="password", key="p_master")
-            if st.button("🔓 Acceder a la Consola Master", use_container_width=True):
-                if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
-                    st.session_state.admin_autenticado = True
-                    st.rerun()
-                else: st.error("Acceso denegado.")
+            # CORREGIDO: Encapsulamiento en st.form para evitar re-renderizados síncronos letra por letra al escribir la clave
+            with st.form("bloque_autenticacion_ponente"):
+                p_in = st.text_input("Contraseña Ponente:", type="password")
+                btn_acceso = st.form_submit_button("🔓 Acceder a la Consola Master", use_container_width=True)
+                
+                if btn_acceso:
+                    pwd_seguro = st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026")
+                    if p_in == pwd_seguro:
+                        st.session_state.admin_autenticado = True
+                        st.rerun()
+                    else: 
+                        st.error("Acceso denegado.")
         else:
             st.success("Ponente Autenticado")
-            tabla_analizar = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
+            tabla_analizar = st.selectbox(
+                "Base de Datos Activa:", 
+                ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, 
+                key="sb_an"
+            )
             if st.button("🔒 Cerrar Oficina Analítica", use_container_width=True):
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-    if ocultar_bar_css: st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
+    if ocultar_bar_css: 
+        st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
 
     # REGLAS ESTÉTICAS DE LA VENTANA FLOTANTE ADMINISTRATIVA INDEPENDIENTE
     if st.session_state.admin_autenticado:
-        h_float = "90vh" if st.session_state.oficina_maximizada else "55vh"
-        w_float = "95%" if st.session_state.oficina_maximizada else "80%"
+        h_float = "90vh" if st.session_state.oficina_maximizada else "65vh"
+        w_float = "95%" if st.session_state.oficina_maximizada else "85%"
+        l_float = "2.5%" if st.session_state.oficina_maximizada else "7.5%"
+        t_float = "5vh" if st.session_state.oficina_maximizada else "8vh"
         
         st.markdown(f"""
             <style>
             .floating-office-window {{
-                position: fixed; top: 5vh; left: 10%; width: {w_float}; height: {h_float};
+                position: fixed; top: {t_float}; left: {l_float}; width: {w_float}; height: {h_float};
                 background-color: white; border: 3px solid #ff6b35; border-radius: 12px;
-                z-index: 999999; box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
+                z-index: 9999; box-shadow: 0px 10px 30px rgba(0,0,0,0.3);
                 padding: 20px; overflow-y: auto;
             }}
-            .window-header-bar {{
+            .windows-header-bar {{
                 display: flex; justify-content: space-between; align-items: center;
-                background-color: #ff6b35; padding: 10px; margin: -20px -20px 20px -20px;
-                border-top-left-radius: 8px; border-top-right-radius: 8px; color: white;
+                background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); padding: 10px 16px; margin: -20px -20px 20px -20px;
+                border-top-left-radius: 6px; border-top-right-radius: 6px; color: white; font-family: 'Segoe UI', sans-serif;
             }}
             </style>
         """, unsafe_allow_html=True)
-
-
-# =================================================================
-# PARTE 9: MARCO DE CONSOLA WINDOWS CON IFRAMES INTEGRADOS (PARTE A)
-# =================================================================
 def renderizar_consola_windows(tabla_analizar):
     if "win_minimizado" not in st.session_state: 
         st.session_state.win_minimizado = False
@@ -570,39 +577,12 @@ def renderizar_consola_windows(tabla_analizar):
                 st.rerun()
         return
 
-    h_float = "90vh" if st.session_state.oficina_maximizada else "55vh"
-    w_float = "95%" if st.session_state.oficina_maximizada else "80%"
-    l_float = "2.5%" if st.session_state.oficina_maximizada else "10%"
-    t_float = "5vh" if st.session_state.oficina_maximizada else "10vh"
-
-    st.markdown(f"""<style>
-        .floating-office-window {{
-            position: fixed; top: {t_float}; left: {l_float}; width: {w_float}; height: {h_float};
-            background-color: white; border: 2px solid #1e3c72; border-radius: 6px;
-            z-index: 999999; box-shadow: 0px 15px 40px rgba(0,0,0,0.4); padding: 20px; overflow-y: auto;
-        }}
-        .windows-header-bar {{
-            display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); padding: 8px 14px; margin: -20px -20px 20px -20px;
-            border-top-left-radius: 4px; border-top-right-radius: 4px; color: white; font-family: 'Segoe UI', sans-serif; cursor: move; user-select: none;
-        }}
-    </style>""", unsafe_allow_html=True)
-
-    st.markdown("""<script>
-        setTimeout(function() {
-            var wEl = window.parent.document.querySelector('.floating-office-window');
-            var hEl = window.parent.document.querySelector('.windows-header-bar');
-            if (hEl && wEl) {
-                var isDrag = false; var ox, oy;
-                hEl.addEventListener('mousedown', function(e) { isDrag = true; ox = e.clientX - wEl.getBoundingClientRect().left; oy = e.clientY - wEl.getBoundingClientRect().top; });
-                window.parent.document.addEventListener('mousemove', function(e) { if (isDrag) { wEl.style.left = (e.clientX - ox) + 'px'; wEl.style.top = (e.clientY - oy) + 'px'; wEl.style.position = 'fixed'; } });
-                window.parent.document.addEventListener('mouseup', function() { isDrag = false; });
-            }
-        }, 1000);
-    </script>""", unsafe_allow_html=True)
+    # El bloque inyectado de JavaScript invasivo que intentaba manipular el DOM del padre fue removido por seguridad en la nube (Sandboxing).
 
     with st.container():
+        # CORREGIDO: Apertura e inyección del layout flotante sin romper el árbol estructurado de componentes nativos de Streamlit
         st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div id="win_title_drag">💻 🔬 CONSOLA CIENTÍFICA — AUDIENCIA: {tabla_analizar}</div></div>', unsafe_allow_html=True)
+        
         c_wb1, c_wb2, c_wb3 = st.columns(3)
         with c_wb1:
             if st.button("➖ Minimizar [ _ ]", key="btn_win_min_nav", use_container_width=True):
@@ -622,39 +602,57 @@ def renderizar_consola_windows(tabla_analizar):
         todas_las_filas = sheet.get_all_values() if sheet else []
         
         if todas_las_filas and len(todas_las_filas) >= 2:
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+            # CORREGIDO: DataFrame instanciado correctamente utilizando de manera estricta la primera fila de datos como cabecera (columnas)
+            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
             col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
+            
             t1, t2, t3 = st.tabs(["👥 Módulo I: Macrorregiones", "👤 Módulo II: CRM Clínico", "📐 Módulo III: SVD & Alpha"])
             
             with t1:
                 st.dataframe(df_doc, use_container_width=True)
+                
                 pdf_m1 = FPDF()
                 pdf_m1.add_page()
                 pdf_m1.set_font("Helvetica", "B", 14)
-                pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                b64_m1 = base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")
-                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
-# =================================================================
-# PARTE 10-A CORREGIDA Y PURGADA: MÓDULOS CRM, SVD Y ALFA (SIN COLISIONES)
-# =================================================================
+                # CORREGIDO: Parámetro universal de FPDF (ln=1 en vez de new_x/new_y)
+                pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('cp1252','ignore').decode('cp1252'), ln=1, align="C")
+                
+                pdf_output = pdf_m1.output()
+                pdf_bytes_data = bytes(pdf_output) if not isinstance(pdf_output, bytes) else pdf_output
+                b64_m1 = base64.b64encode(pdf_bytes_data).decode("utf-8")
+                
+                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="300px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+                st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=pdf_bytes_data, file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
             with t2:
                 if "Nombre" in df_doc.columns:
                     sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
-                    fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
-                    pdf_m2 = FPDF()
-                    pdf_m2.add_page()
-                    pdf_m2.set_font("Helvetica", "B", 14)
-                    pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                    b64_m2 = base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+                    df_filtrado = df_doc[df_doc["Nombre"] == sujeto_sel]
+                    
+                    if not df_filtrado.empty:
+                        # CORREGIDO: Indexación explícita a Serie de Pandas (.iloc[0]) eliminando objetos indexadores muertos
+                        fila_sujeto = df_filtrado.iloc[0]
                         
-                    c_crm1, c_crm2 = st.columns(2)
-                    with c_crm1:
-                        st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name="Clinical.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                    with c_crm2:
-                        tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
-                        st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
+                        pdf_m2 = FPDF()
+                        pdf_m2.add_page()
+                        pdf_m2.set_font("Helvetica", "B", 14)
+                        pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('cp1252','ignore').decode('cp1252'), ln=1, align="C")
+                        
+                        pdf_output_m2 = pdf_m2.output()
+                        pdf_bytes_m2 = bytes(pdf_output_m2) if not isinstance(pdf_output_m2, bytes) else pdf_output_m2
+                        b64_m2 = base64.b64encode(pdf_bytes_m2).decode("utf-8")
+                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="300px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+                            
+                        c_crm1, c_crm2 = st.columns(2)
+                        with c_crm1:
+                            st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=pdf_bytes_m2, file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
+                        with c_crm2:
+                            # CORREGIDO: Extracción limpia de la serie de datos y ruteo sobre la API oficial wa.me sin comillas muertas
+                            tel_raw = str(fila_sujeto.get('WhatsApp', ''))
+                            tel_crm = "".join(c for c in tel_raw if c.isdigit())
+                            wa_crm_url = f"https://wa.me{tel_crm}?text=Hola%20{urllib.parse.quote(sujeto_sel)}%20comunicación%20oficial%20C%26K"
+                            st.markdown(f'<a href="{wa_crm_url}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
+                    else:
+                        st.warning("No se encontraron registros activos para el participante.")
                 else:
                     st.info("Columna Nombre ausente.")
 
@@ -662,15 +660,19 @@ def renderizar_consola_windows(tabla_analizar):
                 alfa_calc, s1, s2 = 0.0, 0.0, 0.0
                 if len(df_doc) >= 3 and len(col_reactivos) >= 2:
                     matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                    K = matriz_num.shape
+                    
+                    # CORREGIDO: Captura de la dimensionalidad escalar del número de ítems (columnas) para evitar operaciones sobre tuplas
+                    K = int(matriz_num.shape[1])
+                    
                     var_items = np.var(matriz_num, ddof=1, axis=0)
                     var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
                     if var_total > 0 and K > 1:
                         alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
+                    
                     matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
                     _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                    s1 = S if len(S) > 0 else 0.0
-                    s2 = S if len(S) > 1 else 0.0
+                    s1 = S[0] if len(S) > 0 else 0.0
+                    s2 = S[1] if len(S) > 1 else 0.0
                         
                     st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
                     col_svd1, col_svd2 = st.columns(2)
@@ -680,43 +682,45 @@ def renderizar_consola_windows(tabla_analizar):
                     pdf_m3 = FPDF()
                     pdf_m3.add_page()
                     pdf_m3.set_font("Helvetica", "B", 14)
-                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                    b64_m3 = base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
+                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", ln=1, align="C")
+                    
+                    pdf_output_m3 = pdf_m3.output()
+                    pdf_bytes_m3 = bytes(pdf_output_m3) if not isinstance(pdf_output_m3, bytes) else pdf_output_m3
+                    b64_m3 = base64.b64encode(pdf_bytes_m3).decode("utf-8")
+                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=pdf_bytes_m3, file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
                 else:
                     st.info("Se requieren al menos 3 registros completos para activar los cálculos factoriales.")
-                    st.markdown("</div>", unsafe_allow_html=True)
         else:
-            st.info("Se requieren al menos 3 registros completos.")
+            st.info("Se requieren al menos 3 registros completos en la base de datos.")
+            
+        # CORREGIDO: Cierre del contenedor de la ventana flotante inyectada de manera controlada y limpia en el DOM
         st.markdown("</div>", unsafe_allow_html=True)
 
-    # Invocación condicional de la capa flotante administrativa superior
     if st.session_state.admin_autenticado:
-        renderizar_consola_windows(tabla_analizar)
-
-    # =================================================================
-    # PARTE 10-B2 COMPLETA: FORMULARIO SECUENCIAL ADAPTATIVO SIN DESFASES
-    # =================================================================
-    if not st.session_state.flujo_finalizado:
+        renderizar_consola_windows(st.session_state.sb_an)
+    if not st.session_state.flujo_finalized:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
         st.header(r"📋 Sección I: Perfil de identificación")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key=r"n_in_seq")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key=r"w_in_seq")
         
-        if "resultados_totales_registro" not in st.session_state: st.session_state.resultados_totales_registro = {}
+        if "resultados_totales_registro" not in st.session_state: 
+            st.session_state.resultados_totales_registro = {}
         resultados_totales = st.session_state.resultados_totales_registro
         
         st.subheader(r"📋 Sección II: Datos Demográficos y Geográficos")
-        resultados_totales["Edad"] = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key=r"num_ed")
+        edad_in = st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key=r"num_ed")
+        resultados_totales["Edad"] = int(edad_in)
+        
         resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
         resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
         
-        if resultados_totales["Nacionalidad"] == "Mexicana":
+        if resultados_totales.get("Nacionalidad") == "Mexicana":
             resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key=r"s_orig")
             resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key=r"s_res")
-        elif resultados_totales["Nacionalidad"] == "Extranjera":
+        elif resultados_totales.get("Nacionalidad") == "Extranjera":
             resultados_totales["País Origen"] = st.text_input("País de Origen:", key=r"t_pais")
             resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
 
@@ -733,7 +737,7 @@ def renderizar_consola_windows(tabla_analizar):
         resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
         resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
 
-        vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales["Género"], resultados_totales["Nacionalidad"], resultados_totales["C1_Escuchado"], resultados_totales["C6_Perfil_Auto"]])
+        vld_base = all([nombre.strip(), whatsapp.strip(), resultados_totales.get("Género"), resultados_totales.get("Nacionalidad"), resultados_totales.get("C1_Escuchado"), resultados_totales.get("C6_Perfil_Auto")])
         if vld_base and not st.session_state.paso_salud:
             if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="primary"):
                 st.session_state.paso_salud = True
@@ -741,25 +745,20 @@ def renderizar_consola_windows(tabla_analizar):
 
         if st.session_state.paso_salud:
             st.markdown("### 🍊 Diagnóstico de la Salud Integral")
-            MATRIZ_SINTOMAS_FIJA = {
-                "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
-                "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
-                "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
-                "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
-                "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
-                "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
-                "🙏 Salud Espiritual": ["Vacío Existencial and Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
-            }
-            for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_FIJA.items()):
+            # CORREGIDO: Integración del motor dinámico políglota para evitar desplegar los síntomas fijos únicamente en español
+            MATRIZ_SINTOMAS_DINAMICA = motor_generativo_items_audiencia(st.session_state.audiencia_activa, lang_code=iso)
+            
+            for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_DINAMICA.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
                     c_a, c_b = st.columns(2)
                     with c_a:
-                        cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_0")
-                        cb1 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_1")
+                        cb0 = st.checkbox(lista_items_gajo[0], key=f"cs_{g_idx}_0")
+                        cb1 = st.checkbox(lista_items_gajo[1], key=f"cs_{g_idx}_1")
                     with c_b:
-                        cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
-                        cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
+                        cb2 = st.checkbox(lista_items_gajo[2], key=f"cs_{g_idx}_2")
+                        cb3 = st.checkbox(lista_items_gajo[3], key=f"cs_{g_idx}_3")
+                    # Registro lineal persistente de índices de salud seleccionados
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
             if not st.session_state.paso_cyk:
@@ -771,16 +770,27 @@ def renderizar_consola_windows(tabla_analizar):
                 st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 for r_id, r_txt in reactivos.items():
-                    st.write(f"Reactivo {r_id}: {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), index=None, horizontal=True, key=f"rcyk_{r_id}")
+                    st.markdown(f"**Reactivo {r_id}:** {r_txt}")
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        label="Escala / Scale:", 
+                        options=[1, 2, 3, 4, 5], 
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                        index=None, 
+                        horizontal=True, 
+                        key=f"rcyk_{r_id}"
+                    )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
     else:
         st.balloons()
         st.success(tx.get("thanks", "¡Completado!"))
-        rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
+        
+        n_p = st.session_state.get("nombre_usuario_persistente", "Participante")
+        w_p = st.session_state.get("whatsapp_usuario_persistente", "")
+        r_p = st.session_state.get("resultados_usuario_persistente", {})
+        
+        rep = generar_pdf_diagnostico(n_p, w_p, r_p, st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
 if __name__ == "__main__":
     main()
-
