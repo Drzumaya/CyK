@@ -554,48 +554,67 @@ def main():
             </style>
         """, unsafe_allow_html=True)
 # =================================================================
-# PARTE 9: ENCAPSULAMIENTO MODULAR DE LA CONSOLA ESTILO WINDOWS
+# PARTE 9: CONTROLADOR COMPACTO DINÁMICO DE ESTILOS WINDOWS (PARTE A)
 # =================================================================
 def renderizar_consola_windows(tabla_analizar):
     """
-    Renderiza la Oficina Analítica con apariencia de ventana Windows.
-    Comprimida modularmente para evitar desbordamientos y errores de sangría.
+    Renderiza la Oficina Analítica con apariencia de ventana de Windows interactiva.
+    Los botones ejecutan banderas transaccionales sobre el st.session_state en caliente.
     """
-    st.markdown("""<style>
-        .windows-header-bar { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); padding: 6px 12px; margin: -20px -20px 20px -20px; border-top-left-radius: 8px; border-top-right-radius: 8px; color: white; font-family: 'Segoe UI', sans-serif; }
-        .windows-btn-group { display: flex; gap: 2px; }
-        .win-btn { width: 32px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; user-select: none; border-radius: 2px; }
-        .win-btn-close:hover { background-color: #e81123 !important; color: white !important; }
+    # 🍊 SISTEMA DE INICIALIZACIÓN SÍNCRONA DE BANDERAS DE LA VENTANA
+    if "win_minimizado" not in st.session_state: st.session_state.win_minimizado = False
+
+    # Si el ponente presionó el botón circular o clásico de cerrar/minimizar, colapsa el layout
+    if st.session_state.win_minimizado:
+        c_reabrir1, c_reabrir2 = st.columns([4, 1])
+        with c_reabrir2:
+            if st.button("🗗 Restaurar Consola Analítica", type="primary", use_container_width=True, key="btn_restore_win_floating_master"):
+                st.session_state.win_minimizado = False
+                st.rerun()
+        return
+
+    h_float = "92vh" if st.session_state.oficina_maximizada else "55vh"
+    w_float = "96%" if st.session_state.oficina_maximizada else "76%"
+    l_float = "2%" if st.session_state.oficina_maximizada else "12%"
+    t_float = "2vh" if st.session_state.oficina_maximizada else "6vh"
+
+    st.markdown(f"""<style>
+        .floating-office-window {{
+            position: fixed; top: {t_float}; left: {l_float}; width: {w_float}; height: {h_float};
+            background-color: white; border: 2px solid #1e3c72; border-radius: 8px;
+            z-index: 999999; box-shadow: 0px 12px 40px rgba(0,0,0,0.4);
+            padding: 20px; overflow-y: auto; transition: all 0.2s ease-in-out;
+        }}
+        .windows-header-bar {{
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
+            padding: 8px 14px; margin: -20px -20px 20px -20px;
+            border-top-left-radius: 6px; border-top-right-radius: 6px; color: white;
+            font-family: 'Segoe UI', sans-serif; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+        }}
     </style>""", unsafe_allow_html=True)
     
-    st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div>💻 🔬 CONSOLA CIENTÍFICA — EVALUACIÓN: {tabla_analizar}</div><div class="windows-btn-group"><div class="win-btn">─</div><div class="win-btn">🗖</div><div class="win-btn win-btn-close">✕</div></div></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div>💻 🔬 CONSOLA DE ALTA ANALÍTICA CIENTÍFICA — EVALUACIÓN: {tabla_analizar}</div><div style="display:flex; gap:15px; font-family:monospace; font-size:14px; font-weight:bold; cursor:pointer; padding-right:10px;"><span></span></div></div>', unsafe_allow_html=True)
     
-    c_wb1, c_wb2, c_wb3 = st.columns(3)
-    with c_wb2:
-        if st.button("🗖 Maximizar / Restaurar", key="btn_win_max_nav", use_container_width=True):
+    # 🎛️ ACOPLAMIENTO DE BOTONES TOTALMENTE FUNCIONALES (INTERRUPTORES DE ESTADO)
+    c_btn_win1, c_btn_win2, c_btn_win3 = st.columns(3)
+    with c_btn_win1:
+        if st.button("➖ Minimizar [ _ ]", key="btn_js_action_minimize", use_container_width=True, type="secondary"):
+            st.session_state.win_minimizado = True
+            st.rerun()
+    with c_btn_win2:
+        txt_sz = "🗗 Restaurar [ 🗗 ]" if st.session_state.oficina_maximizada else "🗖 Maximizar [ 🗖 ]"
+        if st.button(txt_sz, key="btn_js_action_maximize", use_container_width=True, type="secondary"):
             st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
             st.rerun()
-    with c_wb3:
-        if st.button("❌ Cerrar Consola", key="btn_win_close_nav", use_container_width=True):
+    with c_btn_win3:
+        if st.button("✕ Cerrar Consola [ X ]", key="btn_js_action_close", use_container_width=True, type="primary"):
             st.session_state.admin_autenticado = False
             st.rerun()
 
     sheet = conectar_google_sheets(tabla_analizar)
     todas_las_filas = sheet.get_all_values() if sheet else []
-    
-    if todas_las_filas and len(todas_las_filas) >= 2:
-        df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
-        col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-        t1, t2, t3 = st.tabs(["👥 Módulo I: Macrorregiones", "👤 Módulo II: CRM Clínico", "📐 Módulo III: SVD & Alpha"])
-        
-        with t1:
-            st.dataframe(df_doc, use_container_width=True)
-            pdf_m1 = FPDF()
-            pdf_m1.add_page()
-            pdf_m1.set_font("Helvetica", "B", 14)
-            pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-            st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-            st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
+
 # =================================================================
 # PARTE 10-A: SUB-MÓDULOS DE EXPENDIENTES CRM Y MATRICES MULTIFACTORIALES SVD
 # =================================================================
