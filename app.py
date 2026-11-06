@@ -495,8 +495,8 @@ def gateway_bt(n, w, r, lk, lg, t):
             wa_lnk = f"https://wa.me{tel}?text=He%20completado%20mi%20Evaluaci%C3%B3n%20Psicom%C3%A9trica"
             st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 WHATSAPP</div></a>', unsafe_allow_html=True)
 def main():
-    # CORREGIDO: Inicialización unificada de variables utilizando la nomenclatura exacta de persistencia (flujo_finalized)
-    if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = False
+    # 1. INICIALIZACIÓN ABSOLUTA EN SEGUNDO PLANO (Previene pantallas vacías)
+    if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = True
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
     if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
@@ -505,19 +505,19 @@ def main():
     if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
     if "oficina_maximizada" not in st.session_state: st.session_state.oficina_maximizada = False
 
-    # Parámetros de URL nativos estructurados
+    # Lectura de parámetros de la URL
     iso = st.query_params.get("lang", "es")
     if iso not in ["es", "en"]: iso = "es"
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
     
     es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
-    # CORREGIDO: Evita el bloqueo del administrador permitiendo que la barra lateral permanezca visible si se requiere autenticación
+    # BLINDAJE CSS: Nunca ocultar si el flujo no ha finalizado
     ocultar_bar_css = es_cel and not st.session_state.admin_autenticado and st.session_state.flujo_finalized
 
+    # 2. RENDERIZADO DE LA BARRA LATERAL (Panel del Ponente)
     with st.sidebar:
         st.markdown("## 🔐 Autenticación")
         if not st.session_state.admin_autenticado:
-            # CORREGIDO: Encapsulamiento en st.form para evitar re-renderizados síncronos letra por letra al escribir la clave
             with st.form("bloque_autenticacion_ponente"):
                 p_in = st.text_input("Contraseña Ponente:", type="password")
                 btn_acceso = st.form_submit_button("🔓 Acceder a la Consola Master", use_container_width=True)
@@ -565,147 +565,9 @@ def main():
             }}
             </style>
         """, unsafe_allow_html=True)
-def renderizar_consola_windows(tabla_analizar):
-    if "win_minimizado" not in st.session_state: 
-        st.session_state.win_minimizado = False
-
-    if st.session_state.win_minimizado:
-        c_reabrir1, c_reabrir2 = st.columns(2)
-        with c_reabrir2:
-            if st.button("🗗 Restaurar Consola Analítica", type="primary", use_container_width=True, key="btn_restore_win_master"):
-                st.session_state.win_minimizado = False
-                st.rerun()
-        return
-
-    # El bloque inyectado de JavaScript invasivo que intentaba manipular el DOM del padre fue removido por seguridad en la nube (Sandboxing).
-
-    with st.container():
-        # CORREGIDO: Apertura e inyección del layout flotante sin romper el árbol estructurado de componentes nativos de Streamlit
-        st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div id="win_title_drag">💻 🔬 CONSOLA CIENTÍFICA — AUDIENCIA: {tabla_analizar}</div></div>', unsafe_allow_html=True)
-        
-        c_wb1, c_wb2, c_wb3 = st.columns(3)
-        with c_wb1:
-            if st.button("➖ Minimizar [ _ ]", key="btn_win_min_nav", use_container_width=True):
-                st.session_state.win_minimizado = True
-                st.rerun()
-        with c_wb2:
-            txt_sz = "🗗 Restaurar [ 🗗 ]" if st.session_state.oficina_maximizada else "🗖 Maximizar [ 🗖 ]"
-            if st.button(txt_sz, key="btn_win_max_nav", use_container_width=True):
-                st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
-                st.rerun()
-        with c_wb3:
-            if st.button("✕ Cerrar Consola [ X ]", key="btn_win_close_nav", use_container_width=True):
-                st.session_state.admin_autenticado = False
-                st.rerun()
-
-        sheet = conectar_google_sheets(tabla_analizar)
-        todas_las_filas = sheet.get_all_values() if sheet else []
-        
-        if todas_las_filas and len(todas_las_filas) >= 2:
-            # CORREGIDO: DataFrame instanciado correctamente utilizando de manera estricta la primera fila de datos como cabecera (columnas)
-            df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
-            col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-            
-            t1, t2, t3 = st.tabs(["👥 Módulo I: Macrorregiones", "👤 Módulo II: CRM Clínico", "📐 Módulo III: SVD & Alpha"])
-            
-            with t1:
-                st.dataframe(df_doc, use_container_width=True)
-                
-                pdf_m1 = FPDF()
-                pdf_m1.add_page()
-                pdf_m1.set_font("Helvetica", "B", 14)
-                # CORREGIDO: Parámetro universal de FPDF (ln=1 en vez de new_x/new_y)
-                pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('cp1252','ignore').decode('cp1252'), ln=1, align="C")
-                
-                pdf_output = pdf_m1.output()
-                pdf_bytes_data = bytes(pdf_output) if not isinstance(pdf_output, bytes) else pdf_output
-                b64_m1 = base64.b64encode(pdf_bytes_data).decode("utf-8")
-                
-                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m1}" width="100%" height="300px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-                st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=pdf_bytes_data, file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
-            with t2:
-                if "Nombre" in df_doc.columns:
-                    sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
-                    df_filtrado = df_doc[df_doc["Nombre"] == sujeto_sel]
-                    
-                    if not df_filtrado.empty:
-                        # CORREGIDO: Indexación explícita a Serie de Pandas (.iloc[0]) eliminando objetos indexadores muertos
-                        fila_sujeto = df_filtrado.iloc[0]
-                        
-                        pdf_m2 = FPDF()
-                        pdf_m2.add_page()
-                        pdf_m2.set_font("Helvetica", "B", 14)
-                        pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('cp1252','ignore').decode('cp1252'), ln=1, align="C")
-                        
-                        pdf_output_m2 = pdf_m2.output()
-                        pdf_bytes_m2 = bytes(pdf_output_m2) if not isinstance(pdf_output_m2, bytes) else pdf_output_m2
-                        b64_m2 = base64.b64encode(pdf_bytes_m2).decode("utf-8")
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m2}" width="100%" height="300px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-                            
-                        c_crm1, c_crm2 = st.columns(2)
-                        with c_crm1:
-                            st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=pdf_bytes_m2, file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                        with c_crm2:
-                            # CORREGIDO: Extracción limpia de la serie de datos y ruteo sobre la API oficial wa.me sin comillas muertas
-                            tel_raw = str(fila_sujeto.get('WhatsApp', ''))
-                            tel_crm = "".join(c for c in tel_raw if c.isdigit())
-                            wa_crm_url = f"https://wa.me{tel_crm}?text=Hola%20{urllib.parse.quote(sujeto_sel)}%20comunicación%20oficial%20C%26K"
-                            st.markdown(f'<a href="{wa_crm_url}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
-                    else:
-                        st.warning("No se encontraron registros activos para el participante.")
-                else:
-                    st.info("Columna Nombre ausente.")
-
-            with t3:
-                alfa_calc, s1, s2 = 0.0, 0.0, 0.0
-                if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-                    matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                    
-                    # CORREGIDO: Captura de la dimensionalidad escalar del número de ítems (columnas) para evitar operaciones sobre tuplas
-                    K = int(matriz_num.shape[1])
-                    
-                    var_items = np.var(matriz_num, ddof=1, axis=0)
-                    var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                    if var_total > 0 and K > 1:
-                        alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                    
-                    matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                    _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                    s1 = S[0] if len(S) > 0 else 0.0
-                    s2 = S[1] if len(S) > 1 else 0.0
-                        
-                    st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
-                    col_svd1, col_svd2 = st.columns(2)
-                    col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
-                    col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
-                        
-                    pdf_m3 = FPDF()
-                    pdf_m3.add_page()
-                    pdf_m3.set_font("Helvetica", "B", 14)
-                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", ln=1, align="C")
-                    
-                    pdf_output_m3 = pdf_m3.output()
-                    pdf_bytes_m3 = bytes(pdf_output_m3) if not isinstance(pdf_output_m3, bytes) else pdf_output_m3
-                    b64_m3 = base64.b64encode(pdf_bytes_m3).decode("utf-8")
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_m3}" width="100%" height="300px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=pdf_bytes_m3, file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-                else:
-                    st.info("Se requieren al menos 3 registros completos para activar los cálculos factoriales.")
-        else:
-            st.info("Se requieren al menos 3 registros completos en la base de datos.")
-            
-        # CORREGIDO: Cierre del contenedor de la ventana flotante inyectada de manera controlada y limpia en el DOM
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # =================================================================
-    # PARTE 10-FINAL: CONTROL DE RENDERIZADO SIMULTÁNEO CENTRAL
-    # =================================================================
-    
-    # CONTROL 1: Si el ponente ya se autenticó, desplegamos la consola científica analítica
-    if st.session_state.admin_autenticado:
         renderizar_consola_windows(st.session_state.sb_an)
-        
-    # CONTROL 2: Evaluamos de forma paralela e independiente la pantalla del participante (Formulario)
+
+    # 3. RENDERIZADO DEL CUERPO CENTRAL DE LA PÁGINA (Formulario del Participante)
     if not st.session_state.flujo_finalized:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
@@ -778,7 +640,7 @@ def renderizar_consola_windows(tabla_analizar):
                     st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                     resultados_totales[f"R{r_id}"] = st.radio(
                         label="Escala / Scale:", 
-                        options= [1, 2, 3, 4, 5], 
+                        options=, 
                         format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                         index=None, 
                         horizontal=True, 
