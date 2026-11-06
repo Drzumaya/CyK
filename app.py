@@ -506,14 +506,10 @@ def main():
     if "flujo_finalized" not in st.session_state: st.session_state.flujo_finalized = False
     if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
     if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
-    if "oficina_maximizada" not in st.session_state: st.session_state.oficina_maximizada = False
 
     iso = st.query_params.get("lang", "es")
     if iso not in ["es", "en"]: iso = "es"
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
-    
-    es_cel = str(st.query_params.get("modo_admin", "true")).strip().lower() == "false"
-    ocultar_bar_css = es_cel and not st.session_state.admin_autenticado and st.session_state.flujo_finalized
 
     with st.sidebar:
         st.markdown("## 🔐 Autenticación")
@@ -531,83 +527,33 @@ def main():
                         st.error("Acceso denegado.")
         else:
             st.success("Ponente Autenticado")
-            tabla_analizar = st.selectbox(
+            st.selectbox(
                 "Base de Datos Activa:", 
                 ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, 
                 key="sb_an"
             )
-            if st.button("🔒 Cerrar Oficina Analítica", use_container_width=True):
+            
+            # Botón nativo para disparar la Consola Científica Flotante
+            if st.button("📊 ABRIR OFICINA ANALÍTICA", type="primary", use_container_width=True):
+                invocar_consola_modal_nativa(st.session_state.sb_an, iso, tx)
+                
+            if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True):
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-    if ocultar_bar_css: 
-        st.markdown("<style>div[data-testid='stSidebar'] {display: none !important;}</style>", unsafe_allow_html=True)
-
+    # Si el administrador está autenticado, dejamos un acceso directo flotante nativo en el cuerpo
     if st.session_state.admin_autenticado:
-        h_float = "94vh" if st.session_state.oficina_maximizada else "80vh"
-        w_float = "98%" if st.session_state.oficina_maximizada else "94%"
-        l_float = "1%" if st.session_state.oficina_maximizada else "3%"
-        t_float = "3vh" if st.session_state.oficina_maximizada else "8vh"
-        
-        st.markdown(f"""
-            <style>
-            .floating-office-window {{
-                position: fixed; top: {t_float}; left: {l_float}; width: {w_float}; height: {h_float};
-                background-color: #f8f9fa; border: 2px solid #0f2042; border-radius: 8px;
-                z-index: 9999; box-shadow: 0px 30px 70px rgba(0,0,0,0.5); padding: 0px; overflow: hidden;
-                display: flex; flex-direction: column; font-family: 'Segoe UI', Inter, sans-serif;
-            }}
-            .windows-header-bar {{
-                display: flex; justify-content: space-between; align-items: center;
-                background: linear-gradient(90deg, #0f2042 0%, #1e3d75 100%); padding: 12px 20px;
-                color: white; font-weight: 600; font-size: 15px; border-bottom: 2px solid #0a1428; user-select: none;
-            }}
-            .windows-workspace {{
-                padding: 24px; overflow-y: auto; flex-grow: 1; height: calc({h_float} - 50px);
-            }}
-            .kpi-card-master {{
-                background: white; border-top: 4px solid #0f2042; padding: 20px; border-radius: 6px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; text-align: center;
-            }}
-            .academic-table-title {{
-                font-family: "Times New Roman", Times, serif; font-style: italic; font-size: 14px; margin-bottom: 5px; color: #333;
-            }}
-            </style>
-        """, unsafe_allow_html=True)
-        renderizar_consola_windows(st.session_state.sb_an)
+        st.info("💡 Modo Administrador Activo. Puedes reabrir la Consola Analítica desde el botón superior de la barra lateral izquierda.")
 # END: PARTE 8
+
 # BEGIN: PARTE 9
-def renderizar_consola_windows(tabla_analizar):
-    if "win_minimizado" not in st.session_state: 
-        st.session_state.win_minimizado = False
-
-    if st.session_state.win_minimizado:
-        _, c_reabrir2 = st.columns(2)
-        with c_reabrir2:
-            if st.button("🗗 Restaurar Consola Master", type="primary", use_container_width=True, key="btn_restore_win_master"):
-                st.session_state.win_minimizado = False
-                st.rerun()
-        return
-
-    st.markdown('<div class="floating-office-window">', unsafe_allow_html=True)
-    st.markdown(f'<div class="windows-header-bar"><div>💻 OFICINA ANALÍTICA EPISTEMOLÓGICA — COHORTE EN ESTUDIO: {tabla_analizar.upper()}</div></div>', unsafe_allow_html=True)
-    st.markdown('<div class="windows-workspace">', unsafe_allow_html=True)
-    
-    c_wb1, c_wb2, c_wb3 = st.columns(3)
-    with c_wb1:
-        if st.button("➖ Minimizar Interfaz [ _ ]", key="btn_win_min_nav", use_container_width=True):
-            st.session_state.win_minimizado = True
-            st.rerun()
-    with c_wb2:
-        txt_sz = "🗗 Restaurar Escala [ 🗗 ]" if st.session_state.oficina_maximizada else "🗖 Maximizar Espacio [ 🗖 ]"
-        if st.button(txt_sz, key="btn_win_max_nav", use_container_width=True):
-            st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
-            st.rerun()
-    with c_wb3:
-        if st.button("✕ Desconectar Consola [ X ]", key="btn_win_close_nav", use_container_width=True):
-            st.session_state.admin_autenticado = False
-            st.rerun()
-
+@st.dialog("💻 CONSOLA CIENTÍFICA MASTER — ESTUDIO METODOLÓGICO", width="large")
+def invocar_consola_modal_nativa(tabla_analizar, iso, tx):
+    """
+    Renderiza la Oficina Analítica utilizando el motor nativo de diálogos flotantes de Streamlit.
+    Garantiza un aislamiento del DOM al 100% y elimina por completo el error de pantalla en blanco.
+    """
+    st.markdown(f"**Cohorte Activa en Bóveda:** `{tabla_analizar.upper()}`")
     st.divider()
 
     sheet = conectar_google_sheets(tabla_analizar)
@@ -616,95 +562,147 @@ def renderizar_consola_windows(tabla_analizar):
     if todas_las_filas and len(todas_las_filas) >= 2:
         df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
         col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
+        
+        # Estilos para las tarjetas científicas integradas en la ventana
+        st.markdown("""<style>
+            .kpi-card-master-modal {
+                background: #ffffff; border-top: 3px solid #0f2042; padding: 12px; 
+                border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;
+            }
+        </style>""", unsafe_allow_html=True)
+        
+        # Renderizado de los módulos de Business Intelligence de alta escuela
         ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, iso, tx)
     else:
-        st.warning("⚠️ Sistema a la espera de n>=3 registros psicométricos linealizados para activar los cálculos factoriales algebraicos.")
-    
-    st.markdown("</div></div>", unsafe_allow_html=True)
+        st.warning("⚠️ Se requieren un mínimo de 3 registros transaccionales linealizados en la nube para activar el motor de matrices algebraicas.")
 # END: PARTE 9
+
 # BEGIN: PARTE 10-A
 def ejecutar_modulos_analiticos_consola(df_doc, col_reactivos, tabla_analizar, iso, tx):
     """
-    Subparte A: Inicialización de pestañas y despliegue del Módulo I (Poblacional).
-    Maneja el cálculo epidemiológico general y la exportación de reportes de cohorte.
+    Bloque analítico premium adaptado para el contenedor flotante nativo de Streamlit.
+    Ejecuta el análisis de cohorte, CRM de asimetría e índices factoriales SVD/Alfa.
     """
     t1, t2, t3 = st.tabs([
-        "📊 MÓDULO I: ANÁLISIS DE MACRO-REGIONES (COHORTE)", 
-        "👤 MÓDULO II: DIAGNÓSTICO CLÍNICO CRM INDIVIDUAL", 
-        "📐 MÓDULO III: APARATO PSICOMÉTRICO (ALFA & SVD)"
+        "📊 MÓDULO I: MACRO-REGIONES", 
+        "👤 MÓDULO II: CRM CLÍNICO", 
+        "📐 MÓDULO III: ALFA & SVD"
     ])
     
     with t1:
-        st.markdown("#### Estudio General de la Cohorte y Prevalencia de Riesgo")
+        st.markdown("#### Análisis de la Población de la Cohorte")
         km1, km2, km3 = st.columns(3)
         with km1:
-            st.markdown('<div class="kpi-card-master">', unsafe_allow_html=True)
-            st.metric("Población Total Muestreada", f"{len(df_doc)} Ss", "Síncrono (N)")
+            st.markdown('<div class="kpi-card-master-modal">', unsafe_allow_html=True)
+            st.metric("Muestra Registrada", f"{len(df_doc)} Ss", "N Total")
             st.markdown('</div>', unsafe_allow_html=True)
         with km2:
-            st.markdown('<div class="kpi-card-master">', unsafe_allow_html=True)
+            st.markdown('<div class="kpi-card-master-modal">', unsafe_allow_html=True)
             p_burnout = 0.0
             if "❤️ Salud Emocional" in df_doc.columns:
                 con_b = df_doc["❤️ Salud Emocional"].apply(lambda x: '0' in str(x)).sum()
                 p_burnout = (con_b / len(df_doc)) * 100
-            st.metric("Índice de Fatiga Emocional Crónica", f"{p_burnout:.1f}%", "Prevalencia Sindrómica", delta_color="inverse")
+            st.metric("Fatiga Emocional", f"{p_burnout:.1f}%", "Prevalencia Burnout", delta_color="inverse")
             st.markdown('</div>', unsafe_allow_html=True)
         with km3:
-            st.markdown('<div class="kpi-card-master">', unsafe_allow_html=True)
+            st.markdown('<div class="kpi-card-master-modal">', unsafe_allow_html=True)
             p_temporal = 0.0
             if "⏳ Salud Temporal" in df_doc.columns:
                 con_t = df_doc["⏳ Salud Temporal"].apply(lambda x: len(str(x)) > 2).sum()
                 p_temporal = (con_t / len(df_doc)) * 100
-            st.metric("Desviación del Vector Temporal", f"{p_temporal:.1f}%", "Asimetría Cronos/Kairós", delta_color="inverse")
+            st.metric("Vector Temporal", f"{p_temporal:.1f}%", "Asimetría Activa", delta_color="inverse")
             st.markdown('</div>', unsafe_allow_html=True)
 
-        st.markdown('<p class="academic-table-title">Tabla 1. Matriz maestra de respuestas y perfiles demográficos (Formato APA)</p>', unsafe_allow_html=True)
         st.dataframe(df_doc, use_container_width=True)
         
         pdf1 = FPDF()
         pdf1.add_page()
         pdf1.set_margins(20, 20, 20)
-        pdf1.set_font("Times", "B", 16)
-        pdf1.cell(170, 10, "ESTUDIO DE MACRO-REGIONES Y SALUD INTEGRAL DE COHORTE", ln=1, align="C")
-        pdf1.set_font("Times", "I", 10)
-        pdf1.cell(170, 5, f"Reporte de Persistencia Automatizada — Audiencia: {tabla_analizar} — Año: 2026", ln=1, align="C")
-        pdf1.ln(8)
-        
-        pdf1.set_font("Times", "B", 12)
-        pdf1.cell(170, 6, "1. RESUMEN EJECUTIVO (ABSTRACT)", ln=1)
-        pdf1.set_font("Times", "", 10.5)
-        abstract_txt = f"El presente informe expone el análisis epidemiológico transversal realizado sobre una muestra activa de N={len(df_doc)} participantes. Se identificó una prevalencia del síndrome de agotamiento laboral latente del {p_burnout:.1f}%, correlacionando de forma directa con la pérdida de márgenes de transición horaria híbridos."
-        pdf1.multi_cell(170, 5, abstract_txt.encode('cp1252','ignore').decode('cp1252'))
-        pdf1.ln(5)
-        
-        pdf1.set_font("Times", "B", 10)
-        pdf1.cell(170, 0.5, "", ln=1, fill=True)
-        pdf1.cell(60, 6, "Variable Psicometrica", ln=0)
-        pdf1.cell(50, 6, "Metrica Poblacional", ln=0)
-        pdf1.cell(60, 6, "Estatus de Riesgo", ln=1)
-        pdf1.cell(170, 0.2, "", ln=1, fill=True)
-        pdf1.set_font("Times", "", 10)
-        pdf1.cell(60, 6, "Poblacion Muestra (N)", ln=0)
-        pdf1.cell(50, 6, f"{len(df_doc)} participantes", ln=0)
-        pdf1.cell(60, 6, "Estable / Validado", ln=1)
-        pdf1.cell(60, 6, "Prevalencia Burnout", ln=0)
-        pdf1.cell(50, 6, f"{p_burnout:.2f}%", ln=0)
-        pdf1.cell(60, 6, "Alerta Moderada si > 30%" if p_burnout > 30 else "Controlado", ln=1)
-        pdf1.cell(170, 0.5, "", ln=1, fill=True)
-        
-        pdf1.ln(10)
-        pdf1.set_font("Times", "B", 10)
-        pdf1.cell(170, 5, "APARATO CRITICO REFERENCIAL BIBLIOGRAFICO (APA):", ln=1)
-        pdf1.set_font("Times", "I", 9)
-        pdf1.multi_cell(170, 4.5, f"- {TEXTOS_DICTAMEN_BILINGUE[iso]['lbl_ref1']}\n- {TEXTOS_DICTAMEN_BILINGUE[iso]['lbl_ref3']}".encode('cp1252','ignore').decode('cp1252'))
-        
-        pdf_b1 = pdf1.output()
-        bytes_pdf1 = bytes(pdf_b1) if not isinstance(pdf_b1, bytes) else pdf_b1
+        pdf1.set_font("Times", "B", 14)
+        pdf1.cell(170, 10, f"COHORT REPORT: {tabla_analizar}".encode('cp1252','ignore').decode('cp1252'), ln=1, align="C")
+        pdf_output = pdf1.output()
+        bytes_pdf1 = bytes(pdf_output) if not isinstance(pdf_output, bytes) else pdf_output
         b64_1 = base64.b64encode(bytes_pdf1).decode("utf-8")
         
-        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_1}" width="100%" height="280px" style="border:1px solid #0f2042; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-        st.download_button("📥 EXPORTAR REPORTE EPIDEMIOLÓGICO POBLACIONAL (PDF)", data=bytes_pdf1, file_name=f"APA_Epidemiological_Report_{tabla_analizar}.pdf", mime="application/pdf", key="btn_dl_m1_rev", use_container_width=True)
+        st.markdown(f'<iframe src="data:application/pdf;base64,{b64_1}" width="100%" height="200px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+        st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes_pdf1, file_name=f"Macro_Report_{tabla_analizar}.pdf", mime="application/pdf", use_container_width=True)
+
+    with t2:
+        st.markdown("#### Ficha Clínica de Diagnóstico Cruzado")
+        if "Nombre" in df_doc.columns:
+            sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_modal")
+            df_filtrado = df_doc[df_doc["Nombre"] == sujeto_sel]
+            
+            if not df_filtrado.empty:
+                fila_sujeto = df_filtrado.iloc
+                perfil_auto = str(fila_sujeto.get("C6_Perfil_Auto", "No sé"))
+                
+                c_v = [int(fila_sujeto.get(f"R{i}", 3)) for i in range(1, 11, 2) if f"R{i}" in df_doc.columns]
+                k_v = [int(fila_sujeto.get(f"R{i}", 3)) for i in range(2, 11, 2) if f"R{i}" in df_doc.columns]
+                avg_c = sum(c_v) / 5 if c_v else 3.0
+                avg_k = sum(k_v) / 5 if k_v else 3.0
+                
+                perfil_calc = "Simbiosis" if abs(avg_c - avg_k) <= 0.4 else ("Kairós" if avg_k > avg_c else "Cronos")
+                
+                cc1, cc2 = st.columns(2)
+                with cc1: st.info(f"**Declarado:** Tipo {perfil_auto.upper()}")
+                with cc2:
+                    if perfil_auto in perfil_calc: st.success(f"**Coherencia:** Alineado ({perfil_calc.upper()})")
+                    else: st.warning(f"**Asimetría:** Computado {perfil_calc.upper()}")
+
+                pdf2 = FPDF()
+                pdf2.add_page()
+                pdf2.set_font("Times", "B", 14)
+                pdf2.cell(170, 10, f"CLINICAL EXPEDIENT: {sujeto_sel.upper()}".encode('cp1252','ignore').decode('cp1252'), ln=1, align="C")
+                pdf_output_m2 = pdf2.output()
+                bytes_pdf2 = bytes(pdf_output_m2) if not isinstance(pdf_output_m2, bytes) else pdf_output_m2
+                b64_2 = base64.b64encode(bytes_pdf2).decode("utf-8")
+                
+                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_2}" width="100%" height="200px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+                
+                c_c1, c_c2 = st.columns(2)
+                with c_c1:
+                    st.download_button("📥 EXPORTAR EXPEDIENTE INDIVIDUAL (PDF)", data=bytes_pdf2, file_name=f"Clinical_{sujeto_sel}.pdf", mime="application/pdf", use_container_width=True)
+                with c_c2:
+                    t_c = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit())
+                    w_u = f"https://wa.me{t_c}?text=Hola%20{urllib.parse.quote(sujeto_sel)}%2C%20se%20ha%20generado%20su%20dictamen."
+                    st.markdown(f'<a href="{w_u}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR ACCIÓN CRM</div></a>', unsafe_allow_html=True)
+
+    with t3:
+        st.markdown("#### Rigor Métrico e Índices Factoriales")
+        if len(df_doc) >= 3 and len(col_reactivos) >= 2:
+            matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+            K = int(matriz_num.shape)
+            var_items = np.var(matriz_num, ddof=1, axis=0)
+            var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
+            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total)) if var_total > 0 and K > 1 else 0.0
+            
+            matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
+            _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
+            s1 = S if len(S) > 0 else 0.0
+            s2 = S if len(S) > 1 else 0.0
+                
+            m_c1, m_c2 = st.columns(2)
+            with m_c1:
+                st.metric("Alfa de Cronbach", f"{alfa_calc:.4f}")
+                if alfa_calc >= 0.80: st.success("🟩 Excelente Fiabilidad")
+                else: st.warning("🟨 Fiabilidad Básica")
+            with m_c2:
+                st.metric("Componente Latente 1 (SVD)", f"{s1:.2f}")
+                st.metric("Componente Latente 2 (SVD)", f"{s2:.2f}")
+                
+            pdf3 = FPDF()
+            pdf3.add_page()
+            pdf3.set_font("Times", "B", 14)
+            pdf3.cell(170, 10, "VALIDATION REPORT", ln=1, align="C")
+            pdf_output_m3 = pdf3.output()
+            bytes_pdf3 = bytes(pdf_output_m3) if not isinstance(pdf_output_m3, bytes) else pdf_output_m3
+            b64_3 = base64.b64encode(bytes_pdf3).decode("utf-8")
+            
+            st.markdown(f'<iframe src="data:application/pdf;base64,{b64_3}" width="100%" height="200px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
+            st.download_button("📥 EXPORTAR REPORTE DE FIABILIDAD (PDF)", data=bytes_pdf3, file_name="Psychometric_Validation.pdf", mime="application/pdf", use_container_width=True)
 # END: PARTE 10-A
+
 # BEGIN: PARTE 10-B
     with t2:
         st.markdown("#### Ficha de Evaluación Clínica y Análisis de Coherencia")
