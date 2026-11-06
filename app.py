@@ -554,98 +554,106 @@ def main():
             </style>
         """, unsafe_allow_html=True)
 # =================================================================
-# PARTE 9: MARCO DE VENTANA WINDOWS Y PESTAÑAS ANALÍTICAS (PARTE A)
+# PARTE 9: ENCAPSULAMIENTO MODULAR DE LA CONSOLA ESTILO WINDOWS
 # =================================================================
-    if st.session_state.admin_autenticado:
-        with st.container():
-            st.markdown("""<style>
-                .windows-header-bar { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); padding: 6px 12px; margin: -20px -20px 20px -20px; border-top-left-radius: 8px; border-top-right-radius: 8px; color: white; font-family: 'Segoe UI', sans-serif; }
-                .windows-btn-group { display: flex; gap: 2px; }
-                .win-btn { width: 32px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; user-select: none; border-radius: 2px; }
-                .win-btn-close:hover { background-color: #e81123 !important; color: white !important; }
-            </style>""", unsafe_allow_html=True)
-            
-            st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div>💻 🔬 CONSOLA CIENTÍFICA — EVALUACIÓN: {tabla_analizar}</div><div class="windows-btn-group"><div class="win-btn">─</div><div class="win-btn">🗖</div><div class="win-btn win-btn-close">✕</div></div></div>', unsafe_allow_html=True)
-            
-            c_wb1, c_wb2, c_wb3 = st.columns(3)
-            with c_wb2:
-                if st.button("🗖 Maximizar / Restaurar", key="btn_win_max_nav", use_container_width=True):
-                    st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
-                    st.rerun()
-            with c_wb3:
-                if st.button("❌ Cerrar Consola", key="btn_win_close_nav", use_container_width=True):
-                    st.session_state.admin_autenticado = False
-                    st.rerun()
+def renderizar_consola_windows(tabla_analizar):
+    """
+    Renderiza la Oficina Analítica con apariencia de ventana Windows.
+    Comprimida modularmente para evitar desbordamientos y errores de sangría.
+    """
+    st.markdown("""<style>
+        .windows-header-bar { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); padding: 6px 12px; margin: -20px -20px 20px -20px; border-top-left-radius: 8px; border-top-right-radius: 8px; color: white; font-family: 'Segoe UI', sans-serif; }
+        .windows-btn-group { display: flex; gap: 2px; }
+        .win-btn { width: 32px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; user-select: none; border-radius: 2px; }
+        .win-btn-close:hover { background-color: #e81123 !important; color: white !important; }
+    </style>""", unsafe_allow_html=True)
+    
+    st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div>💻 🔬 CONSOLA CIENTÍFICA — EVALUACIÓN: {tabla_analizar}</div><div class="windows-btn-group"><div class="win-btn">─</div><div class="win-btn">🗖</div><div class="win-btn win-btn-close">✕</div></div></div>', unsafe_allow_html=True)
+    
+    c_wb1, c_wb2, c_wb3 = st.columns(3)
+    with c_wb2:
+        if st.button("🗖 Maximizar / Restaurar", key="btn_win_max_nav", use_container_width=True):
+            st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
+            st.rerun()
+    with c_wb3:
+        if st.button("❌ Cerrar Consola", key="btn_win_close_nav", use_container_width=True):
+            st.session_state.admin_autenticado = False
+            st.rerun()
 
-            sheet = conectar_google_sheets(tabla_analizar)
-            todas_las_filas = sheet.get_all_values() if sheet else []
-            
-            if todas_las_filas and len(todas_las_filas) >= 2:
-                df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
-                col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-                t1, t2, t3 = st.tabs(["👥 Módulo I: Macrorregiones", "👤 Módulo II: CRM Clínico", "📐 Módulo III: SVD & Alpha"])
+    sheet = conectar_google_sheets(tabla_analizar)
+    todas_las_filas = sheet.get_all_values() if sheet else []
+    
+    if todas_las_filas and len(todas_las_filas) >= 2:
+        df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+        col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
+        t1, t2, t3 = st.tabs(["👥 Módulo I: Macrorregiones", "👤 Módulo II: CRM Clínico", "📐 Módulo III: SVD & Alpha"])
+        
+        with t1:
+            st.dataframe(df_doc, use_container_width=True)
+            pdf_m1 = FPDF()
+            pdf_m1.add_page()
+            pdf_m1.set_font("Helvetica", "B", 14)
+            pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+            st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+            st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
+# =================================================================
+# PARTE 10-A: SUB-MÓDULOS DE EXPENDIENTES CRM Y MATRICES MULTIFACTORIALES SVD
+# =================================================================
+        with t2:
+            if "Nombre" in df_doc.columns:
+                sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
+                fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
+                pdf_m2 = FPDF()
+                pdf_m2.add_page()
+                pdf_m2.set_font("Helvetica", "B", 14)
+                pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
+                st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                 
-                with t1:
-                    st.dataframe(df_doc, use_container_width=True)
-                    pdf_m1 = FPDF()
-                    pdf_m1.add_page()
-                    pdf_m1.set_font("Helvetica", "B", 14)
-                    pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                    st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
-# =================================================================
-# PARTE 10-A: REPORTE INDIVIDUAL, SVD, ALFA DE CRONBACH DOCTORAL
-# =================================================================
-                with t2:
-                    if "Nombre" in df_doc.columns:
-                        sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
-                        fila_sujeto = df_doc[df_doc["Nombre"] == sujeto_sel].iloc
-                        pdf_m2 = FPDF()
-                        pdf_m2.add_page()
-                        pdf_m2.set_font("Helvetica", "B", 14)
-                        pdf_m2.cell(190, 10, f"CLINICAL REPORT: {sujeto_sel}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                        st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m2.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                        
-                        c_crm1, c_crm2 = st.columns(2)
-                        with c_crm1:
-                            st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name="Clinical.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
-                        with c_crm2:
-                            tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
-                            st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
-                    else:
-                        st.info("Columna Nombre ausente.")
-
-                with t3:
-                    alfa_calc, s1, s2 = 0.0, 0.0, 0.0
-                    if len(df_doc) >= 3 and len(col_reactivos) >= 2:
-                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        K = matriz_num.shape
-                        var_items = np.var(matriz_num, ddof=1, axis=0)
-                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        if var_total > 0 and K > 1:
-                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
-                        matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                        _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                        s1 = S if len(S) > 0 else 0.0
-                        s2 = S if len(S) > 1 else 0.0
-                    
-                    st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
-                    col_svd1, col_svd2 = st.columns(2)
-                    col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
-                    col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
-                    
-                    pdf_m3 = FPDF()
-                    pdf_m3.add_page()
-                    pdf_m3.set_font("Helvetica", "B", 14)
-                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
-                    st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
+                c_crm1, c_crm2 = st.columns(2)
+                with c_crm1:
+                    st.download_button("📥 EXPORTAR EXPEDIENTE (PDF)", data=bytes(pdf_m2.output()), file_name="Clinical.pdf", mime="application/pdf", key="btn_dl_m2_pdf", use_container_width=True)
+                with c_crm2:
+                    tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
+                    st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
             else:
-                st.info("Se requieren al menos 3 registros completos.")
-            st.markdown("</div>", unsafe_allow_html=True)
-    # =================================================================
-    # PARTE 10-B: INTERFAZ EN RED SECUENCIAL AUTOMÁTICA DEL PARTICIPANTE
-    # =================================================================
+                st.info("Columna Nombre ausente.")
+
+        with t3:
+            alfa_calc, s1, s2 = 0.0, 0.0, 0.0
+            if len(df_doc) >= 3 and len(col_reactivos) >= 2:
+                matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
+                K = matriz_num.shape
+                var_items = np.var(matriz_num, ddof=1, axis=0)
+                var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
+                if var_total > 0 and K > 1:
+                    alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
+                matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
+                _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
+                s1 = S if len(S) > 0 else 0.0
+                s2 = S if len(S) > 1 else 0.0
+            
+            st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
+            col_svd1, col_svd2 = st.columns(2)
+            col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
+            col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
+            
+            pdf_m3 = FPDF()
+            pdf_m3.add_page()
+            pdf_m3.set_font("Helvetica", "B", 14)
+            pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
+            st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
+            st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
+    else:
+        st.info("Se requieren al menos 3 registros completos.")
+    st.markdown("</div>", unsafe_allow_html=True)
+# =================================================================
+# PARTE 10-B: DISPARADOR DE CONSOLA Y CUESTIONARIO ADAPTATIVO BASE
+# =================================================================
+    # Invocación modular de la Oficina Analítica Flotante si el Ponente se autentica
+    if st.session_state.admin_autenticado:
+        renderizar_consola_windows(tabla_analizar)
+
+    # 🍊 LIENZO BASE: INTERFAZ EN RED SECUENCIAL AUTOMÁTICA DEL PARTICIPANTE
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
@@ -734,6 +742,6 @@ def main():
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-# Guardia reglamentaria a nivel raíz libre de espacios
+# Guardia reglamentaria a nivel raíz libre de espacios iniciales
 if __name__ == "__main__":
     main()
