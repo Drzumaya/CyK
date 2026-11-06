@@ -554,34 +554,22 @@ def main():
             </style>
         """, unsafe_allow_html=True)
 # =================================================================
-# PARTE 9: CONSOLA ANALÍTICA FLOTANTE WINDOWS COMPACTA (INMUNE A INTERRUPCIONES)
+# PARTE 9: MARCO DE VENTANA WINDOWS Y PESTAÑAS ANALÍTICAS (PARTE A)
 # =================================================================
     if st.session_state.admin_autenticado:
         with st.container():
-            st.markdown("""
-                <style>
-                .windows-header-bar {
-                    display: flex; justify-content: space-between; align-items: center;
-                    background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%);
-                    padding: 6px 12px; margin: -20px -20px 20px -20px;
-                    border-top-left-radius: 8px; border-top-right-radius: 8px; color: white;
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                }
+            st.markdown("""<style>
+                .windows-header-bar { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, #1e3c72 0%, #2a5298 100%); padding: 6px 12px; margin: -20px -20px 20px -20px; border-top-left-radius: 8px; border-top-right-radius: 8px; color: white; font-family: 'Segoe UI', sans-serif; }
                 .windows-btn-group { display: flex; gap: 2px; }
-                .win-btn {
-                    width: 32px; height: 22px; display: flex; align-items: center; justify-content: center;
-                    font-size: 11px; cursor: pointer; user-select: none; border-radius: 2px;
-                }
+                .win-btn { width: 32px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; user-select: none; border-radius: 2px; }
                 .win-btn-close:hover { background-color: #e81123 !important; color: white !important; }
-                </style>
-            """, unsafe_allow_html=True)
-
+            </style>""", unsafe_allow_html=True)
+            
             st.markdown(f'<div class="floating-office-window"><div class="windows-header-bar"><div>💻 🔬 CONSOLA CIENTÍFICA — EVALUACIÓN: {tabla_analizar}</div><div class="windows-btn-group"><div class="win-btn">─</div><div class="win-btn">🗖</div><div class="win-btn win-btn-close">✕</div></div></div>', unsafe_allow_html=True)
-
+            
             c_wb1, c_wb2, c_wb3 = st.columns(3)
             with c_wb2:
-                txt_sz = "🗖 Maximizar" if not st.session_state.oficina_maximizada else "🗗 Restaurar"
-                if st.button(txt_sz, key="btn_win_max_nav", use_container_width=True):
+                if st.button("🗖 Maximizar / Restaurar", key="btn_win_max_nav", use_container_width=True):
                     st.session_state.oficina_maximizada = not st.session_state.oficina_maximizada
                     st.rerun()
             with c_wb3:
@@ -599,19 +587,15 @@ def main():
                 
                 with t1:
                     st.dataframe(df_doc, use_container_width=True)
-                    m_c, m_k = 3.0, 3.0
-                    if len(col_reactivos) >= 2:
-                        matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                        m_c = np.mean(matriz_num[:, 0::2]) if matriz_num.shape > 0 else 3.0
-                        m_k = np.mean(matriz_num[:, 1::2]) if matriz_num.shape > 1 else 3.0
-                    
                     pdf_m1 = FPDF()
                     pdf_m1.add_page()
                     pdf_m1.set_font("Helvetica", "B", 14)
                     pdf_m1.cell(190, 10, f"COHORT REPORT: {tabla_analizar}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
                     st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m1.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                     st.download_button("📥 DESCARGAR REPORTE MACRO (PDF)", data=bytes(pdf_m1.output()), file_name="Macro.pdf", mime="application/pdf", key="dl_m1_f", use_container_width=True)
-
+# =================================================================
+# PARTE 10-A: REPORTE INDIVIDUAL, SVD, ALFA DE CRONBACH DOCTORAL
+# =================================================================
                 with t2:
                     if "Nombre" in df_doc.columns:
                         sujeto_sel = st.selectbox("Selecciona Participante:", df_doc["Nombre"].unique().tolist(), key="sb_suj_central_w")
@@ -628,7 +612,8 @@ def main():
                         with c_crm2:
                             tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit() or c == '+')
                             st.markdown(f'<a href="https://whatsapp.com{tel_crm}&text=Hola" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP CRM</div></a>', unsafe_allow_html=True)
-                    else: st.info("Columna Nombre ausente.")
+                    else:
+                        st.info("Columna Nombre ausente.")
 
                 with t3:
                     alfa_calc, s1, s2 = 0.0, 0.0, 0.0
@@ -637,30 +622,33 @@ def main():
                         K = matriz_num.shape
                         var_items = np.var(matriz_num, ddof=1, axis=0)
                         var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        if var_total > 0: alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
+                        if var_total > 0 and K > 1:
+                            alfa_calc = (K / (K - 1)) * (1 - (np.sum(var_items) / var_total))
                         matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
                         _, S, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
                         s1 = S if len(S) > 0 else 0.0
                         s2 = S if len(S) > 1 else 0.0
                     
                     st.metric("📐 Alfa de Cronbach", f"{alfa_calc:.3f}")
+                    col_svd1, col_svd2 = st.columns(2)
+                    col_svd1.metric("Componente Latente 1", f"{s1:.2f}")
+                    col_svd2.metric("Componente Latente 2", f"{s2:.2f}")
+                    
                     pdf_m3 = FPDF()
                     pdf_m3.add_page()
                     pdf_m3.set_font("Helvetica", "B", 14)
-                    pdf_m3.cell(190, 10, "PSYCHOMETRIC REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
+                    pdf_m3.cell(190, 10, "DOCTORAL PSYCHOMETRIC VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
                     st.markdown(f'<iframe src="data:application/pdf;base64,{base64.b64encode(bytes(pdf_m3.output())).decode("utf-8")}" width="100%" height="300px" style="border:1px solid #ddd;"></iframe>', unsafe_allow_html=True)
                     st.download_button("📥 EXPORTAR PSICOMETRÍA (PDF)", data=bytes(pdf_m3.output()), file_name="Validation.pdf", mime="application/pdf", key="btn_dl_m3_pdf", use_container_width=True)
-            else: st.info("Se requieren al menos 3 registros completos.")
+            else:
+                st.info("Se requieren al menos 3 registros completos.")
             st.markdown("</div>", unsafe_allow_html=True)
-
-# =================================================================
-# PARTE 10: FLUJO PÚBLICO DEL PARTICIPANTE Y GUARDIA RAW (SIN ADVERTENCIAS)
-# =================================================================
+    # =================================================================
+    # PARTE 10-B: INTERFAZ EN RED SECUENCIAL AUTOMÁTICA DEL PARTICIPANTE
+    # =================================================================
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
         st.divider()
-        
-        # 🍊 SOLUCIÓN AL SYNTAXWARNING: Inyección de prefijo 'r' para forzar lectura como texto crudo literal
         st.header(r"📋 Sección I: Perfil de identificación")
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key=r"n_in_seq")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key=r"w_in_seq")
@@ -746,7 +734,6 @@ def main():
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-# Guardia reglamentaria a nivel raíz libre de espacios iniciales
+# Guardia reglamentaria a nivel raíz libre de espacios
 if __name__ == "__main__":
     main()
-
