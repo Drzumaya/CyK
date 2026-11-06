@@ -695,8 +695,8 @@ def renderizar_consola_windows(tabla_analizar):
     if st.session_state.admin_autenticado:
         renderizar_consola_windows(tabla_analizar)
 
-        # =================================================================
-    # PARTE 10-B2 (S1): INTERFAZ EN RED SECUENCIAL AUTOMÁTICA (FIXED)
+    # =================================================================
+    # PARTE 10-B2 COMPLETA: FORMULARIO SECUENCIAL ADAPTATIVO SIN DESFASES
     # =================================================================
     if not st.session_state.flujo_finalizado:
         st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
@@ -705,9 +705,7 @@ def renderizar_consola_windows(tabla_analizar):
         nombre = st.text_input(tx.get("nombre", "Nombre:"), key=r"n_in_seq")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp:"), key=r"w_in_seq")
         
-        # 🍊 CORRECCIÓN DE PERSISTENCIA: Evita que el diccionario se vacíe en cada ciclo de Streamlit
-        if "resultados_totales_registro" not in st.session_state:
-            st.session_state.resultados_totales_registro = {}
+        if "resultados_totales_registro" not in st.session_state: st.session_state.resultados_totales_registro = {}
         resultados_totales = st.session_state.resultados_totales_registro
         
         st.subheader(r"📋 Sección II: Datos Demográficos y Geográficos")
@@ -763,9 +761,7 @@ def renderizar_consola_windows(tabla_analizar):
                         cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
                         cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
                     resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
-# =================================================================
-# PARTE 10-B2 (S2): REACTIVOS EN LÍNEA, GATEWAY TRANSACCIONAL Y GUARDIA
-# =================================================================
+
             if not st.session_state.paso_cyk:
                 if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary"):
                     st.session_state.paso_cyk = True
@@ -774,18 +770,9 @@ def renderizar_consola_windows(tabla_analizar):
             if st.session_state.paso_cyk:
                 st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
-                
-                # 🍊 CORRECCIÓN DE INDENTACIÓN: El bucle opera anidado con precisión vertical bajo el "if paso_cyk"
                 for r_id, r_txt in reactivos.items():
                     st.write(f"Reactivo {r_id}: {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio(
-                        "Escala / Scale:", 
-                        options=[1, 2, 3, 4, 5], 
-                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
-                        index=None, 
-                        horizontal=True, 
-                        key=f"rcyk_{r_id}"
-                    )
+                    resultados_totales[f"R{r_id}"] = st.radio("Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), index=None, horizontal=True, key=f"rcyk_{r_id}")
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
     else:
@@ -794,6 +781,6 @@ def renderizar_consola_windows(tabla_analizar):
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-# Guardia de ejecución final anclada al ras del margen izquierdo reglamentario
 if __name__ == "__main__":
     main()
+
