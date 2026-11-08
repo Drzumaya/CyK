@@ -461,7 +461,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             else:
                 st.info("La base de datos individual se activará al ingresar registros válidos.")
 # =================================================================
-# PARTE 6-B DE 7: MOTOR PSICOMÉTRICO AVANZADO ESEM-GEO, ICM-CFA Y AJUSTE GLOBAL
+# PARTE 6-B1 DE 7: ÁLGEBRA MATRICIAL Y ESTIMACIÓN DE DISCREPANCIAS
 # =================================================================
         with t3:
             st.markdown("#### Modelado de Ecuaciones Estructurales Exploratorias (ESEM-Geo) y Confirmatorias (ICM-CFA)")
@@ -469,8 +469,8 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             if len(df_doc) >= 3 and len(col_reactivos) >= 4:
                 # 🍊 1. EXTRACCIÓN MATRICIAL Y CÁLCULO DE COVARIANZA
                 matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                n_casos = matriz_num.shape[0]
-                n_items = matriz_num.shape[1]
+                n_casos = matriz_num.shape
+                n_items = matriz_num.shape
                 
                 # Matriz de covarianza observada (S)
                 matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
@@ -489,8 +489,8 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 informacion_fisher = np.sum(p_respuestas * (1.0 - p_respuestas))
                 
                 _, S_vals, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                s1 = S_vals[0] if len(S_vals) > 0 else 0.0
-                s2 = S_vals[1] if len(S_vals) > 1 else 0.0
+                s1 = S_vals if len(S_vals) > 0 else 0.0
+                s2 = S_vals if len(S_vals) > 1 else 0.0
                 
                 # 🍊 3. MOTOR ALGEBRAICO ADAPTATIVO PARA FIT INDICES (CFI, TLI, RMSEA)
                 # Modelo de Base / Nulo (Varianza independiente sin covarianza)
@@ -499,15 +499,13 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 df_nulo = (n_items * (n_items - 1)) / 2
                 
                 # Modelo Propuesto Híbrido (ESEM-Geo / ICM-CFA)
-                # Estimación transaccional de discrepancia basada en cargas latentes principales
                 cargas_esem = np.outer(np.sqrt(var_items), np.array([0.6 if i%2==0 else 0.2 for i in range(n_items)]))
-                matriz_sigma_implícita = (cargas_esem @ cargas_esem.T) + np.diag(var_items * 0.4)
+                matriz_sigma_implicita = (cargas_esem @ cargas_esem.T) + np.diag(var_items * 0.4)
                 
-                f_min_propuesto = np.trace(matriz_cov_S @ np.linalg.pinv(matriz_sigma_implícita)) + np.log(np.linalg.det(matriz_sigma_implícita)) - np.log(np.linalg.det(matriz_cov_S)) - n_items
+                f_min_propuesto = np.trace(matriz_cov_S @ np.linalg.pinv(matriz_sigma_implicita)) + np.log(np.linalg.det(matriz_sigma_implicita)) - np.log(np.linalg.det(matriz_cov_S)) - n_items
                 f_min_propuesto = max(0.001, f_min_propuesto)
                 
                 chi_propuesto = f_min_propuesto * (n_casos - 1)
-                # Grados de libertad para ICM-CFA (restricciones de clústeres cruzados cero)
                 df_propuesto = max(1, int(((n_items * (n_items + 1)) / 2) - (n_items * 2)))
                 
                 # Índices comparativos de ajuste absoluto y relativo
@@ -520,7 +518,9 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 # Error Cuadrático Medio de Aproximación (RMSEA)
                 rmsea_val = np.sqrt(max(0.0, (chi_propuesto - df_propuesto) / (df_propuesto * (n_casos - 1)))) if df_propuesto > 0 else 0.0
                 rmsea_val = min(0.5, rmsea_val)
-                
+# =================================================================
+# PARTE 6-B2 DE 7: DESPLIEGUE DE INDICES SEM, TABLA HTML Y CIERRE TAB
+# =================================================================
                 # 🍊 4. DESPLIEGUE ERGONÓMICO EN TABLAS EXPLICATIVAS DOCTORALES
                 c_m1, c_m2, c_m3 = st.columns(3)
                 c_m1.metric("Comparative Fit Index (CFI)", f"{cfi_val:.4f}", delta="Aceptable (>=0.90)" if cfi_val >= 0.90 else "Ajuste Débil")
@@ -587,10 +587,8 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 """
                 st.markdown(html_tabla_sem, unsafe_allow_html=True)
                 
-                # Explicación epistemológica para el ponente en pantalla
                 st.info(f"💡 **Dictamen del Sínodo Psicométrico:** El ajuste simultáneo ESEM-Geo permite que los reactivos asimilen las desviaciones geográficas de las sub-regiones sin que colapse la validez cruzada. Un CFI de {cfi_val:.3f} junto con un RMSEA de {rmsea_val:.3f} demuestran científicamente que las asimetrías del Modelo Integrado Cronos y Kairós poseen un respaldo empírico publicable e indexable.")
                 
-                # Incorporación de la tabla en un PDF formal exportable
                 pdf_sem = FPDF()
                 pdf_sem.add_page()
                 pdf_sem.set_font("Helvetica", "B", 14)
@@ -605,9 +603,9 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 st.download_button("📥 EXPORTAR REPORTE DE ECUACIONES ESTRUCTURALES AVANZADAS (PDF)", data=bytes(pdf_sem.output()), file_name="SEM_Fit_Indices.pdf", mime="application/pdf", key="btn_dl_sem_pdf", use_container_width=True)
             else:
                 st.warning("📐 El motor de ecuaciones estructurales ESEM/CFA requiere un mínimo de 3 registros Likert consolidados y 4 reactivos activos para evaluar las covarianzas.")
-            else:
-                st.info("ℹ️ Repositorio en la nube sin registros activos. El tablero gris se estructurará automáticamente al recibir respuestas.")
-                st.markdown('', unsafe_allow_html=True)
+    else:
+        st.info("ℹ️ Repositorio en la nube sin registros activos. El tablero gris se estructurará automáticamente al recibir respuestas.")
+    st.markdown('</div>', unsafe_allow_html=True)
 # =================================================================
 # PARTE 7-A DE 7: TÍTULOS DE CONSOLA Y PERFIL DE IDENTIFICACIÓN OBLIGATORIO
 # =================================================================
