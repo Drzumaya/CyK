@@ -828,7 +828,7 @@ def main():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
                     label="Escala / Scale:", 
-                    options=, 
+                    options= [1, 2, 3, 4, 5], 
                     format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                     index=None, 
                     horizontal=True, 
