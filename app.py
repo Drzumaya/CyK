@@ -736,19 +736,16 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 # =================================================================
-# FRACCIÓN 4-CIERRE (P2) DEFINITIVA: CONDICIONAL DE QR POR AUTENTICACIÓN
+# FRACCIÓN 4-CIERRE (P2) REPARADA: EMBUDO ADAPTATIVO CON SÍNTOMAS COMPACTOS ÚNICOS
 # =================================================================
     # Control de transición final: Bloquea el renderizado total si se activa la pantalla de agradecimiento
     if not st.session_state.flujo_finalizado and not st.session_state.pantalla_agradecimiento:
         
-        # 🍊 SECUENCIA CORREGIDA: El QR SOLO aparece si el ponente ha ingresado con éxito a su oficina (Autenticado)
-        # Bloque de contención absoluto: Un participante desde su celular jamás verá el QR en su dispositivo.
+        # MOTOR DE CONTROL DE PANTALLA: El QR solo se ve si el ponente se ha firmado con su contraseña
         if st.session_state.admin_autenticado:
             st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR para la Audiencia')}")
             st.caption("Proyección Central Activa - Los asistentes pueden escanear este código desde sus dispositivos móviles")
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
-            
-            # El QR direcciona a los teléfonos de los asistentes de forma limpia y libre de parámetros de administración
             qr.add_data(f"{URL_PRODUCCION}?lang={iso}")
             qr.make(fit=True)
             buf_qr = BytesIO()
@@ -756,12 +753,11 @@ def main():
             st.image(buf_qr.getvalue(), width=180)
             st.divider()
         else:
-            # Mensaje estético de bienvenida para los participantes sin QR en pantalla
             st.markdown("### 🍊 Sistema de Evaluación Diagnóstica Mandarina Core")
             st.caption("Por favor responda las secciones obligatorias en su dispositivo móvil.")
             st.divider()
 
-        # 🌐 SELECTOR DE IDIOMA PÚBLICO PARTICIPANTE: Sincroniza todo el cuerpo central de la ponencia
+        # SELECTOR DE IDIOMA PÚBLICO PARTICIPANTE: Sincroniza todo el cuerpo central de la ponencia
         st.markdown("### 🌐 Idioma de Evaluación / Evaluation Language")
         idioma_público = st.radio(
             "Selecciona tu idioma preferido para responder el instrumento / Select your language:",
@@ -834,11 +830,12 @@ def main():
                     if len(lista_items_gajo) >= 4:
                         c_a, c_b = st.columns(2)
                         with c_a:
-                            cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_0")
-                            cb1 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_1")
+                            # 🍊 SOLUCIÓN AL BUG DE DUPLICIDAD: Extracción limpia por índice explícito para cada checkbox
+                            cb0 = st.checkbox(str(lista_items_gajo[0]), key=f"cs_{g_idx}_0_fixed")
+                            cb1 = st.checkbox(str(lista_items_gajo[1]), key=f"cs_{g_idx}_1_fixed")
                         with c_b:
-                            cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
-                            cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
+                            cb2 = st.checkbox(str(lista_items_gajo[2]), key=f"cs_{g_idx}_2_fixed")
+                            cb3 = st.checkbox(str(lista_items_gajo[3]), key=f"cs_{g_idx}_3_fixed")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
             if not st.session_state.paso_cyk:
@@ -854,7 +851,7 @@ def main():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
                     label="Escala / Scale:", 
-                    options= [1, 2, 3, 4, 5], 
+                    options=[1, 2, 3, 4, 5], 
                     format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                     index=None, 
                     horizontal=True, 
@@ -862,6 +859,7 @@ def main():
                 )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+
 
 
 
