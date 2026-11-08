@@ -539,7 +539,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                     <tbody>
                         <tr>
                             <td><b>ESEM-Geo / Rotación Target</b></td>
-                            <td>{s1:.3f} (λ₁) \| {s2:.3f} (λ₂)</td>
+                            <td>{s1:.3f} (λ₁) | {s2:.3f} (λ₂)</td>
                             <td>Autovalores > 1.0 (Kaiser)</td>
                             <td>Estructura bifactorial limpia. Coexistencia ortogonal Cronos/Kairós verificada.</td>
                         </tr>
