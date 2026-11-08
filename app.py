@@ -273,7 +273,7 @@ def algoritmo_generar_reactivos_poliglotas(datos, lang="es"):
             10: "I trigger high intellectual concentration if my environmental conditions change rapidly."
         }
 # =================================================================
-# FRACCIÓN 2-PARTE B1.2: REPORTE INDIVIDUAL EN PDF FORMATO APA CON ACENTOS
+# FRACCIÓN 2-PARTE B1.2 REPARADA: CONSTRUCTOR PDF SANEADO ANTI-EMOJIS
 # =================================================================
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     pdf = FPDF()
@@ -284,33 +284,36 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     font_family = "Helvetica"
     dictamen_bilingue = TEXTOS_DICTAMEN_BILINGUE.get(lang, TEXTOS_DICTAMEN_BILINGUE["es"])
     
+    # 🍊 FIX MAESTRO ANTI-EMOJI: Remueve el icono de la mandarina del texto de la cohorte para evitar FPDFUnicodeEncodingException
+    tabla_saneada = str(tabla).replace("🍊", "").strip()
+    
     # Encabezado Editorial Estilo Documento de Investigación (APA)
     pdf.set_font(font_family, "B", 8)
     pdf.set_text_color(120, 120, 120)
-    pdf.cell(170, 4, "INFORME DE INVESTIGACIÓN PSICOMÉTRICA // UNIVERSIDAD MANDARINA CORE", new_x="LMARGIN", new_y="NEXT", align="L")
-    pdf.cell(170, 4, f"REGISTRO CLÍNICO COHORTE: {tabla.upper()} | FECHA EMISIÓN: {time.strftime('%Y-%m-%d')}", new_x="LMARGIN", new_y="NEXT", align="L")
+    pdf.cell(170, 4, "INFORME DE INVESTIGACION PSICOMETRICA // UNIVERSIDAD MANDARINA CORE", new_x="LMARGIN", new_y="NEXT", align="L")
+    pdf.cell(170, 4, f"REGISTRO CLINICO COHORTE: {tabla_saneada.upper()} | FECHA EMISION: {time.strftime('%Y-%m-%d')}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT", align="L")
     pdf.line(20, 18, 190, 18)
     pdf.ln(5)
     
     # Título del Manuscrito Psicométrico
     pdf.set_font(font_family, "B", 14)
     pdf.set_text_color(15, 32, 66)
-    txt_title = "Dictamen de Diagnóstico Clínico Individual y Perfiles Temporales" if lang == "es" else "Individual Clinical Diagnosis and Temporal Profiles Report"
+    txt_title = "Dictamen de Diagnostico Clinico Individual y Perfiles Temporales" if lang == "es" else "Individual Clinical Diagnosis and Temporal Profiles Report"
     pdf.multi_cell(170, 7, txt_title.encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT", align="L")
     pdf.ln(3)
     
     # Metadatos del Participante Evaluado
     pdf.set_font(font_family, "", 10)
     pdf.set_text_color(50, 50, 50)
-    n_seg = str(nombre).encode('latin-1', 'replace').decode('latin-1') if nombre else "Anónimo"
+    n_seg = str(nombre).encode('latin-1', 'replace').decode('latin-1') if nombre else "Anonimo"
     w_seg = str(whatsapp).encode('latin-1', 'replace').decode('latin-1') if whatsapp else "N/A"
-    pdf.cell(170, 6, f"Sujeto Evaluado: {n_seg}  |  Contacto de Verificación: {w_seg}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(170, 6, f"Sujeto Evaluado: {n_seg}  |  Contacto de Verificacion: {w_seg}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
     pdf.ln(4)
     
     # Sección I: Bloque de Diagnóstico Dimensional Sintomático
     pdf.set_font(font_family, "B", 11)
     pdf.set_text_color(15, 32, 66)
-    pdf.cell(170, 6, "1. EVALUACIÓN ESTRUCTURAL DE LAS DIMENSIONES SINTOMÁTICAS", new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(170, 6, "1. EVALUACION ESTRUCTURAL DE LAS DIMENSIONES SINTOMATICAS", new_x="LMARGIN", new_y="NEXT")
     pdf.set_font(font_family, "", 9.5)
     pdf.set_text_color(60, 60, 60)
     txt_abs = "Resumen Operativo: Se analizan las trazas homeostáticas multidimensionales para determinar el nivel de afectación sistémica derivado de la exposición a entornos de alta exigencia productiva."
@@ -322,29 +325,30 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         indices_marcados = resultados.get(dim_espanol, [])
         if indices_marcados:
             dim_limpia = str(list(g_trad.keys())[idx])
-            for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏"]: dim_limpia = dim_limpia.replace(emj, "")
+            for emj in ["💪", "🧠", "❤️", "👥", "💰", "⏳", "🙏", "🍊"]: 
+                dim_limpia = dim_limpia.replace(emj, "")
             
             pdf.set_font(font_family, "B", 10)
             pdf.set_text_color(15, 32, 66)
-            pdf.cell(170, 5, f"Dimensión Analizada: {dim_limpia.strip()}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(170, 5, f"Dimension Analizada: {dim_limpia.strip()}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
             
             sintomas_origen = list(g_trad.values())[idx]
             sintomas_reales = [sintomas_origen[int(i)] for i in indices_marcados if str(i).isdigit() and int(i) < len(sintomas_origen)]
             
             pdf.set_font(font_family, "I", 9)
             pdf.set_text_color(140, 30, 30)
-            pdf.multi_cell(170, 4.5, f"Indicadores Críticos Detectados: {', '.join(sintomas_reales)}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(170, 4.5, f"Indicadores Criticos Detectados: {', '.join(sintomas_reales)}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
             
             pdf.set_font(font_family, "", 9)
             pdf.set_text_color(50, 50, 50)
-            pdf.multi_cell(170, 4.5, f"Sugerencia de Contención: {dictamen_bilingue.get(dim_espanol, '')}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
+            pdf.multi_cell(170, 4.5, f"Sugerencia de Contencion: {dictamen_bilingue.get(dim_espanol, '')}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
             pdf.ln(2)
 
     if es_likert:
         pdf.ln(2)
         pdf.set_font(font_family, "B", 11)
         pdf.set_text_color(15, 32, 66)
-        pdf.cell(170, 6, "2. ANÁLISIS VECTORIAL CUANTITATIVO DE TRAZAS TEMPORALES (C&K)", new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(170, 6, "2. ANALISIS VECTORIAL CUANTITATIVO DE TRAZAS TEMPORALES (C&K)", new_x="LMARGIN", new_y="NEXT")
         c_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
         k_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
         avg_c = sum(c_v) / 5 if c_v else 3.0
@@ -352,7 +356,7 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         
         pdf.set_font(font_family, "", 10)
         pdf.set_text_color(50, 50, 50)
-        pdf.cell(170, 5, f"Media Vector Cronos: {avg_c:.2f} | Media Vector Kairós: {avg_k:.2f}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
+        pdf.cell(170, 5, f"Media Vector Cronos: {avg_c:.2f} | Media Vector Kairos: {avg_k:.2f}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
         
         dif = abs(avg_c - avg_k)
         if dif <= 0.4: txt_p = dictamen_bilingue.get("txt_p_simbiosis", "")
@@ -360,21 +364,20 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
         else: txt_p = dictamen_bilingue.get("txt_p_cronos", "")
         
         pdf.set_font(font_family, "I", 9.5)
-        pdf.multi_cell(170, 4.5, f"Dictamen Ontológico: {txt_p}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(170, 4.5, f"Dictamen Ontologico: {txt_p}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(2)
         pdf.set_font(font_family, "", 9)
-        pdf.multi_cell(170, 4.5, f"Acción Metodológica: {dictamen_bilingue.get('txt_ck_recom', '')}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
+        pdf.multi_cell(170, 4.5, f"Accion Metodologica: {dictamen_bilingue.get('txt_ck_recom', '')}".encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
         
-        # 🍊 CAPA CORPORATIVA DE INTERVENCION: Invitación formal con datos de contacto institucionales
         pdf.ln(3)
         pdf.set_fill_color(244, 245, 247)
         pdf.set_font(font_family, "B", 9.5)
         pdf.set_text_color(180, 40, 40)
-        txt_invita = "AVISO DE INTERVENCIÓN ESPECIALIZADA EN MODELOS TEMPORALES C&K:"
+        txt_invita = "AVISO DE INTERVENCION ESPECIALIZADA EN MODELOS TEMPORALES C&K:"
         pdf.cell(170, 6, txt_invita.encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT", fill=True)
         pdf.set_font(font_family, "", 9)
         pdf.set_text_color(40, 40, 40)
-        txt_cuerpo_corporativo = "Debido a las asimetrías métricas registradas en sus vectores dimensionales, se le exhorta formalmente a agendar una consulta clínica avanzada de optimización. Coordinación de Atención Institucional: Editorial Mandarina & Core Analytics. Correo Electrónico: especialista@modelostemporales.com | Canal de Soporte Corporativo: corporativo@mandarinacore.org | Oficina Central de Enlace Psicométrico Global."
+        txt_cuerpo_corporativo = "Debido a las asimetrías métricas registradas en sus vectores dimensionales, se le exhorta formalmente a agendar una consulta clínica avanzada de optimización. Coordinación de Atención Institucional: Editorial Mandarina & Core Analytics Group. Correo Electrónico: especialista@modelostemporales.com | Canal de Soporte Corporativo: corporativo@mandarinacore.org | Oficina Central de Enlace Psicométrico Global."
         pdf.multi_cell(170, 4.5, txt_cuerpo_corporativo.encode('latin-1', 'replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT", fill=True)
 
     return bytes(pdf.output())
@@ -733,19 +736,19 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 # =================================================================
-# FRACCIÓN 4-CIERRE (P2) REDISEÑADA: SECCIÓN I CONFIGURADA COMO OPCIONAL
+# FRACCIÓN 4-CIERRE (P2) DEFINITIVA: CONDICIONAL DE QR POR AUTENTICACIÓN
 # =================================================================
     # Control de transición final: Bloquea el renderizado total si se activa la pantalla de agradecimiento
     if not st.session_state.flujo_finalizado and not st.session_state.pantalla_agradecimiento:
         
-        # 🍊 MOTOR DE SEPARACIÓN PERIMETRAL: El QR se muestra si se usa el parámetro URL de administración
-        # O si el ponente se ha autenticado con éxito en el formulario de la barra lateral.
-        es_proyector_ponente = (st.query_params.get("view") == "admin") or (st.session_state.admin_autenticado == True)
-        
-        if es_proyector_ponente:
+        # 🍊 SECUENCIA CORREGIDA: El QR SOLO aparece si el ponente ha ingresado con éxito a su oficina (Autenticado)
+        # Bloque de contención absoluto: Un participante desde su celular jamás verá el QR en su dispositivo.
+        if st.session_state.admin_autenticado:
             st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR para la Audiencia')}")
-            st.caption("Proyección Central Activa - Escanea este código desde tu dispositivo móvil para iniciar la evaluación")
+            st.caption("Proyección Central Activa - Los asistentes pueden escanear este código desde sus dispositivos móviles")
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
+            
+            # El QR direcciona a los teléfonos de los asistentes de forma limpia y libre de parámetros de administración
             qr.add_data(f"{URL_PRODUCCION}?lang={iso}")
             qr.make(fit=True)
             buf_qr = BytesIO()
@@ -753,6 +756,7 @@ def main():
             st.image(buf_qr.getvalue(), width=180)
             st.divider()
         else:
+            # Mensaje estético de bienvenida para los participantes sin QR en pantalla
             st.markdown("### 🍊 Sistema de Evaluación Diagnóstica Mandarina Core")
             st.caption("Por favor responda las secciones obligatorias en su dispositivo móvil.")
             st.divider()
@@ -773,7 +777,6 @@ def main():
             st.rerun()
         st.divider()
 
-        # 🍊 CAMBIO DE LBL: Marcado explícitamente como opcional para el usuario
         st.header(r"📋 Sección I: Perfil de identificación (Opcional / Optional)")
         nombre = st.text_input(tx.get("nombre", "Nombre completo:"), key=r"n_in_seq")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp internacional:"), key=r"w_in_seq")
@@ -806,7 +809,6 @@ def main():
         resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c4_or")
         resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
 
-        # 🔥 CORRECCIÓN CRUCIAL: Se eliminan 'nombre' y 'whatsapp' de la compuerta de obligatoriedad booleana
         vld_secciones_iniciales = all([
             resultados_totales.get("Género") is not None, 
             resultados_totales.get("Nacionalidad") is not None,
@@ -852,7 +854,7 @@ def main():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
                     label="Escala / Scale:", 
-                    options= [1, 2, 3, 4, 5], 
+                    options=, 
                     format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                     index=None, 
                     horizontal=True, 
@@ -860,6 +862,7 @@ def main():
                 )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+
 
 
 
