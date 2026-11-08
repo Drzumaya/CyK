@@ -31,6 +31,9 @@ ESTADOS_MEXICO = [
     "Sinaloa", "Sonora", "Tabasco", "Tamaulipas", "Tlaxcala", "Veracruz", "Yucatán", "Zacatecas"
 ]
 
+# =================================================================
+# FRACCIÓN 2 DE 4: LÉXICO BILINGÜE MIGRADO Y BLINDADO DE SEGURIDAD
+# =================================================================
 CENTRO_MANDO_BILINGUE = {
     "es": {
         "nombre": "Escribe tu nombre completo / Full Name:",
