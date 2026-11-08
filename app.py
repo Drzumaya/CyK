@@ -665,7 +665,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
     st.markdown('</div>', unsafe_allow_html=True)
 
 # =================================================================
-# FRACCIÓN 4-CIERRE (P1): INICIALIZACIÓN, IDIOMAS Y ATRIBUTOS LATERALES
+# FRACCIÓN 4-CIERRE (P1): VALIDACIONES CRUZADAS Y EMBUDO DEMOGRÁFICO
 # =================================================================
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = True
@@ -675,22 +675,13 @@ def main():
     if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
     if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
     if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
-    if "pantalla_agradecimiento" not in st.session_state: st.session_state.pantalla_agradecimiento = False
-    
-    if "idioma_operativo" not in st.session_state:
-        url_lang = st.query_params.get("lang", "es")
-        st.session_state.idioma_operativo = url_lang if url_lang in ["es", "en"] else "es"
 
-    iso = st.session_state.idioma_operativo
+    iso = st.query_params.get("lang", "es")
+    if iso not in ["es", "en"]: iso = "es"
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
 
-    # TÍTULO DINÁMICO DE LA PANTALLA PRINCIPAL
-    if iso == "es":
-        st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
-        st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica y Emisión de Dictámenes")
-    else:
-        st.title("🏆 COMPREHENSIVE HEALTH DIAGNOSTIC AND CRONOS & KAIROS TEMPORAL MODELS")
-        st.caption("🔬 Multilingual Epistemological Environment for High Scientific Analytics and Reporting")
+    st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
+    st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica y Emisión de Dictámenes")
     st.divider()
 
     with st.sidebar:
@@ -735,36 +726,22 @@ def main():
             if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True):
                 st.session_state.admin_autenticado = False
                 st.rerun()
-# =================================================================
-# FRACCIÓN 4-CIERRE (P2) REPARADA: EMBUDO ADAPTATIVO CON SÍNTOMAS COMPACTOS ÚNICOS
-# =================================================================
-    # Control de transición final: Bloquea el renderizado total si se activa la pantalla de agradecimiento
-    if not st.session_state.flujo_finalizado and not st.session_state.pantalla_agradecimiento:
-        
-        # MOTOR DE CONTROL DE PANTALLA: El QR solo se ve si el ponente se ha firmado con su contraseña
+
+    if not st.session_state.flujo_finalizado:
         if st.session_state.admin_autenticado:
-            st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR para la Audiencia')}")
-            st.caption("Proyección Central Activa - Los asistentes pueden escanear este código desde sus dispositivos móviles")
+            st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR')}")
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
             qr.add_data(f"{URL_PRODUCCION}?lang={iso}")
             qr.make(fit=True)
             buf_qr = BytesIO()
             qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-            st.image(buf_qr.getvalue(), width=180)
-            st.divider()
-        else:
-            st.markdown("### 🍊 Sistema de Evaluación Diagnóstica Mandarina Core")
-            st.caption("Por favor responda las secciones obligatorias en su dispositivo móvil.")
+            st.image(buf_qr.getvalue(), width=130)
             st.divider()
 
-        # SELECTOR DE IDIOMA PÚBLICO PARTICIPANTE: Sincroniza todo el cuerpo central de la ponencia
         st.markdown("### 🌐 Idioma de Evaluación / Evaluation Language")
         idioma_público = st.radio(
             "Selecciona tu idioma preferido para responder el instrumento / Select your language:",
-            options=["Español", "English"],
-            index=0 if iso == "es" else 1,
-            horizontal=True,
-            key="radio_idioma_participante_publico"
+            options=["Español", "English"], index=0 if iso == "es" else 1, horizontal=True, key="radio_idioma_participante_publico"
         )
         p_iso = "es" if idioma_público == "Español" else "en"
         if p_iso != st.session_state.idioma_operativo:
@@ -814,11 +791,14 @@ def main():
             resultados_totales.get("C6_Perfil_Auto") is not None
         ])
         
+        # ⚡ PASO 1 EN CADENA: Solo aparece si I, II y III están completos
         if vld_secciones_iniciales and not st.session_state.paso_salud:
             if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, key="btn_trigger_salud_integral", type="primary"):
                 st.session_state.paso_salud = True
                 st.rerun()
-
+# =================================================================
+# FRACCIÓN 4-CIERRE (P2): EMBUDO LIKERT, GUARDADO Y LIENZO DE ACCIÓN CRM
+# =================================================================
         if st.session_state.paso_salud:
             st.divider()
             st.markdown(f"### {tx.get('mand_title', '🍊 Diagnóstico de la Salud Integral')}")
@@ -830,7 +810,6 @@ def main():
                     if len(lista_items_gajo) >= 4:
                         c_a, c_b = st.columns(2)
                         with c_a:
-                            # 🍊 SOLUCIÓN AL BUG DE DUPLICIDAD: Extracción limpia por índice explícito para cada checkbox
                             cb0 = st.checkbox(str(lista_items_gajo[0]), key=f"cs_{g_idx}_0_fixed")
                             cb1 = st.checkbox(str(lista_items_gajo[1]), key=f"cs_{g_idx}_1_fixed")
                         with c_b:
@@ -838,6 +817,7 @@ def main():
                             cb3 = st.checkbox(str(lista_items_gajo[3]), key=f"cs_{g_idx}_3_fixed")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
+            # ⚡ PASO 2 EN CADENA: Solo aparece si se liberó el paso anterior y no se ha activado C&K
             if not st.session_state.paso_cyk:
                 if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary", key="btn_trigger_cyk_adaptive"):
                     st.session_state.paso_cyk = True
@@ -847,6 +827,8 @@ def main():
             st.divider()
             st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
             reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
+            
+            vld_likert_completo = True
             for r_id, r_txt in reactivos.items():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
@@ -857,32 +839,33 @@ def main():
                     horizontal=True, 
                     key=f"rcyk_{r_id}"
                 )
+                if resultados_totales[f"R{r_id}"] is None:
+                    vld_likert_completo = False
 
-        gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-
-
-
-
-
-# =================================================================
-# FRACCIÓN 4-CIERRE (P3): PANTALLA DE AGRADECIMIENTO Y ARRANQUE DE RAÍZ MAIN
-# =================================================================
+            # ⚡ PASO 3 EN CADENA: Solo aparece cuando TODOS los reactivos Likert han sido respondidos
+            if vld_likert_completo:
+                st.divider()
+                if st.button(tx.get("btn_save", "💾 Registrar y Finalizar Instrumento"), type="primary", use_container_width=True, key="btn_final_save_sequence"):
+                    guardar_en_google_sheets(st.session_state.audiencia_activa, nombre, whatsapp, resultados_totales, "TK_10M", True)
+                    st.session_state.nombre_usuario_persistente = nombre if nombre.strip() else "Participante Anónimo"
+                    st.session_state.whatsapp_usuario_persistente = whatsapp if whatsapp.strip() else ""
+                    st.session_state.resultados_usuario_persistente = resultados_totales
+                    st.session_state.flujo_finalizado = True
+                    st.rerun()
     else:
-        # 🔥 OCULTACIÓN TOTAL: Se borra todo el cuestionario y el QR del participante
+        # ⚡ PASO 4 EN CADENA (PANTALLA EXCLUSIVA): Ocultación total del sitio principal y renderizado CRM paralelo
         st.balloons()
         
-        # Estructuración bilingüe adaptativa para el lienzo limpio de agradecimiento
         if iso == "es":
             st.success("🎉 ¡Tu Evaluación ha sido Procesada Exitosamente!")
             st.markdown("""
             ### 🍊 ¡Gracias por tu participación!
-            Tus vectores dimensionales métricos de Salud Integral y Modelos Temporales (Cronos/Kairós) han sido linealizados y resguardados con total éxito bajo un protocolo criptográfico de alta seguridad.
+            Tus vectores dimensionales métricos han sido resguardados con éxito bajo un protocolo de alta seguridad psicométrica.
             
             🚨 **RECOMENDACIÓN CRÍTICA DOCTORAL:**
-            Al haberse detectado asimetrías y trazas críticas de fatiga cronocéntrica en tu vector temporal, te exhortamos formalmente a tomar acciones preventivas inmediatas para optimizar tu plasticidad cognitiva y tus parámetros homeostáticos.
+            Se han detectado asimetrías y trazas críticas de fatiga cronocéntrica en tu vector temporal. Te exhortamos a tomar acciones preventivas inmediatas para optimizar tus parámetros homeostáticos.
             
             🎯 **AGENDAR CONSULTA DE ENLACE ESPECIALIZADA:**
-            Para un análisis y descodificación personalizada de tus componentes latentes, ponte en contacto directo con nuestro departamento de enlace corporativo:
             * 📧 **Correo Electrónico Oficial:** especialista@modelostemporales.com
             * 💬 **Canal de Soporte Directo:** corporativo@mandarinacore.org
             * 🏢 **Coordinación General:** Editorial Mandarina & Core Analytics Group
@@ -891,13 +874,12 @@ def main():
             st.success("🎉 Your Evaluation Has Been Processed Successfully!")
             st.markdown("""
             ### 🍊 Thank you for your participation!
-            Your metric dimensional vectors of Comprehensive Health and Temporal Models (Cronos/Kairos) have been successfully linearized and secured under high-security cryptographic protocols.
+            Your metric dimensional vectors have been successfully secured under high-security psychometric protocols.
             
             🚨 **DOCTORAL CRITICAL RECOMMENDATION:**
-            Due to the metric asymmetries and chronocentric fatigue traces detected in your temporal vector, we formally urge you to take immediate preventive actions to optimize your cognitive plasticity and homeostatic parameters.
+            Metric asymmetries and chronocentric fatigue traces have been detected in your temporal vector. We formally urge you to take immediate preventive actions.
             
             🎯 **SCHEDULE SPECIALIZED ACTION CONSULTATION:**
-            For a customized and deep-dive analysis of your latent components, please establish direct contact with our corporate liaison department:
             * 📧 **Official Email Support:** especialista@modelostemporales.com
             * 💬 **Corporate Support Channel:** corporativo@mandarinacore.org
             * 🏢 **General Coordination:** Editorial Mandarina & Core Analytics Group
@@ -905,37 +887,37 @@ def main():
             
         st.divider()
         
-        # Recuperación persistente y segura de las variables transaccionales
         n_p = st.session_state.get("nombre_usuario_persistente", "Participante")
         w_p = st.session_state.get("whatsapp_usuario_persistente", "")
         r_p = st.session_state.get("resultados_usuario_persistente", {})
         
-        # Generación y descarga del manuscrito acentuado en formato APA bilingüe
         rep = generar_pdf_diagnostico(n_p, w_p, r_p, st.session_state.audiencia_activa, True, iso)
         
-        # Al presionar este botón, se descarga el PDF manteniendo la pantalla limpia
-        st.download_button(
-            label=tx.get("btn_pdf", "📥 Descargar Dictamen en PDF"), 
-            data=rep, 
-            file_name=f"Dictamen_Psicometrico_{n_p}.pdf", 
-            mime="application/pdf", 
-            use_container_width=True,
-            key="btn_descarga_final_clean_screen"
-        )
-        
-        # Botón síncrono por si el participante desea realizar una nueva captura
-        if st.button("🔄 Responder de Nuevo / Reset Evaluation", use_container_width=True):
+        # 🍊 ACCIÓN PARALELA CRM: Botón de descarga institucional y botón integrado de envío a WhatsApp lado a lado
+        c_dl1, c_dl2 = st.columns(2)
+        with c_dl1:
+            st.download_button(tx.get("btn_pdf", "📥 Descargar Dictamen en PDF"), data=rep, file_name=f"Dictamen_{n_p}.pdf", mime="application/pdf", use_container_width=True, key="btn_download_final_clean")
+        with c_dl2:
+            if w_p:
+                tel_clean = "".join(c for c in str(w_p) if c.isdigit())
+                txt_wa = f"Hola {n_p}, tu dictamen clínico de Salud Integral y Modelos Temporales ha sido generado exitosamente."
+                wa_url = f"https://wa.me{tel_clean}?text={urllib.parse.quote(txt_wa)}"
+                st.markdown(f'<a href="{wa_url}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
+            else:
+                st.info("Sección I omitida (Modo Anónimo). WhatsApp no requerido.")
+                
+        if st.button("🔄 Responder de Nuevo / Reset Evaluation", use_container_width=True, key="btn_reset_global"):
             st.session_state.flujo_finalizado = False
             st.session_state.paso_salud = False
             st.session_state.paso_cyk = False
             st.rerun()
 
-    # El tablero analítico corporativo gris se autoinvoca nativamente al final solo si el ponente está autenticado
     if st.session_state.admin_autenticado:
         renderizar_consola_baja_gris(st.session_state.audiencia_activa, iso, tx)
 
 if __name__ == "__main__":
     main()
+
 
 
 
