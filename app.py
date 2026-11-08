@@ -662,7 +662,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
     st.markdown('</div>', unsafe_allow_html=True)
 
 # =================================================================
-# FRACCIÓN 4-PARTE A ACTUALIZADA: SELECTOR INTERNACIONAL Y APERTURA DE MAIN
+# FRACCIÓN 4-CIERRE (P1): TIMÓN DE CONTROL, IDIOMAS Y CONFIGURACIÓN LATERAL
 # =================================================================
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = True
@@ -673,13 +673,11 @@ def main():
     if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
     if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
     
-    # 🍊 PERSISTENCIA DE IDIOMA: Inicializa la variable de control bilingüe global
+    # PERSISTENCIA DE IDIOMA: Inicializa la variable de control bilingüe global
     if "idioma_operativo" not in st.session_state:
-        # Detecta el parámetro URL como fallback inicial, por defecto español
         url_lang = st.query_params.get("lang", "es")
         st.session_state.idioma_operativo = url_lang if url_lang in ["es", "en"] else "es"
 
-    # Mapeo síncrono del diccionario según el idioma seleccionado
     iso = st.session_state.idioma_operativo
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
 
@@ -693,17 +691,16 @@ def main():
     st.divider()
 
     with st.sidebar:
-        # 🍊 WIDGET SELECTOR: Cambia el idioma de toda la plataforma instantáneamente en un clic
+        # WIDGET SELECTOR BILINGÜE GLOBAL
         st.markdown(f"### {tx.get('intl_title', '🌐 Idioma / Language')}")
         idioma_elegido = st.radio(
-            tx.get('intl_select', 'Selecciona el idioma operativos:'),
+            tx.get('intl_select', 'Selecciona el idioma operativo:'),
             options=["Español", "English"],
             index=0 if iso == "es" else 1,
             horizontal=True,
             key="radio_idioma_global"
         )
         
-        # Evalúa el cambio y actualiza el estado de la sesión
         nuevo_iso = "es" if idioma_elegido == "Español" else "en"
         if nuevo_iso != st.session_state.idioma_operativo:
             st.session_state.idioma_operativo = nuevo_iso
@@ -722,6 +719,7 @@ def main():
                     else: st.error("Acceso denegado.")
         else:
             st.success("Ponente Autenticado")
+            
             with st.form("form_add_nueva_audiencia", clear_on_submit=True):
                 nueva_aud = st.text_input("📝 Crear Nueva Audiencia / Cohorte:", placeholder="Ej. Primaria Sonora").strip()
                 if st.form_submit_button("➕ Añadir y Guardar Cohorte", use_container_width=True):
@@ -738,11 +736,67 @@ def main():
             if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True):
                 st.session_state.admin_autenticado = False
                 st.rerun()
-
-
 # =================================================================
-# FRACCIÓN 4-PARTE B: EMBUDO ADAPTATIVO INCREMENTAL Y GUARDIA RAÍZ MAIN
+# FRACCIÓN 4-CIERRE (P2): EMBUDO PÚBLICO ADAPTATIVO Y GUARDIA RAÍZ
 # =================================================================
+    if not st.session_state.flujo_finalizado:
+        st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR')}")
+        qr = qrcode.QRCode(version=1, box_size=10, border=2)
+        qr.add_data(f"{URL_PRODUCCION}?lang={iso}")
+        qr.make(fit=True)
+        buf_qr = BytesIO()
+        qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
+        st.image(buf_qr.getvalue(), width=130)
+        st.divider()
+
+        st.header(r"📋 Sección I: Perfil de identificación (Obligatorio)")
+        nombre = st.text_input(tx.get("nombre", "Nombre completo:"), key=r"n_in_seq")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp internacional:"), key=r"w_in_seq")
+        
+        if "resultados_totales_registro" not in st.session_state: st.session_state.resultados_totales_registro = {}
+        resultados_totales = st.session_state.resultados_totales_registro
+        
+        st.subheader(r"📋 Sección II: Datos Demográficos y Geográficos (Obligatorio)")
+        resultados_totales["Edad"] = int(st.number_input(tx.get("edad", "Edad biológica:"), 10, 100, 20, key=r"num_ed"))
+        resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
+        resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
+        
+        if resultados_totales.get("Nacionalidad") == "Mexicana":
+            resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key=r"s_orig")
+            resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key=r"s_res")
+        elif resultados_totales.get("Nacionalidad") == "Extranjera":
+            resultados_totales["País Origen"] = st.text_input("País de Origen:", key=r"t_pais")
+            resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
+
+        st.subheader(r"📋 Sección III: Conocimiento sobre el tema (Obligatorio)")
+        preguntas_sec3 = [
+            ("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"), 
+            ("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"), 
+            ("C3_Enseñado", "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?")
+        ]
+        for key_r, txt_r in preguntas_sec3: 
+            resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
+            
+        resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
+        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
+        resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
+
+        vld_secciones_iniciales = all([
+            bool(nombre.strip()), 
+            bool(whatsapp.strip()), 
+            resultados_totales.get("Género") is not None, 
+            resultados_totales.get("Nacionalidad") is not None,
+            resultados_totales.get("C1_Escuchado") is not None,
+            resultados_totales.get("C4_Origen") is not None,
+            resultados_totales.get("C5_Concepto") is not None,
+            resultados_totales.get("C6_Perfil_Auto") is not None
+        ])
+        
+        if vld_secciones_iniciales and not st.session_state.paso_salud:
+            if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, key="btn_trigger_salud_integral", type="primary"):
+                st.session_state.paso_salud = True
+                st.rerun()
+
         if st.session_state.paso_salud:
             st.divider()
             st.markdown(f"### {tx.get('mand_title', '🍊 Diagnóstico de la Salud Integral')}")
@@ -754,11 +808,11 @@ def main():
                     if len(lista_items_gajo) >= 4:
                         c_a, c_b = st.columns(2)
                         with c_a:
-                            cb0 = st.checkbox(lista_items_gajo[0], key=f"cs_{g_idx}_0")
-                            cb1 = st.checkbox(lista_items_gajo[1], key=f"cs_{g_idx}_1")
+                            cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_0")
+                            cb1 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_1")
                         with c_b:
-                            cb2 = st.checkbox(lista_items_gajo[2], key=f"cs_{g_idx}_2")
-                            cb3 = st.checkbox(lista_items_gajo[3], key=f"cs_{g_idx}_3")
+                            cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
+                            cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
             if not st.session_state.paso_cyk:
@@ -774,33 +828,30 @@ def main():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
                     label="Escala / Scale:", 
-                    options=[1, 2, 3, 4, 5], 
+                    options=, 
                     format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                     index=None, 
                     horizontal=True, 
                     key=f"rcyk_{r_id}"
                 )
 
-        # 🍊 MULTILINGUAL GATEWAY SYNC: Pasa el código ISO activo para almacenar la cohorte bilingüe
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-        else:
-            st.balloons()
-            st.success(tx.get("thanks", "¡Completado!"))
+    else:
+        st.balloons()
+        st.success(tx.get("thanks", "¡Completado!"))
         
-        # Recuperación persistente de variables tras el refresco del almacenamiento
         n_p = st.session_state.get("nombre_usuario_persistente", "Participante")
         w_p = st.session_state.get("whatsapp_usuario_persistente", "")
         r_p = st.session_state.get("resultados_usuario_persistente", {})
         
-        # 🍊 EMISIÓN BILINGÜE: El dictamen final en PDF se genera en estricta sincronía con el idioma operativo
         rep = generar_pdf_diagnostico(n_p, w_p, r_p, st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte_Psicometrico.pdf", mime="application/pdf", use_container_width=True)
 
-    # El compartimento analítico gris de control lee el estado de firma del ponente de forma lineal abajo
     if st.session_state.admin_autenticado:
         renderizar_consola_baja_gris(st.session_state.audiencia_activa, iso, tx)
 
 if __name__ == "__main__":
     main()
+
 
 
