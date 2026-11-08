@@ -604,7 +604,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
         st.info("ℹ️ Repositorio en la nube sin registros activos. El tablero gris se estructurará automáticamente al recibir respuestas.")
     st.markdown('</div>', unsafe_allow_html=True)
 # =================================================================
-# FRACCIÓN 4 DE 4: FUNCIÓN PRINCIPAL MAIN Y EMBUDO ADAPTATIVO BASE
+# FRACCIÓN 4-PARTE A: APERTURA DE MAIN, AUTENTICACIÓN Y VALIDACIÓN BASE
 # =================================================================
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = True
@@ -619,9 +619,9 @@ def main():
     if iso not in ["es", "en"]: iso = "es"
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
 
-    # 💻 TÍTULO UNIFICADOR DE LA PANTALLA PRINCIPAL DE VISUALIZACIÓN ANALÍTICA Y DESCARGAS
+    # 💻 TÍTULO DE LA PANTALLA PRINCIPAL DE VISUALIZACIÓN ANALÍTICA Y DESCARGAS
     st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
-    st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica, Tablas de Ecuaciones Estructurales y Emisión de Dictámenes")
+    st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica y Emisión de Dictámenes")
     st.divider()
 
     with st.sidebar:
@@ -642,7 +642,6 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 
-    # 🍊 VISTA DEL FLUJO PÚBLICO DEL PARTICIPANTE (LIENZO BASE INCREMENTAL)
     if not st.session_state.flujo_finalizado:
         st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR')}")
         qr = qrcode.QRCode(version=1, box_size=10, border=2)
@@ -650,20 +649,20 @@ def main():
         qr.make(fit=True)
         buf_qr = BytesIO()
         qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-        st.image(buf_qr.getvalue(), width=140)
+        st.image(buf_qr.getvalue(), width=130)
         st.divider()
 
         st.header(r"📋 Sección I: Perfil de identificación (Obligatorio)")
-        nombre = st.text_input(tx.get("nombre", "Nombre completo / Full Name:"), key=r"n_in_seq")
-        whatsapp = st.text_input(tx.get("wha", "WhatsApp internacional (con +):"), key=r"w_in_seq")
+        nombre = st.text_input(tx.get("nombre", "Nombre completo:"), key=r"n_in_seq")
+        whatsapp = st.text_input(tx.get("wha", "WhatsApp internacional:"), key=r"w_in_seq")
         
         if "resultados_totales_registro" not in st.session_state: st.session_state.resultados_totales_registro = {}
         resultados_totales = st.session_state.resultados_totales_registro
         
         st.subheader(r"📋 Sección II: Datos Demográficos y Geográficos (Obligatorio)")
-        resultados_totales["Edad"] = int(st.number_input(tx.get("edad", "1. Escribe tu edad biológica:"), 10, 100, 20, key=r"num_ed"))
-        resultados_totales["Género"] = st.radio(tx.get("genero", "2. Selecciona tu género identitario:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
-        resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "3. Selecciona tu marco de nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
+        resultados_totales["Edad"] = int(st.number_input(tx.get("edad", "Edad biológica:"), 10, 100, 20, key=r"num_ed"))
+        resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
+        resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
         
         if resultados_totales.get("Nacionalidad") == "Mexicana":
             resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key=r"s_orig")
@@ -673,29 +672,41 @@ def main():
             resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
 
         st.subheader(r"📋 Sección III: Conocimiento sobre el tema (Obligatorio)")
-        preguntas_sec3 = [("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"), ("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"), ("C3_Enseñado", "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?")]
-        for key_r, txt_r in preguntas_sec3: resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
+        preguntas_sec3 = [
+            ("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"), 
+            ("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"), 
+            ("C3_Enseñado", "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?")
+        ]
+        for key_r, txt_r in preguntas_sec3: 
+            resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
+            
         resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
         resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
         resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
 
-        # 🔥 COMPUERTA DE CONTROL DE PASOS 1: Validaciones de perfil e identificación completas
-        vld_base = all([
-            nombre.strip(), whatsapp.strip(), 
+        vld_secciones_iniciales = all([
+            bool(nombre.strip()), 
+            bool(whatsapp.strip()), 
             resultados_totales.get("Género") is not None, 
-            resultados_totales.get("Nacionalidad") is not None, 
-            resultados_totales.get("C1_Escuchado") is not None, 
+            resultados_totales.get("Nacionalidad") is not None,
+            resultados_totales.get("C1_Escuchado") is not None,
+            resultados_totales.get("C4_Origen") is not None,
+            resultados_totales.get("C5_Concepto") is not None,
             resultados_totales.get("C6_Perfil_Auto") is not None
         ])
-        if vld_base and not st.session_state.paso_salud:
-            if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, type="primary", key="btn_gate_salud"):
+        
+        if vld_secciones_iniciales and not st.session_state.paso_salud:
+            if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, key="btn_trigger_salud_integral", type="primary"):
                 st.session_state.paso_salud = True
                 st.rerun()
-
+# =================================================================
+# FRACCIÓN 4-PARTE B: EMBUDO ADAPTATIVO INCREMENTAL Y GUARDIA RAÍZ MAIN
+# =================================================================
         if st.session_state.paso_salud:
             st.divider()
             st.markdown("### 🍊 Diagnóstico de la Salud Integral")
             MATRIZ_SINTOMAS_DINAMICA = motor_generativo_items_audiencia(st.session_state.audiencia_activa, lang_code=iso)
+            
             for g_idx, (g_name, lista_items_gajo) in enumerate(MATRIZ_SINTOMAS_DINAMICA.items()):
                 with st.container(border=True):
                     st.markdown(f"#### {g_name}")
@@ -709,9 +720,8 @@ def main():
                             cb3 = st.checkbox(lista_items_gajo[3], key=f"cs_{g_idx}_3")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
-            # 🔥 COMPUERTA DE CONTROL DE PASOS 2: Salud Integral resuelta para dar paso a la batería C&K
             if not st.session_state.paso_cyk:
-                if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary", key="btn_gate_cyk"):
+                if st.button("🎯 Generar Diagnóstico de Modelos Temporales Cronos y Kairós", use_container_width=True, type="primary", key="btn_trigger_cyk_adaptive"):
                     st.session_state.paso_cyk = True
                     st.rerun()
 
@@ -721,7 +731,14 @@ def main():
             reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
             for r_id, r_txt in reactivos.items():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
-                resultados_totales[f"R{r_id}"] = st.radio(label="Escala / Scale:", options=[1, 2, 3, 4, 5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), index=None, horizontal=True, key=f"rcyk_{r_id}")
+                resultados_totales[f"R{r_id}"] = st.radio(
+                    label="Escala / Scale:", 
+                    options=[1, 2, 3, 4, 5], 
+                    format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                    index=None, 
+                    horizontal=True, 
+                    key=f"rcyk_{r_id}"
+                )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
     else:
@@ -730,9 +747,9 @@ def main():
         rep = generar_pdf_diagnostico(st.session_state.get("nombre_usuario_persistente", "Participante"), st.session_state.get("whatsapp_usuario_persistente", ""), st.session_state.get("resultados_usuario_persistente", {}), st.session_state.audiencia_activa, True, iso)
         st.download_button(tx.get("btn_pdf", "📥 Descargar"), data=rep, file_name="Reporte.pdf", mime="application/pdf", use_container_width=True)
 
-    # Invocación síncrona del tablero de control bajo la estructura base
     if st.session_state.admin_autenticado:
         renderizar_consola_baja_gris(st.session_state.audiencia_activa, iso, tx)
 
 if __name__ == "__main__":
     main()
+
