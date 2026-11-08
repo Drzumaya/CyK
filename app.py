@@ -733,17 +733,18 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 # =================================================================
-# FRACCIÓN 4-CIERRE (P2) REDISEÑADA: COMPUERTAS DE AISLAMIENTO DE PANTALLAS VÍA URL
+# FRACCIÓN 4-CIERRE (P2) REDISEÑADA: COMPUERTAS DE AISLAMIENTO HÍBRIDAS ANTI-ALUMNOS
 # =================================================================
     # Control de transición final: Bloquea el renderizado total si se activa la pantalla de agradecimiento
     if not st.session_state.flujo_finalizado and not st.session_state.pantalla_agradecimiento:
         
-        # 🍊 MOTOR DE SEPARACIÓN PERIMETRAL: Detecta si la URL actual tiene el parámetro explícito del ponente
-        # Si un participante escanea el QR ordinario, ingresará sin este parámetro y el QR se ocultará.
-        es_proyector_ponente = st.query_params.get("view") == "admin"
+        # 🍊 MOTOR DE SEPARACIÓN PERIMETRAL: El QR se muestra si se usa el parámetro URL de administración
+        # O si el ponente se ha autenticado con éxito en el formulario de la barra lateral.
+        # Para el alumno que escanea de forma externa desde su celular, ambas condiciones serán falsas (False).
+        es_proyector_ponente = (st.query_params.get("view") == "admin") or (st.session_state.admin_autenticado == True)
         
         if es_proyector_ponente:
-            # El QR se queda fijo, brillante y visible únicamente en la pantalla del auditorio/ponente
+            # 🔥 ANCLAJE ABSOLUTO: El QR se queda fijo, brillante y visible en la pantalla del auditorio/ponente
             st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR para la Audiencia')}")
             st.caption("Proyección Central Activa - Escanea este código desde tu dispositivo móvil para iniciar la evaluación")
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
@@ -856,7 +857,7 @@ def main():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
                     label="Escala / Scale:", 
-                    options=[1, 2, 3, 4, 5], 
+                    options= [1, 2, 3, 4, 5], 
                     format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                     index=None, 
                     horizontal=True, 
@@ -864,6 +865,7 @@ def main():
                 )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+
 
 # =================================================================
 # FRACCIÓN 4-CIERRE (P3): PANTALLA DE AGRADECIMIENTO Y ARRANQUE DE RAÍZ MAIN
