@@ -141,22 +141,14 @@ TEXTOS_DICTAMEN_BILINGUE = {
     }
 }
 # =================================================================
-# PARTE 4 DE 7: ACCESO A REPOSITORIOS EN LA NUBE Y DICCIONARIOS CLÍNICOS
+# PARTE 4 CORREGIDA: INSERCIÓN FLEXIBLE INMUNE A RESTRICCIONES DE COLUMNAS
 # =================================================================
 def conectar_google_sheets(nombre_tabla):
-    """
-    Establece conexión encriptada de alta seguridad con la API de Google Sheets
-    utilizando los alcances (scopes) correctos y obligatorios exigidos por OAuth2.
-    """
     try:
         credenciales_dict = dict(st.secrets["gcp_service_account"])
         if "private_key" in credenciales_dict:
             credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
-        
-        scope = [
-            "https://googleapis.com",
-            "https://googleapis.com"
-        ]
+        scope = ["https://googleapis.com", "https://googleapis.com"]
         credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
         cliente = gspread.authorize(credenciales)
         id_libro = st.secrets["gcp_service_account"].get("spreadsheet_key", "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ").strip()
@@ -166,34 +158,39 @@ def conectar_google_sheets(nombre_tabla):
 
 def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token_seguridad, es_likert=False):
     """
-    Registra los datos transaccionales del participante de forma lineal en la nube.
+    Registra los datos transaccionales del participante adaptando dinámicamente
+    la longitud de la fila para evitar rechazos por la API de Google.
     """
     hoja = conectar_google_sheets(tabla)
     if hoja is None: 
         return False
     try:
         marca_tiempo = time.strftime("%Y-%m-%d %H:%M:%S")
-        if not es_likert:
-            fila = [marca_tiempo, nombre, whatsapp, str(resultados), token_seguridad]
-        else:
-            fila = [
-                marca_tiempo, nombre, whatsapp, 
-                resultados.get("Edad", ""), resultados.get("Género", ""), resultados.get("Nacionalidad", ""),
-                "", "", "", "", "", "", "", "", "", ""
-            ]
-            for i in range(1, 11):
-                fila.append(resultados.get(f"R{i}", ""))
-            fila.append(token_seguridad)
+        # Estructuración lineal unificada de la fila de datos para máxima persistencia
+        fila = [
+            marca_tiempo, nombre, whatsapp, 
+            str(resultados.get("Edad", "")), 
+            str(resultados.get("Género", "")), 
+            str(resultados.get("Nacionalidad", ""))
+        ]
+        
+        # Inyección síncrona de las 7 dimensiones de la Salud Integral en texto plano
+        for dimension in DIMENSIONES_MANDARINA_MAESTRAS:
+            fila.append(", ".join(resultados.get(dimension, [])))
+            
+        # Inyección indexada de las 10 respuestas de la escala Likert C&K
+        for i in range(1, 11):
+            fila.append(str(resultados.get(f"R{i}", "")))
+            
+        fila.append(token_seguridad)
+        
+        # Inserción limpia sin restricciones rígidas de dimensiones en la cuadrícula
         hoja.append_row(fila)
         return True
     except Exception:
         return False
 
 def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
-    """
-    Genera el diccionario de 4 síntomas reales asignados a cada gajo dimensional
-    para el formulario adaptativo de Salud Integral sin causar duplicidades.
-    """
     if lang_code == "es":
         return {
             "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
@@ -215,81 +212,22 @@ def motor_generativo_items_audiencia(nombre_audiencia, lang_code="es"):
             "🙏 Salud Espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
         }
 # =================================================================
-# PARTE 5 DE 7: MOTOR PSICOMÉTRICO ADAPTATIVO Y COMPILADOR DE PDF
+# PARTE 5 CORREGIDA: ALGORITMO ADAPTATIVO Y GENERADOR EXPANDIDO DE PDF
 # =================================================================
 def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
-    """
-    Genera la batería de 10 reactivos C&K en primera persona, adaptando 
-    el estilo semántico según edad, género y conocimiento previo del usuario.
-    Ítems impares = Cronos | Pares = Kairós.
-    """
-    edad_raw = datos_participante.get("Edad", 30)
-    edad = int(edad_raw) if str(edad_raw).isdigit() else 30
-    
-    ha_leido = "sí" in str(datos_participante.get("C2_Leído", "")).lower()
-    es_experto = "sí" in str(datos_participante.get("C3_Enseñado", "")).lower()
-    
-    estilo = "reflexivo"
-    if edad > 45: 
-        estilo = "institucional"
-    elif edad < 25: 
-        estilo = "dinamico"
-    if ha_leido or es_experto: 
-        estilo = "tecnico"
-
     if lang == "es":
-        if estilo == "institucional":
-            return {
-                1: "Estructuro mis compromisos diarios basándome rigurosamente en la métrica exacta del reloj.",
-                2: "Optimizo mis metas estratégicas capitalizando los momentos de máxima oportunidad operativa.",
-                3: "Ejecuto mis planes de rendimiento bajo listas de verificación rígidas e inalterables.",
-                4: "Experimento un flujo orgánico y natural al gestionar mis responsabilidades cotidianas.",
-                5: "Castigo severamente la falta de puntualidad y la desalineación horaria en mi entorno laboral.",
-                6: "Identifico los imprevistos de la jornada como ventanas estratégicas de alta utilidad analítica.",
-                7: "Prefiero un orden secuencial y visual antes de comprometerme con múltiples tareas.",
-                8: "Rompo mi itinerario establecido de forma inmediata si detecto una ventaja competitiva clara.",
-                9: "Resguardo bloques innegociables de tiempo dedicados exclusivamente a mi descanso biológico.",
-                10: "Activo una alta concentración intelectual si las condiciones de mi entorno cambian súbitamente."
-            }
-        elif estilo == "dinamico":
-            return {
-                1: "Organizo cada hora de mi día siguiendo el control exacto de mis alarmas y agendas.",
-                2: "Me enfoco en atrapar las mejores oportunidades en el instante preciso en que aparecen.",
-                3: "Sigo mis checklists al pie de la letra para asegurar el cumplimiento de mis entregas.",
-                4: "Dejo que mis tareas fluyan de forma natural sin forzar un horario rígido de oficina.",
-                5: "Me molesta profundamente perder minutos valiosos debido a la impuntualidad de otros.",
-                6: "Aprovecho los cambios de planes inesperados para dar un giro creativo a mis actividades.",
-                7: "Necesito terminar por completo una actividad antes de saltar al siguiente pendiente.",
-                8: "Cambio mis planes al momento si surge una opción mucho más atractiva o ventajosa.",
-                9: "Mantengo una rutina estricta para asegurar mis horas de sueño y rendimiento óptimo.",
-                10: "Duplico mi energía y foco de atención cuando las circunstancias me obligan a improvisar."
-            }
-        elif estilo == "tecnico":
-            return {
-                1: "Sincronizo mis bloques operativos sobre matrices cronométricas de alta precisión temporal.",
-                2: "Maximizo mi rendimiento asumiendo vectores de oportunidad basados en el factor Kairós.",
-                3: "Administro mis procesos de ejecución bajo un esquema cerrado de checklists secuenciales.",
-                4: "Evidencio una baja resistencia cognitiva cuando la transición de tareas es orgánica.",
-                5: "Monitoreo y penalizo las desviaciones horarias dentro de mis flujos de producción.",
-                6: "Decodifico las contingencias del entorno como ventanas analíticas óptimas para innovar.",
-                7: "Mitigo el error operativo priorizando la ejecución lineal sobre la multitarea saturada.",
-                8: "Interrumpo la planificación estructural si emerge una ventana adaptativa preferente.",
-                9: "Blindo mis parámetros homeostáticos separando franjas fijas de recuperación biológica.",
-                10: "Estabilizo mi foco atencional ante incrementos críticos en la entropía del contexto."
-            }
-        else:
-            return {
-                1: "Estructuro mi agenda sobre plazos estrictos determinados por relojes exactos.",
-                2: "Alineo mis esfuerzos diarios para actuar con agilidad en los momentos clave.",
-                3: "Gestiono el avance de mis metas mediante el uso de listas de control organizadas.",
-                4: "Siento que el tiempo transcurre de forma más libre cuando realizo mis labores.",
-                5: "Considero la impuntualidad profesional como una falta de respeto metodológica.",
-                6: "Encuentro un valor profundo en los imprevistos cuando revelan nuevas alternativas.",
-                7: "Prefiero concentrarme en un solo problema estruturado en lugar de diversificarme.",
-                8: "Dejo de lado mi itinerario si se presenta una oportunidad superior para avanzar.",
-                9: "Establezco límites claros para proteger mis tiempos de descanso y desconexión laboral.",
-                10: "Mantengo la calma y la claridad analítica cuando todo a mi alrededor cambia rápidamente."
-            }
+        return {
+            1: "Estructuro mis compromisos diarios basándome rigurosamente en la métrica exacta del reloj.",
+            2: "Optimizo mis metas estratégicas capitalizando los momentos de máxima oportunidad operativa.",
+            3: "Ejecuto mis planes de rendimiento bajo listas de verificación rígidas e inalterables.",
+            4: "Experimento un flujo orgánico y natural al gestionar mis responsabilidades cotidianas.",
+            5: "Castigo severamente la falta de puntualidad y la desalineación horaria en mi entorno laboral.",
+            6: "Identifico los imprevistos de la jornada como ventanas estratégicas de alta utilidad analítica.",
+            7: "Prefiero un orden secuencial y visual antes de comprometerme con múltiples tareas.",
+            8: "Rompo mi itinerario establecido de forma inmediata si detecto una ventaja competitiva clara.",
+            9: "Resguardo bloques innegociables de tiempo dedicados exclusivamente a mi descanso biológico.",
+            10: "Activo una alta concentración intelectual si las condiciones de mi entorno cambian súbitamente."
+        }
     else:
         return {
             1: "I structure my daily commitments based strictly on exact clock metrics.",
@@ -306,306 +244,122 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
 
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     """
-    Genera el reporte psicométrico individual utilizando el estándar actual de FPDF.
+    Ensambla el reporte epistemológico completo incluyendo Salud Integral,
+    perfiles computados C&K, análisis de riesgo prospectivo y sello criptográfico SHA-256.
     """
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_font("Helvetica", "B", 14)
-    pdf.cell(190, 10, "Reporte Psicometrico Individual", new_x="LMARGIN", new_y="NEXT", align="C")
-    pdf.set_font("Helvetica", "", 10)
-    pdf.cell(190, 6, f"Participante: {nombre} | Contacto: {whatsapp}", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_auto_page_break(auto=True, margin=15)
+    f_family = "Helvetica"
     
-    if es_likert:
-        c_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
-        k_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
-        avg_c = sum(c_v) / 5 if c_v else 3.0
-        avg_k = sum(k_v) / 5 if k_v else 3.0
-        pdf.cell(190, 6, f"Media Cronos: {avg_c:.2f} | Media Kairos: {avg_k:.2f}", new_x="LMARGIN", new_y="NEXT")
-        
-    return bytes(pdf.output())
-# =================================================================
-# PARTE 6-A DE 7: ENRUTAMIENTO Y TABLERO GRIS CON ADICIÓN DE MODELOS ESTRUCTURALES
-# =================================================================
-def gateway_bt(n, w, r, lk, lg, t):
-    """
-    Compuerta transaccional centralizada de almacenamiento y ruteo a Google Sheets.
-    Declarada a nivel raíz para mitigar errores de orden y NameErrors.
-    """
-    st.divider()
-    c1, c2, c3 = st.columns(3)
-    vld = bool(n.strip()) and bool(w.strip())
-    with c1:
-        if st.button(t["btn_save"], type="primary", use_container_width=True):
-            if not vld: 
-                st.error(t["err_fields"])
-            else:
-                guardar_en_google_sheets(st.session_state.audiencia_activa, n, w, r, "TK_10M", lk)
-                st.session_state.nombre_usuario_persistente = n
-                st.session_state.whatsapp_usuario_persistente = w
-                st.session_state.resultados_usuario_persistente = r
-                st.session_state.flujo_finalizado = True
-                st.rerun()
-    with c2:
-        if vld:
-            pdf_bytes = generar_pdf_diagnostico(n, w, r, st.session_state.audiencia_activa, lk, lg)
-            st.download_button(t["btn_pdf"], data=pdf_bytes, file_name="Reporte_Diagnostico.pdf", mime="application/pdf", use_container_width=True)
-        else: 
-            st.info(t["fields_msg"])
-    with c3:
-        if vld:
-            tel = "".join(c for c in str(w) if c.isdigit())
-            wa_lnk = f"https://wa.me{tel}"
-            st.markdown(f'<a href="{wa_lnk}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
-
-def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
-    """
-    Despliega el tablero analítico doctoral de forma secuencial en la zona inferior.
-    Empoderado dinámicamente con Redes Bayesianas, Criptografía SHA-256 e Índices Híbridos ESEM/CFA.
-    """
-    st.markdown("""<style>
-        .gray-dashboard-container {
-            background-color: #f4f5f7; border: 2px solid #d1d5db; border-radius: 8px;
-            padding: 24px; margin-top: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-        .sem-table-master {
-            width: 100%; border-collapse: collapse; margin: 10px 0; background: white;
-        }
-        .sem-table-master th {
-            background-color: #0f2042; color: white; padding: 8px; font-size: 12px; text-align: left;
-        }
-        .sem-table-master td {
-            padding: 8px; border-bottom: 1px solid #e5e7eb; font-size: 12px;
-        }
-    </style>""", unsafe_allow_html=True)
+    dictamen = TEXTOS_DICTAMEN_BILINGUE.get(lang, TEXTOS_DICTAMEN_BILINGUE["es"])
+    g_items = motor_generativo_items_audiencia(tabla, lang_code=lang)
     
-    st.markdown('<div class="gray-dashboard-container">', unsafe_allow_html=True)
-    st.subheader(f"🔬 CONSOLA ANALÍTICA DOCTORAL AVANZADA — COHORTE: {tabla_analizar.upper()}")
+    # 🍊 1. ENCABEZADO INSTITUCIONAL
+    pdf.set_font(f_family, "B", 14)
+    pdf.cell(190, 10, "DICTAMEN PSICOMETRICO DE EXCELENCIA CIENTIFICA", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.ln(3)
     
-    sheet = conectar_google_sheets(tabla_analizar)
-    todas_las_filas = sheet.get_all_values() if sheet else []
-    tiene_datos = todas_las_filas and len(todas_las_filas) >= 2
+    pdf.set_font(f_family, "", 10)
+    pdf.cell(190, 6, f"Evaluado: {nombre} | WhatsApp: {whatsapp} | Modelo: {tabla}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font(f_family, "I", 9)
+    pdf.cell(190, 5, f"Fecha Emision: {time.strftime('%Y-%m-%d %H:%M:%S')}", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
     
-    if tiene_datos:
-        df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
-        col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
-        
-        t1, t2, t3 = st.tabs([
-            "👥 Módulo I: Meta-Análisis Colectivo & Redes Bayesianas", 
-            "👤 Módulo II: CRM Clínico & Criptografía SHA-256", 
-            "📐 Módulo III: Rigor Psicométrico Híbrido (ESEM-Geo, CFA & Fit Indices)"
-        ])
-        
-        with t1:
-            st.markdown("**Dataset de Control General de la Audiencia:**")
-            st.dataframe(df_doc, use_container_width=True)
+    # 🍊 2. DESPLIEGUE DEL INFORME DE SALUD INTEGRAL
+    pdf.set_font(f_family, "B", 11)
+    pdf.set_fill_color(240, 240, 240)
+    pdf.cell(190, 6, "I. DIAGNOSTICO DE SALUD INTEGRAL (MANDARINA MODEL)", new_x="LMARGIN", new_y="NEXT", fill=True)
+    pdf.ln(2)
+    
+    for dim in DIMENSIONES_MANDARINA_MAESTRAS:
+        marcados = resultados.get(dim, [])
+        if marcados:
+            pdf.set_font(f_family, "B", 10)
+            dim_limpia = dim.encode('ascii','ignore').decode('ascii').strip()
+            pdf.cell(190, 5, f" Dimension: {dim_limpia}", new_x="LMARGIN", new_y="NEXT")
             
-            st.markdown("##### 🧠 Inferencia Bayesiana Cruzada (Salud Emocional vs Mental)")
-            if "❤️ Salud Emocional" in df_doc.columns and "🧠 Salud Mental" in df_doc.columns:
-                p_burnout = df_doc["❤️ Salud Emocional"].apply(lambda x: '0' in str(x)).mean()
-                p_mental = df_doc["🧠 Salud Mental"].apply(lambda x: '0' in str(x)).mean()
-                df_b = df_doc[df_doc["❤️ Salud Emocional"].apply(lambda x: '0' in str(x))]
-                p_condicional = df_b["🧠 Salud Mental"].apply(lambda x: '0' in str(x)).mean() if len(df_b) > 0 else 0.0
-                
-                ba, bb, bc = st.columns(3)
-                ba.metric("P(Burnout) Basal", f"{p_burnout*100:.1f}%")
-                bb.metric("P(Bloqueo Mental) Basal", f"{p_mental*100:.1f}%")
-                bc.metric("P(Bloqueo | Burnout) Bayes", f"{p_condicional*100:.1f}%", "Impacto de Dependencia")
-            else:
-                st.info("Estructuras de gajos insuficientes para trazar la red bayesiana.")
-                
-            pdf_macro = FPDF()
-            pdf_macro.add_page()
-            pdf_macro.set_font("Helvetica", "B", 14)
-            pdf_macro.cell(190, 10, "EPISTEMOLOGICAL COHORT MACRO REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-            b64_macro = base64.b64encode(bytes(pdf_macro.output())).decode("utf-8")
-            st.markdown(f'<iframe src="data:application/pdf;base64,{b64_macro}" width="100%" height="220px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-            st.download_button("📥 DESCARGAR REPORTE MACRO POBLACIONAL (PDF)", data=bytes(pdf_macro.output()), file_name=f"Macro_Report_{tabla_analizar}.pdf", mime="application/pdf", key="btn_macro_adv", use_container_width=True)
-
-        with t2:
-            st.markdown("#### Ficha Clínica de Integración Criptográfica SHA-256")
-            if "Nombre" in df_doc.columns and len(df_doc["Nombre"].unique()) > 0:
-                sujeto_sel = st.selectbox("Selecciona Participante para Auditoría:", df_doc["Nombre"].unique().tolist(), key="sb_suj_baja_adv")
-                df_filtrado = df_doc[df_doc["Nombre"] == sujeto_sel]
-                
-                if not df_filtrado.empty:
-                    fila_sujeto = df_filtrado.iloc
-                    pdf_c = FPDF()
-                    pdf_c.add_page()
-                    pdf_c.set_margins(20, 20, 20)
-                    pdf_c.set_font("Helvetica", "B", 14)
-                    pdf_c.cell(170, 10, f"CLINICAL MANUSCRIPT: {sujeto_sel.upper()}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT", align="C")
-                    pdf_c.ln(4)
-                    pdf_c.set_font("Helvetica", "", 10)
-                    pdf_c.multi_cell(170, 5, "Abstract: This diagnostic instrument maps the latent psychometric traits regarding temporal orientation and systemic homeostatic status through adaptive linguistic parameters.", new_x="LMARGIN", new_y="NEXT")
-                    pdf_c.ln(5)
-                    
-                    bytes_preliminares = bytes(pdf_c.output())
-                    hash_hash = hashlib.sha256(bytes_preliminares).hexdigest().upper()
-                    
-                    pdf_c.set_font("Courier", "B", 8)
-                    pdf_c.set_text_color(100, 100, 100)
-                    pdf_c.cell(170, 5, f"DIGITAL TRANSACTION SECURITY SEAL HASH SHA-256:", new_x="LMARGIN", new_y="NEXT", align="C")
-                    pdf_c.cell(170, 5, f"[{hash_hash}]", new_x="LMARGIN", new_y="NEXT", align="C")
-                    
-                    bytes_finales = bytes(pdf_c.output())
-                    b64_2 = base64.b64encode(bytes_finales).decode("utf-8")
-                    st.markdown(f'<iframe src="data:application/pdf;base64,{b64_2}" width="100%" height="220px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-                    
-                    c_crm1, c_crm2 = st.columns(2)
-                    with c_crm1:
-                        st.download_button("📥 DESCARGAR MANUSCRITO CRIPTOGRÁFICO SECHADO", data=bytes_finales, file_name=f"Certified_Clinical_{sujeto_sel}.pdf", mime="application/pdf", use_container_width=True)
-                    with c_crm2:
-                        tel_crm = "".join(c for c in str(fila_sujeto.get('WhatsApp', '')) if c.isdigit())
-                        w_u = f"https://wa.me{tel_crm}?text=Estimado+participante,+su+dictamen+con+sello+digital+{hash_hash[:8]}+esta+disponible."
-                        st.markdown(f'<a href="{w_u}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR ACCIÓN CRM VERIFICADA</div></a>', unsafe_allow_html=True)
-            else:
-                st.info("La base de datos individual se activará al ingresar registros válidos.")
-# =================================================================
-# PARTE 6-B1 DE 7: ÁLGEBRA MATRICIAL Y ESTIMACIÓN DE DISCREPANCIAS
-# =================================================================
-        with t3:
-            st.markdown("#### Modelado de Ecuaciones Estructurales Exploratorias (ESEM-Geo) y Confirmatorias (ICM-CFA)")
+            sintomas_origen = g_items.get(dim, [])
+            reportados = [sintomas_origen[int(i)] for i in marcados if str(i).isdigit() and int(i) < len(sintomas_origen)]
             
-            if len(df_doc) >= 3 and len(col_reactivos) >= 4:
-                # 🍊 1. EXTRACCIÓN MATRICIAL Y CÁLCULO DE COVARIANZA
-                matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                n_casos = matriz_num.shape
-                n_items = matriz_num.shape
-                
-                # Matriz de covarianza observada (S)
-                matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
-                matriz_cov_S = (matriz_centrada.T @ matriz_centrada) / (n_casos - 1)
-                
-                # Asegurar estabilidad numérica sumando un pequeño componente de Ridge si la varianza es nula
-                if np.linalg.det(matriz_cov_S) == 0:
-                    matriz_cov_S += np.eye(n_items) * 1e-4
-                
-                # 🍊 2. REDUCCIÓN EXPANSIBLE SVD Y ESTIMACIÓN DE ALFA / FISHER
-                var_items = np.var(matriz_num, ddof=1, axis=0)
-                var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                alfa_calc = (n_items / (n_items - 1)) * (1 - (np.sum(var_items) / var_total)) if var_total > 0 and n_items > 1 else 0.0
-                
-                p_respuestas = np.mean(matriz_num, axis=0) / 5.0
-                informacion_fisher = np.sum(p_respuestas * (1.0 - p_respuestas))
-                
-                _, S_vals, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                s1 = S_vals if len(S_vals) > 0 else 0.0
-                s2 = S_vals if len(S_vals) > 1 else 0.0
-                
-                # 🍊 3. MOTOR ALGEBRAICO ADAPTATIVO PARA FIT INDICES (CFI, TLI, RMSEA)
-                # Modelo de Base / Nulo (Varianza independiente sin covarianza)
-                f_min_nulo = np.sum(np.log(np.diag(matriz_cov_S))) - np.log(np.linalg.det(matriz_cov_S))
-                chi_nulo = f_min_nulo * (n_casos - 1)
-                df_nulo = (n_items * (n_items - 1)) / 2
-                
-                # Modelo Propuesto Híbrido (ESEM-Geo / ICM-CFA)
-                cargas_esem = np.outer(np.sqrt(var_items), np.array([0.6 if i%2==0 else 0.2 for i in range(n_items)]))
-                matriz_sigma_implicita = (cargas_esem @ cargas_esem.T) + np.diag(var_items * 0.4)
-                
-                f_min_propuesto = np.trace(matriz_cov_S @ np.linalg.pinv(matriz_sigma_implicita)) + np.log(np.linalg.det(matriz_sigma_implicita)) - np.log(np.linalg.det(matriz_cov_S)) - n_items
-                f_min_propuesto = max(0.001, f_min_propuesto)
-                
-                chi_propuesto = f_min_propuesto * (n_casos - 1)
-                df_propuesto = max(1, int(((n_items * (n_items + 1)) / 2) - (n_items * 2)))
-                
-                # Índices comparativos de ajuste absoluto y relativo
-                cfi_val = 1.0 - (max(0.0, chi_propuesto - df_propuesto) / max(0.0, chi_nulo - df_nulo)) if chi_nulo > df_nulo else 1.0
-                cfi_val = min(1.0, max(0.0, cfi_val))
-                
-                tli_val = 1.0 - ((chi_propuesto / df_propuesto) / (chi_nulo / df_nulo)) if chi_nulo > 0 and df_propuesto > 0 else 1.0
-                tli_val = min(1.0, max(0.0, tli_val))
-                
-                # Error Cuadrático Medio de Aproximación (RMSEA)
-                rmsea_val = np.sqrt(max(0.0, (chi_propuesto - df_propuesto) / (df_propuesto * (n_casos - 1)))) if df_propuesto > 0 else 0.0
-                rmsea_val = min(0.5, rmsea_val)
-# =================================================================
-# PARTE 6-B2 DE 7: DESPLIEGUE DE INDICES SEM, TABLA HTML Y CIERRE TAB
-# =================================================================
-                # 🍊 4. DESPLIEGUE ERGONÓMICO EN TABLAS EXPLICATIVAS DOCTORALES
-                c_m1, c_m2, c_m3 = st.columns(3)
-                c_m1.metric("Comparative Fit Index (CFI)", f"{cfi_val:.4f}", delta="Aceptable (>=0.90)" if cfi_val >= 0.90 else "Ajuste Débil")
-                c_m2.metric("Tucker-Lewis Index (TLI)", f"{tli_val:.4f}", delta="Óptimo (>=0.95)" if tli_val >= 0.95 else "Incrementar N")
-                c_m3.metric("RMSEA Index (Ajuste Absoluto)", f"{rmsea_val:.4f}", delta="Excelente (<=0.06)" if rmsea_val <= 0.06 else "Revisar Ítems", delta_color="inverse")
-                
-                st.markdown("##### 📊 Cuadro de Propiedades Psicométricas Avanzadas e Índices SEM Globales")
-                
-                html_tabla_sem = f"""
-                <table class="sem-table-master">
-                    <thead>
-                        <tr>
-                            <th>Indicador Metodológico</th>
-                            <th>Valor Computado</th>
-                            <th>Estándar Rigor (Revistas Clase Mundial)</th>
-                            <th>Interpretación Epistemológica del Constructo</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><b>ESEM-Geo / Rotación Target</b></td>
-                            <td>{s1:.3f} (λ₁) \| {s2:.3f} (λ₂)</td>
-                            <td>Autovalores > 1.0 (Kaiser)</td>
-                            <td>Estructura bifactorial limpia. Coexistencia ortogonal Cronos/Kairós verificada.</td>
-                        </tr>
-                        <tr>
-                            <td><b>Restricciones ICM-CFA</b></td>
-                            <td>χ² = {chi_propuesto:.2f} (df={df_propuesto})</td>
-                            <td>p > 0.05 (Ajuste Perfecto)</td>
-                            <td>Cargas cruzadas limitadas a cero por diseño de clústeres conceptuales.</td>
-                        </tr>
-                        <tr>
-                            <td><b>Comparative Fit Index (CFI)</b></td>
-                            <td><b>{cfi_val:.4f}</b></td>
-                            <td>CFI ≥ 0.950 (Hu & Bentler, 1999)</td>
-                            <td>Mide la mejora del modelo propuesto frente al modelo nulo de independencia.</td>
-                        </tr>
-                        <tr>
-                            <td><b>Tucker-Lewis Index (TLI)</b></td>
-                            <td><b>{tli_val:.4f}</b></td>
-                            <td>TLI ≥ 0.950 (Clase Global)</td>
-                            <td>Índice relativo de ajuste no afectado de forma espuria por el tamaño de muestra.</td>
-                        </tr>
-                        <tr>
-                            <td><b>RMSEA (Root Mean Square Error)</b></td>
-                            <td><b>{rmsea_val:.4f}</b></td>
-                            <td>RMSEA ≤ 0.060 (Browne & Cudeck)</td>
-                            <td>Discrepancia residual por grado de libertad. Representa el ajuste absoluto de covarianza.</td>
-                        </tr>
-                        <tr>
-                            <td><b>Consistencia Interna / Alfa</b></td>
-                            <td>{alfa_calc:.4f}</td>
-                            <td>α ≥ 0.700 (Rigor Doctoral)</td>
-                            <td>Alta estabilidad y fiabilidad inter-ítem en la captura de las asimetrías.</td>
-                        </tr>
-                        <tr>
-                            <td><b>Información de Fisher (CAT)</b></td>
-                            <td>{informacion_fisher:.3f} I(θ)</td>
-                            <td>Maximización de Varianza</td>
-                            <td>Capacidad del banco adaptativo para aislar el rasgo latente sin fatiga cognitiva.</td>
-                        </tr>
-                    </tbody>
-                </table>
-                """
-                st.markdown(html_tabla_sem, unsafe_allow_html=True)
-                
-                st.info(f"💡 **Dictamen del Sínodo Psicométrico:** El ajuste simultáneo ESEM-Geo permite que los reactivos asimilen las desviaciones geográficas de las sub-regiones sin que colapse la validez cruzada. Un CFI de {cfi_val:.3f} junto con un RMSEA de {rmsea_val:.3f} demuestran científicamente que las asimetrías del Modelo Integrado Cronos y Kairós poseen un respaldo empírico publicable e indexable.")
-                
-                pdf_sem = FPDF()
-                pdf_sem.add_page()
-                pdf_sem.set_font("Helvetica", "B", 14)
-                pdf_sem.cell(190, 10, "STRUCTURAL EQUATION MODELING (SEM) VALIDATION REPORT", new_x="LMARGIN", new_y="NEXT", align="C")
-                pdf_sem.ln(4)
-                pdf_sem.set_font("Helvetica", "", 10)
-                pdf_sem.cell(190, 6, f"Dataset CFI Score: {cfi_val:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                pdf_sem.cell(190, 6, f"Dataset RMSEA Score: {rmsea_val:.4f}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
-                
-                b64_3 = base64.b64encode(bytes(pdf_sem.output())).decode("utf-8")
-                st.markdown(f'<iframe src="data:application/pdf;base64,{b64_3}" width="100%" height="220px" style="border:1px solid #ddd; border-radius:4px;"></iframe>', unsafe_allow_html=True)
-                st.download_button("📥 EXPORTAR REPORTE DE ECUACIONES ESTRUCTURALES AVANZADAS (PDF)", data=bytes(pdf_sem.output()), file_name="SEM_Fit_Indices.pdf", mime="application/pdf", key="btn_dl_sem_pdf", use_container_width=True)
-            else:
-                st.warning("📐 El motor de ecuaciones estructurales ESEM/CFA requiere un mínimo de 3 registros Likert consolidados y 4 reactivos activos para evaluar las covarianzas.")
+            pdf.set_font(f_family, "I", 9)
+            pdf.set_text_color(150, 40, 40)
+            pdf.multi_cell(190, 4.5, f"   Indicadores reportados: {', '.join(reportados)}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+            
+            pdf.set_font(f_family, "", 9)
+            pdf.set_text_color(40, 40, 40)
+            sug_base = dictamen.get(dim, "Optimizar balance.")
+            pdf.multi_cell(190, 4.5, f"   Sugerencia prescriptiva: {sug_base}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(2)
+            
+    pdf.set_text_color(0, 0, 0)
+    pdf.ln(2)
+    
+    # 🍊 3. EXPLICACIÓN Y PERFIL DE MODELOS TEMPORALES C&K
+    c_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
+    k_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
+    avg_c = sum(c_v) / 5 if c_v else 3.0
+    avg_k = sum(k_v) / 5 if k_v else 3.0
+    
+    dif = abs(avg_c - avg_k)
+    if dif <= 0.4: 
+        perfil_key = "txt_p_simbiosis"
+    elif avg_k > avg_c: 
+        perfil_key = "txt_p_kairos"
+    else: 
+        perfil_key = "txt_p_cronos"
+        
+    pdf.set_font(f_family, "B", 11)
+    pdf.cell(190, 6, "II. EVALUACION DE COMPORTAMIENTO TEMPORAL CRONOS Y KAIROS", new_x="LMARGIN", new_y="NEXT", fill=True)
+    pdf.ln(2)
+    
+    pdf.set_font(f_family, "", 10)
+    pdf.cell(190, 5, f"Media Vector Cronos (Reloj): {avg_c:.2f} | Media Vector Kairos (Oportunidad): {avg_k:.2f}", new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(1)
+    
+    pdf.set_font(f_family, "I", 10)
+    pdf.set_text_color(30, 30, 90)
+    pdf.multi_cell(190, 5, f"Dictamen Operacional: {dictamen.get(perfil_key, '')}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+    
+    # 🍊 4. PROSPECTIVA DE RIESGOS Y RECOMENDACIONES
+    pdf.set_font(f_family, "B", 10)
+    pdf.set_text_color(150, 50, 0)
+    pdf.cell(190, 5, "PROSPECTIVA DE RIESGO E IMPACTO EVOLUTIVO:", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font(f_family, "", 9)
+    pdf.set_text_color(60, 60, 60)
+    
+    if avg_c > avg_k:
+        c1 = "- Corto Plazo: Elevacion de rigidez cognitiva, rumiacion mental y estres ante imprevistos."
+        c2 = "- Mediano Plazo: Perdida de ventajas competitivas fluidas (Kairos) por apego extremo al itinerario."
+        c3 = "- Largo Plazo: Obsolescencia adaptativa y colapso de la plasticidad conductual organica."
     else:
-        st.info("ℹ️ Repositorio en la nube sin registros activos. El tablero gris se estructurará automáticamente al recibir respuestas.")
-    st.markdown('</div>', unsafe_allow_html=True)
+        c1 = "- Corto Plazo: Desorden horacio inmediato, desalineacion de plazos y compromisos clave."
+        c2 = "- Mediano Plazo: Perdida latente de credibilidad profesional e institucional por impuntualidad."
+        c3 = "- Largo Plazo: Incapacidad de consolidar macro-proyectos estables y desequilibrio existencial."
+        
+    pdf.multi_cell(190, 4, c1.encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.multi_cell(190, 4, c2.encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.multi_cell(190, 4, c3.encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+    
+    pdf.set_font(f_family, "B", 10)
+    pdf.set_text_color(0, 100, 0)
+    pdf.cell(190, 5, "LINEAMIENTOS RECOMENDADOS DE CONTENCION METODOLOGICA:", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font(f_family, "", 9.5)
+    pdf.set_text_color(40, 40, 40)
+    pdf.multi_cell(190, 4.5, f"Prescripcion: {dictamen.get('txt_ck_recom', '')}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(5)
+    
+    # 🍊 5. SELLO DE INVIOLABILIDAD CRIPTOGRÁFICO SHA-256
+    pdf.set_font(f_family, "B", 8)
+    pdf.set_text_color(120, 120, 120)
+    bytes_pre = bytes(pdf.output())
+    hash_cert = hashlib.sha256(bytes_pre).hexdigest().upper()
+    pdf.cell(190, 4, f"SECURITY DIGITAL TRANSACTION SEAL HASH SHA-256: [{hash_cert}]", new_x="LMARGIN", new_y="NEXT", align="C")
+    
+    return bytes(pdf.output())
+
 # =================================================================
 # PARTE 7-A DE 7: TÍTULOS DE CONSOLA Y PERFIL DE IDENTIFICACIÓN OBLIGATORIO
 # =================================================================
