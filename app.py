@@ -783,9 +783,9 @@ def main():
 
         # 🍊 MULTILINGUAL GATEWAY SYNC: Pasa el código ISO activo para almacenar la cohorte bilingüe
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
-    else:
-        st.balloons()
-        st.success(tx.get("thanks", "¡Completado!"))
+        else:
+            st.balloons()
+            st.success(tx.get("thanks", "¡Completado!"))
         
         # Recuperación persistente de variables tras el refresco del almacenamiento
         n_p = st.session_state.get("nombre_usuario_persistente", "Participante")
