@@ -131,7 +131,7 @@ TEXTOS_DICTAMEN_BILINGUE = {
     }
 }
 # =================================================================
-# FRACCIÓN 2-PARTE A: PROCESAMIENTO EN LA NUBE Y MOTOR ADAPTATIVO
+# FRACCIÓN 2-PARTE A: PROCESAMIENTO EN LA NUBE CON ALMACENAMIENTO DE COHORTE
 # =================================================================
 def conectar_google_sheets(nombre_tabla):
     try:
@@ -152,10 +152,12 @@ def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token, es_like
     try:
         ts = time.strftime("%Y-%m-%d %H:%M:%S")
         if not es_likert:
-            fila = [ts, nombre, whatsapp, str(resultados), token]
+            # 🍊 REGISTRO CLÍNICO: Inyección de la cohorte seleccionada en la columna 4 del dataset base
+            fila = [ts, nombre, whatsapp, tabla, str(resultados), token]
         else:
+            # 🍊 REGISTRO LIKERT: Inyección de la cohorte seleccionada en la columna 4 del dataset matricial
             fila = [
-                ts, nombre, whatsapp, 
+                ts, nombre, whatsapp, tabla,
                 resultados.get("Edad", ""), resultados.get("Género", ""), resultados.get("Nacionalidad", ""),
                 resultados.get("Estado Origen", ""), resultados.get("Estado Residencia", ""), resultados.get("País Origen", ""),
                 resultados.get("C1_Escuchado", ""), resultados.get("C2_Leído", ""), resultados.get("C3_Enseñado", ""),
@@ -190,6 +192,7 @@ def motor_generativo_items_audiencia(tabla, lang_code="es"):
             "⏳ Salud Temporal": ["Reactive procrastination", "Work invasion of free time", "Suppressed rest margins", "Cronos/Kairos imbalance"],
             "🙏 Salud Espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
         }
+
 # =================================================================
 # FRACCIÓN 2-PARTE B: ALGORITMO LIKERT Y EXPEDIENTE PDF EXPANDIDO
 # =================================================================
@@ -604,7 +607,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
         st.info("ℹ️ Repositorio en la nube sin registros activos. El tablero gris se estructurará automáticamente al recibir respuestas.")
     st.markdown('</div>', unsafe_allow_html=True)
 # =================================================================
-# FRACCIÓN 4-PARTE A: APERTURA DE MAIN, AUTENTICACIÓN Y VALIDACIÓN BASE
+# FRACCIÓN 4-PARTE A: APERTURA DE MAIN, FORMULARIO DE COHORTES Y PERFIL OBLIGATORIO
 # =================================================================
 def main():
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = True
@@ -636,8 +639,22 @@ def main():
                     else: st.error("Acceso denegado.")
         else:
             st.success("Ponente Autenticado")
-            tabla_sel = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
+            
+            # 🍊 FORMULARIO DE ALTA DE AUDIENCIAS: Aparece en la barra lateral al firmarse el ponente
+            with st.form("form_add_nueva_audiencia", clear_on_submit=True):
+                nueva_aud = st.text_input("📝 Crear Nueva Audiencia / Cohorte:", placeholder="Ej. Primaria Sonora").strip()
+                if st.form_submit_button("➕ Añadir y Guardar Cohorte", use_container_width=True):
+                    if nueva_aud and nueva_aud not in st.session_state.audiences_custom_list:
+                        st.session_state.audiences_custom_list.append(nueva_aud)
+                        st.session_state.audiencia_activa = nueva_aud
+                        st.success(f"Cohorte '{nueva_aud}' guardada.")
+                        st.rerun()
+
+            # El selectbox asimila la persistencia de las cohortes agregadas en caliente por el ponente
+            lista_final_tablas = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
+            tabla_sel = st.selectbox("Base de Datos Activa:", lista_final_tablas, key="sb_an")
             st.session_state.audiencia_activa = tabla_sel
+            
             if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True):
                 st.session_state.admin_autenticado = False
                 st.rerun()
@@ -699,6 +716,7 @@ def main():
             if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, key="btn_trigger_salud_integral", type="primary"):
                 st.session_state.paso_salud = True
                 st.rerun()
+
 # =================================================================
 # FRACCIÓN 4-PARTE B: EMBUDO ADAPTATIVO INCREMENTAL Y GUARDIA RAÍZ MAIN
 # =================================================================
