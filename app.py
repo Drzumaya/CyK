@@ -671,6 +671,15 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 # FRACCIÓN 4-CIERRE (P1): VALIDACIONES CRUZADAS Y EMBUDO DEMOGRÁFICO
 # =================================================================
 def main():
+    # 🍊 CONTROL DE INICIALIZACIÓN ABSOLUTO: Debe ser la primera línea para erradicar el KeyError/AttributeError
+    if "idioma_operativo" not in st.session_state:
+        try:
+            url_lang = st.query_params.get("lang", "es")
+        except Exception:
+            url_lang = "es"
+        st.session_state["idioma_operativo"] = url_lang if url_lang in ["es", "en"] else "es"
+
+    # Inicialización del resto de variables de estado de la aplicación
     if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = True
     if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
     if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
@@ -679,9 +688,10 @@ def main():
     if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
     if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
 
-    iso = st.query_params.get("lang", "es")
-    if iso not in ["es", "en"]: iso = "es"
+    # Lectura segura una vez garantizada la existencia de la llave en memoria
+    iso = st.session_state["idioma_operativo"]
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
+
 
     st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
     st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica y Emisión de Dictámenes")
