@@ -733,23 +733,19 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 # =================================================================
-# FRACCIÓN 4-CIERRE (P2) REDISEÑADA: COMPUERTAS DE AISLAMIENTO HÍBRIDAS ANTI-ALUMNOS
+# FRACCIÓN 4-CIERRE (P2) REDISEÑADA: SECCIÓN I CONFIGURADA COMO OPCIONAL
 # =================================================================
     # Control de transición final: Bloquea el renderizado total si se activa la pantalla de agradecimiento
     if not st.session_state.flujo_finalizado and not st.session_state.pantalla_agradecimiento:
         
         # 🍊 MOTOR DE SEPARACIÓN PERIMETRAL: El QR se muestra si se usa el parámetro URL de administración
         # O si el ponente se ha autenticado con éxito en el formulario de la barra lateral.
-        # Para el alumno que escanea de forma externa desde su celular, ambas condiciones serán falsas (False).
         es_proyector_ponente = (st.query_params.get("view") == "admin") or (st.session_state.admin_autenticado == True)
         
         if es_proyector_ponente:
-            # 🔥 ANCLAJE ABSOLUTO: El QR se queda fijo, brillante y visible en la pantalla del auditorio/ponente
             st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR para la Audiencia')}")
             st.caption("Proyección Central Activa - Escanea este código desde tu dispositivo móvil para iniciar la evaluación")
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
-            
-            # El QR de origen direcciona a los teléfonos de los alumnos eliminando el parámetro de administración
             qr.add_data(f"{URL_PRODUCCION}?lang={iso}")
             qr.make(fit=True)
             buf_qr = BytesIO()
@@ -757,7 +753,6 @@ def main():
             st.image(buf_qr.getvalue(), width=180)
             st.divider()
         else:
-            # Para el participante (vía celular), el QR no se renderiza bajo ninguna circunstancia.
             st.markdown("### 🍊 Sistema de Evaluación Diagnóstica Mandarina Core")
             st.caption("Por favor responda las secciones obligatorias en su dispositivo móvil.")
             st.divider()
@@ -778,7 +773,8 @@ def main():
             st.rerun()
         st.divider()
 
-        st.header(r"📋 Sección I: Perfil de identificación (Obligatorio)")
+        # 🍊 CAMBIO DE LBL: Marcado explícitamente como opcional para el usuario
+        st.header(r"📋 Sección I: Perfil de identificación (Opcional / Optional)")
         nombre = st.text_input(tx.get("nombre", "Nombre completo:"), key=r"n_in_seq")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp internacional:"), key=r"w_in_seq")
         
@@ -807,12 +803,11 @@ def main():
             resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
             
         resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
-        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5")
+        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c4_or")
         resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
 
+        # 🔥 CORRECCIÓN CRUCIAL: Se eliminan 'nombre' y 'whatsapp' de la compuerta de obligatoriedad booleana
         vld_secciones_iniciales = all([
-            bool(nombre.strip()), 
-            bool(whatsapp.strip()), 
             resultados_totales.get("Género") is not None, 
             resultados_totales.get("Nacionalidad") is not None,
             resultados_totales.get("C1_Escuchado") is not None,
@@ -865,6 +860,7 @@ def main():
                 )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+
 
 
 # =================================================================
