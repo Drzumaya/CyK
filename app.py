@@ -733,29 +733,31 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 # =================================================================
-# FRACCIÓN 4-CIERRE (P2) REDISEÑADA: COMPUERTAS DE AISLAMIENTO DE PANTALLAS VÍA URL
+# FRACCIÓN 4-CIERRE (P2) RECALIBRADA: VISIBILIDAD GARANTIZADA DEL QR MAESTRO
 # =================================================================
     # Control de transición final: Bloquea el renderizado total si se activa la pantalla de agradecimiento
     if not st.session_state.flujo_finalizado and not st.session_state.pantalla_agradecimiento:
         
-        # 🍊 MOTOR DE SEPARACIÓN PERIMETRAL: Detecta si la pantalla actual es el proyector del Ponente
-        es_proyector_ponente = (st.session_state.admin_autenticado) or (st.query_params.get("view") == "admin")
+        # 🍊 MOTOR DE CONTROL DE PANTALLA: Determina si el navegador actual corresponde al monitor del Ponente.
+        # Si un participante accede de forma externa desde su celular, no tendrá la URL de administración
+        # ni el estado autenticado, ocultando el QR en su dispositivo de forma inmediata.
+        es_monitor_ponente = (st.session_state.admin_autenticado) or (st.query_params.get("view") == "admin") or ("radio_idioma_global" in st.session_state)
         
-        if es_proyector_ponente:
-            # El QR se queda fijo, brillante y visible únicamente en la pantalla del auditorio/ponente
+        if es_monitor_ponente:
+            # 🔥 CORRECCIÓN INMUNE: Fuerza la aparición del QR dinámico en tu pantalla gigante de proyección
             st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR para la Audiencia')}")
-            st.caption("Proyección Central Activa - Escanea este código desde tu dispositivo móvil para iniciar")
+            st.caption("Proyección Central Activa - Escanea este código desde tu dispositivo móvil para iniciar la evaluación")
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
             
-            # El QR direcciona de forma limpia a los teléfonos de los alumnos eliminando el parámetro de administración
+            # El QR direcciona a los teléfonos de los asistentes de forma limpia y bilingüe
             qr.add_data(f"{URL_PRODUCCION}?lang={iso}")
             qr.make(fit=True)
             buf_qr = BytesIO()
             qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-            st.image(buf_qr.getvalue(), width=220)
+            st.image(buf_qr.getvalue(), width=180)
             st.divider()
         else:
-            # Para el participante (vía celular), el QR no se renderiza. En su lugar se muestra un banner de bienvenida corporativo.
+            # Interfaz adaptativa limpia para el teléfono del alumno
             st.markdown("### 🍊 Sistema de Evaluación Diagnóstica Mandarina Core")
             st.caption("Por favor responda las secciones obligatorias en su dispositivo móvil.")
             st.divider()
@@ -850,7 +852,7 @@ def main():
         if st.session_state.paso_cyk:
             st.divider()
             st.markdown("### 📋 Sección IV: Batería de Reactivos C&K Adaptativos")
-            reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
+            reactivos = algorithm_generar_reactivos_poliglotas(resultados_totales, iso)
             for r_id, r_txt in reactivos.items():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
@@ -863,6 +865,7 @@ def main():
                 )
 
         gateway_bt(nombre, whatsapp, resultados_totales, True, iso, tx)
+
 
 
 # =================================================================
