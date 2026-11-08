@@ -733,26 +733,31 @@ def main():
                 st.session_state.admin_autenticado = False
                 st.rerun()
 # =================================================================
-# FRACCIÓN 4-CIERRE (P2) COMPLETA: CONTROL ABSOLUTO DE QR POR URL Y EMBUDO PSICOMÉTRICO
+# FRACCIÓN 4-CIERRE (P2) REDISEÑADA: COMPUERTAS DE AISLAMIENTO DE PANTALLAS VÍA URL
 # =================================================================
     # Control de transición final: Bloquea el renderizado total si se activa la pantalla de agradecimiento
     if not st.session_state.flujo_finalizado and not st.session_state.pantalla_agradecimiento:
         
-        # 🍊 DETECTOR DE PANTALLA MAESTRO: Lee si el navegador actual corresponde al monitor del Ponente
-        es_monitor_ponente = st.query_params.get("view", "") == "ponente"
+        # 🍊 MOTOR DE SEPARACIÓN PERIMETRAL: Detecta si la pantalla actual es el proyector del Ponente
+        es_proyector_ponente = (st.session_state.admin_autenticado) or (st.query_params.get("view") == "admin")
         
-        # 🔥 FILTRO FÍSICO ABSOLUTO: El QR SOLO aparece en el proyector si estás autenticado o si la URL es de ponente.
-        # Para los teléfonos de los participantes, esta condición es falsa de inmediato y el QR jamás se renderiza.
-        if es_monitor_ponente or (st.session_state.admin_autenticado and "sb_an" in st.session_state):
-            st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR Colectivo')}")
+        if es_proyector_ponente:
+            # El QR se queda fijo, brillante y visible únicamente en la pantalla del auditorio/ponente
+            st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR para la Audiencia')}")
+            st.caption("Proyección Central Activa - Escanea este código desde tu dispositivo móvil para iniciar")
             qr = qrcode.QRCode(version=1, box_size=10, border=2)
-            # El QR proyectado redirige a los participantes al flujo limpio estándar
+            
+            # El QR direcciona de forma limpia a los teléfonos de los alumnos eliminando el parámetro de administración
             qr.add_data(f"{URL_PRODUCCION}?lang={iso}")
             qr.make(fit=True)
             buf_qr = BytesIO()
             qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-            st.image(buf_qr.getvalue(), width=140)
-            st.caption("💡 Monitor Ponente: Código visible en proyector. Oculto síncronamente en terminales móviles.")
+            st.image(buf_qr.getvalue(), width=220)
+            st.divider()
+        else:
+            # Para el participante (vía celular), el QR no se renderiza. En su lugar se muestra un banner de bienvenida corporativo.
+            st.markdown("### 🍊 Sistema de Evaluación Diagnóstica Mandarina Core")
+            st.caption("Por favor responda las secciones obligatorias en su dispositivo móvil.")
             st.divider()
 
         # 🌐 SELECTOR DE IDIOMA PÚBLICO PARTICIPANTE: Sincroniza todo el cuerpo central de la ponencia
@@ -830,11 +835,11 @@ def main():
                     if len(lista_items_gajo) >= 4:
                         c_a, c_b = st.columns(2)
                         with c_a:
-                            cb0 = st.checkbox(lista_items_gajo[0], key=f"cs_{g_idx}_0")
-                            cb1 = st.checkbox(lista_items_gajo[1], key=f"cs_{g_idx}_1")
+                            cb0 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_0")
+                            cb1 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_1")
                         with c_b:
-                            cb2 = st.checkbox(lista_items_gajo[2], key=f"cs_{g_idx}_2")
-                            cb3 = st.checkbox(lista_items_gajo[3], key=f"cs_{g_idx}_3")
+                            cb2 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_2")
+                            cb3 = st.checkbox(lista_items_gajo, key=f"cs_{g_idx}_3")
                         resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
 
             if not st.session_state.paso_cyk:
@@ -850,7 +855,7 @@ def main():
                 st.markdown(f"**Reactivo {r_id}:** {r_txt}")
                 resultados_totales[f"R{r_id}"] = st.radio(
                     label="Escala / Scale:", 
-                    options=[1,2,3,4,5], 
+                    options= [1, 2, 3, 4, 5], 
                     format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
                     index=None, 
                     horizontal=True, 
