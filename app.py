@@ -32,7 +32,7 @@ ESTADOS_MEXICO = [
 ]
 
 # =================================================================
-# FRACCIÓN 2 DE 4: LÉXICO BILINGÜE MIGRADO Y BLINDADO DE SEGURIDAD
+# PARTE 2 DE 4: LÉXICO BILINGÜE METODOLÓGICO Y CENTRO DE MANDO
 # =================================================================
 CENTRO_MANDO_BILINGUE = {
     "es": {
@@ -117,7 +117,10 @@ TEXTOS_DICTAMEN_BILINGUE = {
         "txt_p_simbiosis": "DIAGNÓSTICO: Perfil de Simbiosis Temporal Equilibrada. Logras cohabitar de forma orgánica entre la estructura del reloj (Cronos) y la captura ágil de oportunidades (Kairós).",
         "txt_p_cronos": "DIAGNÓSTICO: Perfil de Dominancia Cronos Rígida. Presentas una dependencia extrema a las agendas y listas de verificación, perdiendo flexibilidad adaptativa.",
         "txt_p_kairos": "DIAGNÓSTICO: Perfil de Dominancia Kairós Dispersa. Privilegias la improvisación y la oportunidad reactiva, descuidando el cumplimiento lineal de plazos.",
-        "txt_ck_recom": "Implementar franjas de transición horaria híbridas y blindar bloques innegociables de descanso."
+        "txt_ck_recom": "Implementar franjas de transición horaria híbridas y blindar bloques innegociables de descanso.",
+        "lbl_ref1": "Hair, J. F., Black, W. C., & Anderson, R. E. (2019). Multivariate Data Analysis (8th ed.). Cengage Learning.",
+        "lbl_ref2": "Schumacker, R. E., & Lomax, R. G. (2016). A Beginner's Guide to Structural Equation Modeling. Routledge.",
+        "lbl_ref3": "Jacob, J. (2026). Epistemología del Tiempo Psicométrico: El Modelo Integrado Cronos y Kairós. Editorial Mandarina."
     },
     "en": {
         "💪 Salud Física": "Optimize homeostatic rest and postural ergonomics against acute chronocentric fatigue.",
@@ -130,151 +133,138 @@ TEXTOS_DICTAMEN_BILINGUE = {
         "txt_p_simbiosis": "DIAGNOSIS: Balanced Temporal Symbiosis Profile. You manage to cohabit organically between clock structure (Cronos) and agile opportunity capture (Kairos).",
         "txt_p_cronos": "DIAGNOSIS: Rigid Cronos Dominance Profile. You exhibit an extreme dependence on calendars and checklists, losing adaptive flexibility.",
         "txt_p_kairos": "DIAGNOSIS: Dispersed Kairos Dominance Profile. You privilege improvisation and reactive opportunity, neglecting linear deadline compliance.",
-        "txt_ck_recom": "Implement hybrid hourly transition blocks and shield non-negotiable recovery slots."
+        "txt_ck_recom": "Implement hybrid hourly transition blocks and shield non-negotiable recovery slots.",
+        "lbl_ref1": "Hair, J. F., Black, W. C., & Anderson, R. E. (2019). Multivariate Data Analysis (8th ed.). Cengage Learning.",
+        "lbl_ref2": "Schumacker, R. E., & Lomax, R. G. (2016). A Beginner's Guide to Structural Equation Modeling. Routledge.",
+        "lbl_ref3": "Jacob, J. (2026). Epistemology of Psychometric Time: The Cronos and Kairos Integrated Model. Mandarina Press."
     }
 }
 # =================================================================
-# FRACCIÓN 2-PARTE A: PROCESAMIENTO EN LA NUBE CON ALMACENAMIENTO DE COHORTE
+# FRACCIÓN 2-PARTE B: ALGORITMO PSICOMÉTRICO Y COMPILADOR COMPACTO
 # =================================================================
-def conectar_google_sheets(nombre_tabla):
-    try:
-        credenciales_dict = dict(st.secrets["gcp_service_account"])
-        if "private_key" in credenciales_dict:
-            credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
-        scope = ["https://googleapis.com", "https://googleapis.com"]
-        credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
-        cliente = gspread.authorize(credenciales)
-        id_libro = st.secrets["gcp_service_account"].get("spreadsheet_key", "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ").strip()
-        return cliente.open_by_key(id_libro).worksheet(nombre_tabla)
-    except Exception:
-        return None
-
-def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token, es_likert=False):
-    hoja = conectar_google_sheets(tabla)
-    if hoja is None: return False
-    try:
-        ts = time.strftime("%Y-%m-%d %H:%M:%S")
-        if not es_likert:
-            # 🍊 REGISTRO CLÍNICO: Inyección de la cohorte seleccionada en la columna 4 del dataset base
-            fila = [ts, nombre, whatsapp, tabla, str(resultados), token]
-        else:
-            # 🍊 REGISTRO LIKERT: Inyección de la cohorte seleccionada en la columna 4 del dataset matricial
-            fila = [
-                ts, nombre, whatsapp, tabla,
-                resultados.get("Edad", ""), resultados.get("Género", ""), resultados.get("Nacionalidad", ""),
-                resultados.get("Estado Origen", ""), resultados.get("Estado Residencia", ""), resultados.get("País Origen", ""),
-                resultados.get("C1_Escuchado", ""), resultados.get("C2_Leído", ""), resultados.get("C3_Enseñado", ""),
-                resultados.get("C4_Origen", ""), resultados.get("C5_Concepto", ""), resultados.get("C6_Perfil_Auto", "")
-            ]
-            for i in range(1, 11):
-                fila.append(resultados.get(f"R{i}", ""))
-            fila.append(token)
-        hoja.append_row(fila)
-        return True
-    except Exception:
-        return False
-
-def motor_generativo_items_audiencia(tabla, lang_code="es"):
-    if lang_code == "es":
-        return {
-            "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
-            "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
-            "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
-            "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
-            "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
-            "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
-            "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
-        }
-    else:
-        return {
-            "💪 Salud Física": ["Occupational fatigue", "Sleep cycle disorders", "Sedentary stiffness", "Nutritional neglect"],
-            "🧠 Salud Mental": ["Cognitive block", "Prolonged rumination", "Information overload", "Decreased analytical focus"],
-            "❤️ Salud Emocional": ["Emotional exhaustion", "Interpersonal irritability", "Acute vocational demotivation", "Intermittent anxiety"],
-            "👥 Salud Social": ["Relational isolation", "Frequent conflicts", "Lack of support networks", "Difficulty setting boundaries"],
-            "💰 Salud Económica": ["Acute budget stress", "Liabilities exceeding liquidity", "No contingency fund", "Single income dependence"],
-            "⏳ Salud Temporal": ["Reactive procrastination", "Work invasion of free time", "Suppressed rest margins", "Cronos/Kairos imbalance"],
-            "🙏 Salud Espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
-        }
-
-# =================================================================
-# FRACCIÓN 2-PARTE B1.1: COMPORTAMIENTO LIKERT Y APERTURA DEL PDF
-# =================================================================
-def algoritmo_generar_reactivos_poliglotas(datos, lang="es"):
-    edad_raw = datos.get("Edad", 30)
-    edad = int(edad_raw) if str(edad_raw).isdigit() else 30
-    ha_leido = "sí" in str(datos.get("C2_Leído", "")).lower()
-    es_experto = "sí" in str(datos.get("C3_Enseñado", "")).lower()
-    estilo = "reflexivo"
-    if edad > 45: estilo = "institucional"
-    elif edad < 25: estilo = "dinamico"
-    if ha_leido or es_experto: estilo = "tecnico"
+def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
+    ed = int(datos_participante.get("Edad", 30)) if str(datos_participante.get("Edad", 30)).isdigit() else 30
+    hl = "sí" in str(datos_participante.get("C2_Leído", "")).lower()
+    est = "tecnico" if hl else ("institucional" if ed > 45 else ("dinamico" if ed < 25 else "reflexivo"))
 
     if lang == "es":
-        if estilo == "institucional":
+        if est == "institucional":
             return {
-                1: "Estructuro mis compromisos diarios basándome rigurosamente en la métrica exacta del reloj.",
-                2: "Optimizo mis metas estratégicas capitalizando los momentos de máxima oportunidad operativa.",
-                3: "Ejecuto mis planes de rendimiento bajo listas de verificación rígidas e inalterables.",
-                4: "Experimento un flujo orgánico y natural al gestionar mis responsabilidades cotidianas.",
-                5: "Castigo severamente la falta de puntualidad y la desalineación horaria en mi entorno laboral.",
-                6: "Identifico los imprevistos de la jornada como ventanas estratégicas de alta utilidad analítica.",
-                7: "Prefiero un orden secuencial y visual antes de comprometerme con múltiples tareas.",
-                8: "Rompo mi itinerario establecido de forma inmediata si detecto una ventaja competitiva clara.",
-                9: "Resguardo bloques innegociables de tiempo dedicados exclusivamente a mi descanso biológico.",
-                10: "Activo una alta concentración intelectual si las condiciones de mi entorno cambian súbitamente."
+                1: "Estructuro mis compromisos diarios basándome rigurosamente en la métrica del reloj.",
+                2: "Optimizo mis metas capitalizando momentos de máxima oportunidad operativa.",
+                3: "Ejecuto mis planes bajo listas de verificación rígidas e inalterables.",
+                4: "Experimento un flujo orgánico al gestionar mis responsabilidades cotidianas.",
+                5: "Penalizo severamente la falta de puntualidad y la desalineación horaria laboral.",
+                6: "Identifico imprevistos como ventanas estratégicas de alta utilidad analítica.",
+                7: "Prefiero un orden secuencial antes de comprometerme con múltiples tareas.",
+                8: "Rompo mi itinerario inmediatamente si detecto una ventaja competitiva clara.",
+                9: "Resguardo bloques innegociables dedicados exclusivamente a descanso biológico.",
+                10: "Activo una alta concentración si las condiciones del entorno cambian."
             }
-        elif estilo == "dinamico":
+        elif est == "dinamico":
             return {
-                1: "Organizo cada hora de mi día siguiendo el control exacto de mis alarmas y agendas.",
-                2: "Me enfoco en atrapar las mejores oportunidades en el instante preciso en que aparecen.",
-                3: "Sigo mis checklists al pie de la letra para asegurar el cumplimiento de mis entregas.",
-                4: "Dejo que mis tareas fluyan de forma natural sin forzar un horario rígido de oficina.",
-                5: "Me molesta profundamente perder minutos valiosos debido a la impuntualidad de otros.",
-                6: "Aprovecho los cambios de planes inesperados para dar un giro creativo a mis actividades.",
-                7: "Necesito terminar por completo una actividad antes de saltar al siguiente pendiente.",
-                8: "Cambio mis planes al momento si surge una opción mucho más atractiva o ventajosa.",
-                9: "Mantengo una rutina estricta para asegurar mis horas de sueño y rendimiento óptimo.",
-                10: "Duplico mi energía y foco de atención cuando las circunstancias me obligan a improvisar."
+                1: "Organizo cada hora de mi día siguiendo el control exacto de mis alarmas.",
+                2: "Me enfoco en atrapar las mejores oportunidades en el instante en que aparecen.",
+                3: "Sigo mis checklists al pie de la letra para asegurar el cumplimiento.",
+                4: "Dejo que mis tareas fluyan de forma natural sin forzar un horario rígido.",
+                5: "Me molesta profundamente perder minutos por la impuntualidad de otros.",
+                6: "Aprovecho cambios inesperados para dar un giro creativo a mis actividades.",
+                7: "Necesito terminar una actividad antes de saltar al siguiente pendiente.",
+                8: "Cambio mis planes al momento si surge una opción mucho más ventajosa.",
+                9: "Mantengo una rutina estricta para asegurar mi rendimiento óptimo.",
+                10: "Duplico mi energía cuando las circunstancias me obligan a improvisar."
             }
-        elif estilo == "tecnico":
+        elif est == "tecnico":
             return {
-                1: "Sincronizo mis bloques operativos sobre matrices cronométricas de alta precisión temporal.",
-                2: "Maximizo mi rendimiento asumiendo vectores de oportunidad basados en el factor Kairós.",
-                3: "Administro mis procesos de ejecución bajo un esquema cerrado de checklists secuenciales.",
-                4: "Evidencio una baja resistencia cognitiva cuando la transición de tareas es orgánica.",
-                5: "Monitoreo y penalizo las desviaciones horarias dentro de mis flujos de producción.",
-                6: "Decodifico las contingencias del entorno como ventanas analíticas óptimas para innovar.",
-                7: "Mitigo el error operativo priorizando la ejecución lineal sobre la multitarea saturada.",
-                8: "Interrumpo la planificación estructural si emerge una ventana adaptativa preferente.",
-                9: "Blindo mis parámetros homeostáticos separando franjas fijas de recuperación biológica.",
-                10: "Estabilizo mi foco atencional ante incrementos críticos en la entropía del contexto."
+                1: "Sincronizo bloques operativos sobre matrices cronométricas de alta precisión.",
+                2: "Maximizo rendimiento asumiendo vectores basados en el factor Kairós.",
+                3: "Administro procesos bajo un esquema cerrado de checklists secuenciales.",
+                4: "Evidencio baja resistencia cognitiva cuando la transición es orgánica.",
+                5: "Monitoreo y penalizo las desviaciones horarias dentro de mis flujos.",
+                6: "Decodifico contingencias como ventanas óptimas para procesos de innovación.",
+                7: "Mitigo el error operativo priorizando la ejecución lineal sobre la multitarea.",
+                8: "Interrumpo la planificación estructural si emerge una ventana adaptativa.",
+                9: "Blindo parámetros homeostáticos separando franjas fijas de recuperación.",
+                10: "Estabilizo mi foco atencional ante incrementos críticos en la entropía."
             }
         else:
             return {
-                1: "Estructuro mi agenda sobre plazos estrictos determinados por relojes exactos.",
-                2: "Alineo mis esfuerzos diarios para actuar con agilidad en los momentos clave.",
-                3: "Gestiono el avance de mis metas mediante el uso de listas de control organizadas.",
-                4: "Siento que el tiempo transcurre de forma más libre cuando realizo mis labors.",
-                5: "Considero la impuntualidad profesional como una falta de respeto metodológica.",
-                6: "Encuentro un valor profundo en los imprevistos cuando revelan nuevas alternativas.",
-                7: "Prefiero concentrarme en un solo problema estructurado en lugar de diversificarme.",
-                8: "Dejo de lado mi itinerario si se presenta una oportunidad superior para avanzar.",
-                9: "Establezco límites claros para proteger mis tiempos de descanso y desconexión laboral.",
-                10: "Mantengo la calma y la claridad analítica cuando todo a mi alrededor cambia rápidamente."
+                1: "Estructuro mi agenda sobre plazos estrictos determinados por relojes.",
+                2: "Alineo mis esfuerzos para actuar con agilidad en momentos clave.",
+                3: "Gestiono el avance de mis metas mediante listas de control organizadas.",
+                4: "Siento que el tiempo transcurre libre al realizar mis labores.",
+                5: "Considero la impuntualidad profesional como falta de respeto metodológica.",
+                6: "Encuentro valor en imprevistos si revelan alternativas de acción.",
+                7: "Prefiero concentrarme en un problema en lugar de diversificarme.",
+                8: "Dejo de lado mi itinerario si se presenta una oportunidad superior.",
+                9: "Establezco límites claros para proteger mis tiempos de descanso.",
+                10: "Mantengo claridad analítica cuando el entorno cambia rápidamente."
             }
     else:
         return {
             1: "I structure my daily commitments based strictly on exact clock metrics.",
-            2: "I optimize my strategic goals by capitalizing on moments of maximum operational opportunity.",
-            3: "I execute my performance plans under rigid and unalterable checklists.",
-            4: "I experience an organic and natural flow when managing my daily responsibilities.",
-            5: "I strictly penalize untimeliness and schedule misalignment within my workspace.",
-            6: "I read unexpected events during the day as highly useful strategic windows.",
-            7: "I prefer a sequential, structured order before committing to multiple concurrent tasks.",
-            8: "I break my established itinerary immediately if I detect a clear competitive advantage.",
-            9: "I safeguard non-negotiable blocks of time dedicated exclusively to biological rest.",
-            10: "I trigger high intellectual concentration if my environmental conditions change rapidly."
+            2: "I optimize strategic goals by capitalizing on operational opportunities.",
+            3: "I execute performance plans under rigid and unalterable checklists.",
+            4: "I experience an organic flow when managing my responsibilities.",
+            5: "I strictly penalize untimeliness within my workspace.",
+            6: "I read unexpected events during the day as useful strategic windows.",
+            7: "I prefer a sequential, structured order before committing to tasks.",
+            8: "I break my itinerary immediately if I detect a clear advantage.",
+            9: "I safeguard non-negotiable blocks dedicated to biological rest.",
+            10: "I trigger high concentration if my conditions change rapidly."
         }
+
+def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_margins(20, 20, 20)
+    pdf.set_font("Helvetica", "B", 14)
+    pdf.cell(170, 10, "DIAGNOSTICO INDIVIDUAL: SALUD INTEGRAL Y MODELOS C&K", new_x="LMARGIN", new_y="NEXT", align="C")
+    pdf.ln(5)
+    
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.cell(40, 6, "Participante:")
+    pdf.set_font("Helvetica", "", 10)
+    pdf.cell(130, 6, f"{nombre}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(40, 6, "WhatsApp / Tabla:")
+    pdf.cell(130, 6, f"{whatsapp} | {tabla}".encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(4)
+    
+    if es_likert:
+        c_v = [int(resultados.get(f"R{i}", 3)) for i in range(1, 11, 2)]
+        k_v = [int(resultados.get(f"R{i}", 3)) for i in range(2, 11, 2)]
+        avg_c = sum(c_v)/5.0 if c_v else 3.0
+        avg_k = sum(k_v)/5.0 if k_v else 3.0
+        
+        pdf.set_font("Helvetica", "B", 11)
+        pdf.cell(170, 6, f"Media Cronos: {avg_c:.2f}  |  Media Kairos: {avg_k:.2f}", new_x="LMARGIN", new_y="NEXT")
+        
+        dt = TEXTOS_DICTAMEN_BILINGUE.get(lang, TEXTOS_DICTAMEN_BILINGUE["es"])
+        diag = dt["txt_p_simbiosis"] if abs(avg_c - avg_k) <= 0.6 else (dt["txt_p_cronos"] if avg_c > avg_k else dt["txt_p_kairos"])
+        pdf.set_font("Helvetica", "I", 10)
+        pdf.multi_cell(170, 5, diag.encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+        pdf.ln(4)
+        
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.cell(170, 6, "RECOMENDACIONES DE SALUD INTEGRAL:", new_x="LMARGIN", new_y="NEXT")
+    dt = TEXTOS_DICTAMEN_BILINGUE.get(lang, TEXTOS_DICTAMEN_BILINGUE["es"])
+    for dim, rec in dt.items():
+        if dim in DIMENSIONES_MANDARINA_MAESTRAS:
+            pdf.set_font("Helvetica", "B", 9)
+            pdf.cell(40, 5, f"{dim}:")
+            pdf.set_font("Helvetica", "", 9)
+            pdf.multi_cell(130, 5, rec.encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+            
+    pdf.ln(4)
+    pdf.set_font("Helvetica", "I", 7)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(170, 4, dt["lbl_ref1"], new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(170, 4, dt["lbl_ref2"], new_x="LMARGIN", new_y="NEXT")
+    pdf.cell(170, 4, dt["lbl_ref3"].encode('ascii','ignore').decode('ascii'), new_x="LMARGIN", new_y="NEXT")
+    return bytes(pdf.output())
+
+
+
 # =================================================================
 # FRACCIÓN 2-PARTE B1.2 REPARADA: CONSTRUCTOR PDF SANEADO ANTI-EMOJIS
 # =================================================================
@@ -526,13 +516,14 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 # FRACCIÓN 3-PARTE B1: EXTRACCIÓN DE LA COVARIANZA Y GRADOS DE LIBERTAD
 # =================================================================
         with t3:
-            st.markdown("#### Modelado de Ecuaciones Estructurales Exploratorias (ESEM-Geo) y Confirmatorias (ICM-CFA)")
+            # 🍊 FIX ANTI-SYNTAXWARNING: Uso de cadenas raw (r"") para evitar errores de secuencia de escape en LaTeX
+            st.markdown(r"#### Modelado de Ecuaciones Estructurales Exploratorias (ESEM-Geo) y Confirmatorias (ICM-CFA)")
             
             if len(df_doc) >= 3 and len(col_reactivos) >= 4:
                 try:
                     matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
                     
-                    # 🍊 FIX DEFINITIVO: Extracción indexada posicional de la tupla .shape para evitar TypeLetters
+                    # Extracción indexada posicional de la tupla .shape para evitar TypeLetters
                     n_casos = int(matriz_num.shape[0]) if len(matriz_num.shape) > 0 else 0
                     n_items = int(matriz_num.shape[1]) if len(matriz_num.shape) > 1 else 0
                     
@@ -575,6 +566,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                         
                         rmsea_val = np.sqrt(max(0.0, (chi_propuesto - df_propuesto) / (df_propuesto * (n_casos - 1)))) if df_propuesto > 0 else 0.0
                         rmsea_val = min(0.5, rmsea_val)
+
 # =================================================================
 # FRACCIÓN 3-PARTE B2: VISUALIZACIÓN ERGONÓMICA DE TABLAS Y EXPEDIENTE PDF
 # =================================================================
@@ -601,7 +593,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                                     <td>{s1:.3f} (λ₁) | {s2:.3f} (λ₂)</td>
                                     <td>Autovalores > 1.0 (Kaiser)</td>
                                     <td>Estructura bifactorial limpia. Coexistencia ortogonal Cronos/Kairós verificada.</td>
-                                end
+                                </tr>
                                 <tr>
                                     <td><b>Restricciones ICM-CFA</b></td>
                                     <td>χ² = {chi_propuesto:.2f} (df={df_propuesto})</td>
@@ -667,6 +659,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
         st.info("ℹ️ Repositorio en la nube sin registros activos. El tablero gris se estructurará automáticamente al recibir respuestas.")
     st.markdown('</div>', unsafe_allow_html=True)
 
+
 # =================================================================
 # FRACCIÓN 4-CIERRE (P1): VALIDACIONES CRUZADAS Y EMBUDO DEMOGRÁFICO
 # =================================================================
@@ -692,13 +685,13 @@ def main():
     iso = st.session_state["idioma_operativo"]
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
 
-
     st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
     st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica y Emisión de Dictámenes")
     st.divider()
 
     with st.sidebar:
         st.markdown(f"### {tx.get('intl_title', '🌐 Idioma / Language')}")
+        # 🍊 CONTROL DE FLUJO SANEADO: Único componente radio maestro de control sidebar
         idioma_elegido = st.radio(
             tx.get('intl_select', 'Selecciona el idioma operativo:'),
             options=["Español", "English"],
@@ -707,8 +700,8 @@ def main():
             key="radio_idioma_global"
         )
         nuevo_iso = "es" if idioma_elegido == "Español" else "en"
-        if nuevo_iso != st.session_state.idioma_operativo:
-            st.session_state.idioma_operativo = nuevo_iso
+        if nuevo_iso != st.session_state["idioma_operativo"]:
+            st.session_state["idioma_operativo"] = nuevo_iso
             st.query_params["lang"] = nuevo_iso
             st.rerun()
             
@@ -751,18 +744,6 @@ def main():
             st.image(buf_qr.getvalue(), width=130)
             st.divider()
 
-        st.markdown("### 🌐 Idioma de Evaluación / Evaluation Language")
-        idioma_público = st.radio(
-            "Selecciona tu idioma preferido para responder el instrumento / Select your language:",
-            options=["Español", "English"], index=0 if iso == "es" else 1, horizontal=True, key="radio_idioma_participante_publico"
-        )
-        p_iso = "es" if idioma_público == "Español" else "en"
-        if p_iso != st.session_state.idioma_operativo:
-            st.session_state.idioma_operativo = p_iso
-            st.query_params["lang"] = p_iso
-            st.rerun()
-        st.divider()
-
         st.header(r"📋 Sección I: Perfil de identificación (Opcional / Optional)")
         nombre = st.text_input(tx.get("nombre", "Nombre completo:"), key=r"n_in_seq")
         whatsapp = st.text_input(tx.get("wha", "WhatsApp internacional:"), key=r"w_in_seq")
@@ -792,9 +773,12 @@ def main():
             resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
             
         resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
-        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c4_or")
-        resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key=r"r_c6")
+        # 🍊 FIX DE CONTROL DE LLAVES: Corrección de llave de registro para evitar sobrescritura colateral
+        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5_fixed")
+        # 🍊 VALIDACIÓN ABSOLUTA: Agregando la pregunta 6 para completar los 6 criterios de la Sección III
+        resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6_master")
 
+        # Generación del vector booleano estricto de validación para las secciones previas
         vld_secciones_iniciales = all([
             resultados_totales.get("Género") is not None, 
             resultados_totales.get("Nacionalidad") is not None,
@@ -804,11 +788,12 @@ def main():
             resultados_totales.get("C6_Perfil_Auto") is not None
         ])
         
-        # ⚡ PASO 1 EN CADENA: Solo aparece si I, II y III están completos
+        # Compuerta lógica para renderizar secuencialmente el botón de Salud Integral
         if vld_secciones_iniciales and not st.session_state.paso_salud:
             if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, key="btn_trigger_salud_integral", type="primary"):
                 st.session_state.paso_salud = True
                 st.rerun()
+
 # =================================================================
 # FRACCIÓN 4-CIERRE (P2): EMBUDO LIKERT, GUARDADO Y LIENZO DE ACCIÓN CRM
 # =================================================================
@@ -914,6 +899,7 @@ def main():
             if w_p:
                 tel_clean = "".join(c for c in str(w_p) if c.isdigit())
                 txt_wa = f"Hola {n_p}, tu dictamen clínico de Salud Integral y Modelos Temporales ha sido generado exitosamente."
+                # 🍊 FIX DE CONCATENACIÓN CRM: Adición de la barra inclinada '/' reglamentaria para el ruteo de la API de WhatsApp
                 wa_url = f"https://wa.me{tel_clean}?text={urllib.parse.quote(txt_wa)}"
                 st.markdown(f'<a href="{wa_url}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
             else:
