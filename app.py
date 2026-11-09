@@ -644,11 +644,20 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 
 
 def main():
+    # 🍊 CONTROL DE INICIALIZACIÓN ABSOLUTO: Evita KeyErrors y AttributeErrors
     if "idioma_operativo" not in st.session_state:
         try: url_lang = st.query_params.get("lang", "es")
         except Exception: url_lang = "es"
         st.session_state["idioma_operativo"] = url_lang if url_lang in ["es", "en"] else "es"
 
+    # Inicialización síncrona del diccionario de registro
+    if "resultados_totales_registro" not in st.session_state: 
+        st.session_state.resultados_totales_registro = {}
+
+    # 🍊 FIX DEL NAMEERROR: Declaración global interna para asegurar visibilidad en P1 y P2
+    resultados_totales = st.session_state.resultados_totales_registro
+
+    # Resto de estados de la aplicación
     for k, v in [("estructuras_inicializadas", True), ("audiences_custom_list", []), ("audiencia_activa", "🍊 Salud Integral"), 
                  ("admin_autenticado", False), ("flujo_finalizado", False), ("paso_salud", False), ("paso_cyk", False)]:
         if k not in st.session_state: st.session_state[k] = v
@@ -656,9 +665,6 @@ def main():
     iso = st.session_state["idioma_operativo"]
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
 
-    st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
-    st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica y Emisión de Dictámenes")
-    st.divider()
 
     with st.sidebar:
         st.markdown(f"### {tx.get('intl_title', '🌐 Idioma / Language')}")
