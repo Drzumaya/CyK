@@ -530,6 +530,141 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 
                 if vld_likert:
                     gateway_bt(nombre_in, whatsapp_in, resultados_totales, True, iso, tx)
+def main():
+    if "idioma_operativo" not in st.session_state:
+        try: url_lang = st.query_params.get("lang", "es")
+        except Exception: url_lang = "es"
+        st.session_state["idioma_operativo"] = url_lang if url_lang in ["es", "en"] else "es"
+
+    if "resultados_totales_registro" not in st.session_state: st.session_state.resultados_totales_registro = {}
+    resultados_totales = st.session_state.resultados_totales_registro
+
+    nombre = st.session_state.get("nombre_usuario_persistente", "")
+    whatsapp = st.session_state.get("whatsapp_usuario_persistente", "")
+
+    for k, v in [("estructuras_inicializadas", True), ("audiences_custom_list", []), ("audiencia_activa", "🍊 Salud Integral"), 
+                 ("admin_autenticado", False), ("flujo_finalizado", False), ("paso_salud", False), ("paso_cyk", False),
+                 ("mostrar_backend_pdf", False), ("pdf_corp_header", "INFORME DE INVESTIGACION PSICOMETRICA"),
+                 ("pdf_corp_brand", "Editorial Mandarina"), ("pdf_corp_email", "especialista@modelostemporales.com")]:
+        if k not in st.session_state: st.session_state[k] = v
+
+    iso = st.session_state["idioma_operativo"]
+    tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
+
+    st.title("🏆 DIAGNÓSTICO DE LA SALUD INTEGRAL Y MODELOS TEMPORALES CRONOS Y KAIRÓS")
+    st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica y Emisión de Dictámenes")
+    st.divider()
+
+    with st.sidebar:
+        st.markdown(f"### {tx.get('intl_title', '🌐 Idioma / Language')}")
+        idioma_elegido = st.radio(tx.get('intl_select', 'Selecciona el idioma:'), options=["Español", "English"], index=0 if iso == "es" else 1, horizontal=True, key="radio_idioma_global")
+        nuevo_iso = "es" if idioma_elegido == "Español" else "en"
+        if nuevo_iso != st.session_state["idioma_operativo"]:
+            st.session_state["idioma_operativo"] = nuevo_iso; st.query_params["lang"] = nuevo_iso; st.rerun()
+            
+        st.divider()
+        st.markdown(f"### {tx.get('side_title', '🔐 Panel del Ponente')}")
+        if not st.session_state.admin_autenticado:
+            with st.form("bloque_autenticacion_ponente"):
+                p_in = st.text_input("Contraseña Ponente:", type="password")
+                if st.form_submit_button("🔓 Acceder a la Consola Master", use_container_width=True):
+                    if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
+                        st.session_state.admin_autenticado = True; st.rerun()
+                    else: st.error("Acceso denegado.")
+        else:
+            st.success("Ponente Autenticado")
+            with st.form("form_add_nueva_audiencia", clear_on_submit=True):
+                nueva_aud = st.text_input("📝 Crear Nueva Audiencia / Cohorte:", placeholder="Ej. Primaria Sonora").strip()
+                if st.form_submit_button("➕ Añadir y Guardar Cohorte", use_container_width=True):
+                    if nueva_aud and nueva_aud not in st.session_state.audiences_custom_list:
+                        st.session_state.audiences_custom_list.append(nueva_aud); st.session_state.audiencia_activa = nueva_aud; st.rerun()
+
+            st.session_state.audiencia_activa = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
+            if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True): st.session_state.admin_autenticado = False; st.rerun()
+
+    c_btn, _ = st.columns([1, 4])
+    with c_btn:
+        lbl_btn = "🎛️ Ocultar Editor" if st.session_state.mostrar_backend_pdf else "🎛️ Desplegar Editor PDF"
+        if st.button(lbl_btn, use_container_width=True, key="btn_toggle_pdf_backend_main"):
+            st.session_state.mostrar_backend_pdf = not st.session_state.mostrar_backend_pdf; st.rerun()
+
+    if st.session_state.mostrar_backend_pdf: col_izq, col_der = st.columns([2.2, 1])
+    else: col_izq, col_der = st.container(), None
+
+    with col_izq:
+        if not st.session_state.flujo_finalizado:
+            if st.session_state.admin_autenticado:
+                st.markdown(f"### {tx.get('qr_title', '📢 QR')}")
+                qr = qrcode.QRCode(version=1, box_size=10, border=2); qr.add_data(f"{URL_PRODUCCION}?lang={iso}"); qr.make(fit=True)
+                buf_qr = BytesIO(); qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
+                st.image(buf_qr.getvalue(), width=130); st.divider()
+
+            st.header(tx.get("sec_i", "📋 Sección I"))
+            nombre_in = st.text_input(tx.get("nombre", "Nombre:"), key="n_in_seq_final")
+            whatsapp_in = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in_seq_final")
+            
+            st.subheader(tx.get("sec_ii", "📋 Sección II"))
+            resultados_totales["Edad"] = int(st.number_input(tx.get("edad", "Edad:"), 10, 100, 20, key="num_ed_final"))
+            resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_g_final")
+            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_n_final")
+            
+            if resultados_totales.get("Nacionalidad") == "Mexicana":
+                resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key="s_orig_final")
+                resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key="s_res_final")
+            elif resultados_totales.get("Nacionalidad") == "Extranjera":
+                resultados_totales["País Origen"] = st.text_input("País de Origen:", key="t_pais_final")
+                resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="s_cont_final")
+
+            st.subheader(tx.get("sec_iii", "📋 Sección III"))
+            for k_r, txt_r in [("C1_Escuchado", tx.get("p1_s3")), ("C2_Leído", tx.get("p2_s3")), ("C3_Enseñado", tx.get("p3_s3"))]: 
+                resultados_totales[k_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{k_r}_final")
+                
+            resultados_totales["C4_Origen"] = st.radio(tx.get("p4_s3"), ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key="r_c4_final")
+            resultados_totales["C5_Concepto"] = st.radio(tx.get("p5_s3"), ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key="r_c5_final")
+            resultados_totales["C6_Perfil_Auto"] = st.radio(tx.get("p6_s3"), ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6_final")
+
+            vld_secciones = all([resultados_totales.get(k) is not None for k in ["Género", "Nacionalidad", "C1_Escuchado", "C4_Origen", "C5_Concepto", "C6_Perfil_Auto"]])
+            
+            if vld_secciones and not st.session_state.paso_salud:
+                if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, key="btn_trig_salud_final", type="primary"):
+                    st.session_state.paso_salud = True; st.rerun()
+            if st.session_state.paso_salud:
+                st.divider()
+                st.markdown(f"### {tx.get('mand_title', '🍊 Diagnóstico')}")
+                MATRIZ_DINAMICA = motor_generativo_items_audiencia(st.session_state.audiencia_activa, lang_code=iso)
+                for g_idx, (g_name, lista_items) in enumerate(MATRIZ_DINAMICA.items()):
+                    with st.container(border=True):
+                        st.markdown(f"#### {g_name}")
+                        if len(lista_items) >= 4:
+                            ca, cb = st.columns(2)
+                            with ca:
+                                cb0 = st.checkbox(str(lista_items[0]), key=f"cbf_{g_idx}_0")
+                                cb1 = st.checkbox(str(lista_items[1]), key=f"cbf_{g_idx}_1")
+                            with cb:
+                                cb2 = st.checkbox(str(lista_items[2]), key=f"cbf_{g_idx}_2")
+                                cb3 = st.checkbox(str(lista_items[3]), key=f"cbf_{g_idx}_3")
+                            resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
+
+                if not st.session_state.paso_cyk:
+                    if st.button("🎯 Generar Diagnóstico de Modelos C&K", use_container_width=True, type="primary", key="btn_trig_cyk_final"):
+                        st.session_state.paso_cyk = True; st.rerun()
+
+            if st.session_state.paso_cyk:
+                st.divider()
+                st.markdown(f"### {tx.get('sec_iv', '📋 Reactivos C&K')}")
+                reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
+                vld_likert = True
+                for r_id, r_txt in reactivos.items():
+                    st.markdown(f"**Reactivo {r_id}:** {r_txt}")
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        label="Escala:", options=[1, 2, 3, 4, 5], 
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                        index=None, horizontal=True, key=f"rcyk_f_{r_id}"
+                    )
+                    if resultados_totales[f"R{r_id}"] is None: vld_likert = False
+
+                if vld_likert:
+                    gateway_bt(nombre_in, whatsapp_in, resultados_totales, True, iso, tx)
         else:
             st.balloons()
             st.success(tx.get("thanks", "🎉 ¡Evaluación Procesada Exitosamente!"))
@@ -550,26 +685,14 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 
             if st.button("🔄 Reset Evaluation", use_container_width=True, key="btn_reset_final"):
                 st.session_state.flujo_finalizado = False; st.session_state.paso_salud = False; st.session_state.paso_cyk = False; st.rerun()
-    # 🍊 RENDERIZADO DEL EDITOR CORPORATIVO A LA DERECHA (4 espacios de sangría)
+
     if col_der is not None:
         with col_der:
             with st.container(border=True):
                 st.markdown("### ⚙️ Backend PDF Corporativo")
-                st.session_state.pdf_corp_header = st.text_area(
-                    "Encabezado Técnico:", 
-                    value=st.session_state.pdf_corp_header, 
-                    key="ta_backend_hdr"
-                )
-                st.session_state.pdf_corp_brand = st.text_input(
-                    "Firma Institucional / Aval:", 
-                    value=st.session_state.pdf_corp_brand, 
-                    key="ti_backend_brand"
-                )
-                st.session_state.pdf_corp_email = st.text_input(
-                    "Correo Electrónico de Enlace:", 
-                    value=st.session_state.pdf_corp_email, 
-                    key="ti_backend_email"
-                )
+                st.session_state.pdf_corp_header = st.text_area("Encabezado Técnico:", value=st.session_state.pdf_corp_header, key="ta_backend_hdr")
+                st.session_state.pdf_corp_brand = st.text_input("Firma Institucional / Aval:", value=st.session_state.pdf_corp_brand, key="ti_backend_brand")
+                st.session_state.pdf_corp_email = st.text_input("Correo Electrónico de Enlace:", value=st.session_state.pdf_corp_email, key="ti_backend_email")
 
     if st.session_state.admin_autenticado:
         renderizar_consola_baja_gris(st.session_state.audiencia_activa, iso, tx)
