@@ -116,19 +116,33 @@ TEXTOS_DICTAMEN_BILINGUE = {
 # =================================================================
 def _obtener_libro_google_sheets():
     credenciales_dict = dict(st.secrets["gcp_service_account"])
-    if "private_key" in credenciales_dict:
-        credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
+    if "private_key" in credenciales_dict and credenciales_dict["private_key"]:
+        credenciales_dict["private_key"] = str(credenciales_dict["private_key"]).replace("\\n", "\n").strip()
     
-    # Autenticación nativa directa de gspread (incluye los scopes oficiales sin escribir URLs)
     cliente = gspread.service_account_from_dict(credenciales_dict)
     
-    id_libro = (
-        st.secrets.get("spreadsheet_key")
-        or st.secrets.get("spreadsheet_id")
-        or credenciales_dict.get("spreadsheet_key")
-        or credenciales_dict.get("spreadsheet_id")
-    ).strip()
+    # Búsqueda segura en todas las posibles llaves de secrets.toml ignorando valores None o vacíos
+    posibles_ids = [
+        st.secrets.get("spreadsheet_key"),
+        st.secrets.get("spreadsheet_id"),
+        st.secrets.get("sheet_id"),
+        st.secrets.get("id_libro"),
+        credenciales_dict.get("spreadsheet_key"),
+        credenciales_dict.get("spreadsheet_id"),
+        credenciales_dict.get("sheet_id"),
+    ]
+    
+    id_libro = next((str(x).strip() for x in posibles_ids if x and str(x).strip()), "")
+    
+    # Si en secrets guardaste la URL completa de Google Sheets en vez de solo el ID, la extrae automáticamente
+    if "/d/" in id_libro:
+        id_libro = id_libro.split("/d/")[1].split("/")[0].strip()
+        
+    if not id_libro:
+        raise ValueError("No se encontró 'spreadsheet_key' en Secrets.")
+        
     return cliente.open_by_key(id_libro)
+
 
 
 def conectar_google_sheets(nombre_tabla):
