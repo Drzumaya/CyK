@@ -495,7 +495,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 
                 if st.session_state.paso_salud:
                     st.divider()
-                     st.markdown(f"### {tx.get('mand_title', '🍊 Diagnóstico')}")
+                    st.markdown(f"### {tx.get('mand_title', '🍊 Diagnóstico')}")
                 MATRIZ_DINAMICA = motor_generativo_items_audiencia(st.session_state.audiencia_activa, lang_code=iso)
                 for g_idx, (g_name, lista_items) in enumerate(MATRIZ_DINAMICA.items()):
                     with st.container(border=True):
