@@ -79,31 +79,7 @@ TEXTOS_DICTAMEN_BILINGUE = {
     }
 }
 
-    # Botón superior para desplegar u ocultar el panel
-    c_btn_toggle, _ = st.columns([1, 4])
-    with c_btn_toggle:
-        lbl_btn_toggle = "🎛️ Ocultar Editor Corporativo" if st.session_state.mostrar_backend_pdf else "🎛️ Desplegar Editor Corporativo (PDF)"
-        if st.button(lbl_btn_toggle, use_container_width=True, key="btn_toggle_backend_pdf"):
-            st.session_state.mostrar_backend_pdf = not st.session_state.mostrar_backend_pdf
-            st.rerun()
-
-    # Estructura de columnas dinámicas
-    if st.session_state.mostrar_backend_pdf:
-        col_izquierda, col_derecha = st.columns([7, 3])
-    else:
-        col_izquierda = st.container()
-
-    with col_izquierda:
-        st.markdown("### Contenido Principal")
-
-    if st.session_state.mostrar_backend_pdf:
-        with col_derecha:
-            with st.container(border=True):
-                st.markdown("#### ⚙️ Backend: Configuración de Textos")
-                st.session_state.pdf_corp_header = st.text_area("Encabezado Técnico:", value=st.session_state.pdf_corp_header)
-                st.session_state.pdf_corp_brand = st.text_input("Firma Corporativa:", value=st.session_state.pdf_corp_brand)
-                st.session_state.pdf_corp_email = st.text_input("Correo Oficial:", value=st.session_state.pdf_corp_email)
-
+  
 
 # 🍊 CONFIGURACIÓN DE PÁGINA CENTRAL INMUNE A DESBORDAMIENTO
 st.set_page_config(page_title="C&K Evaluation Core", page_icon="🍊", layout="wide")
@@ -913,6 +889,33 @@ def main():
 
     if st.session_state.admin_autenticado:
         renderizar_consola_baja_gris(st.session_state.audiencia_activa, iso, tx)
+
+
+  # Botón superior para desplegar u ocultar el panel
+    c_btn_toggle, _ = st.columns([1, 4])
+    with c_btn_toggle:
+        lbl_btn_toggle = "🎛️ Ocultar Editor Corporativo" if st.session_state.mostrar_backend_pdf else "🎛️ Desplegar Editor Corporativo (PDF)"
+        if st.button(lbl_btn_toggle, use_container_width=True, key="btn_toggle_backend_pdf"):
+            st.session_state.mostrar_backend_pdf = not st.session_state.mostrar_backend_pdf
+            st.rerun()
+
+    # Estructura de columnas dinámicas
+    if st.session_state.mostrar_backend_pdf:
+        col_izquierda, col_derecha = st.columns([7, 3])
+    else:
+        col_izquierda = st.container()
+
+    with col_izquierda:
+        st.markdown("### Contenido Principal")
+
+    if st.session_state.mostrar_backend_pdf:
+        with col_derecha:
+            with st.container(border=True):
+                st.markdown("#### ⚙️ Backend: Configuración de Textos")
+                st.session_state.pdf_corp_header = st.text_area("Encabezado Técnico:", value=st.session_state.pdf_corp_header)
+                st.session_state.pdf_corp_brand = st.text_input("Firma Corporativa:", value=st.session_state.pdf_corp_brand)
+                st.session_state.pdf_corp_email = st.text_input("Correo Oficial:", value=st.session_state.pdf_corp_email)
+
 
 if __name__ == "__main__":
     main()
