@@ -611,6 +611,7 @@ def main():
     st.caption("🔬 Entorno Epistemológico Multilingüe de Alta Analítica Científica y Emisión de Dictámenes")
     st.divider()
 
+
     with st.sidebar:
         st.markdown(f"### {tx.get('intl_title', '🌐 Idioma / Language')}")
         idioma_elegido = st.radio(tx.get('intl_select', 'Selecciona el idioma:'), options=["Español", "English"], index=0 if iso == "es" else 1, horizontal=True, key="radio_idioma_global")
@@ -629,11 +630,41 @@ def main():
                     else: st.error("Acceso denegado.")
         else:
             st.success("Ponente Autenticado")
+            
+            # 1. Formulario para crear y guardar nuevas cohortes en Google Sheets
             with st.form("form_add_nueva_audiencia", clear_on_submit=True):
                 nueva_aud = st.text_input("📝 Crear Nueva Audiencia / Cohorte:", placeholder="Ej. Primaria Sonora").strip()
                 if st.form_submit_button("➕ Añadir y Guardar Cohorte", use_container_width=True):
-                    if nueva_aud and nueva_aud not in st.session_state.audiences_custom_list:
-                        st.session_state.audiences_custom_list.append(nueva_aud); st.session_state.audiencia_activa = nueva_aud; st.rerun()
+                    if nueva_aud:
+                        ok, err_msg = crear_pestana_cohorte_en_nube(nueva_aud)
+                        if ok:
+                            if nueva_aud not in st.session_state.audiences_custom_list:
+                                st.session_state.audiences_custom_list.append(nueva_aud)
+                            st.session_state.audiencia_activa = nueva_aud
+                            st.rerun()
+                        else:
+                            st.error(f"Error al crear pestaña en Google Sheets: {err_msg}")
+
+            # 2. Selector dinámico conectado a todas las hojas de Google Sheets
+            lista_dinamica_tablas = obtener_todas_las_audiencias()
+            idx_actual = lista_dinamica_tablas.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_dinamica_tablas else 0
+            
+            st.session_state.audiencia_activa = st.selectbox(
+                "Base de Datos Activa:", 
+                lista_dinamica_tablas, 
+                index=idx_actual,
+                key="sb_an"
+            )
+            
+            # 3. Botón de sincronización forzada con la nube
+            if st.button("🔄 Sincronizar Pestañas de la Nube", use_container_width=True, key="btn_sync_sheets"):
+                st.session_state.audiences_custom_list = []
+                st.toast("Pestañas sincronizadas con Google Sheets", icon="✅")
+                st.rerun()
+
+            if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True): 
+                st.session_state.admin_autenticado = False
+                st.rerun()
 
             lista_dinamica_tablas = obtener_todas_las_audiencias()
             idx_actual = lista_dinamica_tablas.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_dinamica_tablas else 0
