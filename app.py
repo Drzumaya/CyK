@@ -358,8 +358,8 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             if len(df_doc) >= 3 and len(col_reactivos) >= 4:
                 try:
                     matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                    n_casos = int(matriz_num.shape[0]) if len(matriz_num.shape) > 0 else 0
-                    n_items = int(matriz_num.shape[1]) if len(matriz_num.shape) > 1 else 0
+                    n_casos = int(matriz_num.shape) if len(matriz_num.shape) > 0 else 0
+                    n_items = int(matriz_num.shape) if len(matriz_num.shape) > 1 else 0
                     
                     if n_casos >= 3 and n_items >= 4:
                         matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
@@ -370,12 +370,9 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                         var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
                         alfa_calc = (n_items / (n_items - 1)) * (1 - (np.sum(var_items) / var_total)) if var_total > 0 and n_items > 1 else 0.0
                         
-                        p_respuestas = np.mean(matriz_num, axis=0) / 5.0
-                        informacion_fisher = np.sum(p_respuestas * (1.0 - p_respuestas))
-                        
                         _, S_vals, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                        s1 = S_vals[0] if len(S_vals) > 0 else 0.0
-                        s2 = S_vals[1] if len(S_vals) > 1 else 0.0
+                        s1 = S_vals if len(S_vals) > 0 else 0.0
+                        s2 = S_vals if len(S_vals) > 1 else 0.0
                         
                         f_min_nulo = np.sum(np.log(np.diag(matriz_cov_S))) - np.log(np.linalg.det(matriz_cov_S))
                         chi_nulo = f_min_nulo * (n_casos - 1)
@@ -389,12 +386,9 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                         chi_propuesto = f_min_propuesto * (n_casos - 1)
                         df_propuesto = max(1, int(((n_items * (n_items + 1)) / 2) - (n_items * 2)))
                         
-                        cfi_val = 1.0 - (max(0.0, chi_propuesto - df_propuesto) / max(0.0, chi_nulo - df_nulo)) if chi_nulo > df_nulo else 1.0
-                        cfi_val = min(1.0, max(0.0, cfi_val))
-                        tli_val = 1.0 - ((chi_propuesto / df_propuesto) / (chi_nulo / df_nulo)) if chi_nulo > 0 and df_propuesto > 0 else 1.0
-                        tli_val = min(1.0, max(0.0, tli_val))
-                        rmsea_val = np.sqrt(max(0.0, (chi_propuesto - df_propuesto) / (df_propuesto * (n_casos - 1)))) if df_propuesto > 0 else 0.0
-                        rmsea_val = min(0.5, rmsea_val)
+                        cfi_val = min(1.0, max(0.0, 1.0 - (max(0.0, chi_propuesto - df_propuesto) / max(0.0, chi_nulo - df_nulo)))) if chi_nulo > df_nulo else 1.0
+                        tli_val = min(1.0, max(0.0, 1.0 - ((chi_propuesto / df_propuesto) / (chi_nulo / df_nulo)))) if chi_nulo > 0 and df_propuesto > 0 else 1.0
+                        rmsea_val = min(0.5, np.sqrt(max(0.0, (chi_propuesto - df_propuesto) / (df_propuesto * (n_casos - 1))))) if df_propuesto > 0 else 0.0
                         
                         c_m1, c_m2, c_m3 = st.columns(3)
                         c_m1.metric("CFI Index", f"{cfi_val:.4f}")
@@ -431,7 +425,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             else: st.warning("📐 El motor ESEM/CFA requiere mínimo 3 registros Likert y 4 reactivos.")
     else: st.info("ℹ️ Repositorio sin registros activos.")
     st.markdown('</div>', unsafe_allow_html=True)
-        # 🍊 FIX DE INDENTACIÓN: Bloque alineado a 4 espacios para vivir dentro de main()
+    # 🍊 FIX DE INDENTACIÓN: Bloque alineado a 4 espacios para vivir dentro de main()
     with col_izq:
         if not st.session_state.flujo_finalizado:
             if st.session_state.admin_autenticado:
