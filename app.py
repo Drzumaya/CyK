@@ -319,7 +319,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
     tiene_datos = todas_las_filas and len(todas_las_filas) >= 2
     
     if tiene_datos:
-        df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas)
+        df_doc = pd.DataFrame(todas_las_filas[1:], columns=todas_las_filas[0])
         col_reactivos = [c for c in df_doc.columns if str(c).startswith("R")]
         
         t1, t2, t3 = st.tabs(["👥 Módulo I: Colectivo", "👤 Módulo II: CRM Clínico", "📐 Módulo III: SEM Matrix"])
@@ -349,7 +349,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                     hash_h = hashlib.sha256(bytes(pdf_c.output())).hexdigest().upper()
                     st.text(f"SHA-256 HASH VERIFICATION: [{hash_h}]")
                     
-                    tel_crm = "".join(c for c in str(df_f.iloc.get('WhatsApp', '')) if c.isdigit())
+                    tel_crm = "".join(c for c in str(df_f.iloc[0].get('WhatsApp', '')) if c.isdigit())
                     w_u = f"https://wa.me{tel_crm}?text=Dictamen+con+sello+{hash_h[:8]}+listo."
                     st.markdown(f'<a href="{w_u}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:8px;border-radius:4px;text-align:center;font-weight:bold;">💬 ACCIÓN CRM WHATSAPP</div></a>', unsafe_allow_html=True)
 
@@ -358,8 +358,8 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             if len(df_doc) >= 3 and len(col_reactivos) >= 4:
                 try:
                     matriz_num = df_doc[col_reactivos].apply(pd.to_numeric, errors='coerce').fillna(3).to_numpy()
-                    n_casos = int(matriz_num.shape) if len(matriz_num.shape) > 0 else 0
-                    n_items = int(matriz_num.shape) if len(matriz_num.shape) > 1 else 0
+                    n_casos = int(matriz_num.shape[0]) if len(matriz_num.shape) > 0 else 0
+                    n_items = int(matriz_num.shape[1]) if len(matriz_num.shape) > 1 else 0
                     
                     if n_casos >= 3 and n_items >= 4:
                         matriz_centrada = matriz_num - np.mean(matriz_num, axis=0)
@@ -367,12 +367,9 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                         if np.linalg.det(matriz_cov_S) == 0: matriz_cov_S += np.eye(n_items) * 1e-4
                         
                         var_items = np.var(matriz_num, ddof=1, axis=0)
-                        var_total = np.var(np.sum(matriz_num, axis=1), ddof=1)
-                        alfa_calc = (n_items / (n_items - 1)) * (1 - (np.sum(var_items) / var_total)) if var_total > 0 and n_items > 1 else 0.0
-                        
                         _, S_vals, _ = np.linalg.svd(matriz_centrada, full_matrices=False)
-                        s1 = S_vals if len(S_vals) > 0 else 0.0
-                        s2 = S_vals if len(S_vals) > 1 else 0.0
+                        s1 = S_vals[0] if len(S_vals) > 0 else 0.0
+                        s2 = S_vals[1] if len(S_vals) > 1 else 0.0
                         
                         f_min_nulo = np.sum(np.log(np.diag(matriz_cov_S))) - np.log(np.linalg.det(matriz_cov_S))
                         chi_nulo = f_min_nulo * (n_casos - 1)
@@ -381,8 +378,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                         cargas_esem = np.outer(np.sqrt(var_items), np.array([0.6 if i%2==0 else 0.2 for i in range(n_items)]))
                         matriz_sigma_implicita = (cargas_esem @ cargas_esem.T) + np.diag(var_items * 0.4)
                         
-                        f_min_propuesto = np.trace(matriz_cov_S @ np.linalg.pinv(matriz_sigma_implicita)) + np.log(np.linalg.det(matriz_sigma_implicita)) - np.log(np.linalg.det(matriz_cov_S)) - n_items
-                        f_min_propuesto = max(0.001, f_min_propuesto)
+                        f_min_propuesto = max(0.001, np.trace(matriz_cov_S @ np.linalg.pinv(matriz_sigma_implicita)) + np.log(np.linalg.det(matriz_sigma_implicita)) - np.log(np.linalg.det(matriz_cov_S)) - n_items)
                         chi_propuesto = f_min_propuesto * (n_casos - 1)
                         df_propuesto = max(1, int(((n_items * (n_items + 1)) / 2) - (n_items * 2)))
                         
@@ -395,7 +391,6 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                         c_m2.metric("TLI Index", f"{tli_val:.4f}")
                         c_m3.metric("RMSEA Index", f"{rmsea_val:.4f}")
                         
-                        st.markdown("##### 📊 Propiedades Psicométricas (SEM)")
                         html_tabla_sem = f"""
                         <table style="width:100%; border-collapse:collapse; background:#fff; font-size:12px; border:1px solid #ddd;">
                             <tr style="background:#f4f5f7;">
@@ -425,6 +420,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             else: st.warning("📐 El motor ESEM/CFA requiere mínimo 3 registros Likert y 4 reactivos.")
     else: st.info("ℹ️ Repositorio sin registros activos.")
     st.markdown('</div>', unsafe_allow_html=True)
+
     # 🍊 FIX DE INDENTACIÓN: Bloque alineado a 4 espacios para vivir dentro de main()
     with col_izq:
         if not st.session_state.flujo_finalizado:
