@@ -312,9 +312,9 @@ def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False
     dictamen_bilingue = TEXTOS_DICTAMEN_BILINGUE.get(lang, TEXTOS_DICTAMEN_BILINGUE["es"])
     tabla_saneada = str(tabla).replace("🍊", "").strip()
     
-    hdr_txt = st.session_state.get("pdf_corp_header", "INFORME DE INVESTIGACION PSICOMETRICA // UNIVERSIDAD MANDARINA CORE")
-    brand_txt = st.session_state.get("pdf_corp_brand", "Editorial Mandarina & Core Analytics Group")
-    email_txt = st.session_state.get("pdf_corp_email", "especialista@modelostemporales.com")
+    hdr_txt = st.session_state.get("pdf_corp_header", "INFORME DE INVESTIGACION PSICOMETRICA // CENTRO DE CAPACITACIÓN CRONOS&KAIROS ")
+    brand_txt = st.session_state.get("pdf_corp_brand", "C&K  & Core Analytics Group")
+    email_txt = st.session_state.get("pdf_corp_email", "jac.zum@gmail.com")
     
     pdf.set_font(font_family, "B", 8); pdf.set_text_color(120, 120, 120)
     pdf.cell(170, 4, str(hdr_txt).upper().encode('latin-1','replace').decode('latin-1'), new_x="LMARGIN", new_y="NEXT")
