@@ -122,10 +122,17 @@ def conectar_google_sheets(nombre_tabla):
         scope = ["https://googleapis.com", "https://googleapis.com"]
         credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
         cliente = gspread.authorize(credenciales)
-        id_libro = st.secrets["gcp_service_account"].get("spreadsheet_key", "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ").strip()
+        id_libro = (
+            st.secrets.get("spreadsheet_key")
+            or st.secrets.get("spreadsheet_id")
+            or st.secrets["gcp_service_account"].get("spreadsheet_key")
+            or st.secrets["gcp_service_account"].get("spreadsheet_id")
+            or "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ"
+        ).strip()
         return cliente.open_by_key(id_libro).worksheet(nombre_tabla)
     except Exception:
         return None
+
 
 def obtener_todas_las_audiencias():
     base_default = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
@@ -136,15 +143,23 @@ def obtener_todas_las_audiencias():
         scope = ["https://googleapis.com", "https://googleapis.com"]
         credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
         cliente = gspread.authorize(credenciales)
-        id_libro = st.secrets["gcp_service_account"].get("spreadsheet_key", "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ").strip()
+        
+        # Busca el ID del libro en cualquiera de las claves habituales de secrets.toml
+        id_libro = (
+            st.secrets.get("spreadsheet_key")
+            or st.secrets.get("spreadsheet_id")
+            or st.secrets["gcp_service_account"].get("spreadsheet_key")
+            or st.secrets["gcp_service_account"].get("spreadsheet_id")
+            or "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ"
+        ).strip()
         
         libro = cliente.open_by_key(id_libro)
         hojas_reales = [ws.title for ws in libro.worksheets()]
         
-        # Unifica las pestañas reales de Google Sheets con las creadas en memoria sin duplicados
         combinadas = list(dict.fromkeys(hojas_reales + st.session_state.get("audiences_custom_list", [])))
         return combinadas if combinadas else base_default
-    except Exception:
+    except Exception as e:
+        st.sidebar.warning(f"⚠️ No se pudieron leer las pestañas de Google Sheets: {e}")
         return list(dict.fromkeys(base_default + st.session_state.get("audiences_custom_list", [])))
 
 
