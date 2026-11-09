@@ -147,7 +147,7 @@ def obtener_todas_las_audiencias():
         combinadas = list(dict.fromkeys(hojas_reales + st.session_state.get("audiences_custom_list", [])))
         return combinadas if combinadas else base_default
     except Exception as e:
-        st.sidebar.warning(f"⚠️ Error de lectura en Google Sheets: {e}")
+        st.sidebar.warning(f"⚠️ Error ({type(e).__name__}): {repr(e)}")
         return list(dict.fromkeys(base_default + st.session_state.get("audiences_custom_list", [])))
 
 
