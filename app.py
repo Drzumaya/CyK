@@ -121,27 +121,21 @@ def _obtener_libro_google_sheets():
     
     cliente = gspread.service_account_from_dict(credenciales_dict)
     
-    # Búsqueda segura en todas las posibles llaves de secrets.toml ignorando valores None o vacíos
     posibles_ids = [
         st.secrets.get("spreadsheet_key"),
         st.secrets.get("spreadsheet_id"),
-        st.secrets.get("sheet_id"),
-        st.secrets.get("id_libro"),
         credenciales_dict.get("spreadsheet_key"),
         credenciales_dict.get("spreadsheet_id"),
-        credenciales_dict.get("sheet_id"),
     ]
+    raw_val = next((str(x).strip() for x in posibles_ids if x and str(x).strip()), "")
     
-    id_libro = next((str(x).strip() for x in posibles_ids if x and str(x).strip()), "")
+    if not raw_val:
+        raise ValueError("Falta 'spreadsheet_key' en Secrets.")
     
-    # Si en secrets guardaste la URL completa de Google Sheets en vez de solo el ID, la extrae automáticamente
-    if "/d/" in id_libro:
-        id_libro = id_libro.split("/d/")[1].split("/")[0].strip()
-        
-    if not id_libro:
-        raise ValueError("No se encontró 'spreadsheet_key' en Secrets.")
-        
-    return cliente.open_by_key(id_libro)
+    # Si pegaste la URL completa en Secrets, abre por URL; si es solo el ID, abre por clave
+    if raw_val.startswith("http"):
+        return cliente.open_by_url(raw_val)
+    return cliente.open_by_key(raw_val)
 
 
 
