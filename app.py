@@ -430,7 +430,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             else: st.warning("📐 El motor ESEM/CFA requiere mínimo 3 registros Likert y 4 reactivos.")
     else: st.info("ℹ️ Repositorio sin registros activos.")
     st.markdown('</div>', unsafe_allow_html=True)
-          # 🍊 FIX DE INDENTACIÓN: Bloque alineado a 4 espacios para vivir dentro de main()
+        # 🍊 FIX DE INDENTACIÓN: Bloque alineado a 4 espacios para vivir dentro de main()
     with col_izq:
         if not st.session_state.flujo_finalizado:
             if st.session_state.admin_autenticado:
@@ -468,6 +468,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             if vld_secciones and not st.session_state.paso_salud:
                 if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, key="btn_trig_salud_final", type="primary"):
                     st.session_state.paso_salud = True; st.rerun()
+
 
             if st.session_state.paso_salud:
                 st.divider(); st.markdown(f"### {tx.get('mand_title', '🍊 Diagnóstico')}")
