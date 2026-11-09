@@ -118,10 +118,14 @@ def _obtener_libro_google_sheets():
     credenciales_dict = dict(st.secrets["gcp_service_account"])
     if "private_key" in credenciales_dict:
         credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
+    
+    # Ensamblaje dinámico para garantizar las rutas exactas de autorización OAuth2
+    base_url = "https://googleapis.com" + "/auth/"
     scope = [
-        "https://googleapis.com",
-        "https://googleapis.com"
+        base_url + "spreadsheets",
+        base_url + "drive"
     ]
+    
     credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
     cliente = gspread.authorize(credenciales)
     id_libro = (
@@ -132,6 +136,7 @@ def _obtener_libro_google_sheets():
         or "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ"
     ).strip()
     return cliente.open_by_key(id_libro)
+
 
 def conectar_google_sheets(nombre_tabla):
     try:
