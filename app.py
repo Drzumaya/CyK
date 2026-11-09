@@ -94,13 +94,12 @@ def motor_generativo_items_audiencia(tabla, lang_code="es"):
 
 
 # =================================================================
-# FRACCIÓN 2-PARTE B: ALGORITMO PSICOMÉTRICO Y COMPILADOR COMPACTO
+# FRACCIÓN 2-PARTE B: ALGORITMO PSICOMÉTRICO Y GENERADOR PDF SANEADO
 # =================================================================
 def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
     ed = int(datos_participante.get("Edad", 30)) if str(datos_participante.get("Edad", 30)).isdigit() else 30
     hl = "sí" in str(datos_participante.get("C2_Leído", "")).lower()
     est = "tecnico" if hl else ("institucional" if ed > 45 else ("dinamico" if ed < 25 else "reflexivo"))
-
     if lang == "es":
         if est == "institucional":
             return {
@@ -132,7 +131,7 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
             return {
                 1: "Sincronizo bloques operativos sobre matrices cronométricas de alta precisión.",
                 2: "Maximizo rendimiento asumiendo vectores basados en el factor Kairós.",
-                3: "Administro procesos bajo un esquema cerrado de checklists secuenciales.",
+                3: "Administro procesamientos bajo un esquema cerrado de checklists secuenciales.",
                 4: "Evidencio baja resistencia cognitiva cuando la transición es orgánica.",
                 5: "Monitoreo y penalizo las desviaciones horarias dentro de mis flujos.",
                 6: "Decodifico contingencias como ventanas óptimas para procesos de innovación.",
@@ -167,6 +166,7 @@ def algoritmo_generar_reactivos_poliglotas(datos_participante, lang="es"):
             9: "I safeguard non-negotiable blocks dedicated to biological rest.",
             10: "I trigger high concentration if my conditions change rapidly."
         }
+
 
 def generar_pdf_diagnostico(nombre, whatsapp, resultados, tabla, es_likert=False, lang="es"):
     pdf = FPDF()
