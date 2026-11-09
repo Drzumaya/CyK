@@ -32,15 +32,25 @@ ESTADOS_MEXICO = [
 ]
 
 # =================================================================
-# PARTE 2 DE 4: LÉXICO BILINGÜE METODOLÓGICO Y CENTRO DE MANDO
+# PARTE 2 DE 4: LÉXICO BILINGÜE METODOLÓGICO Y CENTRO DE MANDO (SINCRO TOTAL)
 # =================================================================
 CENTRO_MANDO_BILINGUE = {
     "es": {
         "nombre": "Escribe tu nombre completo / Full Name:",
         "wha": "Escribe tu WhatsApp internacional (con +):",
-        "edad": "1. Escribe tu edad biológica:",
-        "genero": "2. Selecciona tu género identitario:",
-        "nac": "3. Selecciona tu marco de nacionalidad:",
+        "edad": "Edad biológica:",
+        "genero": "Género:",
+        "nac": "Nacionalidad:",
+        "sec_i": "📋 Sección I: Perfil de identificación (Opcional)",
+        "sec_ii": "📋 Sección II: Datos Demográficos y Geográficos (Obligatorio)",
+        "sec_iii": "📋 Sección III: Conocimiento sobre el tema (Obligatorio)",
+        "sec_iv": "📋 Sección IV: Batería de Reactivos C&K Adaptativos",
+        "p1_s3": "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?",
+        "p2_s3": "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?",
+        "p3_s3": "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?",
+        "p4_s3": "4. El modelo temporal:",
+        "p5_s3": "5. Hablar de modelos temporales es hablar de:",
+        "p6_s3": "6. Soy persona:",
         "side_title": "🔐 Panel del Ponente",
         "side_add": "Añadir Audiencia",
         "side_close": "Cerrar Panel",
@@ -49,7 +59,7 @@ CENTRO_MANDO_BILINGUE = {
         "intl_btn": "Aplicar Idioma",
         "qr_title": "📢 Código de Acceso QR para la Audiencia",
         "qr_sub1": "Escanea para responder en tiempo real",
-        "mand_title": "### 🍊 Evaluación Diagnóstica de Salud Integral",
+        "mand_title": "🍊 Diagnóstico de la Salud Integral",
         "likert_1": "1 - Totalmente en Desacuerdo",
         "likert_2": "2 - En Desacuerdo",
         "likert_3": "3 - Neutral / No sé",
@@ -72,9 +82,19 @@ CENTRO_MANDO_BILINGUE = {
     "en": {
         "nombre": "Enter your full name / Nombre completo:",
         "wha": "Enter international WhatsApp (with +):",
-        "edad": "1. Enter your biological age:",
-        "genero": "2. Select your gender identity:",
-        "nac": "3. Select your nationality framework:",
+        "edad": "Biological age:",
+        "genero": "Gender identity:",
+        "nac": "Nationality framework:",
+        "sec_i": "📋 Section I: Identification Profile (Optional)",
+        "sec_ii": "📋 Section II: Demographic & Geographic Data (Mandatory)",
+        "sec_iii": "📋 Section III: Knowledge of the Topic (Mandatory)",
+        "sec_iv": "📋 Section IV: Adaptive C&K Items Battery",
+        "p1_s3": "1. Have you ever heard about Cronos and Kairos Temporal Models?",
+        "p2_s3": "2. Have you read about Cronos and Kairos temporal models?",
+        "p3_s3": "3. Have you ever taught about Cronos and Kairos temporal models?",
+        "p4_s3": "4. The temporal model:",
+        "p5_s3": "5. Talking about temporal models means talking about:",
+        "p6_s3": "6. I consider myself a person of type:",
         "side_title": "🔐 Speaker Dashboard",
         "side_add": "Add New Audience",
         "side_close": "Close Dashboard",
@@ -83,7 +103,7 @@ CENTRO_MANDO_BILINGUE = {
         "intl_btn": "Apply Language",
         "qr_title": "📢 Audience QR Access Code",
         "qr_sub1": "Scan to respond in real-time",
-        "mand_title": "### 🍊 Comprehensive Health Diagnostic Evaluation",
+        "mand_title": "🍊 Comprehensive Health Diagnostic",
         "likert_1": "1 - Strongly Disagree",
         "likert_2": "2 - Disagree",
         "likert_3": "3 - Neutral / Don't know",
@@ -105,40 +125,6 @@ CENTRO_MANDO_BILINGUE = {
     }
 }
 
-TEXTOS_DICTAMEN_BILINGUE = {
-    "es": {
-        "💪 Salud Física": "Optimizar el descanso homeostático y la ergonomía postural ante la fatiga cronocéntrica aguda.",
-        "🧠 Salud Mental": "Mitigar la infoxicación mediante bloques de ayuno digital y técnicas de descompresión cognitiva.",
-        "❤️ Salud Emocional": "Fortalecer la autorregulación emocional y canalizar el agotamiento laboral Burnout detectado.",
-        "👥 Salud Social": "Restablecer los canales relacionales directos y reconfigurar las redes de contención mutua.",
-        "💰 Salud Económica": "Diseñar una matriz estratégica de contingencia para mitigar pasivos y diversificar la liquidez.",
-        "⏳ Salud Temporal": "Reequilibrar las fronteras operativas del tiempo cronológico frente a la ventana de oportunidad.",
-        "🙏 Salud Espiritual": "Reconectar con los hábitos devocionales basales y el propósito esencial de vida del participante.",
-        "txt_p_simbiosis": "DIAGNÓSTICO: Perfil de Simbiosis Temporal Equilibrada. Logras cohabitar de forma orgánica entre la estructura del reloj (Cronos) y la captura ágil de oportunidades (Kairós).",
-        "txt_p_cronos": "DIAGNÓSTICO: Perfil de Dominancia Cronos Rígida. Presentas una dependencia extrema a las agendas y listas de verificación, perdiendo flexibilidad adaptativa.",
-        "txt_p_kairos": "DIAGNÓSTICO: Perfil de Dominancia Kairós Dispersa. Privilegias la improvisación y la oportunidad reactiva, descuidando el cumplimiento lineal de plazos.",
-        "txt_ck_recom": "Implementar franjas de transición horaria híbridas y blindar bloques innegociables de descanso.",
-        "lbl_ref1": "Hair, J. F., Black, W. C., & Anderson, R. E. (2019). Multivariate Data Analysis (8th ed.). Cengage Learning.",
-        "lbl_ref2": "Schumacker, R. E., & Lomax, R. G. (2016). A Beginner's Guide to Structural Equation Modeling. Routledge.",
-        "lbl_ref3": "Jacob, J. (2026). Epistemología del Tiempo Psicométrico: El Modelo Integrado Cronos y Kairós. Editorial Mandarina."
-    },
-    "en": {
-        "💪 Salud Física": "Optimize homeostatic rest and postural ergonomics against acute chronocentric fatigue.",
-        "🧠 Salud Mental": "Mitigate information overload through digital fasting blocks and cognitive decompression.",
-        "❤️ Salud Emocional": "Strengthen emotional self-regulation and channel the detected Burnout exhaustion syndrome.",
-        "👥 Salud Social": "Restore direct relational channels and reconfigure support networks for effective interaction.",
-        "💰 Salud Económica": "Design a strategic contingency matrix to mitigate liabilities and diversify income sources.",
-        "⏳ Salud Temporal": "Rebalance operational boundaries of chronological clock time versus adaptive opportunity.",
-        "🙏 Salud Espiritual": "Reconnect with basal devotional habits and the essential core life purpose of the participant.",
-        "txt_p_simbiosis": "DIAGNOSIS: Balanced Temporal Symbiosis Profile. You manage to cohabit organically between clock structure (Cronos) and agile opportunity capture (Kairos).",
-        "txt_p_cronos": "DIAGNOSIS: Rigid Cronos Dominance Profile. You exhibit an extreme dependence on calendars and checklists, losing adaptive flexibility.",
-        "txt_p_kairos": "DIAGNOSIS: Dispersed Kairos Dominance Profile. You privilege improvisation and reactive opportunity, neglecting linear deadline compliance.",
-        "txt_ck_recom": "Implement hybrid hourly transition blocks and shield non-negotiable recovery slots.",
-        "lbl_ref1": "Hair, J. F., Black, W. C., & Anderson, R. E. (2019). Multivariate Data Analysis (8th ed.). Cengage Learning.",
-        "lbl_ref2": "Schumacker, R. E., & Lomax, R. G. (2016). A Beginner's Guide to Structural Equation Modeling. Routledge.",
-        "lbl_ref3": "Jacob, J. (2026). Epistemology of Psychometric Time: The Cronos and Kairos Integrated Model. Mandarina Press."
-    }
-}
 # =================================================================
 # FRACCIÓN 2-PARTE B: ALGORITMO PSICOMÉTRICO Y COMPILADOR COMPACTO
 # =================================================================
@@ -660,28 +646,16 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
     st.markdown('</div>', unsafe_allow_html=True)
 
 
-# =================================================================
-# FRACCIÓN 4-CIERRE (P1): VALIDACIONES CRUZADAS Y EMBUDO DEMOGRÁFICO
-# =================================================================
 def main():
-    # 🍊 CONTROL DE INICIALIZACIÓN ABSOLUTO: Debe ser la primera línea para erradicar el KeyError/AttributeError
     if "idioma_operativo" not in st.session_state:
-        try:
-            url_lang = st.query_params.get("lang", "es")
-        except Exception:
-            url_lang = "es"
+        try: url_lang = st.query_params.get("lang", "es")
+        except Exception: url_lang = "es"
         st.session_state["idioma_operativo"] = url_lang if url_lang in ["es", "en"] else "es"
 
-    # Inicialización del resto de variables de estado de la aplicación
-    if "estructuras_inicializadas" not in st.session_state: st.session_state.estructuras_inicializadas = True
-    if "audiences_custom_list" not in st.session_state: st.session_state.audiences_custom_list = []
-    if "audiencia_activa" not in st.session_state: st.session_state.audiencia_activa = "🍊 Salud Integral"
-    if "admin_autenticado" not in st.session_state: st.session_state.admin_autenticado = False
-    if "flujo_finalizado" not in st.session_state: st.session_state.flujo_finalizado = False
-    if "paso_salud" not in st.session_state: st.session_state.paso_salud = False
-    if "paso_cyk" not in st.session_state: st.session_state.paso_cyk = False
+    for k, v in [("estructuras_inicializadas", True), ("audiences_custom_list", []), ("audiencia_activa", "🍊 Salud Integral"), 
+                 ("admin_autenticado", False), ("flujo_finalizado", False), ("paso_salud", False), ("paso_cyk", False)]:
+        if k not in st.session_state: st.session_state[k] = v
 
-    # Lectura segura una vez garantizada la existencia de la llave en memoria
     iso = st.session_state["idioma_operativo"]
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
 
@@ -691,29 +665,18 @@ def main():
 
     with st.sidebar:
         st.markdown(f"### {tx.get('intl_title', '🌐 Idioma / Language')}")
-        # 🍊 CONTROL DE FLUJO SANEADO: Único componente radio maestro de control sidebar
-        idioma_elegido = st.radio(
-            tx.get('intl_select', 'Selecciona el idioma operativo:'),
-            options=["Español", "English"],
-            index=0 if iso == "es" else 1,
-            horizontal=True,
-            key="radio_idioma_global"
-        )
+        idioma_elegido = st.radio(tx.get('intl_select', 'Selecciona el idioma operativo:'), options=["Español", "English"], index=0 if iso == "es" else 1, horizontal=True, key="radio_idioma_global")
         nuevo_iso = "es" if idioma_elegido == "Español" else "en"
         if nuevo_iso != st.session_state["idioma_operativo"]:
-            st.session_state["idioma_operativo"] = nuevo_iso
-            st.query_params["lang"] = nuevo_iso
-            st.rerun()
+            st.session_state["idioma_operativo"] = nuevo_iso; st.query_params["lang"] = nuevo_iso; st.rerun()
             
-        st.divider()
-        st.markdown(f"### {tx.get('side_title', '🔐 Panel del Ponente')}")
+        st.divider(); st.markdown(f"### {tx.get('side_title', '🔐 Panel del Ponente')}")
         if not st.session_state.admin_autenticado:
             with st.form("bloque_autenticacion_ponente"):
                 p_in = st.text_input("Contraseña Ponente:", type="password")
                 if st.form_submit_button("🔓 Acceder a la Consola Master", use_container_width=True):
                     if p_in == st.secrets.get("credentials", {}).get("password_ponente", "mandarina2026"):
-                        st.session_state.admin_autenticado = True
-                        st.rerun()
+                        st.session_state.admin_autenticado = True; st.rerun()
                     else: st.error("Acceso denegado.")
         else:
             st.success("Ponente Autenticado")
@@ -721,78 +684,47 @@ def main():
                 nueva_aud = st.text_input("📝 Crear Nueva Audiencia / Cohorte:", placeholder="Ej. Primaria Sonora").strip()
                 if st.form_submit_button("➕ Añadir y Guardar Cohorte", use_container_width=True):
                     if nueva_aud and nueva_aud not in st.session_state.audiences_custom_list:
-                        st.session_state.audiences_custom_list.append(nueva_aud)
-                        st.session_state.audiencia_activa = nueva_aud
-                        st.success(f"Cohorte '{nueva_aud}' guardada.")
-                        st.rerun()
+                        st.session_state.audiences_custom_list.append(nueva_aud); st.session_state.audiencia_activa = nueva_aud
+                        st.success(f"Cohorte '{nueva_aud}' guardada."); st.rerun()
 
-            lista_final_tablas = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list
-            tabla_sel = st.selectbox("Base de Datos Activa:", lista_final_tablas, key="sb_an")
-            st.session_state.audiencia_activa = tabla_sel
-            if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True):
-                st.session_state.admin_autenticado = False
-                st.rerun()
+            st.session_state.audiencia_activa = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
+            if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True): st.session_state.admin_autenticado = False; st.rerun()
 
     if not st.session_state.flujo_finalizado:
         if st.session_state.admin_autenticado:
             st.markdown(f"### {tx.get('qr_title', '📢 Código de Acceso QR')}")
-            qr = qrcode.QRCode(version=1, box_size=10, border=2)
-            qr.add_data(f"{URL_PRODUCCION}?lang={iso}")
-            qr.make(fit=True)
-            buf_qr = BytesIO()
-            qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
-            st.image(buf_qr.getvalue(), width=130)
-            st.divider()
+            qr = qrcode.QRCode(version=1, box_size=10, border=2); qr.add_data(f"{URL_PRODUCCION}?lang={iso}"); qr.make(fit=True)
+            buf_qr = BytesIO(); qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
+            st.image(buf_qr.getvalue(), width=130); st.divider()
 
-        st.header(r"📋 Sección I: Perfil de identificación (Opcional / Optional)")
-        nombre = st.text_input(tx.get("nombre", "Nombre completo:"), key=r"n_in_seq")
-        whatsapp = st.text_input(tx.get("wha", "WhatsApp internacional:"), key=r"w_in_seq")
-        
+        st.header(tx.get("sec_i")); st.text_input(tx.get("nombre"), key=r"n_in_seq"); st.text_input(tx.get("wha"), key=r"w_in_seq")
         if "resultados_totales_registro" not in st.session_state: st.session_state.resultados_totales_registro = {}
-        resultados_totales = st.session_state.resultados_totales_registro
+        rt = st.session_state.resultados_totales_registro
         
-        st.subheader(r"📋 Sección II: Datos Demográficos y Geográficos (Obligatorio)")
-        resultados_totales["Edad"] = int(st.number_input(tx.get("edad", "Edad biológica:"), 10, 100, 20, key=r"num_ed"))
-        resultados_totales["Género"] = st.radio(tx.get("genero", "Género:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
-        resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nacionalidad:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
+        st.subheader(tx.get("sec_ii"))
+        rt["Edad"] = int(st.number_input(tx.get("edad"), 10, 100, 20, key=r"num_ed"))
+        rt["Género"] = st.radio(tx.get("genero"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key=r"rad_g")
+        rt["Nacionalidad"] = st.radio(tx.get("nac"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key=r"rad_n")
         
-        if resultados_totales.get("Nacionalidad") == "Mexicana":
-            resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key=r"s_orig")
-            resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key=r"s_res")
-        elif resultados_totales.get("Nacionalidad") == "Extranjera":
-            resultados_totales["País Origen"] = st.text_input("País de Origen:", key=r"t_pais")
-            resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
+        if rt.get("Nacionalidad") == "Mexicana":
+            rt["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key=r"s_orig")
+            rt["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key=r"s_res")
+        elif rt.get("Nacionalidad") == "Extranjera":
+            rt["País Origen"] = st.text_input("País de Origen:", key=r"t_pais")
+            rt["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key=r"s_cont")
 
-        st.subheader(r"📋 Sección III: Conocimiento sobre el tema (Obligatorio)")
-        preguntas_sec3 = [
-            ("C1_Escuchado", "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?"), 
-            ("C2_Leído", "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?"), 
-            ("C3_Enseñado", "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?")
-        ]
-        for key_r, txt_r in preguntas_sec3: 
-            resultados_totales[key_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{key_r}")
+        st.subheader(tx.get("sec_iii"))
+        for k_r, txt_r in [("C1_Escuchado", tx.get("p1_s3")), ("C2_Leído", tx.get("p2_s3")), ("C3_Enseñado", tx.get("p3_s3"))]: 
+            rt[k_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{k_r}")
             
-        resultados_totales["C4_Origen"] = st.radio("4. El modelo temporal:", ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
-        # 🍊 FIX DE CONTROL DE LLAVES: Corrección de llave de registro para evitar sobrescritura colateral
-        resultados_totales["C5_Concepto"] = st.radio("5. Hablar de modelos temporales es hablar de:", ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5_fixed")
-        # 🍊 VALIDACIÓN ABSOLUTA: Agregando la pregunta 6 para completar los 6 criterios de la Sección III
-        resultados_totales["C6_Perfil_Auto"] = st.radio("6. Soy persona:", ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6_master")
+        rt["C4_Origen"] = st.radio(tx.get("p4_s3"), ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key=r"r_c4")
+        rt["C5_Concepto"] = st.radio(tx.get("p5_s3"), ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key=r"r_c5_fixed")
+        rt["C6_Perfil_Auto"] = st.radio(tx.get("p6_s3"), ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6_master")
 
-        # Generación del vector booleano estricto de validación para las secciones previas
-        vld_secciones_iniciales = all([
-            resultados_totales.get("Género") is not None, 
-            resultados_totales.get("Nacionalidad") is not None,
-            resultados_totales.get("C1_Escuchado") is not None,
-            resultados_totales.get("C4_Origen") is not None,
-            resultados_totales.get("C5_Concepto") is not None,
-            resultados_totales.get("C6_Perfil_Auto") is not None
-        ])
-        
-        # Compuerta lógica para renderizar secuencialmente el botón de Salud Integral
-        if vld_secciones_iniciales and not st.session_state.paso_salud:
+        if all([rt.get(k) is not None for k in ["Género", "Nacionalidad", "C1_Escuchado", "C4_Origen", "C5_Concepto", "C6_Perfil_Auto"]]) and not st.session_state.paso_salud:
             if st.button("📊 Generar el Diagnóstico de la Salud Integral", use_container_width=True, key="btn_trigger_salud_integral", type="primary"):
-                st.session_state.paso_salud = True
-                st.rerun()
+                st.session_state.paso_salud = True; st.rerun()
+
 
 # =================================================================
 # FRACCIÓN 4-CIERRE (P2): EMBUDO LIKERT, GUARDADO Y LIENZO DE ACCIÓN CRM
