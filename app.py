@@ -119,23 +119,22 @@ def _obtener_libro_google_sheets():
     if "private_key" in credenciales_dict and credenciales_dict["private_key"]:
         credenciales_dict["private_key"] = str(credenciales_dict["private_key"]).replace("\\n", "\n").strip()
     
-    cliente = gspread.service_account_from_dict(credenciales_dict)
+    # Ámbito exclusivo de Google Sheets API (no requiere permisos globales de Google Drive)
+    solo_sheets = ["https://" + "www." + "googleapis.com" + "/auth/" + "spreadsheets"]
+    creds = Credentials.from_service_account_info(credenciales_dict, scopes=solo_sheets)
+    cliente = gspread.authorize(creds)
     
-    posibles_ids = [
-        st.secrets.get("spreadsheet_key"),
-        st.secrets.get("spreadsheet_id"),
-        credenciales_dict.get("spreadsheet_key"),
-        credenciales_dict.get("spreadsheet_id"),
-    ]
-    raw_val = next((str(x).strip() for x in posibles_ids if x and str(x).strip()), "")
+    raw_val = str(
+        st.secrets.get("spreadsheet_key")
+        or credenciales_dict.get("spreadsheet_key")
+        or ""
+    ).strip()
     
     if not raw_val:
         raise ValueError("Falta 'spreadsheet_key' en Secrets.")
     
-    # Si pegaste la URL completa en Secrets, abre por URL; si es solo el ID, abre por clave
-    if raw_val.startswith("http"):
-        return cliente.open_by_url(raw_val)
     return cliente.open_by_key(raw_val)
+
 
 
 
