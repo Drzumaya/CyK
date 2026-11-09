@@ -14,7 +14,7 @@ from google.oauth2.service_account import Credentials
 # 🍊 CONFIGURACIÓN BASAL DE PÁGINA ANCHURA GLOBAL
 st.set_page_config(page_title="C&K Evaluation Core", page_icon="🍊", layout="wide")
 
-URL_PRODUCCION = "https://dsimandarina.streamlit.app" 
+URL_PRODUCCION = "https://dsimandarina.streamlit.app/?lang=en" 
 DIMENSIONES_MANDARINA_MAESTRAS = [
     "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", 
     "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"
