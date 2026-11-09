@@ -159,9 +159,22 @@ def obtener_todas_las_audiencias():
 
 
 def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token, es_likert=False):
-    hoja = conectar_google_sheets(tabla)
-    if hoja is None: return False
     try:
+        libro = _obtener_libro_google_sheets()
+        hojas_existentes = [ws.title for ws in libro.worksheets()]
+        
+        # Si la pestaña elegida aún no existe en Google Sheets, la crea al vuelo con encabezados
+        if tabla not in hojas_existentes:
+            hoja = libro.add_worksheet(title=tabla, rows=1000, cols=30)
+            encabezados = [
+                "Timestamp", "Nombre", "WhatsApp", "Cohorte", "Edad", "Género", "Nacionalidad",
+                "Estado Origen", "Estado Residencia", "País Origen", "C1_Escuchado", "C2_Leído",
+                "C3_Enseñado", "C4_Origen", "C5_Concepto", "C6_Perfil_Auto"
+            ] + [f"R{i}" for i in range(1, 11)] + ["Token"]
+            hoja.append_row(encabezados)
+        else:
+            hoja = libro.worksheet(tabla)
+
         ts = time.strftime("%Y-%m-%d %H:%M:%S")
         if not es_likert:
             fila = [ts, nombre, whatsapp, tabla, str(resultados), token]
@@ -173,13 +186,16 @@ def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token, es_like
                 resultados.get("C1_Escuchado", ""), resultados.get("C2_Leído", ""), resultados.get("C3_Enseñado", ""),
                 resultados.get("C4_Origen", ""), resultados.get("C5_Concepto", ""), resultados.get("C6_Perfil_Auto", "")
             ]
-            for i in range(1, 11): 
-                fila.append(resultados.get(f"R{i}", ""))
+            for i in range(1, 11):
+                fila.append(str(resultados.get(f"R{i}", "")))
             fila.append(token)
-        hoja.append_row(fila)
+            
+        hoja.append_row(fila, value_input_option="USER_ENTERED")
         return True
-    except Exception:
+    except Exception as e:
+        st.error(f"⚠️ Error técnico al guardar en Google Sheets ({type(e).__name__}): {e}")
         return False
+
 
 def motor_generativo_items_audiencia(tabla, lang_code="es"):
     if lang_code == "es":
