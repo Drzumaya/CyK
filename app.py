@@ -32,98 +32,66 @@ ESTADOS_MEXICO = [
 ]
 
 # =================================================================
-# PARTE 2 DE 4: LÉXICO BILINGÜE METODOLÓGICO Y CENTRO DE MANDO (SINCRO TOTAL)
+# FRACCIÓN 2-PARTE A: PROCESAMIENTO EN LA NUBE CON ALMACENAMIENTO DE COHORTE
 # =================================================================
-CENTRO_MANDO_BILINGUE = {
-    "es": {
-        "nombre": "Escribe tu nombre completo / Full Name:",
-        "wha": "Escribe tu WhatsApp internacional (con +):",
-        "edad": "Edad biológica:",
-        "genero": "Género:",
-        "nac": "Nacionalidad:",
-        "sec_i": "📋 Sección I: Perfil de identificación (Opcional)",
-        "sec_ii": "📋 Sección II: Datos Demográficos y Geográficos (Obligatorio)",
-        "sec_iii": "📋 Sección III: Conocimiento sobre el tema (Obligatorio)",
-        "sec_iv": "📋 Sección IV: Batería de Reactivos C&K Adaptativos",
-        "p1_s3": "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?",
-        "p2_s3": "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?",
-        "p3_s3": "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?",
-        "p4_s3": "4. El modelo temporal:",
-        "p5_s3": "5. Hablar de modelos temporales es hablar de:",
-        "p6_s3": "6. Soy persona:",
-        "side_title": "🔐 Panel del Ponente",
-        "side_add": "Añadir Audiencia",
-        "side_close": "Cerrar Panel",
-        "intl_title": "🌐 Idioma del Sistema / Language",
-        "intl_select": "Selecciona el idioma operativo:",
-        "intl_btn": "Aplicar Idioma",
-        "qr_title": "📢 Código de Acceso QR para la Audiencia",
-        "qr_sub1": "Escanea para responder en tiempo real",
-        "mand_title": "🍊 Diagnóstico de la Salud Integral",
-        "likert_1": "1 - Totalmente en Desacuerdo",
-        "likert_2": "2 - En Desacuerdo",
-        "likert_3": "3 - Neutral / No sé",
-        "likert_4": "4 - De Acuerdo",
-        "likert_5": "5 - Totalmente de Acuerdo",
-        "btn_save": "💾 Registrar y Finalizar Instrumento",
-        "btn_pdf": "📥 Descargar Dictamen en PDF",
-        "err_fields": "Por favor completa Nombre y WhatsApp obligatoriamente.",
-        "fields_msg": "La descarga se habilitará al ingresar tu perfil de identificación superior.",
-        "thanks": "¡Evaluación Procesada Exitosamente!",
-        "thanks_sub": "Tus vectores métricos han sido calculados de forma síncrona.",
-        "toast_msg": "Documentación doctoral lista para descarga.",
-        "lbl_titulo_aud": "🔬 Oficina Analítica",
-        "lbl_tabla_select": "Filtro de Audiencia:",
-        "lbl_crm_buscar": "Motor de Búsqueda CRM",
-        "lbl_crm_input": "Filtro dinámico de coincidencia:",
-        "lbl_btn_auditoria": "📊 Correr Auditoría Doctora (APA)",
-        "lbl_btn_download_macro": "📥 Descargar Reporte Epistemológico"
-    },
-    "en": {
-        "nombre": "Enter your full name / Nombre completo:",
-        "wha": "Enter international WhatsApp (with +):",
-        "edad": "Biological age:",
-        "genero": "Gender identity:",
-        "nac": "Nationality framework:",
-        "sec_i": "📋 Section I: Identification Profile (Optional)",
-        "sec_ii": "📋 Section II: Demographic & Geographic Data (Mandatory)",
-        "sec_iii": "📋 Section III: Knowledge of the Topic (Mandatory)",
-        "sec_iv": "📋 Section IV: Adaptive C&K Items Battery",
-        "p1_s3": "1. Have you ever heard about Cronos and Kairos Temporal Models?",
-        "p2_s3": "2. Have you read about Cronos and Kairos temporal models?",
-        "p3_s3": "3. Have you ever taught about Cronos and Kairos temporal models?",
-        "p4_s3": "4. The temporal model:",
-        "p5_s3": "5. Talking about temporal models means talking about:",
-        "p6_s3": "6. I consider myself a person of type:",
-        "side_title": "🔐 Speaker Dashboard",
-        "side_add": "Add New Audience",
-        "side_close": "Close Dashboard",
-        "intl_title": "🌐 System Language / Idioma",
-        "intl_select": "Select operative language:",
-        "intl_btn": "Apply Language",
-        "qr_title": "📢 Audience QR Access Code",
-        "qr_sub1": "Scan to respond in real-time",
-        "mand_title": "🍊 Comprehensive Health Diagnostic",
-        "likert_1": "1 - Strongly Disagree",
-        "likert_2": "2 - Disagree",
-        "likert_3": "3 - Neutral / Don't know",
-        "likert_4": "4 - Agree",
-        "likert_5": "5 - Strongly Agree",
-        "btn_save": "💾 Register & Finalize Instrument",
-        "btn_pdf": "📥 Download PDF Diagnosis",
-        "err_fields": "Name and WhatsApp fields are strictly mandatory.",
-        "fields_msg": "Download will unlock once identification profile is entered above.",
-        "thanks": "Evaluation Processed Successfully!",
-        "thanks_sub": "Your metric vectors have been calculated synchronously.",
-        "toast_msg": "Doctoral documentation ready for download.",
-        "lbl_titulo_aud": "🔬 Analytical Bureau",
-        "lbl_tabla_select": "Audience Filter:",
-        "lbl_crm_buscar": "CRM Search Engine",
-        "lbl_crm_input": "Dynamic match filter:",
-        "lbl_btn_auditoria": "📊 Run Doctoral Audit (APA)",
-        "lbl_btn_download_macro": "📥 Download Epistemological Report"
-    }
-}
+def conectar_google_sheets(nombre_tabla):
+    try:
+        credenciales_dict = dict(st.secrets["gcp_service_account"])
+        if "private_key" in credenciales_dict:
+            credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
+        scope = ["https://googleapis.com", "https://googleapis.com"]
+        credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
+        cliente = gspread.authorize(credenciales)
+        id_libro = st.secrets["gcp_service_account"].get("spreadsheet_key", "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ").strip()
+        return cliente.open_by_key(id_libro).worksheet(nombre_tabla)
+    except Exception:
+        return None
+
+def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token, es_likert=False):
+    hoja = conectar_google_sheets(tabla)
+    if hoja is None: return False
+    try:
+        ts = time.strftime("%Y-%m-%d %H:%M:%S")
+        if not es_likert:
+            fila = [ts, nombre, whatsapp, tabla, str(resultados), token]
+        else:
+            fila = [
+                ts, nombre, whatsapp, tabla,
+                resultados.get("Edad", ""), resultados.get("Género", ""), resultados.get("Nacionalidad", ""),
+                resultados.get("Estado Origen", ""), resultados.get("Estado Residencia", ""), resultados.get("País Origen", ""),
+                resultados.get("C1_Escuchado", ""), resultados.get("C2_Leído", ""), resultados.get("C3_Enseñado", ""),
+                resultados.get("C4_Origen", ""), resultados.get("C5_Concepto", ""), resultados.get("C6_Perfil_Auto", "")
+            ]
+            for i in range(1, 11):
+                fila.append(resultados.get(f"R{i}", ""))
+            fila.append(token)
+        hoja.append_row(fila)
+        return True
+    except Exception:
+        return False
+
+def motor_generativo_items_audiencia(tabla, lang_code="es"):
+    if lang_code == "es":
+        return {
+            "💪 Salud Física": ["Fatiga ocupacional crónica", "Trastornos del ciclo del sueño", "Rigidez por sedentarismo", "Descuido en nutrición homeostática"],
+            "🧠 Salud Mental": ["Bloqueo cognitivo extremo", "Rumiación mental prolongada", "Sobrecarga informativa/Infoxicación", "Disminución del foco analítico"],
+            "❤️ Salud Emocional": ["Agotamiento emocional (Burnout)", "Irritabilidad/Reactividad interpersonal", "Desmotivación vocacional aguda", "Cuadros intermitentes de ansiedad"],
+            "👥 Salud Social": ["Aislamiento relacional preventivo", "Fricciones o conflictos frecuentes", "Ausencia de redes de contención", "Dificultad para marcar límites"],
+            "💰 Salud Económica": ["Estrés presupuestal agudo", "Pasivos que rebasan la liquidez", "Ausencia de fondo de contingencia", "Dependencia de una única fuente"],
+            "⏳ Salud Temporal": ["Procrastinación reactiva sistémica", "Invasión horaria en tiempo libre", "Supresión de márgenes de descanso", "Desequilibrio métrico Cronos/Kairós"],
+            "🙏 Salud Espiritual": ["Vacío Existencial y Vocacional", "Desconexión Interna Profunda", "Pérdida del Propósito Esencial", "Abandono de Hábitos Devocionales"]
+        }
+    else:
+        return {
+            "💪 Salud Física": ["Occupational fatigue", "Sleep cycle disorders", "Sedentary stiffness", "Nutritional neglect"],
+            "🧠 Salud Mental": ["Cognitive block", "Prolonged rumination", "Information overload", "Decreased analytical focus"],
+            "❤️ Salud Emocional": ["Emotional exhaustion", "Interpersonal irritability", "Acute vocational demotivation", "Intermittent anxiety"],
+            "👥 Salud Social": ["Relational isolation", "Frequent conflicts", "Lack of support networks", "Difficulty setting boundaries"],
+            "💰 Salud Económica": ["Acute budget stress", "Liabilities exceeding liquidity", "No contingency fund", "Single income dependence"],
+            "⏳ Salud Temporal": ["Reactive procrastination", "Work invasion of free time", "Suppressed rest margins", "Cronos/Kairos imbalance"],
+            "🙏 Salud Espiritual": ["Latent Existential Void", "Deep Internal Disconnection", "Loss of Essential Purpose", "Abandonment of Devotional Habits"]
+        }
+
 
 # =================================================================
 # FRACCIÓN 2-PARTE B: ALGORITMO PSICOMÉTRICO Y COMPILADOR COMPACTO
