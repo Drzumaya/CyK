@@ -430,22 +430,23 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             else: st.warning("📐 El motor ESEM/CFA requiere mínimo 3 registros Likert y 4 reactivos.")
     else: st.info("ℹ️ Repositorio sin registros activos.")
     st.markdown('</div>', unsafe_allow_html=True)
-      with col_izq:
+          # 🍊 FIX DE INDENTACIÓN: Bloque alineado a 4 espacios para vivir dentro de main()
+    with col_izq:
         if not st.session_state.flujo_finalizado:
             if st.session_state.admin_autenticado:
-                st.markdown(f"### {tx.get('qr_title')}")
+                st.markdown(f"### {tx.get('qr_title', '📢 QR Code')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=2)
                 qr.add_data(f"{URL_PRODUCCION}?lang={iso}"); qr.make(fit=True)
                 buf_qr = BytesIO()
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
                 st.image(buf_qr.getvalue(), width=130); st.divider()
 
-            nombre_in = st.text_input(tx.get("nombre"), key="n_in_seq_final")
-            whatsapp_in = st.text_input(tx.get("wha"), key="w_in_seq_final")
+            nombre_in = st.text_input(tx.get("nombre", "Name:"), key="n_in_seq_final")
+            whatsapp_in = st.text_input(tx.get("wha", "WhatsApp:"), key="w_in_seq_final")
             
-            resultados_totales["Edad"] = int(st.number_input(tx.get("edad"), 10, 100, 20, key="num_ed_final"))
-            resultados_totales["Género"] = st.radio(tx.get("genero"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_g_final")
-            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_n_final")
+            resultados_totales["Edad"] = int(st.number_input(tx.get("edad", "Age:"), 10, 100, 20, key="num_ed_final"))
+            resultados_totales["Género"] = st.radio(tx.get("genero", "Gender:"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_g_final")
+            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac", "Nationality:"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_n_final")
             
             if resultados_totales.get("Nacionalidad") == "Mexicana":
                 resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key="s_orig_final")
@@ -454,7 +455,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                 resultados_totales["País Origen"] = st.text_input("País de Origen:", key="t_pais_final")
                 resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="s_cont_final")
 
-            st.subheader(tx.get("sec_iii"))
+            st.subheader(tx.get("sec_iii", "📋 Evaluation"))
             for k_r, txt_r in [("C1_Escuchado", tx.get("p1_s3")), ("C2_Leído", tx.get("p2_s3")), ("C3_Enseñado", tx.get("p3_s3"))]: 
                 resultados_totales[k_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{k_r}_final")
                 
