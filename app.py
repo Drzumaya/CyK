@@ -644,26 +644,29 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 
 
 def main():
-    # 🍊 CONTROL DE INICIALIZACIÓN ABSOLUTO: Evita KeyErrors y AttributeErrors
+    # 🍊 CONTROL DE INICIALIZACIÓN ABSOLUTO (ANTI-KEYERROR)
     if "idioma_operativo" not in st.session_state:
         try: url_lang = st.query_params.get("lang", "es")
         except Exception: url_lang = "es"
         st.session_state["idioma_operativo"] = url_lang if url_lang in ["es", "en"] else "es"
 
-    # Inicialización síncrona del diccionario de registro
+    # Inicialización del diccionario maestro de registros
     if "resultados_totales_registro" not in st.session_state: 
         st.session_state.resultados_totales_registro = {}
-
-    # 🍊 FIX DEL NAMEERROR: Declaración global interna para asegurar visibilidad en P1 y P2
     resultados_totales = st.session_state.resultados_totales_registro
 
-    # Resto de estados de la aplicación
+    # 🍊 FIX MAESTRO ANTI-NAMEERROR: Inicialización con fallback seguro antes de los bloques condicionales
+    nombre = st.session_state.get("nombre_usuario_persistente", "")
+    whatsapp = st.session_state.get("whatsapp_usuario_persistente", "")
+
+    # Variables de estado del flujo de la sesión
     for k, v in [("estructuras_inicializadas", True), ("audiences_custom_list", []), ("audiencia_activa", "🍊 Salud Integral"), 
                  ("admin_autenticado", False), ("flujo_finalizado", False), ("paso_salud", False), ("paso_cyk", False)]:
         if k not in st.session_state: st.session_state[k] = v
 
     iso = st.session_state["idioma_operativo"]
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
+
 
 
     with st.sidebar:
