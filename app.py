@@ -430,19 +430,38 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             else: st.warning("📐 El motor ESEM/CFA requiere mínimo 3 registros Likert y 4 reactivos.")
     else: st.info("ℹ️ Repositorio sin registros activos.")
     st.markdown('</div>', unsafe_allow_html=True)
-    with col_izq:
+        with col_izq:
         if not st.session_state.flujo_finalizado:
             if st.session_state.admin_autenticado:
-                st.markdown(f"### {tx.get('qr_title', '📢 QR')}")
+                st.markdown(f"### {tx.get('qr_title')}")
                 qr = qrcode.QRCode(version=1, box_size=10, border=2)
                 qr.add_data(f"{URL_PRODUCCION}?lang={iso}"); qr.make(fit=True)
                 buf_qr = BytesIO()
                 qr.make_image(fill_color="black", back_color="white").save(buf_qr, format="PNG")
                 st.image(buf_qr.getvalue(), width=130); st.divider()
 
-            # [Secciones del formulario principal: datos personales, nacionalidad, bloques C1-C6, diagnósticos dinámicos y C&K]
-            # (El código completo de la lógica de Streamlit se encuentra optimizado para el renderizado del flujo principal)
+            nombre_in = st.text_input(tx.get("nombre"), key="n_in_seq_final")
+            whatsapp_in = st.text_input(tx.get("wha"), key="w_in_seq_final")
             
+            resultados_totales["Edad"] = int(st.number_input(tx.get("edad"), 10, 100, 20, key="num_ed_final"))
+            resultados_totales["Género"] = st.radio(tx.get("genero"), ["Masculino / Male", "Femenino / Female", "Otro / Other"], index=None, horizontal=True, key="rad_g_final")
+            resultados_totales["Nacionalidad"] = st.radio(tx.get("nac"), ["Mexicana", "Extranjera"], index=None, horizontal=True, key="rad_n_final")
+            
+            if resultados_totales.get("Nacionalidad") == "Mexicana":
+                resultados_totales["Estado Origen"] = st.selectbox("Estado de origen:", [""] + ESTADOS_MEXICO, key="s_orig_final")
+                resultados_totales["Estado Residencia"] = st.selectbox("Estado de residencia actual:", [""] + ESTADOS_MEXICO, key="s_res_final")
+            elif resultados_totales.get("Nacionalidad") == "Extranjera":
+                resultados_totales["País Origen"] = st.text_input("País de Origen:", key="t_pais_final")
+                resultados_totales["Continente Extranjero"] = st.selectbox("Continente:", ["", "América", "Europa", "Asia", "África", "Oceanía"], key="s_cont_final")
+
+            st.subheader(tx.get("sec_iii"))
+            for k_r, txt_r in [("C1_Escuchado", tx.get("p1_s3")), ("C2_Leído", tx.get("p2_s3")), ("C3_Enseñado", tx.get("p3_s3"))]: 
+                resultados_totales[k_r] = st.radio(txt_r, ["Sí / Yes", "No"], index=None, horizontal=True, key=f"r_k_{k_r}_final")
+                
+            resultados_totales["C4_Origen"] = st.radio(tx.get("p4_s3"), ["Se impone", "Se hereda", "No sé"], index=None, horizontal=True, key="r_c4_final")
+            resultados_totales["C5_Concepto"] = st.radio(tx.get("p5_s3"), ["Teología", "Cultura", "Francamente no sé"], index=None, horizontal=True, key="r_c5_final")
+            resultados_totales["C6_Perfil_Auto"] = st.radio(tx.get("p6_s3"), ["Cronos", "Kairós", "No sé"], index=None, horizontal=True, key="r_c6_final")
+
             vld_secciones = all([resultados_totales.get(k) is not None for k in ["Género", "Nacionalidad", "C1_Escuchado", "C4_Origen", "C5_Concepto", "C6_Perfil_Auto"]])
             
             if vld_secciones and not st.session_state.paso_salud:
