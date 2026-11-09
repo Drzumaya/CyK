@@ -119,15 +119,9 @@ def _obtener_libro_google_sheets():
     if "private_key" in credenciales_dict:
         credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
     
-    # Ensamblaje inmune a filtros de URL (conserva el subdominio www. intacto)
-    dominio = "https://" + "www." + "://googleapis.com"
-    scope = [
-        dominio + "spreadsheets",
-        dominio + "drive"
-    ]
+    # Autenticación nativa directa de gspread (incluye los scopes oficiales sin escribir URLs)
+    cliente = gspread.service_account_from_dict(credenciales_dict)
     
-    credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
-    cliente = gspread.authorize(credenciales)
     id_libro = (
         st.secrets.get("spreadsheet_key")
         or st.secrets.get("spreadsheet_id")
@@ -136,7 +130,6 @@ def _obtener_libro_google_sheets():
         or "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ"
     ).strip()
     return cliente.open_by_key(id_libro)
-
 
 
 def conectar_google_sheets(nombre_tabla):
