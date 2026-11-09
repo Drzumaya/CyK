@@ -110,6 +110,7 @@ TEXTOS_DICTAMEN_BILINGUE = {
         "lbl_ref3": "Jacob, J. (2026). Epistemology of Psychometric Time. Mandarina Press."
     }
 }
+
 # =================================================================
 # FRACCIÓN 2-PARTE A: PROCESAMIENTO EN LA NUBE Y TRANSACCIONES API
 # =================================================================
