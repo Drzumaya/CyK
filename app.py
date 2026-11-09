@@ -413,6 +413,16 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                     tel_crm = "".join(c for c in str(df_f.iloc[0].get('WhatsApp', '')) if c.isdigit())
                     w_u = f"https://wa.me{tel_crm}?text=Dictamen+con+sello+{hash_h[:8]}+listo."
                     st.markdown(f'<a href="{w_u}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:8px;border-radius:4px;text-align:center;font-weight:bold;">💬 ACCIÓN CRM WHATSAPP</div></a>', unsafe_allow_html=True)
+                    
+                    dip_crm = generar_diploma_honor_pdf(sujeto_sel, tabla_analizar, iso)
+                    st.download_button(
+                        f"🏅 Emitir Diploma de Honor ({sujeto_sel})",
+                        data=dip_crm,
+                        file_name=f"Diploma_Honor_{sujeto_sel}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True,
+                        key="btn_dip_crm_ponente"
+                    )
 
         with t3:
             st.markdown(r"#### Modelado de Ecuaciones Estructurales (ESEM-Geo / ICM-CFA)")
