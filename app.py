@@ -136,14 +136,29 @@ def _obtener_libro_google_sheets():
     return cliente.open_by_key(raw_val)
 
 
-
-
 def conectar_google_sheets(nombre_tabla):
     try:
         libro = _obtener_libro_google_sheets()
         return libro.worksheet(nombre_tabla)
     except Exception:
         return None
+
+def crear_pestana_cohorte_en_nube(nombre_cohorte):
+    try:
+        libro = _obtener_libro_google_sheets()
+        hojas_existentes = [ws.title for ws in libro.worksheets()]
+        if nombre_cohorte not in hojas_existentes:
+            nueva_hoja = libro.add_worksheet(title=nombre_cohorte, rows=1000, cols=30)
+            encabezados = [
+                "Timestamp", "Nombre", "WhatsApp", "Cohorte", "Edad", "Género", "Nacionalidad",
+                "Estado Origen", "Estado Residencia", "País Origen", "C1_Escuchado", "C2_Leído",
+                "C3_Enseñado", "C4_Origen", "C5_Concepto", "C6_Perfil_Auto"
+            ] + [f"R{i}" for i in range(1, 11)] + ["Token"]
+            nueva_hoja.append_row(encabezados)
+        return True, ""
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}"
+
 
 def obtener_todas_las_audiencias():
     base_default = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
