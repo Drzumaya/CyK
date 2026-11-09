@@ -586,6 +586,87 @@ def gateway_bt(n, w, r, lk, lg, t):
 
                 if vld_likert:
                     gateway_bt(nombre_in, whatsapp_in, resultados_totales, True, iso, tx)
+                    
+def generar_diploma_honor_pdf(nombre, cohorte, lang="es"):
+    pdf = FPDF(orientation="L", unit="mm", format="A4")
+    pdf.add_page()
+    pdf.set_auto_page_break(auto=False)
+    
+    # Marco institucional doble (Azul marino y dorado)
+    pdf.set_draw_color(15, 32, 66)
+    pdf.set_line_width(1.8)
+    pdf.rect(10, 10, 277, 190)
+    pdf.set_draw_color(212, 175, 55)
+    pdf.set_line_width(0.8)
+    pdf.rect(13, 13, 271, 184)
+    
+    # Textos dinámicos enlazados al Backend Corporativo derecho
+    hdr_txt = st.session_state.get("pdf_corp_header", "UNIVERSIDAD MANDARINA CORE // ANALYTICS GROUP")
+    brand_txt = st.session_state.get("pdf_corp_brand", "Editorial Mandarina & Core Analytics Group")
+    email_txt = st.session_state.get("pdf_corp_email", "especialista@modelostemporales.com")
+    cohorte_limpia = str(cohorte).replace("🍊", "").strip()
+    
+    # Encabezado superior
+    pdf.set_y(24)
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 6, str(hdr_txt).upper().encode("latin-1", "replace").decode("latin-1"), align="C", new_x="LMARGIN", new_y="NEXT")
+    
+    # Título principal del Diploma
+    pdf.ln(6)
+    pdf.set_font("Helvetica", "B", 28)
+    pdf.set_text_color(15, 32, 66)
+    titulo_dip = "DIPLOMA DE HONOR Y RECONOCIMIENTO" if lang == "es" else "HONOR DIPLOMA & RECOGNITION"
+    pdf.cell(0, 12, titulo_dip, align="C", new_x="LMARGIN", new_y="NEXT")
+    
+    # Subtítulo de otorgamiento
+    pdf.ln(5)
+    pdf.set_font("Helvetica", "I", 12)
+    pdf.set_text_color(70, 70, 70)
+    sub_otorga = "Se otorga el presente certificado de participación y diagnóstico psicométrico a:" if lang == "es" else "This certificate of participation and psychometric assessment is awarded to:"
+    pdf.cell(0, 8, sub_otorga.encode("latin-1", "replace").decode("latin-1"), align="C", new_x="LMARGIN", new_y="NEXT")
+    
+    # Nombre destacado del participante
+    pdf.ln(6)
+    pdf.set_font("Helvetica", "B", 24)
+    pdf.set_text_color(217, 119, 6)
+    nombre_limpio = str(nombre).strip().upper() if nombre else "PARTICIPANTE"
+    pdf.cell(0, 14, nombre_limpio.encode("latin-1", "replace").decode("latin-1"), align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_draw_color(212, 175, 55)
+    pdf.line(65, pdf.get_y() + 1, 232, pdf.get_y() + 1)
+    
+    # Cuerpo descriptivo
+    pdf.ln(8)
+    pdf.set_font("Helvetica", "", 11)
+    pdf.set_text_color(50, 50, 50)
+    if lang == "es":
+        cuerpo = f"Por haber completado satisfactoriamente la evaluación de Salud Integral y Modelos Temporales Cronos y Kairós dentro de la cohorte '{cohorte_limpia}', el día {time.strftime('%Y-%m-%d')}."
+    else:
+        cuerpo = f"For successfully completing the Comprehensive Health and Cronos & Kairos Temporal Models evaluation within cohort '{cohorte_limpia}', on {time.strftime('%Y-%m-%d')}."
+    pdf.set_x(35)
+    pdf.multi_cell(227, 6, cuerpo.encode("latin-1", "replace").decode("latin-1"), align="C")
+    
+    # Línea de firma institucional y sello SHA-256
+    pdf.set_y(152)
+    pdf.set_draw_color(15, 32, 66)
+    pdf.line(105, 152, 192, 152)
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.set_text_color(15, 32, 66)
+    pdf.cell(0, 6, str(brand_txt).encode("latin-1", "replace").decode("latin-1"), align="C", new_x="LMARGIN", new_y="NEXT")
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 5, str(email_txt).encode("latin-1", "replace").decode("latin-1"), align="C", new_x="LMARGIN", new_y="NEXT")
+    
+    # Hash criptográfico de verificación al pie
+    sello_sha = hashlib.sha256(f"{nombre_limpio}-{cohorte_limpia}-{time.strftime('%Y-%m-%d')}".encode()).hexdigest().upper()[:24]
+    pdf.set_y(182)
+    pdf.set_font("Courier", "B", 8)
+    pdf.set_text_color(130, 130, 130)
+    pdf.cell(0, 4, f"VERIFICATION ID SHA-256: {sello_sha}", align="C")
+    
+    return bytes(pdf.output())
+
+
 def main():
     if "idioma_operativo" not in st.session_state:
         try: url_lang = st.query_params.get("lang", "es")
@@ -754,14 +835,32 @@ def main():
             w_p = st.session_state.get("whatsapp_usuario_persistente", "")
             r_p = st.session_state.get("resultados_usuario_persistente", {})
             rep = generar_pdf_diagnostico(n_p, w_p, r_p, st.session_state.audiencia_activa, True, iso)
+            dip = generar_diploma_honor_pdf(n_p, st.session_state.audiencia_activa, iso)
             
-            c_dl1, c_dl2 = st.columns(2)
+            c_dl1, c_dl2, c_dl3 = st.columns(3)
             with c_dl1:
-                st.download_button(tx.get("btn_pdf", "📥 Descargar PDF"), data=rep, file_name=f"Dictamen_{n_p}.pdf", mime="application/pdf", use_container_width=True, key="btn_dl_final_p2")
+                st.download_button(
+                    tx.get("btn_pdf", "📥 Descargar Dictamen PDF"), 
+                    data=rep, 
+                    file_name=f"Dictamen_{n_p}.pdf", 
+                    mime="application/pdf", 
+                    use_container_width=True, 
+                    key="btn_dl_final_p2"
+                )
             with c_dl2:
+                lbl_dip = "🏅 Descargar Diploma de Honor" if iso == "es" else "🏅 Download Honor Diploma"
+                st.download_button(
+                    lbl_dip, 
+                    data=dip, 
+                    file_name=f"Diploma_Honor_{n_p}.pdf", 
+                    mime="application/pdf", 
+                    use_container_width=True, 
+                    key="btn_dl_diploma_final"
+                )
+            with c_dl3:
                 if w_p:
                     t_cln = "".join(c for c in str(w_p) if c.isdigit())
-                    txt_wa = f"Hola {n_p}, tu dictamen ha sido generado exitosamente."
+                    txt_wa = f"Hola {n_p}, tu dictamen y diploma de honor han sido generados exitosamente."
                     wa_url = f"https://wa.me{t_cln}?text={urllib.parse.quote(txt_wa)}"
                     st.markdown(f'<a href="{wa_url}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
 
