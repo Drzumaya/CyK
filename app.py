@@ -682,31 +682,8 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 
 
 def main():
-    # 🍊 INICIALIZADORES DOCTORALES DE BACKEND (4 espacios de indentación)
-    if "mostrar_backend_pdf" not in st.session_state:
-        st.session_state.mostrar_backend_pdf = False
-    if "pdf_corp_header" not in st.session_state:
-        st.session_state.pdf_corp_header = "INFORME DE INVESTIGACION PSICOMETRICA // UNIVERSIDAD MANDARINA CORE"
-    if "pdf_corp_brand" not in st.session_state:
-        st.session_state.pdf_corp_brand = "Editorial Mandarina & Core Analytics Group"
-    if "pdf_corp_email" not in st.session_state:
-        st.session_state.pdf_corp_email = "especialista@modelostemporales.com"
-
-    # 🍊 BOTÓN DE CONTROL LATERAL
-    c_btn_toggle, _ = st.columns([1, 4])
-    with c_btn_toggle:
-        lbl_btn = "🎛️ Ocultar Panel" if st.session_state.mostrar_backend_pdf else "🎛️ Desplegar Panel"
-        if st.button(lbl_btn, use_container_width=True, key="btn_toggle_pdf_backend"):
-            st.session_state.mostrar_backend_pdf = not st.session_state.mostrar_backend_pdf
-            st.rerun()
-
-    # 🍊 DIVISIÓN DE REJILLA DINÁMICA LATERAL DERECHA
-    if st.session_state.mostrar_backend_pdf:
-        col_izquierda, col_derecha = st.columns([3, 1])
-    else:
-        col_izquierda, col_derecha = st.container(), None
-
- # Botón superior para desplegar u ocultar el panel
+   
+    # Botón superior para desplegar u ocultar el panel
     c_btn_toggle, _ = st.columns([1, 4])
     with c_btn_toggle:
         lbl_btn_toggle = "🎛️ Ocultar Editor Corporativo" if st.session_state.mostrar_backend_pdf else "🎛️ Desplegar Editor Corporativo (PDF)"
@@ -730,7 +707,6 @@ def main():
                 st.session_state.pdf_corp_header = st.text_area("Encabezado Técnico:", value=st.session_state.pdf_corp_header)
                 st.session_state.pdf_corp_brand = st.text_input("Firma Corporativa:", value=st.session_state.pdf_corp_brand)
                 st.session_state.pdf_corp_email = st.text_input("Correo Oficial:", value=st.session_state.pdf_corp_email)
-
     
     # 🍊 CONTROL DE INICIALIZACIÓN ABSOLUTO (ANTI-KEYERROR)
     if "idioma_operativo" not in st.session_state:
@@ -755,6 +731,29 @@ def main():
     iso = st.session_state["idioma_operativo"]
     tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
 
+    # 🍊 INICIALIZADORES DOCTORALES DE BACKEND (4 espacios de indentación)
+    if "mostrar_backend_pdf" not in st.session_state:
+        st.session_state.mostrar_backend_pdf = False
+    if "pdf_corp_header" not in st.session_state:
+        st.session_state.pdf_corp_header = "INFORME DE INVESTIGACION PSICOMETRICA // UNIVERSIDAD MANDARINA CORE"
+    if "pdf_corp_brand" not in st.session_state:
+        st.session_state.pdf_corp_brand = "Editorial Mandarina & Core Analytics Group"
+    if "pdf_corp_email" not in st.session_state:
+        st.session_state.pdf_corp_email = "especialista@modelostemporales.com"
+
+    # 🍊 BOTÓN DE CONTROL LATERAL
+    c_btn_toggle, _ = st.columns([1, 4])
+    with c_btn_toggle:
+        lbl_btn = "🎛️ Ocultar Panel" if st.session_state.mostrar_backend_pdf else "🎛️ Desplegar Panel"
+        if st.button(lbl_btn, use_container_width=True, key="btn_toggle_pdf_backend"):
+            st.session_state.mostrar_backend_pdf = not st.session_state.mostrar_backend_pdf
+            st.rerun()
+
+    # 🍊 DIVISIÓN DE REJILLA DINÁMICA LATERAL DERECHA
+    if st.session_state.mostrar_backend_pdf:
+        col_izquierda, col_derecha = st.columns([3, 1])
+    else:
+        col_izquierda, col_derecha = st.container(), None
 
 
     with st.sidebar:
