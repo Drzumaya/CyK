@@ -510,19 +510,59 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
     if st.session_state.admin_autenticado:
         renderizar_consola_baja_gris(st.session_state.audiencia_activa, iso, tx)
 
-# =================================================================
-# FRACCIÓN 3-PARTE C: COMPUERTA TRANSACCIONAL Y FUNCIÓN PRINCIPAL MAIN
-# =================================================================
 def gateway_bt(n, w, r, lk, lg, t):
-    # Función de validación y botones transaccionales (guardar, PDF, WhatsApp)
-    ...
+    st.divider()
+    c1, c2, c3 = st.columns(3)
+    vld = bool(n.strip()) and bool(w.strip())
+    with c1:
+        if st.button(t["btn_save"], type="primary", use_container_width=True, key="btn_save_gateway_bt"):
+            if not vld: st.error(t["err_fields"])
+            else:
+                guardar_en_google_sheets(st.session_state.audiencia_activa, n, w, r, "TK_10M", lk)
+                st.session_state.nombre_usuario_persistente = n
+                st.session_state.whatsapp_usuario_persistente = w
+                st.session_state.resultados_usuario_persistente = r
+                st.session_state.flujo_finalizado = True
+                st.rerun()
+    with c2:
+        if vld:
+            pdf_bytes = generar_pdf_diagnostico(n, w, r, st.session_state.audiencia_activa, lk, lg)
+            st.download_button(t["btn_pdf"], data=pdf_bytes, file_name=f"Reporte_Diagnostico_{n}.pdf", mime="application/pdf", use_container_width=True, key="btn_pdf_gateway_bt")
+        else: st.info(t["fields_msg"])
+    with c3:
+        if vld:
+            tel = "".join(c for c in str(w) if c.isdigit())
+            st.markdown(f'<a href="https://wa.me{tel}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
 
 def main():
-    # Inicialización de estado, idioma y variables de sesión
-    ...
-    # Construcción de la interfaz de usuario en Streamlit para el flujo psicométrico
-    ...
+    if "idioma_operativo" not in st.session_state:
+        try: url_lang = st.query_params.get("lang", "es")
+        except Exception: url_lang = "es"
+        st.session_state["idioma_operativo"] = url_lang if url_lang in ["es", "en"] else "es"
 
-if __name__ == "__main__":
-    main()
+    if "resultados_totales_registro" not in st.session_state: st.session_state.resultados_totales_registro = {}
+    resultados_totales = st.session_state.resultados_totales_registro
+
+    nombre = st.session_state.get("nombre_usuario_persistente", "")
+    whatsapp = st.session_state.get("whatsapp_usuario_persistente", "")
+
+    for k, v in [("estructuras_inicializadas", True), ("audiences_custom_list", []), ("audiencia_activa", "🍊 Salud Integral"), 
+                 ("admin_autenticado", False), ("flujo_finalizado", False), ("paso_salud", False), ("paso_cyk", False),
+                 ("mostrar_backend_pdf", False), ("pdf_corp_header", "INFORME DE INVESTIGACION PSICOMETRICA"),
+                 ("pdf_corp_brand", "Editorial Mandarina"), ("pdf_corp_email", "especialista@modelostemporales.com")]:
+        if k not in st.session_state: st.session_state[k] = v
+
+    iso = st.session_state["idioma_operativo"]
+    tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
+
+    c_btn, _ = st.columns()
+    with c_btn:
+        lbl_btn = "🎛️ Ocultar Editor" if st.session_state.mostrar_backend_pdf else "🎛️ Desplegar Editor PDF"
+        if st.button(lbl_btn, use_container_width=True, key="btn_toggle_pdf_backend_main"):
+            st.session_state.mostrar_backend_pdf = not st.session_state.mostrar_backend_pdf
+            st.rerun()
+
+    if st.session_state.mostrar_backend_pdf: col_izq, col_der = st.columns()
+    else: col_izq, col_der = st.container(), None
+
 
