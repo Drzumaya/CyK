@@ -13,6 +13,35 @@ from fpdf import FPDF
 import qrcode
 import gspread
 from google.oauth2.service_account import Credentials
+# =================================================================
+# DICCIONARIO MAESTRO COMPACTO - COLOCAR AL INICIO DEL ARCHIVO (LÍNEA 1)
+# =================================================================
+CENTRO_MANDO_BILINGUE = {
+    "es": {
+        "nombre": "Nombre completo:", "wha": "WhatsApp internacional:", "edad": "Edad biológica:", "genero": "Género:", "nac": "Nacionalidad:",
+        "sec_i": "📋 Sección I: Perfil de identificación (Opcional)", "sec_ii": "📋 Sección II: Datos Demográficos (Obligatorio)",
+        "sec_iii": "📋 Sección III: Conocimiento sobre el tema (Obligatorio)", "sec_iv": "📋 Sección IV: Reactivos C&K Adaptativos",
+        "p1_s3": "1. ¿Habías escuchado hablar sobre los Modelos Temporales Cronos y Kairós?",
+        "p2_s3": "2. ¿Has leído sobre los modelos temporales Cronos y Kairós?",
+        "p3_s3": "3. ¿Has enseñado alguna vez sobre los modelos temporales Cronos y Kairós?",
+        "p4_s3": "4. El modelo temporal:", "p5_s3": "5. Hablar de modelos temporales es hablar de:", "p6_s3": "6. Soy persona:",
+        "side_title": "🔐 Panel del Ponente", "intl_title": "🌐 Idioma / Language", "intl_select": "Selecciona el idioma:",
+        "qr_title": "📢 Código QR", "mand_title": "🍊 Diagnóstico de Salud", "likert_1": "1 - Desacuerdo", "likert_5": "5 - Acuerdo",
+        "btn_save": "💾 Finalizar Instrumento", "btn_pdf": "📥 Descargar PDF", "err_fields": "Campos incompletos.", "fields_msg": "Ingrese identificación."
+    },
+    "en": {
+        "nombre": "Full name:", "wha": "International WhatsApp:", "edad": "Biological age:", "genero": "Gender identity:", "nac": "Nationality:",
+        "sec_i": "📋 Section I: Identification Profile (Optional)", "sec_ii": "📋 Section II: Demographic Data (Mandatory)",
+        "sec_iii": "📋 Section III: Knowledge of the Topic (Mandatory)", "sec_iv": "📋 Section IV: Adaptive C&K Items",
+        "p1_s3": "1. Have you ever heard about Cronos and Kairos?", "p2_s3": "2. Have you read about Cronos and Kairos?",
+        "p3_s3": "3. Have you ever taught about Cronos and Kairos?",
+        "p4_s3": "4. The temporal model:", "p5_s3": "5. Temporal models means talking about:", "p6_s3": "6. I am a person of type:",
+        "side_title": "🔐 Speaker Dashboard", "intl_title": "🌐 System Language", "intl_select": "Select language:",
+        "qr_title": "📢 QR Code", "mand_title": "🍊 Health Diagnostic", "likert_1": "1 - Disagree", "likert_5": "5 - Agree",
+        "btn_save": "💾 Register Instrument", "btn_pdf": "📥 Download PDF", "err_fields": "Mandatory fields missing.", "fields_msg": "Unlock with profile."
+    }
+}
+
 
 # 🍊 CONFIGURACIÓN DE PÁGINA CENTRAL INMUNE A DESBORDAMIENTO
 st.set_page_config(page_title="C&K Evaluation Core", page_icon="🍊", layout="wide")
