@@ -510,5 +510,19 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
     if st.session_state.admin_autenticado:
         renderizar_consola_baja_gris(st.session_state.audiencia_activa, iso, tx)
 
+# =================================================================
+# FRACCIÓN 3-PARTE C: COMPUERTA TRANSACCIONAL Y FUNCIÓN PRINCIPAL MAIN
+# =================================================================
+def gateway_bt(n, w, r, lk, lg, t):
+    # Función de validación y botones transaccionales (guardar, PDF, WhatsApp)
+    ...
+
+def main():
+    # Inicialización de estado, idioma y variables de sesión
+    ...
+    # Construcción de la interfaz de usuario en Streamlit para el flujo psicométrico
+    ...
+
 if __name__ == "__main__":
     main()
+
