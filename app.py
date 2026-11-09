@@ -41,6 +41,44 @@ CENTRO_MANDO_BILINGUE = {
         "btn_save": "💾 Register Instrument", "btn_pdf": "📥 Download PDF", "err_fields": "Mandatory fields missing.", "fields_msg": "Unlock with profile."
     }
 }
+# =================================================================
+# MATRIZ DE DIAGNÓSTICOS ULTRA-COMPACTA - COLOCAR EN LA ZONA SUPERIOR
+# =================================================================
+TEXTOS_DICTAMEN_BILINGUE = {
+    "es": {
+        "💪 Salud Física": "Optimizar el descanso homeostático y la ergonomía postural ante fatiga aguda.",
+        "🧠 Salud Mental": "Mitigar la infoxicación mediante bloques de ayuno digital y técnicas de descompresión.",
+        "❤️ Salud Emocional": "Fortalecer la autorregulación emocional y canalizar el agotamiento Burnout.",
+        "👥 Salud Social": "Restablecer canales relacionales directos y reconfigurar redes de contención.",
+        "💰 Salud Económica": "Diseñar matriz estratégica de contingencia para mitigar pasivos y diversificar liquidez.",
+        "⏳ Salud Temporal": "Reequilibrar fronteras operativas del tiempo cronológico frente a la oportunidad.",
+        "🙏 Salud Espiritual": "Reconectar con hábitos devocionales basales y el propósito esencial de vida.",
+        "txt_p_simbiosis": "DIAGNÓSTICO: Simbiosis Temporal Equilibrada. Cohabitas orgánicamente entre Cronos y Kairós.",
+        "txt_p_cronos": "DIAGNÓSTICO: Dominancia Cronos Rígida. Dependencia extrema a agendas, perdiendo flexibilidad.",
+        "txt_p_kairos": "DIAGNÓSTICO: Dominancia Kairós Dispersa. Privilegas improvisación, descuidando plazos.",
+        "txt_ck_recom": "Implementar franjas de transición horaria híbridas y blindar bloques de descanso.",
+        "lbl_ref1": "Hair, J. F. (2019). Multivariate Data Analysis. Cengage.",
+        "lbl_ref2": "Schumacker, R. E. (2016). Structural Equation Modeling. Routledge.",
+        "lbl_ref3": "Jacob, J. (2026). Epistemología del Tiempo Psicométrico. Editorial Mandarina."
+    },
+    "en": {
+        "💪 Salud Física": "Optimize homeostatic rest and postural ergonomics against acute fatigue.",
+        "🧠 Salud Mental": "Mitigate information overload through digital fasting and cognitive decompression.",
+        "❤️ Salud Emocional": "Strengthen emotional self-regulation and channel detected Burnout syndrome.",
+        "👥 Salud Social": "Restore direct relational channels and reconfigure support networks.",
+        "💰 Salud Económica": "Design a strategic contingency matrix to mitigate liabilities and diversify income.",
+        "⏳ Salud Temporal": "Rebalance operational boundaries of clock time versus adaptive opportunity.",
+        "🙏 Salud Espiritual": "Reconnect with basal devotional habits and essential core life purpose.",
+        "txt_p_simbiosis": "DIAGNOSIS: Balanced Temporal Symbiosis. You cohabit organically between Cronos and Kairos.",
+        "txt_p_cronos": "DIAGNOSIS: Rigid Cronos Dominance. Extreme dependence on calendars, losing flexibility.",
+        "txt_p_kairos": "DIAGNOSIS: Dispersed Kairos Dominance. You privilege improvisation, neglecting deadlines.",
+        "txt_ck_recom": "Implement hybrid hourly transition blocks and shield recovery slots.",
+        "lbl_ref1": "Hair, J. F. (2019). Multivariate Data Analysis. Cengage.",
+        "lbl_ref2": "Schumacker, R. E. (2016). Structural Equation Modeling. Routledge.",
+        "lbl_ref3": "Jacob, J. (2026). Epistemology of Psychometric Time. Mandarina Press."
+    }
+}
+
 
 
 # 🍊 CONFIGURACIÓN DE PÁGINA CENTRAL INMUNE A DESBORDAMIENTO
