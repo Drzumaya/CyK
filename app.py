@@ -631,7 +631,6 @@ def main():
         else:
             st.success("Ponente Autenticado")
             
-            # 1. Formulario para crear y guardar nuevas cohortes en Google Sheets
             with st.form("form_add_nueva_audiencia", clear_on_submit=True):
                 nueva_aud = st.text_input("📝 Crear Nueva Audiencia / Cohorte:", placeholder="Ej. Primaria Sonora").strip()
                 if st.form_submit_button("➕ Añadir y Guardar Cohorte", use_container_width=True):
@@ -645,7 +644,6 @@ def main():
                         else:
                             st.error(f"Error al crear pestaña en Google Sheets: {err_msg}")
 
-            # 2. Selector dinámico conectado a todas las hojas de Google Sheets
             lista_dinamica_tablas = obtener_todas_las_audiencias()
             idx_actual = lista_dinamica_tablas.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_dinamica_tablas else 0
             
@@ -656,7 +654,6 @@ def main():
                 key="sb_an"
             )
             
-            # 3. Botón de sincronización forzada con la nube
             if st.button("🔄 Sincronizar Pestañas de la Nube", use_container_width=True, key="btn_sync_sheets"):
                 st.session_state.audiences_custom_list = []
                 st.toast("Pestañas sincronizadas con Google Sheets", icon="✅")
@@ -665,20 +662,7 @@ def main():
             if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True): 
                 st.session_state.admin_autenticado = False
                 st.rerun()
-
-            lista_dinamica_tablas = obtener_todas_las_audiencias()
-            idx_actual = lista_dinamica_tablas.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_dinamica_tablas else 0
-            
-            st.session_state.audiencia_activa = st.selectbox(
-                "Base de Datos Activa:", 
-                lista_dinamica_tablas, 
-                index=idx_actual,
-                key="sb_an"
-            )
-            
-            if st.button("🔄 Sincronizar Pestañas de la Nube", use_container_width=True, key="btn_sync_sheets"):
-                st.rerun()
-            if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True): st.session_state.admin_autenticado = False; st.rerun()
+           
 
     c_btn, _ = st.columns([1, 4])
     with c_btn:
