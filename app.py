@@ -119,10 +119,11 @@ def conectar_google_sheets(nombre_tabla):
         credenciales_dict = dict(st.secrets["gcp_service_account"])
         if "private_key" in credenciales_dict:
             credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
-        scope = [
-            "https://googleapis.com",
-            "https://googleapis.com"
-        ]
+        scope = list(credenciales_dict.get("scopes", [
+    "https://googleapis.com",
+    "https://googleapis.com"
+]))
+
         credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
         cliente = gspread.authorize(credenciales)
         id_libro = (
