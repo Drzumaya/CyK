@@ -127,6 +127,27 @@ def conectar_google_sheets(nombre_tabla):
     except Exception:
         return None
 
+def obtener_todas_las_audiencias():
+    base_default = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
+    try:
+        credenciales_dict = dict(st.secrets["gcp_service_account"])
+        if "private_key" in credenciales_dict:
+            credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
+        scope = ["https://googleapis.com", "https://googleapis.com"]
+        credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
+        cliente = gspread.authorize(credenciales)
+        id_libro = st.secrets["gcp_service_account"].get("spreadsheet_key", "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ").strip()
+        
+        libro = cliente.open_by_key(id_libro)
+        hojas_reales = [ws.title for ws in libro.worksheets()]
+        
+        # Unifica las pestañas reales de Google Sheets con las creadas en memoria sin duplicados
+        combinadas = list(dict.fromkeys(hojas_reales + st.session_state.get("audiences_custom_list", [])))
+        return combinadas if combinadas else base_default
+    except Exception:
+        return list(dict.fromkeys(base_default + st.session_state.get("audiences_custom_list", [])))
+
+
 def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token, es_likert=False):
     hoja = conectar_google_sheets(tabla)
     if hoja is None: return False
@@ -574,7 +595,18 @@ def main():
                     if nueva_aud and nueva_aud not in st.session_state.audiences_custom_list:
                         st.session_state.audiences_custom_list.append(nueva_aud); st.session_state.audiencia_activa = nueva_aud; st.rerun()
 
-            st.session_state.audiencia_activa = st.selectbox("Base de Datos Activa:", ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"] + st.session_state.audiences_custom_list, key="sb_an")
+            lista_dinamica_tablas = obtener_todas_las_audiencias()
+            idx_actual = lista_dinamica_tablas.index(st.session_state.audiencia_activa) if st.session_state.audiencia_activa in lista_dinamica_tablas else 0
+            
+            st.session_state.audiencia_activa = st.selectbox(
+                "Base de Datos Activa:", 
+                lista_dinamica_tablas, 
+                index=idx_actual,
+                key="sb_an"
+            )
+            
+            if st.button("🔄 Sincronizar Pestañas de la Nube", use_container_width=True, key="btn_sync_sheets"):
+                st.rerun()
             if st.button("🔒 Cerrar Sesión Ponente", use_container_width=True): st.session_state.admin_autenticado = False; st.rerun()
 
     c_btn, _ = st.columns([1, 4])
