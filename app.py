@@ -418,10 +418,12 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                         st.markdown(html_tabla_sem, unsafe_allow_html=True)
                 except Exception as e: st.error(f"Error algebraico: {e}")
             else: st.warning("📐 El motor ESEM/CFA requiere mínimo 3 registros Likert y 4 reactivos.")
-        else: st.info("ℹ️ Repositorio sin registros activos.")
-        st.markdown('</div>', unsafe_allow_html=True)
+            else:
+        st.info("ℹ️ Repositorio sin registros activos.")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def gateway_bt(n, w, r, lk, lg, t):
+
     # 🍊 FIX DE INDENTACIÓN: Bloque alineado a 4 espacios para vivir dentro de main()
     with col_izq:
         if not st.session_state.flujo_finalizado:
