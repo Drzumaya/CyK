@@ -114,56 +114,42 @@ TEXTOS_DICTAMEN_BILINGUE = {
 # =================================================================
 # FRACCIÓN 2-PARTE A: PROCESAMIENTO EN LA NUBE Y TRANSACCIONES API
 # =================================================================
+def _obtener_libro_google_sheets():
+    credenciales_dict = dict(st.secrets["gcp_service_account"])
+    if "private_key" in credenciales_dict:
+        credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
+    scope = [
+        "https://googleapis.com",
+        "https://googleapis.com"
+    ]
+    credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
+    cliente = gspread.authorize(credenciales)
+    id_libro = (
+        st.secrets.get("spreadsheet_key")
+        or st.secrets.get("spreadsheet_id")
+        or credenciales_dict.get("spreadsheet_key")
+        or credenciales_dict.get("spreadsheet_id")
+        or "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ"
+    ).strip()
+    return cliente.open_by_key(id_libro)
+
 def conectar_google_sheets(nombre_tabla):
     try:
-        credenciales_dict = dict(st.secrets["gcp_service_account"])
-        if "private_key" in credenciales_dict:
-            credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
-        scope = list(credenciales_dict.get("scopes", [
-    "https://googleapis.com",
-    "https://googleapis.com"
-]))
-
-        credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
-        cliente = gspread.authorize(credenciales)
-        id_libro = (
-            st.secrets.get("spreadsheet_key")
-            or st.secrets.get("spreadsheet_id")
-            or credenciales_dict.get("spreadsheet_key")
-            or credenciales_dict.get("spreadsheet_id")
-            or "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ"
-        ).strip()
-        return cliente.open_by_key(id_libro).worksheet(nombre_tabla)
+        libro = _obtener_libro_google_sheets()
+        return libro.worksheet(nombre_tabla)
     except Exception:
         return None
 
 def obtener_todas_las_audiencias():
     base_default = ["🍊 Salud Integral", "Docentes", "🏭 Sector Secundario"]
     try:
-        credenciales_dict = dict(st.secrets["gcp_service_account"])
-        if "private_key" in credenciales_dict:
-            credenciales_dict["private_key"] = credenciales_dict["private_key"].replace("\\n", "\n").strip()
-        scope = [
-            "https://googleapis.com",
-            "https://googleapis.com"
-        ]
-        credenciales = Credentials.from_service_account_info(credenciales_dict, scopes=scope)
-        cliente = gspread.authorize(credenciales)
-        id_libro = (
-            st.secrets.get("spreadsheet_key")
-            or st.secrets.get("spreadsheet_id")
-            or credenciales_dict.get("spreadsheet_key")
-            or credenciales_dict.get("spreadsheet_id")
-            or "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ"
-        ).strip()
-        libro = cliente.open_by_key(id_libro)
+        libro = _obtener_libro_google_sheets()
         hojas_reales = [ws.title for ws in libro.worksheets()]
         combinadas = list(dict.fromkeys(hojas_reales + st.session_state.get("audiences_custom_list", [])))
         return combinadas if combinadas else base_default
     except Exception as e:
         st.sidebar.warning(f"⚠️ Error de lectura en Google Sheets: {e}")
         return list(dict.fromkeys(base_default + st.session_state.get("audiences_custom_list", [])))
-
 
 
 def guardar_en_google_sheets(tabla, nombre, whatsapp, resultados, token, es_likert=False):
