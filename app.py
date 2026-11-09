@@ -416,7 +416,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                         </table>
                         """
                         st.markdown(html_tabla_sem, unsafe_allow_html=True)
-               except Exception as e:
+                except Exception as e:
                     st.error(f"Error algebraico: {e}")
             else:
                 st.warning("📐 El motor ESEM/CFA requiere mínimo 3 registros Likert y 4 reactivos.")
