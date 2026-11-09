@@ -14,7 +14,7 @@ from google.oauth2.service_account import Credentials
 # 🍊 CONFIGURACIÓN BASAL DE PÁGINA ANCHURA GLOBAL
 st.set_page_config(page_title="C&K Evaluation Core", page_icon="🍊", layout="wide")
 
-URL_PRODUCCION = "https://dsimandarina.streamlit.app/?lang=en" 
+URL_PRODUCCION = "https://dsimandarina.streamlit.app" 
 DIMENSIONES_MANDARINA_MAESTRAS = [
     "💪 Salud Física", "🧠 Salud Mental", "❤️ Salud Emocional", 
     "👥 Salud Social", "💰 Salud Económica", "⏳ Salud Temporal", "🙏 Salud Espiritual"
@@ -490,26 +490,54 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
                     if st.button("🎯 Generar Diagnóstico de Modelos C&K", use_container_width=True, type="primary", key="btn_trig_cyk_final"):
                         st.session_state.paso_cyk = True; st.rerun()
 
+                if st.session_state.paso_salud:
+                st.divider()
+                st.markdown(f"### {tx.get('mand_title', '🍊 Diagnóstico')}")
+                MATRIZ_DINAMICA = motor_generativo_items_audiencia(st.session_state.audiencia_activa, lang_code=iso)
+                for g_idx, (g_name, lista_items) in enumerate(MATRIZ_DINAMICA.items()):
+                    with st.container(border=True):
+                        st.markdown(f"#### {g_name}")
+                        if len(lista_items) >= 4:
+                            ca, cb = st.columns(2)
+                            with ca:
+                                cb0 = st.checkbox(str(lista_items[0]), key=f"cbf_{g_idx}_0")
+                                cb1 = st.checkbox(str(lista_items[1]), key=f"cbf_{g_idx}_1")
+                            with cb:
+                                cb2 = st.checkbox(str(lista_items[2]), key=f"cbf_{g_idx}_2")
+                                cb3 = st.checkbox(str(lista_items[3]), key=f"cbf_{g_idx}_3")
+                            resultados_totales[g_name] = [str(i) for i, v in enumerate([cb0, cb1, cb2, cb3]) if v]
+
+                if not st.session_state.paso_cyk:
+                    if st.button("🎯 Generar Diagnóstico de Modelos C&K", use_container_width=True, type="primary", key="btn_trig_cyk_final"):
+                        st.session_state.paso_cyk = True; st.rerun()
+
             if st.session_state.paso_cyk:
-                st.divider(); st.markdown(f"### {tx.get('sec_iv')}")
+                st.divider()
+                st.markdown(f"### {tx.get('sec_iv', '📋 Reactivos C&K')}")
                 reactivos = algoritmo_generar_reactivos_poliglotas(resultados_totales, iso)
                 vld_likert = True
                 for r_id, r_txt in reactivos.items():
                     st.markdown(f"**Reactivo {r_id}:** {r_txt}")
-                    resultados_totales[f"R{r_id}"] = st.radio(label="Escala:", options=[1,2,3,4,5], format_func=lambda x: tx.get(f"likert_{x}", str(x)), index=None, horizontal=True, key=f"rcyk_f_{r_id}")
+                    resultados_totales[f"R{r_id}"] = st.radio(
+                        label="Escala:", options=[1, 2, 3, 4, 5], 
+                        format_func=lambda x: tx.get(f"likert_{x}", str(x)), 
+                        index=None, horizontal=True, key=f"rcyk_f_{r_id}"
+                    )
                     if resultados_totales[f"R{r_id}"] is None: vld_likert = False
 
                 if vld_likert:
                     gateway_bt(nombre_in, whatsapp_in, resultados_totales, True, iso, tx)
         else:
-            st.balloons(); st.success(tx.get("thanks", "🎉 Exitoso"))
+            st.balloons()
+            st.success(tx.get("thanks", "🎉 ¡Evaluación Procesada Exitosamente!"))
             n_p = st.session_state.get("nombre_usuario_persistente", "Participante")
             w_p = st.session_state.get("whatsapp_usuario_persistente", "")
             r_p = st.session_state.get("resultados_usuario_persistente", {})
             rep = generar_pdf_diagnostico(n_p, w_p, r_p, st.session_state.audiencia_activa, True, iso)
             
             c_dl1, c_dl2 = st.columns(2)
-            with c_dl1: st.download_button(tx.get("btn_pdf"), data=rep, file_name=f"Dictamen_{n_p}.pdf", mime="application/pdf", use_container_width=True, key="btn_dl_final_p2")
+            with c_dl1:
+                st.download_button(tx.get("btn_pdf", "📥 Descargar PDF"), data=rep, file_name=f"Dictamen_{n_p}.pdf", mime="application/pdf", use_container_width=True, key="btn_dl_final_p2")
             with c_dl2:
                 if w_p:
                     t_cln = "".join(c for c in str(w_p) if c.isdigit())
@@ -519,71 +547,29 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
 
             if st.button("🔄 Reset Evaluation", use_container_width=True, key="btn_reset_final"):
                 st.session_state.flujo_finalizado = False; st.session_state.paso_salud = False; st.session_state.paso_cyk = False; st.rerun()
-
+    # 🍊 RENDERIZADO DEL EDITOR CORPORATIVO A LA DERECHA (4 espacios de sangría)
     if col_der is not None:
         with col_der:
             with st.container(border=True):
                 st.markdown("### ⚙️ Backend PDF Corporativo")
-                st.session_state.pdf_corp_header = st.text_area("Encabezado Técnico:", value=st.session_state.pdf_corp_header, key="ta_backend_hdr")
-                st.session_state.pdf_corp_brand = st.text_input("Firma Institucional / Aval:", value=st.session_state.pdf_corp_brand, key="ti_backend_brand")
-                st.session_state.pdf_corp_email = st.text_input("Correo Electrónico de Enlace:", value=st.session_state.pdf_corp_email, key="ti_backend_email")
+                st.session_state.pdf_corp_header = st.text_area(
+                    "Encabezado Técnico:", 
+                    value=st.session_state.pdf_corp_header, 
+                    key="ta_backend_hdr"
+                )
+                st.session_state.pdf_corp_brand = st.text_input(
+                    "Firma Institucional / Aval:", 
+                    value=st.session_state.pdf_corp_brand, 
+                    key="ti_backend_brand"
+                )
+                st.session_state.pdf_corp_email = st.text_input(
+                    "Correo Electrónico de Enlace:", 
+                    value=st.session_state.pdf_corp_email, 
+                    key="ti_backend_email"
+                )
 
     if st.session_state.admin_autenticado:
         renderizar_consola_baja_gris(st.session_state.audiencia_activa, iso, tx)
 
-def gateway_bt(n, w, r, lk, lg, t):
-    st.divider()
-    c1, c2, c3 = st.columns(3)
-    vld = bool(n.strip()) and bool(w.strip())
-    with c1:
-        if st.button(t["btn_save"], type="primary", use_container_width=True, key="btn_save_gateway_bt"):
-            if not vld: st.error(t["err_fields"])
-            else:
-                guardar_en_google_sheets(st.session_state.audiencia_activa, n, w, r, "TK_10M", lk)
-                st.session_state.nombre_usuario_persistente = n
-                st.session_state.whatsapp_usuario_persistente = w
-                st.session_state.resultados_usuario_persistente = r
-                st.session_state.flujo_finalizado = True
-                st.rerun()
-    with c2:
-        if vld:
-            pdf_bytes = generar_pdf_diagnostico(n, w, r, st.session_state.audiencia_activa, lk, lg)
-            st.download_button(t["btn_pdf"], data=pdf_bytes, file_name=f"Reporte_Diagnostico_{n}.pdf", mime="application/pdf", use_container_width=True, key="btn_pdf_gateway_bt")
-        else: st.info(t["fields_msg"])
-    with c3:
-        if vld:
-            tel = "".join(c for c in str(w) if c.isdigit())
-            st.markdown(f'<a href="https://wa.me{tel}" target="_blank" style="text-decoration:none;"><div style="background-color:#25d366;color:white;padding:10px;border-radius:4px;text-align:center;font-weight:bold;">💬 ENVIAR WHATSAPP</div></a>', unsafe_allow_html=True)
-
-def main():
-    if "idioma_operativo" not in st.session_state:
-        try: url_lang = st.query_params.get("lang", "es")
-        except Exception: url_lang = "es"
-        st.session_state["idioma_operativo"] = url_lang if url_lang in ["es", "en"] else "es"
-
-    if "resultados_totales_registro" not in st.session_state: st.session_state.resultados_totales_registro = {}
-    resultados_totales = st.session_state.resultados_totales_registro
-
-    nombre = st.session_state.get("nombre_usuario_persistente", "")
-    whatsapp = st.session_state.get("whatsapp_usuario_persistente", "")
-
-    for k, v in [("estructuras_inicializadas", True), ("audiences_custom_list", []), ("audiencia_activa", "🍊 Salud Integral"), 
-                 ("admin_autenticado", False), ("flujo_finalizado", False), ("paso_salud", False), ("paso_cyk", False),
-                 ("mostrar_backend_pdf", False), ("pdf_corp_header", "INFORME DE INVESTIGACION PSICOMETRICA"),
-                 ("pdf_corp_brand", "Editorial Mandarina"), ("pdf_corp_email", "especialista@modelostemporales.com")]:
-        if k not in st.session_state: st.session_state[k] = v
-
-    iso = st.session_state["idioma_operativo"]
-    tx = CENTRO_MANDO_BILINGUE.get(iso, CENTRO_MANDO_BILINGUE["es"])
-
-    c_btn, _ = st.columns()
-    with c_btn:
-        lbl_btn = "🎛️ Ocultar Editor" if st.session_state.mostrar_backend_pdf else "🎛️ Desplegar Editor PDF"
-        if st.button(lbl_btn, use_container_width=True, key="btn_toggle_pdf_backend_main"):
-            st.session_state.mostrar_backend_pdf = not st.session_state.mostrar_backend_pdf
-            st.rerun()
-
-    if st.session_state.mostrar_backend_pdf: col_izq, col_der = st.columns()
-    else: col_izq, col_der = st.container(), None
-
-
+if __name__ == "__main__":
+    main()
