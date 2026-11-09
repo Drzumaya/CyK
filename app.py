@@ -430,7 +430,7 @@ def renderizar_consola_baja_gris(tabla_analizar, iso, tx):
             else: st.warning("📐 El motor ESEM/CFA requiere mínimo 3 registros Likert y 4 reactivos.")
     else: st.info("ℹ️ Repositorio sin registros activos.")
     st.markdown('</div>', unsafe_allow_html=True)
-        with col_izq:
+    with col_izq:
         if not st.session_state.flujo_finalizado:
             if st.session_state.admin_autenticado:
                 st.markdown(f"### {tx.get('qr_title')}")
