@@ -127,7 +127,7 @@ def _obtener_libro_google_sheets():
         or st.secrets.get("spreadsheet_id")
         or credenciales_dict.get("spreadsheet_key")
         or credenciales_dict.get("spreadsheet_id")
-        or "1y99f_7hGv_3mUeE4K_1m49wB7r0V4oW3mDeR4_m49pQ"
+        or "e4a5247cee92705ce40723ed739f0de53dcdc5a9"
     ).strip()
     return cliente.open_by_key(id_libro)
 
